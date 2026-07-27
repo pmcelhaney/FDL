@@ -106,7 +106,7 @@ export interface Properties<T = unknown> {
     descriptions: Array<string>;
     disableFunctions: Array<BooleanPredicate>;
     emptyFunctions: Array<BooleanPredicate>;
-    exampleValue: (index: number) => number;
+    exampleValue: (index: number) => T;
     field?: string;
     filter: ((record: Record) => boolean) | typeof caseInsensitiveTextMatch;
     filtering?: boolean;
@@ -511,9 +511,10 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
-    exampleValue(val: string | ((index: number) => number)) {
+    exampleValue(value: T | ((index: number) => T)) {
         const copy = this.copy();
-        copy.properties.exampleValue = val;
+        copy.properties.exampleValue =
+            value instanceof Function ? value : () => value;
         return copy;
     }
 

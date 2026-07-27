@@ -1,7 +1,8 @@
 /* eslint-disable @treasury/filename-match-export */
 // TODO rename this file to record.js (lowercase)
 
-import { clone, deepEquals } from '@treasury/utils';
+import clone from './helpers/clone.js';
+import deepEquals from './utilities/deep-equality';
 import FieldType from './field-type.js';
 import Field from './field.js';
 

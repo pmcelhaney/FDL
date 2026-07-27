@@ -1,5 +1,5 @@
-import { nextFrame } from '@open-wc/testing'; // eslint-disable-line import/no-extraneous-dependencies
-import { deferTest as defer } from '@treasury/utils/testing';
+// Import the helper directly so Jest does not initialize Open WC's browser-runner Chai plugins.
+import { nextFrame } from '@open-wc/testing-helpers/src/helpers.js'; // eslint-disable-line import/no-extraneous-dependencies
 import FieldType from '../field-type.js';
 import Recordset from '../recordset.js';
 

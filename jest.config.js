@@ -1,6 +1,8 @@
 module.exports = {
     setupFilesAfterEnv: ['./tests/jest-helpers/jest.init.js'],
-    transformIgnorePatterns: [],
+    transformIgnorePatterns: ['/node_modules/(?!@open-wc/testing-helpers/)'],
+    watchman: false,
+    testEnvironment: 'jsdom',
     verbose: false,
     collectCoverage: true,
     coverageDirectory: 'coverage',
@@ -14,9 +16,16 @@ module.exports = {
         },
     },
     reporters: ['default'],
-    testURL: 'http://localhost',
     roots: ['./tests'],
 
-    collectCoverageFrom: ['./**/*.js'],
-    transform: {},
+    collectCoverageFrom: [
+        './*.{js,ts}',
+        './filters/*.js',
+        './helpers/*.js',
+        './utilities/*.{js,ts}',
+    ],
+    transform: {
+        '^.+\\.tsx?$': 'ts-jest',
+        '^.+\\.(js|mjs)$': 'babel-jest',
+    },
 };

@@ -1,16 +1,22 @@
 import Recordset from './recordset.js';
 import FieldType from './field-type';
 
-export default class ExampleRecordset extends Recordset {
-    constructor(fields:Record<string, FieldType>, rowCount:number) {
-        const data:Record<string, number>[] = [];
-        for (let i = 0; i < rowCount; i++) {
-            const row:Record<string, number> = {};
-            Object.keys(fields).forEach(fieldName => {
-                row[fieldName] = fields[fieldName].exampleValue()(i) as number;
-            });
-            data.push(row);
-        }
+type ExampleFields<T extends object> = {
+    [K in keyof T]: FieldType<T[K]>;
+};
+
+export default class ExampleRecordset<
+    T extends object
+> extends Recordset<T> {
+    constructor(fields: ExampleFields<T>, rowCount: number) {
+        const data = Array.from({ length: rowCount }, (_, index) =>
+            Object.fromEntries(
+                Object.keys(fields).map(fieldName => {
+                    const fieldType = fields[fieldName as keyof T];
+                    return [fieldName, fieldType.exampleValue()(index)];
+                })
+            ) as T
+        );
         super(fields, () => data);
     }
 }

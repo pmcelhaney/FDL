@@ -1,5 +1,5 @@
 
-import { createUniqueId } from '../functions';
+import { createUniqueId } from '../utilities/functions.js';
 
 interface Observer<T> {
     onNext: (value:T) => void;
@@ -20,6 +20,7 @@ export class Observable<T> {
     private readonly completionObservers = new Map<string, Observer<T>['onComplete']>();
 
     private lastValue?:T;
+    private hasLastValue = false;
     private completed = false;
 
     public observe(observer:Observer<T>):SubscriptionHandle{
@@ -43,8 +44,8 @@ export class Observable<T> {
         const id = createUniqueId();
         this.observers.set(id, callback);
         
-        if(emitLastValue && this.lastValue){
-            callback(this.lastValue);
+        if(emitLastValue && this.hasLastValue){
+            callback(this.lastValue as T);
         }
 
         return {
@@ -84,6 +85,7 @@ export class Observable<T> {
         this.guardCompletion();
 
         this.lastValue = value;
+        this.hasLastValue = true;
         this.observers.forEach(callback => callback(value));
     }
 
@@ -116,7 +118,7 @@ export class Observable<T> {
             };
 
             subs.push(
-                self.subscribe(subscribeCallback, true),
+                self.subscribe(subscribeCallback, emitLast),
                 self.listenForError(error => reject(error))
             );
         });
@@ -128,4 +130,3 @@ export class Observable<T> {
         }
     }
 }
-

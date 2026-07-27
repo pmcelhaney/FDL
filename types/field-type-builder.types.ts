@@ -1,4 +1,4 @@
-import { ComparePredicate } from '@treasury/utils/types';
+import { ComparePredicate } from './comparison.types';
 
 interface DataListViewModel {
     text: string;

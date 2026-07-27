@@ -2,15 +2,20 @@ import ExampleRecordset from '../example-recordset';
 import Recordset from '../recordset';
 import FieldType from '../field-type.js';
 
-let exampleRecordset:Recordset;
+interface ExampleData {
+    name: string;
+    info: string;
+}
+
+let exampleRecordset: Recordset<ExampleData>;
 const nameOnRow = (index:number) => exampleRecordset.allRecords[index].values.name as string;
 
 describe('An Example Recordset', () => {
     beforeEach(() => {
-        exampleRecordset = new ExampleRecordset(
+        exampleRecordset = new ExampleRecordset<ExampleData>(
             {
-                name: new FieldType().with.exampleValue(() => 'Bobby'),
-                info: new FieldType().with.exampleValue(() => 'administrator'),
+                name: new FieldType<string>().with.exampleValue(() => 'Bobby'),
+                info: new FieldType<string>().with.exampleValue(() => 'administrator'),
             },
             5
         );

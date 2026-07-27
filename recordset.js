@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-shadow */
-import { delay, exists, clone } from '@treasury/utils/functions';
-import { Observable } from '@treasury/utils/types';
+import { delay, exists } from './utilities/functions.js';
+import clone from './helpers/clone.js';
+import { Observable } from './types/observable.types';
 
 import FdlRecord from './record.js';
 import FieldType from './field-type.js';
