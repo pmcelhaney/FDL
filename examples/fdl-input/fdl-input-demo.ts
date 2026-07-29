@@ -362,6 +362,88 @@ export class FdlInputDemo extends LitElement {
         { fulfillment: 'ship', address: '', deliveryWindow: 'morning', instructions: '' }
     );
 
+    // These records are the live counterparts to the cookbook definitions below.
+    // They deliberately keep the examples small enough to try in a browser.
+    private assetIntake = new Record(
+        {
+            assetTag: new FieldType().with.label('Asset tag').and.autocomplete('off').and.autofocus()
+                .and.list('known-asset-tags').and.pattern(/[A-Z]{3}-\d{4}/).and.placeholder('LAP-0421')
+                .and.required().and.validator({ name: 'must look like LAP-0421', validate: value => /^[A-Z]{3}-\d{4}$/.test(String(value)) }),
+            replacementCost: new FieldType().with.label('Replacement cost').and.type('number').and.max(25000).and.step(0.01)
+                .and.required().and.validator({ name: 'must be between $0.01 and $25,000', validate: value => Number(value) > 0 && Number(value) <= 25000 }),
+            receipt: new FieldType().with.label('Receipt image').and.tag('input').and.type('file').and.accept('image/png,image/jpeg'),
+        },
+        { assetTag: '', replacementCost: '', receipt: '' }
+    );
+
+    private reimbursement = new Record(
+        {
+            expenseType: new FieldType().with.tag('select').and.label('Expense type').and.options([
+                { text: 'Travel', value: 'travel' }, { text: 'Meals', value: 'meals' }, { text: 'Equipment', value: 'equipment' },
+            ]),
+            amount: new FieldType<any>().with.label((record: any) => `Amount for ${record.getField('expenseType')}`).and.placeholder('0.00')
+                .and.type('number').and.step(0.01).and.required().and.validator({ name: 'must be greater than zero', validate: value => Number(value) > 0 }),
+            receiptReference: new FieldType().with.label('Receipt reference').and.hideLabel().and.placeholder('Optional receipt number'),
+        },
+        { expenseType: 'travel', amount: '', receiptReference: '' }
+    );
+
+    private invoiceAmount = new Record(
+        {
+            expenseType: new FieldType().with.tag('select').and.label('Expense type').and.options([
+                { text: 'Operating expense', value: 'operating' }, { text: 'Capital expense', value: 'capital' },
+            ]),
+            amount: new FieldType().with.formatter(value => currency.format(Number(value)))
+                .and.label('Invoice amount').and.placeholder('1250.00').and.inputMask(/[0-9$.,]/)
+                .and.formatOnChange().and.required().and.requiredWhen(record => record.getField('expenseType') === 'capital')
+                .and.minLength(1).and.maxLength(12).and.emptyWhen(value => value === 'Not applicable')
+                .and.validator({ name: 'must be positive', validate: value => Number(String(value).replace(/[$,]/g, '')) > 0 })
+                .and.asyncValidator({ name: 'within approval limit', validate: value => Number(value) <= 10000 }),
+        },
+        { expenseType: 'operating', amount: '' }
+    );
+
+    private projectTeam = new Record(
+        {
+            directorySearch: new FieldType().with.label('Find an employee').and.placeholder('Search by name'),
+            members: new FieldType<any>().with.tag('select').and.label('Project team').and.options({
+                fetch: (record: any) => {
+                    const query = String(record?.getField('directorySearch') ?? '').toLowerCase();
+                    return Promise.resolve([
+                        { text: 'Ada Lovelace — Engineering', value: 'ada' }, { text: 'Grace Hopper — Platform', value: 'grace' },
+                        { text: 'Linus Torvalds — Systems', value: 'linus' }, { text: 'Margaret Hamilton — Quality', value: 'margaret' },
+                    ].filter(employee => employee.text.toLowerCase().includes(query)));
+                }, fields: ['directorySearch'],
+            }).and.multipleValues(2, 8).and.filtering().and.hasSearch()
+                .and.selectionDisabledFunctions({ contractor: () => false }).and.hashFunction((employee: any) => employee.id),
+        },
+        { directorySearch: '', members: 'ada' }
+    );
+
+    private reportFilters = new Record(
+        {
+            reportingPeriod: new FieldType<any>().with.label('Reporting period').and.placeholder('2026-07-01 to 2026-07-31')
+                .and.range().and.parseDynamicRange().and.onValueChange((record: any) => record.setField('page', 1)),
+            ownerId: new FieldType().with.tag('select').and.label('Owner').and.field('owner_id').and.options([
+                { text: 'All owners', value: '' }, { text: 'Ada Lovelace', value: 'ada' }, { text: 'Grace Hopper', value: 'grace' },
+            ]),
+            region: new FieldType().with.tag('select').and.label('Region').and.additionalProperties({ analyticsFilter: 'region' }).and.options([
+                { text: 'North America', value: 'na' }, { text: 'Europe', value: 'eu' }, { text: 'Asia Pacific', value: 'apac' },
+            ]),
+            page: new FieldType(),
+        },
+        { reportingPeriod: '2026-07-01 to 2026-07-31', ownerId: '', region: 'na', page: 3 }
+    );
+
+    private migrationFields = new Record(
+        {
+            sampleContact: new FieldType<string>().with.label('Sample contact').and.exampleValue(index => `Sample contact ${index + 1}`),
+            legacyAddress: new FieldType().with.label('Legacy address').and.schema('address').and.placeholder('12 Market Street'),
+            legacyControl: new FieldType().with.label('Legacy control').and.formElement('legacy-address', { country: 'US' }).and.placeholder('US address'),
+        },
+        { sampleContact: 'Sample contact 1', legacyAddress: '', legacyControl: '' }
+    );
+
     private invoiceTypes = {
         amount: new FieldType().with
             .formatter(value => currency.format(Number(value)))
@@ -383,6 +465,8 @@ export class FdlInputDemo extends LitElement {
 
     private errors: { [field: string]: string[] } = {};
 
+    private recipeMessages: { [recipe: string]: string } = {};
+
     private validationErrors(record: Record) {
         return Object.fromEntries(
             Object.keys(record.fieldTypes).map(field => [field, record.readableFieldErrors(field)])
@@ -398,6 +482,15 @@ export class FdlInputDemo extends LitElement {
         event.preventDefault();
         this.hasSubmitted = true;
         this.errors = this.validationErrors(this.onboarding);
+        this.requestUpdate();
+    };
+
+    private submitRecipe = (event: SubmitEvent, recipe: string, record: Record) => {
+        event.preventDefault();
+        this.recipeMessages = {
+            ...this.recipeMessages,
+            [recipe]: record.isValid() ? 'Saved — this example is valid.' : `Please fix: ${record.readableRecordErrors().join('; ')}`,
+        };
         this.requestUpdate();
     };
 
@@ -430,6 +523,68 @@ export class FdlInputDemo extends LitElement {
         </div>`;
     }
 
+    private renderRecipeMessage(recipe: string) {
+        const message = this.recipeMessages[recipe];
+        return message ? html`<p class="recipe-message" role="status">${message}</p>` : nothing;
+    }
+
+    private renderCookbookLive(index: number) {
+        switch (index) {
+            case 0:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'asset', this.assetIntake)}>
+                    <p class="live-label">Try the asset intake form</p>
+                    <datalist id="known-asset-tags"><option value="LAP-0421"></option><option value="MON-1812"></option></datalist>
+                    ${this.renderField(this.assetIntake, 'assetTag')}${this.renderField(this.assetIntake, 'replacementCost')}${this.renderField(this.assetIntake, 'receipt')}
+                    <button type="submit">Save asset</button>${this.renderRecipeMessage('asset')}
+                </form>`;
+            case 1:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'reimbursement', this.reimbursement)}>
+                    <p class="live-label">Try the reimbursement request</p>
+                    ${this.renderField(this.reimbursement, 'expenseType')}${this.renderField(this.reimbursement, 'amount')}
+                    <p class="field-note">Enter the amount before tax. Attach a receipt for expenses over $25.</p>
+                    ${this.renderField(this.reimbursement, 'receiptReference')}
+                    <button type="submit">Save request</button>${this.renderRecipeMessage('reimbursement')}
+                </form>`;
+            case 2:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'purchase', this.order)}>
+                    <p class="live-label">Try the approval-state controls</p>
+                    ${this.renderField(this.order, 'fulfillment')}${this.renderField(this.order, 'address')}${this.renderField(this.order, 'deliveryWindow')}${this.renderField(this.order, 'instructions')}
+                    <button type="submit">Save delivery choice</button>${this.renderRecipeMessage('purchase')}
+                </form>`;
+            case 3:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'invoice-amount', this.invoiceAmount)}>
+                    <p class="live-label">Try invoice validation</p>
+                    ${this.renderField(this.invoiceAmount, 'expenseType')}${this.renderField(this.invoiceAmount, 'amount')}
+                    <button type="submit">Validate invoice</button>${this.renderRecipeMessage('invoice-amount')}
+                </form>`;
+            case 4:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'team', this.projectTeam)}>
+                    <p class="live-label">Search and choose project staff</p>
+                    ${this.renderField(this.projectTeam, 'directorySearch')}${this.renderField(this.projectTeam, 'members')}
+                    <button type="submit">Save project team</button>${this.renderRecipeMessage('team')}
+                </form>`;
+            case 5:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'filters', this.reportFilters)}>
+                    <p class="live-label">Try reporting filters</p>
+                    ${this.renderField(this.reportFilters, 'reportingPeriod')}${this.renderField(this.reportFilters, 'ownerId')}${this.renderField(this.reportFilters, 'region')}
+                    <button type="submit">Apply filters</button><span class="page-status">Page ${this.reportFilters.getField('page')}</span>${this.renderRecipeMessage('filters')}
+                </form>`;
+            case 6:
+                return html`<div class="recipe-card"><p class="live-label">Table behavior in action</p>
+                    <p class="field-note">The live invoice table above applies these column, cell, row, formatter, and reducer modifiers.</p>
+                    <a class="table-link" href="#invoices">Jump to the invoice collection</a>
+                </div>`;
+            case 7:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'migration', this.migrationFields)}>
+                    <p class="live-label">Try the compatibility fields</p>
+                    ${this.renderField(this.migrationFields, 'sampleContact')}${this.renderField(this.migrationFields, 'legacyAddress')}${this.renderField(this.migrationFields, 'legacyControl')}
+                    <button type="submit">Save migration fields</button>${this.renderRecipeMessage('migration')}
+                </form>`;
+            default:
+                return nothing;
+        }
+    }
+
     private invoiceClass(invoice: Invoice) {
         return this.invoiceTypes.status.rowClasses(invoice.status, undefined as any).join(' ');
     }
@@ -438,11 +593,23 @@ export class FdlInputDemo extends LitElement {
         super.connectedCallback();
         this.onboarding.addEventListener('change', this.onRecordChange);
         this.order.addEventListener('change', this.onRecordChange);
+        this.assetIntake.addEventListener('change', this.onRecordChange);
+        this.reimbursement.addEventListener('change', this.onRecordChange);
+        this.invoiceAmount.addEventListener('change', this.onRecordChange);
+        this.projectTeam.addEventListener('change', this.onRecordChange);
+        this.reportFilters.addEventListener('change', this.onRecordChange);
+        this.migrationFields.addEventListener('change', this.onRecordChange);
     }
 
     disconnectedCallback() {
         this.onboarding.removeEventListener('change', this.onRecordChange);
         this.order.removeEventListener('change', this.onRecordChange);
+        this.assetIntake.removeEventListener('change', this.onRecordChange);
+        this.reimbursement.removeEventListener('change', this.onRecordChange);
+        this.invoiceAmount.removeEventListener('change', this.onRecordChange);
+        this.projectTeam.removeEventListener('change', this.onRecordChange);
+        this.reportFilters.removeEventListener('change', this.onRecordChange);
+        this.migrationFields.removeEventListener('change', this.onRecordChange);
         super.disconnectedCallback();
     }
 
@@ -544,8 +711,12 @@ export class FdlInputDemo extends LitElement {
                     <section id="cookbook" class="modifier-cookbook">
                         <p class="eyebrow">Practical cookbook</p>
                         <h3>Use every modifier in a realistic workflow.</h3>
-                        <p>Each example below uses the modifiers from its category in a form or table definition.</p>
-                        ${modifierExamples.map(example => this.renderCode(example.title, example.source))}
+                        <p>Every recipe is editable: try the live control first, then open its field definition.</p>
+                        ${modifierExamples.map((example, index) => html`<article class="cookbook-recipe">
+                            <h4>${example.title}</h4>
+                            ${this.renderCookbookLive(index)}
+                            ${this.renderCode('View the field types', example.source)}
+                        </article>`)}
                     </section>
                     <p class="legacy-note"><code>schema()</code> and <code>formElement()</code> are compatibility APIs; new controls should use <code>tag()</code> and <code>additionalProperties()</code>.</p>
                 </section>
@@ -567,7 +738,7 @@ export class FdlInputDemo extends LitElement {
         .callout { margin-top: 1rem; color: #636b7b; font-size: .83rem; line-height: 1.6; } code { color: #4539bf; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; } .callout code { color: #5d6474; }
         .code-panel { margin-top: 1.25rem; border: 1px solid #dfe3ee; border-radius: .75rem; background: #101629; color: #d8def0; } .code-panel summary { cursor: pointer; color: #d8def0; font-size: .85rem; font-weight: 700; padding: .8rem 1rem; } .code-panel pre { overflow-x: auto; margin: 0; border-top: 1px solid #29314a; padding: 1rem; } .code-panel code { color: #d8def0; font-size: .76rem; line-height: 1.65; white-space: pre; }
         .table-card { overflow-x: auto; padding: .5rem; } table { width: 100%; border-collapse: collapse; min-width: 38rem; } th, td { border-bottom: 1px solid #edf0f5; padding: 1rem; text-align: left; } th { color: #737b8b; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; } td { font-size: .94rem; } .amount { text-align: right; font-variant-numeric: tabular-nums; } .high-value { font-weight: 800; } .status { border-radius: 100px; background: #edf0f6; color: #485065; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; white-space: nowrap; } .status.danger { background: #ffebe9; color: #b42318; } .status.warning { background: #fff2d8; color: #a15c00; } .disputed-row { background: #fffdf7; } tfoot td { border: 0; color: #182136; font-weight: 800; }
-        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .modifier-cookbook { margin-top: 3rem; } .modifier-cookbook > h3 { color: #111a31; font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; letter-spacing: -.025em; } .modifier-cookbook > p:not(.eyebrow) { color: #586174; line-height: 1.6; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
+        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .modifier-cookbook { margin-top: 3rem; } .modifier-cookbook > h3 { color: #111a31; font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; letter-spacing: -.025em; } .modifier-cookbook > p:not(.eyebrow) { color: #586174; line-height: 1.6; } .cookbook-recipe { margin-top: 2.25rem; } .cookbook-recipe h4 { color: #111a31; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 500; margin-bottom: .75rem; } .recipe-card { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .live-label { color: #5b52d6; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; } .field-note { color: #667085; font-size: .83rem; line-height: 1.5; margin: .4rem 0 .8rem 9rem; } .recipe-message { color: #067647; font-size: .85rem; font-weight: 700; margin: .8rem 0 0; } .page-status { color: #586174; font-size: .85rem; margin-left: .7rem; } .table-link { color: #4438c7; font-weight: 700; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
         @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint { margin-left: 0; } }
     `;
 }

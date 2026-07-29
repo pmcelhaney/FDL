@@ -99,7 +99,11 @@ class FormElement extends ListeningElement {
         this.element.accept = this.fieldType?.accept();
         this.element.autocomplete = this.fieldType?.autocomplete();
         this.element.autofocus = this.fieldType?.autofocus();
-        // this.element.list = this.fieldType?.list();
+        // `list` is an attribute on native inputs; assigning it as a property
+        // expects an HTMLDataListElement and silently drops a string id.
+        const list = this.fieldType?.list();
+        if (list) this.element.setAttribute('list', list);
+        else this.element.removeAttribute('list');
         this.element.max = this.fieldType?.max();
         this.element.pattern = this.fieldType?.pattern();
         this.element.step = this.fieldType?.step();
@@ -165,7 +169,7 @@ class FormElement extends ListeningElement {
         if (this.fieldType?.hideLabel()) return nothing;
         if (!this.fieldType?.visible(this.record)) return nothing;
         return html`<label for=${this.field}
-            >${this.fieldType?.label()}${this.renderRequired()}<slot name="label"></slot
+            >${this.fieldType?.label(this.record)}${this.renderRequired()}<slot name="label"></slot
         ></label>`;
     }
 
