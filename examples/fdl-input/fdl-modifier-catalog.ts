@@ -7,7 +7,7 @@ import './fdl-select';
 import './fdl-table';
 
 type DemoName =
-    | 'additionalProperties' | 'cellClass' | 'compareFunction' | 'conditionalCellClass'
+    | 'cellClass' | 'compareFunction' | 'conditionalCellClass'
     | 'defaultValue' | 'description' | 'disabled' | 'disabledWhen' | 'emptyWhen'
     | 'exampleValue' | 'filter' | 'formatter' | 'hashFunction'
     | 'inputMask' | 'label' | 'maxColumnWidth' | 'maxLength'
@@ -27,9 +27,6 @@ type CatalogEntry = {
 
 const customControlGap =
     'The modifier configures a richer custom control API. This example only provides native input, select, and textarea controls, which do not implement that contract.';
-const legacyGap =
-    'This is a deprecated compatibility API and the legacy component/schema registry it expects is not present in this example.';
-
 const live = (name: string, intent: string, demo: DemoName, snippet?: string): CatalogEntry => ({
     name, intent, demo, snippet,
 });
@@ -38,11 +35,8 @@ const placeholder = (name: string, intent: string, limitation: string): CatalogE
 });
 
 const entries: CatalogEntry[] = [
-    placeholder('accept', 'Restricts the file types offered by a file input.', 'The native attribute is wired, but choosing a file exposes a current adapter bug: FormElement writes the browser’s file-path string back to input[type=file], which browsers reject. A live picker would therefore be misleading.'),
-    placeholder('additionalProperties', 'Assigns extra properties directly to the rendered control.', 'This renderer escape hatch is deprecated because it couples a field definition to arbitrary component properties.'),
     placeholder('asyncValidator', 'Registers a validation rule intended to run asynchronously.', 'The builder stores async validators, but current FieldType.validate() and Record validation do not execute that collection. There is no completion or error path to demonstrate yet.'),
     placeholder('autocomplete', 'Sets the browser autocomplete token for a control.', 'The attribute is wired, but a functional demonstration depends on browser profile data and autofill policy. The example cannot produce a deterministic, privacy-safe result.'),
-    placeholder('autofocus', 'Requests focus when the control is first connected.', 'Autofocusing one card in a long reference page would unexpectedly steal focus and scroll position. A reliable example needs an isolated route or dialog lifecycle.'),
     live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('numeric-cell')`),
     live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `const people = new Recordset({
   firstName: new FieldType().with
@@ -65,56 +59,42 @@ const entries: CatalogEntry[] = [
     live('disabledWhen', 'Disables a control only while a record predicate is true.', 'disabledWhen', `.disabledWhen(record => record.getField('status') === 'approved')`),
     live('emptyWhen', 'Defines additional values that should count as empty during validation.', 'emptyWhen', `.emptyWhen(value => value === 'N/A')`),
     live('exampleValue', 'Supplies fixed or index-derived values for generated example records.', 'exampleValue', `.exampleValue(index => \`Sample contact \${index + 1}\`)`),
-    placeholder('field', 'Associates an alternate source-field name with the field type.', 'Field definitions should be bound by the Record and renderer rather than storing a second field-name alias.'),
     live('filter', 'Defines how a search term matches a candidate value.', 'filter', `.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase()))`),
     placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
-    placeholder('formatOnChange', 'Requests that a control apply its formatter while the value changes.', 'FormElement forwards this as an expando property, but native controls do not read it and the adapter writes raw values directly to the record.'),
     live('formatter', 'Transforms a stored value for display without changing the model value.', 'formatter', `.formatter(value => currency.format(Number(value)))`),
-    placeholder('formElement', 'Selects a legacy custom form element and passes it properties.', legacyGap),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
     placeholder('hasSearch', 'Enables search affordances without supplying a full search configuration.', customControlGap),
-    placeholder('hideLabel', 'Keeps a configured label for metadata while hiding its visual rendering.', 'Label visibility is renderer policy and is deprecated on the field definition.'),
-    placeholder('iconMessage', 'Supplies informational tooltip text for a field.', 'FieldType exposes the message, but FormElement never renders an icon or tooltip. A live example needs a design-system control that consumes it.'),
     placeholder('inline', 'Marks a compatible control as using an inline layout.', customControlGap),
     placeholder('inlineWhen', 'Enables inline layout only while a record predicate is true.', customControlGap),
     live('inputMask', 'Defines which individual typed characters a field accepts.', 'inputMask', `.inputMask(/[0-9.]/)`),
     live('label', 'Provides a static label or derives one from the current record.', 'label', `.label(record => \`Amount for \${record.getField('expenseType')}\`)`),
-    placeholder('list', 'Connects a native input to a datalist of suggested values.', 'FormElement applies the list attribute, but it creates the native input inside its own shadow root while the catalog datalist lives outside that root. Native datalist lookup cannot cross that boundary, and the wrapper has no API for supplying one internally.'),
-    placeholder('max', 'Sets the native maximum constraint for a numeric or date input.', 'FormElement forwards the attribute, but this catalog has no native form-validation bridge to surface rangeOverflow or checkValidity(). Values above the maximum remain editable, so a live card claiming they are rejected would be misleading.'),
     live('maxColumnWidth', 'Sets the maximum width requested for a table column.', 'maxColumnWidth', `.maxColumnWidth(180)`),
     live('maxLength', 'Caps input length and adds equivalent record validation.', 'maxLength', `.maxLength(12)`),
     live('minColumnWidth', 'Sets the minimum width requested for a table column.', 'minColumnWidth', `.minColumnWidth(110)`),
     live('minLength', 'Sets a minimum input length and adds equivalent record validation.', 'minLength', `.minLength(4)`),
     placeholder('multipleValues', 'Models a field as an array with minimum and maximum selection counts.', 'FormElement sets the native multiple property but reads only event.target.value, so it stores one string instead of the selected array and does not enforce the count bounds.'),
-    placeholder('onValueChange', 'Runs a record-level reaction after this field commits a changed value.', 'Imperative event reactions are deprecated here; derived values should be expressed through record/model behavior.'),
     live('options', 'Supplies static or fetched choices and can refresh them from dependency fields.', 'options', `.options({ fields: ['department'], fetch: record => directory[record.getField('department')] })`),
     placeholder('parseDynamicRange', 'Requests parsing for expressions such as relative or dynamic date ranges.', 'The flag is forwarded for a custom date-range control, but this example has no date-range parser or control to consume it.'),
     placeholder('parser', 'Transforms an incoming display value into the stored model representation.', 'FieldType.parse() and Record.parseAndSetField() can invoke the parser, but FormElement commits native input with record.setField() and bypasses it. A standalone computed call would not demonstrate the actual form path.'),
-    placeholder('pattern', 'Sets a native input validation pattern.', 'The builder accepts RegExp, while HTMLInputElement.pattern expects the expression source as a string. The current adapter coerces the RegExp with slash delimiters, so a live validation claim would be inaccurate.'),
     live('placeholder', 'Shows temporary hint text while an input is empty.', 'placeholder', `.placeholder('For example, Apollo migration')`),
     placeholder('range', 'Marks a field as representing a start/end range rather than one value.', 'FieldType stores the flag, but FormElement neither chooses nor implements a range control. The intended value and event contract are not clear in this native example.'),
     live('readOnly', 'Always renders the field as a printed, non-editable value.', 'readOnly', `.readOnly()`),
-    placeholder('readOnlyExceptionWhen', 'Exempts part of a compatible composite control from another read-only rule.', 'The exception flag is forwarded, but native controls have no composite subparts or exception contract. Its behavior only makes sense in the absent custom control.'),
     live('readOnlyWhen', 'Switches a field to printed, non-editable output while a predicate is true.', 'readOnlyWhen', `.readOnlyWhen(record => record.getField('phase') === 'submitted')`),
     live('reducer', 'Aggregates a column’s values, with sum available as a built-in reducer.', 'reducer', `.reducer('sum')`),
     live('required', 'Always requires a non-empty value and adds record validation.', 'required', `.required()`),
     live('requiredWhen', 'Requires a value only while a record predicate is true.', 'requiredWhen', `.requiredWhen(record => record.getField('followUp') === 'yes')`),
     live('rowClasses', 'Computes CSS classes for the table row containing a value.', 'rowClasses', `.rowClasses(value => value === 'Disputed' ? ['disputed-row'] : [])`),
     live('rowCount', 'Sets the visible row count of textarea-like controls.', 'rowCount', `.rowCount(4)`),
-    placeholder('schema', 'Associates a deprecated legacy schema identifier with the field.', 'The value is retained as deprecated metadata, but the native FormElement adapter does not select a control from it. The remaining range/datepicker special cases do not define a clear standalone form contract.'),
     placeholder('search', 'Enables a rich option-search dialog and describes its result columns.', customControlGap),
     placeholder('segmented', 'Requests segmented-choice presentation from a compatible control.', customControlGap),
     placeholder('selectionDisabledFunctions', 'Supplies predicates that disable individual choices, such as dates.', 'FormElement only forwards the date predicate as an expando property. Native select and date inputs do not use it to disable individual choices.'),
     placeholder('selectOnFocus', 'Requests selecting all text when a compatible control receives focus.', 'The flag is forwarded as an expando property, but FormElement does not attach a focus handler and native inputs do not interpret that property.'),
     live('sortable', 'Enables or disables sorting for a table column.', 'sortable', `.sortable(false)`),
-    placeholder('step', 'Sets the increment used by numeric or date inputs.', 'Native control configuration is renderer-specific and this modifier is deprecated.'),
-    placeholder('tag', 'Chooses the native or custom tag created for the form control.', 'Control selection is renderer policy and is deprecated on the field definition.'),
     live('targetColumnWidth', 'Sets the preferred width requested for a table column.', 'targetColumnWidth', `.targetColumnWidth(140)`),
     live('template', 'Transforms a formatted value into its final printed or table representation.', 'template', `.template(value => \`Invoice #\${value}\`)`),
     live('textAlign', 'Stores the preferred left, center, or right alignment for rendered values.', 'textAlign', `.textAlign('right')`),
     placeholder('toggle', 'Requests toggle-switch presentation from a compatible Boolean control.', customControlGap),
     live('type', 'Sets the native input type, such as email, number, or date.', 'type', `.type('date')`),
-    placeholder('usesCustomPrint', 'Keeps a custom control mounted when a field becomes read-only so the control can own printed rendering.', 'The native controls do not implement custom print rendering. Enabling it here would merely leave a read-only input mounted and would not show the intended contract.'),
     live('validator', 'Adds a named synchronous business rule to record validation.', 'validator', `.validator({ name: 'must look like PRJ-1234', validate: value => /^PRJ-\\d{4}$/.test(value) })`),
     live('visibleWhen', 'Includes the field only while every visibility predicate is true.', 'visibleWhen', `.visibleWhen(record => record.getField('fulfillment') === 'ship')`),
 ].sort((left, right) => left.name.localeCompare(right.name));
@@ -363,8 +343,8 @@ export class FdlModifierCatalog extends LitElement {
         return html`<section aria-labelledby="modifier-catalog-heading">
             <p class="eyebrow">Modifier cookbook</p>
             <h2 id="modifier-catalog-heading">Every modifier, alphabetically.</h2>
-            <p class="lede">Each entry isolates one modifier. Live examples exercise behavior this repository can demonstrate honestly; placeholders document the intended contract and the missing path for everything else.</p>
-            <p class="summary"><strong>${entries.filter(entry => entry.demo).length} live or computed examples</strong> · ${entries.filter(entry => !entry.demo).length} documented placeholders · ${entries.length} modifiers total</p>
+            <p class="lede">Each entry isolates one supported modifier. Live examples exercise behavior this repository can demonstrate honestly; placeholders document the intended contract and the missing path for everything else.</p>
+            <p class="summary"><strong>${entries.filter(entry => entry.demo).length} live or computed examples</strong> · ${entries.filter(entry => !entry.demo).length} documented placeholders · ${entries.length} supported modifiers total</p>
             <div class="catalog">${entries.map(entry => this.renderEntry(entry))}</div>
         </section>`;
     }

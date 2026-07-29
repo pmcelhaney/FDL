@@ -98,8 +98,14 @@ describe('<fdl-input-demo>', () => {
         await catalog.updateComplete;
 
         const builder = new FieldType().with as unknown as { [name: string]: unknown };
+        const omittedModifiers = new Set([
+            'accept', 'additionalProperties', 'autofocus', 'field', 'formElement',
+            'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
+            'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
+        ]);
         const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(name => name !== 'constructor' && name !== 'copy')
+            .filter(name => !omittedModifiers.has(name))
             .filter(name => typeof builder[name] === 'function')
             .sort((left, right) => left.localeCompare(right));
         const cards = [...(catalog.shadowRoot?.querySelectorAll<HTMLElement>('[data-modifier]') ?? [])];
@@ -134,29 +140,6 @@ describe('<fdl-input-demo>', () => {
         expect(asyncValidator?.textContent).toMatch(/async|asynchronous/i);
         expect(asyncValidator?.textContent).toMatch(/validat/i);
         expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
-
-        [
-            'accept',
-            'additionalProperties',
-            'autofocus',
-            'field',
-            'formatOnChange',
-            'hideLabel',
-            'iconMessage',
-            'list',
-            'max',
-            'onValueChange',
-            'pattern',
-            'readOnlyExceptionWhen',
-            'step',
-            'tag',
-            'usesCustomPrint',
-        ].forEach(modifier => {
-            const card = catalog.shadowRoot?.querySelector<HTMLElement>(
-                `[data-modifier="${modifier}"]`
-            );
-            expect(card?.dataset.status).toBe('placeholder');
-        });
 
         [
             'cellClass',
