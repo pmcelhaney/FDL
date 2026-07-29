@@ -170,16 +170,24 @@ export class FdlModifierCatalog extends LitElement {
         }
     );
 
-    private formatType = new FieldType().with.formatter(value => currency.format(Number(value)));
-    private templateType = new FieldType().with.template(value => `Invoice #${value}`);
     private descriptionType = new FieldType().with.description('Internal finance reference');
     private exampleType = new FieldType<string>().with.exampleValue(index => `Sample contact ${index + 1}`);
     private fieldType = new FieldType().with.field('owner_id');
     private filterType = new FieldType().with.filter(((text: string, value: string) => value.toLowerCase().startsWith(text.toLowerCase())) as any);
     private hashType = new FieldType().with.hashFunction((employee: { id: string }) => employee.id);
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
-    private cellClassType = new FieldType().with.cellClass('numeric-cell');
-    private conditionalClassType = new FieldType().with.conditionalCellClass((value: number) => value > 10000, 'high-value');
+    private cellClassRecordset = new Recordset(
+        { amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell') },
+        [{ amount: 42 }]
+    );
+    private conditionalClassRecordset = new Recordset(
+        {
+            amount: new FieldType().with
+                .label('Amount')
+                .and.conditionalCellClass((value: number) => value > 10000, 'high-value'),
+        },
+        [{ amount: 12000 }, { amount: 2000 }]
+    );
     private compareRecordset = new Recordset(
         {
             firstName: new FieldType().with
@@ -198,14 +206,40 @@ export class FdlModifierCatalog extends LitElement {
         ]
     );
     private reducerType = new FieldType().with.reducer('sum');
-    private rowClassType = new FieldType().with.rowClasses((value: string) => value === 'Disputed' ? ['disputed-row'] : []);
+    private formatterRecordset = new Recordset(
+        {
+            amount: new FieldType().with
+                .label('Amount')
+                .and.formatter(value => currency.format(Number(value))),
+        },
+        [{ amount: 1250 }]
+    );
+    private rowClassRecordset = new Recordset(
+        {
+            status: new FieldType().with
+                .label('Status')
+                .and.rowClasses((value: string) => value === 'Disputed' ? ['disputed-row'] : []),
+        },
+        [{ status: 'Disputed' }, { status: 'Paid' }]
+    );
+    private templateRecordset = new Recordset(
+        {
+            invoice: new FieldType().with
+                .label('Invoice')
+                .and.template(value => `Invoice #${value}`),
+        },
+        [{ invoice: '1048' }]
+    );
+    private alignRecordset = new Recordset(
+        { amount: new FieldType().with.label('Amount').and.textAlign('right') },
+        [{ amount: 1250 }]
+    );
     private widthTypes = {
         maxColumnWidth: new FieldType().with.maxColumnWidth(180),
         minColumnWidth: new FieldType().with.minColumnWidth(110),
         targetColumnWidth: new FieldType().with.targetColumnWidth(140),
     };
     private sortableType = new FieldType().with.sortable(false);
-    private alignType = new FieldType().with.textAlign('right');
 
     connectedCallback() {
         super.connectedCallback();
@@ -257,7 +291,7 @@ export class FdlModifierCatalog extends LitElement {
     private renderDemo(name: DemoName): TemplateResult {
         switch (name) {
             case 'additionalProperties': return html`<p class="try">Hover the input to see the extra native <code>title</code> property.</p>${this.renderField('extraProperty')}`;
-            case 'cellClass': return html`<table><caption>Applied cell class</caption><tbody><tr><td class=${this.cellClassType.cellClasses(42).join(' ')}>42 has class “numeric-cell”</td></tr></tbody></table>`;
+            case 'cellClass': return html`<p class="try">The Amount cell receives the <code>numeric-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
             case 'compareFunction': {
                 return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
                     <fdl-table .recordset=${this.compareRecordset}>
@@ -266,7 +300,7 @@ export class FdlModifierCatalog extends LitElement {
                         <fdl-column field="team"></fdl-column>
                     </fdl-table>`;
             }
-            case 'conditionalCellClass': return html`<table><caption>Conditional class</caption><tbody><tr><td class=${this.conditionalClassType.cellClasses(12000).join(' ')}>$12,000 receives “high-value”</td></tr><tr><td class=${this.conditionalClassType.cellClasses(2000).join(' ')}>$2,000 does not</td></tr></tbody></table>`;
+            case 'conditionalCellClass': return html`<p class="try">Only 12000 receives the <code>high-value</code> class.</p><fdl-table .recordset=${this.conditionalClassRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
             case 'defaultValue': return html`${this.renderField('defaultId', this.defaultRecord)}<button type="button" @click=${this.clearDefaultRecord}>Clear the record</button><p class="computed">Current record value: ${this.defaultRecord.getField('defaultId')}</p>`;
             case 'description': return html`<p class="computed">FieldType.info(): ${this.descriptionType.info()}</p>`;
             case 'disabled': return html`${this.renderField('lockedId')}`;
@@ -275,7 +309,7 @@ export class FdlModifierCatalog extends LitElement {
             case 'exampleValue': return html`<p class="computed">Generated values: ${[0, 1, 2].map(index => this.exampleType.exampleValue()(index)).join(', ')}</p>`;
             case 'field': return html`<p class="computed">Mapped source field: <code>${this.fieldType.field()}</code></p>`;
             case 'filter': return html`<p class="computed">Search “gr” matches Grace: ${String(this.filterType.match('gr', 'Grace'))}; matches Ada: ${String(this.filterType.match('gr', 'Ada'))}</p>`;
-            case 'formatter': return html`<p class="computed">Stored value: 1250 · Printed value: ${this.formatType.print(1250, undefined as any)}</p>`;
+            case 'formatter': return html`<p class="try">The record stores <code>1250</code>; the table prints the formatted value.</p><fdl-table .recordset=${this.formatterRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
             case 'hashFunction': return html`<p class="computed">Two separate employee objects hash to “${this.hashType.hashFunction()({ id: 'ada' })}” and “${this.hashType.hashFunction()({ id: 'ada' })}”, so a consumer can match their identity.</p>`;
             case 'hideLabel': return html`<p class="try">The visual label is hidden; the input keeps an accessible name and placeholder.</p>${this.renderField('hiddenSearch')}`;
             case 'inputMask': return html`<p class="computed">Allowed: “7” ${String(this.maskType.allowInputChar('7'))}, “.” ${String(this.maskType.allowInputChar('.'))}; blocked: “A” ${String(this.maskType.allowInputChar('A'))}. The native adapter does not enforce this during typing.</p>`;
@@ -292,14 +326,14 @@ export class FdlModifierCatalog extends LitElement {
             case 'reducer': return html`<p class="computed">aggregate([1200, 800, 500]) → ${currency.format(this.reducerType.aggregate([1200, 800, 500]))}</p>`;
             case 'required': return this.renderValidation('requiredName');
             case 'requiredWhen': return html`<p class="try">Choose Yes, then check the empty notes.</p>${this.renderField('followUp')}${this.renderValidation('followUpNotes')}`;
-            case 'rowClasses': return html`<table><caption>Computed row classes</caption><tbody><tr class=${this.rowClassType.rowClasses('Disputed', undefined as any).join(' ')}><td>Disputed receives “disputed-row”</td></tr><tr class=${this.rowClassType.rowClasses('Paid', undefined as any).join(' ')}><td>Paid does not</td></tr></tbody></table>`;
+            case 'rowClasses': return html`<p class="try">Only the Disputed row receives the <code>disputed-row</code> class.</p><fdl-table .recordset=${this.rowClassRecordset}><fdl-column field="status"></fdl-column></fdl-table>`;
             case 'rowCount': return html`${this.renderField('comments')}`;
             case 'sortable': return html`<p class="computed">Sortable metadata: ${String((this.sortableType as any).properties.sortable)}. The disabled sort button represents the consuming table.</p><button type="button" disabled>Sort column</button>`;
             case 'step': return html`${this.renderField('increment')}<p class="computed">Use the spinner: it advances by 0.25.</p>`;
             case 'tag': return html`${this.renderField('textareaTag')}`;
             case 'targetColumnWidth': return this.renderWidth('targetColumnWidth');
-            case 'template': return html`<p class="computed">print('1048') → ${this.templateType.print('1048', undefined as any)}</p>`;
-            case 'textAlign': return html`<p class="aligned" style=${`text-align:${this.alignType.textAlign()}`}>This value uses textAlign(): right.</p>`;
+            case 'template': return html`<p class="try">The stored value <code>1048</code> is rendered through the field template.</p><fdl-table .recordset=${this.templateRecordset}><fdl-column field="invoice"></fdl-column></fdl-table>`;
+            case 'textAlign': return html`<p class="try">The Amount cell is aligned to the right.</p><fdl-table .recordset=${this.alignRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
             case 'type': return html`${this.renderField('dateType')}`;
             case 'validator': return this.renderValidation('projectCode');
             case 'visibleWhen': return html`<p class="try">Choose Pickup to remove Shipping address.</p>${this.renderField('fulfillment')}${this.renderField('address')}`;
@@ -358,11 +392,8 @@ export class FdlModifierCatalog extends LitElement {
         summary { cursor: pointer; font-size: .8rem; font-weight: 700; padding: .7rem .85rem; }
         pre { overflow-x: auto; border-top: 1px solid #29314a; margin: 0; padding: .85rem; }
         pre code { color: #d8def0; font-size: .76rem; white-space: pre-wrap; }
-        table { width: 100%; border-collapse: collapse; } caption { color: #586174; font-size: .78rem; margin-bottom: .4rem; text-align: left; }
-        td { border-bottom: 1px solid #dfe3ee; padding: .65rem; } .numeric-cell { font-variant-numeric: tabular-nums; text-align: right; }
-        .high-value { background: #fff2d8; color: #8a4b00; font-weight: 800; } .disputed-row { background: #fff8e8; }
         .width-demo { max-width: 100%; border: 2px dashed #766de0; border-radius: .4rem; color: #4438c7; padding: .55rem; }
-        .aligned { border: 1px solid #dfe3ee; padding: .65rem; } code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+        code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
         @media (min-width: 58rem) { .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
     `;
 }

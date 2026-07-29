@@ -135,6 +135,26 @@ describe('<fdl-input-demo>', () => {
         expect(asyncValidator?.textContent).toMatch(/validat/i);
         expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
 
+        [
+            'cellClass',
+            'compareFunction',
+            'conditionalCellClass',
+            'formatter',
+            'rowClasses',
+            'template',
+            'textAlign',
+        ].forEach(modifier => {
+            expect(
+                catalog.shadowRoot?.querySelector(
+                    `[data-modifier="${modifier}"] fdl-table`
+                )
+            ).not.toBeNull();
+        });
+
+        expect(
+            catalog.shadowRoot?.querySelector('[data-modifier="label"] fdl-table')
+        ).toBeNull();
+
         element.remove();
     });
 
