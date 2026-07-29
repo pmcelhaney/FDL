@@ -767,6 +767,9 @@ describe('FieldType', () => {
     it('handles text alignment via x.textAlign()', () => {
         const alignRight = new FieldType().with.textAlign('right');
         expect(alignRight.textAlign()).toEqual('right');
+
+        const alignCenter = new FieldType().with.textAlign('center');
+        expect(alignCenter.textAlign()).toEqual('center');
     });
 
     it('stores a row count via x.rowCount(n)', () => {

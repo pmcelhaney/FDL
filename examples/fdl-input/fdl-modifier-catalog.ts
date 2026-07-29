@@ -111,7 +111,7 @@ const entries: CatalogEntry[] = [
     live('tag', 'Chooses the native or custom tag created for the form control.', 'tag', `.tag('textarea')`),
     live('targetColumnWidth', 'Sets the preferred width requested for a table column.', 'targetColumnWidth', `.targetColumnWidth(140)`),
     live('template', 'Transforms a formatted value into its final printed or table representation.', 'template', `.template(value => \`Invoice #\${value}\`)`),
-    live('textAlign', 'Stores the preferred left or right alignment for rendered values.', 'textAlign', `.textAlign('right')`),
+    live('textAlign', 'Stores the preferred left, center, or right alignment for rendered values.', 'textAlign', `.textAlign('right')`),
     placeholder('toggle', 'Requests toggle-switch presentation from a compatible Boolean control.', customControlGap),
     live('type', 'Sets the native input type, such as email, number, or date.', 'type', `.type('date')`),
     placeholder('usesCustomPrint', 'Keeps a custom control mounted when a field becomes read-only so the control can own printed rendering.', 'The native controls do not implement custom print rendering. Enabling it here would merely leave a read-only input mounted and would not show the intended contract.'),
@@ -177,16 +177,20 @@ export class FdlModifierCatalog extends LitElement {
     private hashType = new FieldType().with.hashFunction((employee: { id: string }) => employee.id);
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
     private cellClassRecordset = new Recordset(
-        { amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell') },
-        [{ amount: 42 }]
+        {
+            amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell'),
+            category: new FieldType().with.label('Category'),
+        },
+        [{ amount: 42, category: 'Travel' }, { amount: 84, category: 'Meals' }]
     );
     private conditionalClassRecordset = new Recordset(
         {
             amount: new FieldType().with
                 .label('Amount')
                 .and.conditionalCellClass((value: number) => value > 10000, 'high-value'),
+            label: new FieldType().with.label('Label'),
         },
-        [{ amount: 12000 }, { amount: 2000 }]
+        [{ amount: 12000, label: 'High' }, { amount: 2000, label: 'Normal' }]
     );
     private compareRecordset = new Recordset(
         {
@@ -211,28 +215,35 @@ export class FdlModifierCatalog extends LitElement {
             amount: new FieldType().with
                 .label('Amount')
                 .and.formatter(value => currency.format(Number(value))),
+            invoice: new FieldType().with.label('Invoice'),
         },
-        [{ amount: 1250 }]
+        [{ amount: 1250, invoice: '1048' }, { amount: 875, invoice: '1049' }]
     );
     private rowClassRecordset = new Recordset(
         {
             status: new FieldType().with
                 .label('Status')
                 .and.rowClasses((value: string) => value === 'Disputed' ? ['disputed-row'] : []),
+            owner: new FieldType().with.label('Owner'),
         },
-        [{ status: 'Disputed' }, { status: 'Paid' }]
+        [{ status: 'Disputed', owner: 'Ada' }, { status: 'Paid', owner: 'Grace' }]
     );
     private templateRecordset = new Recordset(
         {
             invoice: new FieldType().with
                 .label('Invoice')
                 .and.template(value => `Invoice #${value}`),
+            status: new FieldType().with.label('Status'),
         },
-        [{ invoice: '1048' }]
+        [{ invoice: '1048', status: 'Open' }, { invoice: '1049', status: 'Paid' }]
     );
     private alignRecordset = new Recordset(
-        { amount: new FieldType().with.label('Amount').and.textAlign('right') },
-        [{ amount: 1250 }]
+        {
+            left: new FieldType().with.label('Left').and.textAlign('left'),
+            center: new FieldType().with.label('Center').and.textAlign('center'),
+            right: new FieldType().with.label('Right').and.textAlign('right'),
+        },
+        [{ left: 'Ada', center: 'Ada', right: 'Ada' }, { left: 'Grace', center: 'Grace', right: 'Grace' }]
     );
     private widthTypes = {
         maxColumnWidth: new FieldType().with.maxColumnWidth(180),
@@ -291,7 +302,7 @@ export class FdlModifierCatalog extends LitElement {
     private renderDemo(name: DemoName): TemplateResult {
         switch (name) {
             case 'additionalProperties': return html`<p class="try">Hover the input to see the extra native <code>title</code> property.</p>${this.renderField('extraProperty')}`;
-            case 'cellClass': return html`<p class="try">The Amount cell receives the <code>numeric-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
+            case 'cellClass': return html`<p class="try">The Amount cells receive the <code>numeric-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="category"></fdl-column></fdl-table>`;
             case 'compareFunction': {
                 return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
                     <fdl-table .recordset=${this.compareRecordset}>
@@ -300,7 +311,7 @@ export class FdlModifierCatalog extends LitElement {
                         <fdl-column field="team"></fdl-column>
                     </fdl-table>`;
             }
-            case 'conditionalCellClass': return html`<p class="try">Only 12000 receives the <code>high-value</code> class.</p><fdl-table .recordset=${this.conditionalClassRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
+            case 'conditionalCellClass': return html`<p class="try">Only 12000 receives the <code>high-value</code> class.</p><fdl-table .recordset=${this.conditionalClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="label"></fdl-column></fdl-table>`;
             case 'defaultValue': return html`${this.renderField('defaultId', this.defaultRecord)}<button type="button" @click=${this.clearDefaultRecord}>Clear the record</button><p class="computed">Current record value: ${this.defaultRecord.getField('defaultId')}</p>`;
             case 'description': return html`<p class="computed">FieldType.info(): ${this.descriptionType.info()}</p>`;
             case 'disabled': return html`${this.renderField('lockedId')}`;
@@ -309,7 +320,7 @@ export class FdlModifierCatalog extends LitElement {
             case 'exampleValue': return html`<p class="computed">Generated values: ${[0, 1, 2].map(index => this.exampleType.exampleValue()(index)).join(', ')}</p>`;
             case 'field': return html`<p class="computed">Mapped source field: <code>${this.fieldType.field()}</code></p>`;
             case 'filter': return html`<p class="computed">Search “gr” matches Grace: ${String(this.filterType.match('gr', 'Grace'))}; matches Ada: ${String(this.filterType.match('gr', 'Ada'))}</p>`;
-            case 'formatter': return html`<p class="try">The record stores <code>1250</code>; the table prints the formatted value.</p><fdl-table .recordset=${this.formatterRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
+            case 'formatter': return html`<p class="try">The record stores <code>1250</code>; the table prints the formatted value.</p><fdl-table .recordset=${this.formatterRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="invoice"></fdl-column></fdl-table>`;
             case 'hashFunction': return html`<p class="computed">Two separate employee objects hash to “${this.hashType.hashFunction()({ id: 'ada' })}” and “${this.hashType.hashFunction()({ id: 'ada' })}”, so a consumer can match their identity.</p>`;
             case 'hideLabel': return html`<p class="try">The visual label is hidden; the input keeps an accessible name and placeholder.</p>${this.renderField('hiddenSearch')}`;
             case 'inputMask': return html`<p class="computed">Allowed: “7” ${String(this.maskType.allowInputChar('7'))}, “.” ${String(this.maskType.allowInputChar('.'))}; blocked: “A” ${String(this.maskType.allowInputChar('A'))}. The native adapter does not enforce this during typing.</p>`;
@@ -326,14 +337,14 @@ export class FdlModifierCatalog extends LitElement {
             case 'reducer': return html`<p class="computed">aggregate([1200, 800, 500]) → ${currency.format(this.reducerType.aggregate([1200, 800, 500]))}</p>`;
             case 'required': return this.renderValidation('requiredName');
             case 'requiredWhen': return html`<p class="try">Choose Yes, then check the empty notes.</p>${this.renderField('followUp')}${this.renderValidation('followUpNotes')}`;
-            case 'rowClasses': return html`<p class="try">Only the Disputed row receives the <code>disputed-row</code> class.</p><fdl-table .recordset=${this.rowClassRecordset}><fdl-column field="status"></fdl-column></fdl-table>`;
+            case 'rowClasses': return html`<p class="try">Only the Disputed row receives the <code>disputed-row</code> class.</p><fdl-table .recordset=${this.rowClassRecordset}><fdl-column field="status"></fdl-column><fdl-column field="owner"></fdl-column></fdl-table>`;
             case 'rowCount': return html`${this.renderField('comments')}`;
             case 'sortable': return html`<p class="computed">Sortable metadata: ${String((this.sortableType as any).properties.sortable)}. The disabled sort button represents the consuming table.</p><button type="button" disabled>Sort column</button>`;
             case 'step': return html`${this.renderField('increment')}<p class="computed">Use the spinner: it advances by 0.25.</p>`;
             case 'tag': return html`${this.renderField('textareaTag')}`;
             case 'targetColumnWidth': return this.renderWidth('targetColumnWidth');
-            case 'template': return html`<p class="try">The stored value <code>1048</code> is rendered through the field template.</p><fdl-table .recordset=${this.templateRecordset}><fdl-column field="invoice"></fdl-column></fdl-table>`;
-            case 'textAlign': return html`<p class="try">The Amount cell is aligned to the right.</p><fdl-table .recordset=${this.alignRecordset}><fdl-column field="amount"></fdl-column></fdl-table>`;
+            case 'template': return html`<p class="try">The stored value <code>1048</code> is rendered through the field template.</p><fdl-table .recordset=${this.templateRecordset}><fdl-column field="invoice"></fdl-column><fdl-column field="status"></fdl-column></fdl-table>`;
+            case 'textAlign': return html`<p class="try">The columns demonstrate left, center, and right alignment.</p><fdl-table .recordset=${this.alignRecordset}><fdl-column field="left"></fdl-column><fdl-column field="center"></fdl-column><fdl-column field="right"></fdl-column></fdl-table>`;
             case 'type': return html`${this.renderField('dateType')}`;
             case 'validator': return this.renderValidation('projectCode');
             case 'visibleWhen': return html`<p class="try">Choose Pickup to remove Shipping address.</p>${this.renderField('fulfillment')}${this.renderField('address')}`;

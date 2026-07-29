@@ -160,7 +160,7 @@ export interface Properties<T = unknown> {
     tag: string;
     targetColumnWidth?: number;
     template: Function;
-    textAlign: 'left' | 'right';
+    textAlign: 'left' | 'center' | 'right';
     toggle: boolean;
     type: string;
     usesCustomPrint: boolean;
@@ -387,7 +387,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
-    textAlign(direction: 'left' | 'right') {
+    textAlign(direction: 'left' | 'center' | 'right') {
         const copy = this.copy();
         copy.properties.textAlign = direction;
         return copy;
