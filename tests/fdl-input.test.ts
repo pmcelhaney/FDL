@@ -90,6 +90,8 @@ describe('<fdl-input-demo>', () => {
         document.body.append(element);
 
         await element.updateComplete;
+        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(3);
+        expect(element.shadowRoot?.textContent).toContain(".and.visibleWhen(record => record.getField('fulfillment') === 'ship')");
         const form = element.shadowRoot?.querySelector('form');
         form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await element.updateComplete;

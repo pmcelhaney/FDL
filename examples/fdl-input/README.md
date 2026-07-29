@@ -22,3 +22,5 @@ The page contains three realistic scenarios:
 
 The complete modifier reference at the end of the page includes the remaining
 builder APIs, including table, search, date-range, and compatibility modifiers.
+Each scenario also has an expandable code panel showing the JavaScript field
+type definitions behind its live controls.

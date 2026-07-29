@@ -21,6 +21,87 @@ const modifierGroups = [
     ['Examples and compatibility', 'exampleValue, schema, formElement'],
 ];
 
+const onboardingCode = `const onboarding = {
+  name: new FieldType().with
+    .label('Legal name')
+    .and.placeholder('Ada Lovelace')
+    .and.autocomplete('name')
+    .and.minLength(2)
+    .and.required(),
+  email: new FieldType().with
+    .label('Work email')
+    .and.type('email')
+    .and.placeholder('ada@company.com')
+    .and.autocomplete('email')
+    .and.requiredWhen(record =>
+      String(record.getField('name')).trim().length > 0
+    )
+    .and.validator({
+      name: 'must be a valid email address',
+      validate: value => value === '' || /\\S+@\\S+\\.\\S+/.test(String(value)),
+    }),
+  employmentType: new FieldType().with
+    .tag('select')
+    .and.label('Employment type')
+    .and.options([
+      { text: 'Choose a type', value: '' },
+      { text: 'Full-time', value: 'full-time' },
+      { text: 'Contractor', value: 'contractor' },
+    ])
+    .and.required(),
+  employeeId: new FieldType().with
+    .label('Employee ID')
+    .and.defaultValue('Assigned after approval')
+    .and.readOnly(),
+};`;
+
+const orderCode = `const order = {
+  fulfillment: new FieldType().with
+    .tag('select')
+    .and.label('Fulfillment')
+    .and.options([
+      { text: 'Ship to customer', value: 'ship' },
+      { text: 'Store pickup', value: 'pickup' },
+    ]),
+  address: new FieldType().with
+    .label('Shipping address')
+    .and.placeholder('12 Market Street, Boston, MA')
+    .and.visibleWhen(record => record.getField('fulfillment') === 'ship')
+    .and.requiredWhen(record => record.getField('fulfillment') === 'ship'),
+  deliveryWindow: new FieldType().with
+    .tag('select')
+    .and.label('Delivery window')
+    .and.disabledWhen(record => record.getField('fulfillment') === 'pickup')
+    .and.options([
+      { text: '8–10 AM', value: 'morning' },
+      { text: '12–2 PM', value: 'midday' },
+      { text: '4–6 PM', value: 'afternoon' },
+    ]),
+  instructions: new FieldType().with
+    .tag('textarea')
+    .and.label('Delivery instructions')
+    .and.rowCount(3)
+    .and.maxLength(140)
+    .and.placeholder('Loading dock entrance is on 4th Street.')
+    .and.emptyWhen(value => String(value).trim() === ''),
+};`;
+
+const invoiceCode = `const amount = new FieldType().with
+  .formatter(value => currency.format(Number(value)))
+  .and.cellClass('numeric')
+  .and.textAlign('right')
+  .and.conditionalCellClass(value => value > 10000, 'high-value')
+  .and.minColumnWidth(100)
+  .and.targetColumnWidth(130)
+  .and.maxColumnWidth(180)
+  .and.reducer('sum');
+
+const status = new FieldType().with
+  .template(value => String(value))
+  .and.conditionalCellClass(value => value === 'Overdue', 'danger')
+  .and.conditionalCellClass(value => value === 'Disputed', 'warning')
+  .and.rowClasses(value => value === 'Disputed' ? ['disputed-row'] : []);`;
+
 type Invoice = {
     invoice: string;
     customer: string;
@@ -158,6 +239,13 @@ export class FdlInputDemo extends LitElement {
         return html`<ul class="errors" role="alert">${errors.map(error => html`<li>${error}</li>`)}</ul>`;
     }
 
+    private renderCode(title: string, source: string) {
+        return html`<details class="code-panel">
+            <summary>${title}</summary>
+            <pre><code>${source}</code></pre>
+        </details>`;
+    }
+
     private renderField(record: Record, field: string) {
         const fieldType = record.fieldTypeForField(field);
         const element = fieldType.tag() === 'select' ? 'fdl-select' : 'fdl-input';
@@ -229,6 +317,7 @@ export class FdlInputDemo extends LitElement {
                             : nothing}
                     </form>
                     <aside class="callout"><code>label · placeholder · autocomplete · type · required · requiredWhen · validator · options · defaultValue · readOnly</code></aside>
+                    ${this.renderCode('View the onboarding field types', onboardingCode)}
                 </section>
 
                 <section id="order" class="scenario split">
@@ -245,6 +334,7 @@ export class FdlInputDemo extends LitElement {
                         <p class="hint">${String(this.order.getField('instructions')).length}/140 characters</p>
                     </div>
                     <aside class="callout"><code>visibleWhen · disabledWhen · requiredWhen · rowCount · maxLength · emptyWhen · tag</code></aside>
+                    ${this.renderCode('View the order field types', orderCode)}
                 </section>
 
                 <section id="invoices" class="scenario">
@@ -267,6 +357,7 @@ export class FdlInputDemo extends LitElement {
                         </table>
                     </div>
                     <aside class="callout"><code>formatter · template · cellClass · conditionalCellClass · rowClasses · textAlign · reducer · minColumnWidth · targetColumnWidth · maxColumnWidth</code></aside>
+                    ${this.renderCode('View the invoice field types', invoiceCode)}
                 </section>
 
                 <section class="reference">
@@ -293,6 +384,7 @@ export class FdlInputDemo extends LitElement {
         .card, .table-card { box-sizing: border-box; border: 1px solid #dfe3ee; border-radius: 1rem; background: white; box-shadow: 0 12px 34px rgba(34, 45, 78, .06); padding: 1.5rem; } .field { margin-bottom: .8rem; } .field:last-of-type { margin-bottom: 0; }
         .actions { display: flex; gap: .6rem; margin-top: 1.25rem; } button { border: 0; border-radius: .5rem; background: #4438c7; color: #fff; cursor: pointer; font: inherit; font-weight: 700; padding: .7rem 1rem; } button.secondary { background: #eceef8; color: #303850; } .errors { color: #b42318; font-size: .85rem; margin: -.45rem 0 .65rem 9rem; } .success { color: #067647; font-weight: 700; margin: 1rem 0 0; } .hint { color: #6b7384; font-size: .82rem; margin: .6rem 0 0 9rem; }
         .callout { margin-top: 1rem; color: #636b7b; font-size: .83rem; line-height: 1.6; } code { color: #4539bf; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; } .callout code { color: #5d6474; }
+        .code-panel { margin-top: 1.25rem; border: 1px solid #dfe3ee; border-radius: .75rem; background: #101629; color: #d8def0; } .code-panel summary { cursor: pointer; color: #d8def0; font-size: .85rem; font-weight: 700; padding: .8rem 1rem; } .code-panel pre { overflow-x: auto; margin: 0; border-top: 1px solid #29314a; padding: 1rem; } .code-panel code { color: #d8def0; font-size: .76rem; line-height: 1.65; white-space: pre; }
         .table-card { overflow-x: auto; padding: .5rem; } table { width: 100%; border-collapse: collapse; min-width: 38rem; } th, td { border-bottom: 1px solid #edf0f5; padding: 1rem; text-align: left; } th { color: #737b8b; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; } td { font-size: .94rem; } .amount { text-align: right; font-variant-numeric: tabular-nums; } .high-value { font-weight: 800; } .status { border-radius: 100px; background: #edf0f6; color: #485065; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; white-space: nowrap; } .status.danger { background: #ffebe9; color: #b42318; } .status.warning { background: #fff2d8; color: #a15c00; } .disputed-row { background: #fffdf7; } tfoot td { border: 0; color: #182136; font-weight: 800; }
         .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
         @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint { margin-left: 0; } }
