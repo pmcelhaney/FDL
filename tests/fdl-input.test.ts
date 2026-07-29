@@ -149,6 +149,9 @@ describe('<fdl-input-demo>', () => {
             'rowClasses',
             'template',
             'textAlign',
+            'minColumnWidth',
+            'maxColumnWidth',
+            'targetColumnWidth',
         ].forEach(modifier => {
             expect(
                 catalog.shadowRoot?.querySelector(

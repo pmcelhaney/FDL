@@ -223,10 +223,28 @@ export class FdlModifierCatalog extends LitElement {
         },
         [{ left: 'Ada', center: 'Ada', right: 'Ada' }, { left: 'Grace', center: 'Grace', right: 'Grace' }]
     );
-    private widthTypes = {
-        maxColumnWidth: new FieldType().with.maxColumnWidth(180),
-        minColumnWidth: new FieldType().with.minColumnWidth(110),
-        targetColumnWidth: new FieldType().with.targetColumnWidth(140),
+    private widthRecordsets = {
+        maxColumnWidth: new Recordset(
+            {
+                constrained: new FieldType().with.label('Maximum (180px)').and.minColumnWidth(80).and.maxColumnWidth(180),
+                flexible: new FieldType().with.label('Flexible').and.minColumnWidth(80),
+            },
+            [{ constrained: 'Stops growing at 180px', flexible: 'Makes up the difference' }]
+        ),
+        minColumnWidth: new Recordset(
+            {
+                constrained: new FieldType().with.label('Minimum (110px)').and.minColumnWidth(110),
+                flexible: new FieldType().with.label('Flexible').and.minColumnWidth(80),
+            },
+            [{ constrained: 'Stops shrinking at 110px', flexible: 'Makes up the difference' }]
+        ),
+        targetColumnWidth: new Recordset(
+            {
+                constrained: new FieldType().with.label('Preferred (140px)').and.minColumnWidth(80).and.targetColumnWidth(140).and.maxColumnWidth(220),
+                flexible: new FieldType().with.label('Flexible').and.minColumnWidth(80),
+            },
+            [{ constrained: 'Preferred width: 140px', flexible: 'Makes up the difference' }]
+        ),
     };
     private sortableType = new FieldType().with.sortable(false);
 
@@ -272,8 +290,16 @@ export class FdlModifierCatalog extends LitElement {
     }
 
     private renderWidth(name: 'maxColumnWidth' | 'minColumnWidth' | 'targetColumnWidth') {
-        const value = (this.widthTypes[name] as any).properties[name];
-        return html`<div class="width-demo" style=${`width:${value}px`}>${value}px ${name.replace('ColumnWidth', '')}</div>`;
+        const instructions = {
+            maxColumnWidth: 'Drag the divider right. The Maximum column stops at 180px.',
+            minColumnWidth: 'Drag the divider left. The Minimum column stops at 110px.',
+            targetColumnWidth: 'Drag the divider to resize this preferred-width column; its minimum and maximum still apply.',
+        };
+        return html`<p class="try">${instructions[name]}</p>
+            <fdl-table class="width-table" .recordset=${this.widthRecordsets[name]}>
+                <fdl-column field="constrained"></fdl-column>
+                <fdl-column field="flexible"></fdl-column>
+            </fdl-table>`;
     }
 
     private renderDemo(name: DemoName): TemplateResult {
@@ -375,7 +401,7 @@ export class FdlModifierCatalog extends LitElement {
         summary { cursor: pointer; font-size: .8rem; font-weight: 700; padding: .7rem .85rem; }
         pre { overflow-x: auto; border-top: 1px solid #29314a; margin: 0; padding: .85rem; }
         pre code { color: #d8def0; font-size: .76rem; white-space: pre-wrap; }
-        .width-demo { max-width: 100%; border: 2px dashed #766de0; border-radius: .4rem; color: #4438c7; padding: .55rem; }
+        .width-table { border: 2px dashed #7657ff; border-radius: .4rem; overflow: hidden; }
         code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
         @media (min-width: 58rem) { .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
     `;
