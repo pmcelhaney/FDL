@@ -83,7 +83,14 @@ export class FdlTable extends LitElement {
 
     private columnWidths?: number[];
 
-    private resizing?: { leftIndex: number; startX: number; widths: number[] };
+    private resizing?: {
+        leftIndex: number;
+        startX: number;
+        widths: number[];
+        input: 'mouse' | 'pointer';
+        pointerId?: number;
+        handle?: HTMLElement;
+    };
 
     private columnObserver = new MutationObserver(() => this.requestUpdate());
 
@@ -174,20 +181,35 @@ export class FdlTable extends LitElement {
         ].filter(Boolean).join(';');
     }
 
-    private startResize(event: PointerEvent, leftIndex: number) {
+    private startResize(
+        event: MouseEvent | PointerEvent,
+        leftIndex: number,
+        input: 'mouse' | 'pointer'
+    ) {
+        if (this.resizing || event.button !== 0) return;
         const columnElements = this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
         if (!columnElements || leftIndex >= columnElements.length - 1) return;
 
         const widths = [...columnElements].map(column => column.getBoundingClientRect().width);
-        this.resizing = { leftIndex, startX: event.clientX, widths };
+        const handle = event.currentTarget as HTMLElement;
+        const pointerId = input === 'pointer' ? (event as PointerEvent).pointerId : undefined;
+        if (input === 'pointer' && pointerId !== undefined && Number.isInteger(pointerId)) {
+            handle.setPointerCapture?.(pointerId);
+        }
+        this.resizing = { leftIndex, startX: event.clientX, widths, input, pointerId, handle };
         this.columnWidths = widths;
-        window.addEventListener('pointermove', this.resize);
-        window.addEventListener('pointerup', this.endResize);
-        window.addEventListener('pointercancel', this.endResize);
+        if (input === 'pointer') {
+            window.addEventListener('pointermove', this.resize);
+            window.addEventListener('pointerup', this.endResize);
+            window.addEventListener('pointercancel', this.endResize);
+        } else {
+            window.addEventListener('mousemove', this.resize);
+            window.addEventListener('mouseup', this.endResize);
+        }
         event.preventDefault();
     }
 
-    private resize = (event: PointerEvent) => {
+    private resize = (event: MouseEvent | PointerEvent) => {
         if (!this.resizing) return;
         this.columnWidths = resizeColumnWidths(
             this.resizing.widths,
@@ -200,6 +222,15 @@ export class FdlTable extends LitElement {
 
     private endResize = () => {
         if (!this.resizing) return;
+        const { handle, pointerId } = this.resizing;
+        if (
+            handle &&
+            pointerId !== undefined &&
+            Number.isInteger(pointerId) &&
+            handle.hasPointerCapture?.(pointerId)
+        ) {
+            handle.releasePointerCapture(pointerId);
+        }
         this.resizing = undefined;
         this.stopResizeListeners();
     };
@@ -208,6 +239,8 @@ export class FdlTable extends LitElement {
         window.removeEventListener('pointermove', this.resize);
         window.removeEventListener('pointerup', this.endResize);
         window.removeEventListener('pointercancel', this.endResize);
+        window.removeEventListener('mousemove', this.resize);
+        window.removeEventListener('mouseup', this.endResize);
     }
 
     private async sort(column: FdlColumn) {
@@ -284,7 +317,8 @@ export class FdlTable extends LitElement {
                       role="separator"
                       aria-label=${`Resize ${this.heading(column)} column`}
                       aria-orientation="vertical"
-                      @pointerdown=${(event: PointerEvent) => this.startResize(event, index)}
+                      @pointerdown=${(event: PointerEvent) => this.startResize(event, index, 'pointer')}
+                      @mousedown=${(event: MouseEvent) => this.startResize(event, index, 'mouse')}
                   ></div>`
                 : nothing}
         </th>`;

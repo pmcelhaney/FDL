@@ -87,6 +87,43 @@ describe('<fdl-table>', () => {
         table.remove();
     });
 
+    it('supports mouse dragging when pointer events are unavailable', async () => {
+        const recordset = new Recordset(
+            {
+                left: new FieldType().with.minColumnWidth(100),
+                right: new FieldType().with.minColumnWidth(80),
+            },
+            [{ left: 'Left', right: 'Right' }]
+        );
+        const table = document.createElement('fdl-table') as TestTable;
+        table.recordset = recordset;
+        table.innerHTML = `
+            <fdl-column field="left"></fdl-column>
+            <fdl-column field="right"></fdl-column>
+        `;
+        document.body.append(table);
+        await settle(table);
+
+        const columns = table.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
+        columns![0].getBoundingClientRect = () => ({ width: 150 } as DOMRect);
+        columns![1].getBoundingClientRect = () => ({ width: 100 } as DOMRect);
+        const handle = table.shadowRoot?.querySelector<HTMLElement>('.resize-handle');
+
+        handle?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 100 }));
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 120 }));
+        await table.updateComplete;
+
+        expect(table.shadowRoot?.querySelectorAll('col')[0].getAttribute('style')).toContain(
+            'width:170px'
+        );
+        expect(table.shadowRoot?.querySelectorAll('col')[1].getAttribute('style')).toContain(
+            'width:80px'
+        );
+
+        window.dispatchEvent(new MouseEvent('mouseup'));
+        table.remove();
+    });
+
     it('renders recordset fields through declarative columns', async () => {
         const recordset = new Recordset(
             {
