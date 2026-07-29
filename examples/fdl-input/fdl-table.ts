@@ -225,7 +225,6 @@ export class FdlTable extends LitElement {
             background: #f7f8ff;
             color: #34308f;
             font-variant-numeric: tabular-nums;
-            text-align: right;
         }
 
         .high-value {

@@ -28,6 +28,13 @@ rendering. The published package is `digital-fdl`.
   changing exported APIs.
 - Add or update focused Jest coverage for behavior changes.
 
+## Live example presentation
+
+- In table examples, scalar numeric fields such as amounts, totals, counts,
+  and percentages should be explicitly right-aligned with the example’s field
+  configuration. This is a presentation convention for examples, not a rule
+  the framework should apply automatically.
+
 ## Working-tree and Git rules
 
 - Preserve unrelated edits already present in the working tree; do not stage,

@@ -178,7 +178,7 @@ export class FdlModifierCatalog extends LitElement {
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
     private cellClassRecordset = new Recordset(
         {
-            amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell'),
+            amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell').and.textAlign('right'),
             category: new FieldType().with.label('Category'),
         },
         [{ amount: 42, category: 'Travel' }, { amount: 84, category: 'Meals' }]
@@ -187,6 +187,7 @@ export class FdlModifierCatalog extends LitElement {
         {
             amount: new FieldType().with
                 .label('Amount')
+                .and.textAlign('right')
                 .and.conditionalCellClass((value: number) => value > 10000, 'high-value'),
             label: new FieldType().with.label('Label'),
         },
@@ -214,6 +215,7 @@ export class FdlModifierCatalog extends LitElement {
         {
             amount: new FieldType().with
                 .label('Amount')
+                .and.textAlign('right')
                 .and.formatter(value => currency.format(Number(value))),
             invoice: new FieldType().with.label('Invoice'),
         },
