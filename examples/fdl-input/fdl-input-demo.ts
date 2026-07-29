@@ -195,6 +195,115 @@ const modifierExamples = [
     },
 ];
 
+const focusedModifierExamples = [
+    {
+        modifier: 'label()',
+        title: 'Compute a label from the record',
+        explanation: 'label() can derive the visible label from other field values, so the form uses language that matches the current context.',
+        source: `const amount = new FieldType().with
+  .label(record =>
+    \`Amount for \${record.getField('expenseType')}\`
+  );`,
+    },
+    {
+        modifier: 'defaultValue()',
+        title: 'Define what an empty record restores',
+        explanation: 'defaultValue() supplies the value used when Record.clear() resets a field; it is different from placeholder hint text.',
+        source: `const requestId = new FieldType().with
+  .label('Request ID')
+  .and.defaultValue('Pending assignment');`,
+    },
+    {
+        modifier: 'visibleWhen()',
+        title: 'Reveal a field from another answer',
+        explanation: 'visibleWhen() removes a field from the form until a record-level condition is true.',
+        source: `const shippingAddress = new FieldType().with
+  .label('Shipping address')
+  .and.visibleWhen(record =>
+    record.getField('fulfillment') === 'ship'
+  );`,
+    },
+    {
+        modifier: 'disabledWhen()',
+        title: 'Prevent edits after approval',
+        explanation: 'disabledWhen() keeps a control visible but prevents interaction whenever its condition is true.',
+        source: `const approvedBudget = new FieldType().with
+  .label('Approved budget')
+  .and.disabledWhen(record =>
+    record.getField('status') === 'approved'
+  );`,
+    },
+    {
+        modifier: 'readOnlyWhen()',
+        title: 'Lock a submitted value',
+        explanation: 'readOnlyWhen() switches an editable control to its printed, non-editable representation when the condition is true.',
+        source: `const requestOwner = new FieldType().with
+  .label('Request owner')
+  .and.readOnlyWhen(record =>
+    record.getField('status') === 'submitted'
+  );`,
+    },
+    {
+        modifier: 'requiredWhen()',
+        title: 'Require a field only when it applies',
+        explanation: 'requiredWhen() evaluates the whole record and makes a field required only while its condition is true.',
+        source: `const followUpNotes = new FieldType().with
+  .label('Follow-up notes')
+  .and.requiredWhen(record =>
+    record.getField('followUp') === 'yes'
+  );`,
+    },
+    {
+        modifier: 'validator()',
+        title: 'Enforce a domain rule',
+        explanation: 'validator() names and evaluates a business rule. Failed rules become readable record errors.',
+        source: `const projectCode = new FieldType().with
+  .label('Project code')
+  .and.validator({
+    name: 'must look like PRJ-1234',
+    validate: value => /^PRJ-\\d{4}$/.test(value),
+  });`,
+    },
+    {
+        modifier: 'options()',
+        title: 'Load choices from another answer',
+        explanation: 'options() can fetch choices from the record and name dependency fields so the choices refresh when those fields change.',
+        source: `const assignee = new FieldType().with
+  .tag('select')
+  .label('Assignee')
+  .and.options({
+    fields: ['department'],
+    fetch: record => directory[record.getField('department')],
+  });`,
+    },
+    {
+        modifier: 'onValueChange()',
+        title: 'React to a changed value',
+        explanation: 'onValueChange() runs after this control updates the record, making dependent values easy to keep in sync.',
+        source: `const quantity = new FieldType().with
+  .tag('select')
+  .and.label('Quantity')
+  .and.options([
+    { text: '1', value: 1 },
+    { text: '2', value: 2 },
+    { text: '4', value: 4 },
+  ])
+  .and.onValueChange(record =>
+    record.setField('total', Number(record.getField('quantity')) * 25)
+  );`,
+    },
+    {
+        modifier: 'maxLength()',
+        title: 'Cap the length of entered text',
+        explanation: 'maxLength() limits how many characters the control accepts and adds the same constraint to record validation.',
+        source: `const instructions = new FieldType().with
+  .tag('textarea')
+  .label('Delivery instructions')
+  .and.rowCount(3)
+  .and.maxLength(80);`,
+    },
+];
+
 const onboardingCode = `const onboarding = {
   name: new FieldType().with
     .label('Legal name')
@@ -444,6 +553,108 @@ export class FdlInputDemo extends LitElement {
         { sampleContact: 'Sample contact 1', legacyAddress: '', legacyControl: '' }
     );
 
+    private labelExample = new Record(
+        {
+            expenseType: new FieldType().with.tag('select').and.label('Expense type').and.options([
+                { text: 'Travel', value: 'travel' }, { text: 'Equipment', value: 'equipment' },
+            ]),
+            amount: new FieldType<any>().with.label((record: any) => `Amount for ${record.getField('expenseType')}`).and.type('number'),
+        },
+        { expenseType: 'travel', amount: '' }
+    );
+
+    private defaultValueExample = new Record(
+        {
+            requestId: new FieldType().with.label('Request ID').and.defaultValue('Pending assignment'),
+        },
+        { requestId: 'REQ-1042' }
+    );
+
+    private visibleWhenExample = new Record(
+        {
+            fulfillment: new FieldType().with.tag('select').and.label('Fulfillment').and.options([
+                { text: 'Ship to customer', value: 'ship' }, { text: 'Store pickup', value: 'pickup' },
+            ]),
+            shippingAddress: new FieldType().with.label('Shipping address')
+                .and.visibleWhen(record => record.getField('fulfillment') === 'ship'),
+        },
+        { fulfillment: 'ship', shippingAddress: '' }
+    );
+
+    private disabledWhenExample = new Record(
+        {
+            status: new FieldType().with.tag('select').and.label('Approval status').and.options([
+                { text: 'Draft', value: 'draft' }, { text: 'Approved', value: 'approved' },
+            ]),
+            approvedBudget: new FieldType().with.label('Approved budget').and.type('number')
+                .and.disabledWhen(record => record.getField('status') === 'approved'),
+        },
+        { status: 'draft', approvedBudget: '5000' }
+    );
+
+    private readOnlyWhenExample = new Record(
+        {
+            status: new FieldType().with.tag('select').and.label('Request status').and.options([
+                { text: 'Draft', value: 'draft' }, { text: 'Submitted', value: 'submitted' },
+            ]),
+            requestOwner: new FieldType().with.label('Request owner')
+                .and.readOnlyWhen(record => record.getField('status') === 'submitted'),
+        },
+        { status: 'draft', requestOwner: 'Ada Lovelace' }
+    );
+
+    private requiredWhenExample = new Record(
+        {
+            followUp: new FieldType().with.tag('select').and.label('Follow-up needed?').and.options([
+                { text: 'No', value: 'no' }, { text: 'Yes', value: 'yes' },
+            ]),
+            followUpNotes: new FieldType().with.tag('textarea').and.label('Follow-up notes').and.rowCount(2)
+                .and.requiredWhen(record => record.getField('followUp') === 'yes'),
+        },
+        { followUp: 'no', followUpNotes: '' }
+    );
+
+    private validatorExample = new Record(
+        {
+            projectCode: new FieldType().with.label('Project code').and.placeholder('PRJ-1234')
+                .and.validator({ name: 'must look like PRJ-1234', validate: value => /^PRJ-\d{4}$/.test(String(value)) }),
+        },
+        { projectCode: '' }
+    );
+
+    private dependentOptionsExample = new Record(
+        {
+            department: new FieldType().with.tag('select').and.label('Department').and.options([
+                { text: 'Engineering', value: 'engineering' }, { text: 'Finance', value: 'finance' },
+            ]),
+            assignee: new FieldType<any>().with.tag('select').and.label('Assignee').and.options({
+                fields: ['department'],
+                fetch: (record: any) => Promise.resolve(record.getField('department') === 'finance'
+                    ? [{ text: 'Katherine Johnson', value: 'katherine' }, { text: 'Mary Jackson', value: 'mary' }]
+                    : [{ text: 'Grace Hopper', value: 'grace' }, { text: 'Margaret Hamilton', value: 'margaret' }]),
+            }),
+        },
+        { department: 'engineering', assignee: 'grace' }
+    );
+
+    private reactionExample = new Record(
+        {
+            quantity: new FieldType<any>().with.tag('select').and.label('Quantity').and.options([
+                { text: '1', value: 1 }, { text: '2', value: 2 }, { text: '4', value: 4 },
+            ])
+                .and.onValueChange((record: any) => record.setField('total', Number(record.getField('quantity')) * 25)),
+            total: new FieldType().with.label('Total at $25 each').and.formatter(value => currency.format(Number(value))).and.readOnly(),
+        },
+        { quantity: 2, total: 50 }
+    );
+
+    private maxLengthExample = new Record(
+        {
+            instructions: new FieldType().with.tag('textarea').and.label('Delivery instructions').and.rowCount(3).and.maxLength(80),
+        },
+        { instructions: '' }
+    );
+
     private invoiceTypes = {
         amount: new FieldType().with
             .formatter(value => currency.format(Number(value)))
@@ -490,6 +701,21 @@ export class FdlInputDemo extends LitElement {
         this.recipeMessages = {
             ...this.recipeMessages,
             [recipe]: record.isValid() ? 'Saved — this example is valid.' : `Please fix: ${record.readableRecordErrors().join('; ')}`,
+        };
+        this.requestUpdate();
+    };
+
+    private clearDefaultValue = () => {
+        this.defaultValueExample.clear();
+        this.requestUpdate();
+    };
+
+    private validateRequiredWhen = (event: SubmitEvent) => {
+        event.preventDefault();
+        const valid = this.requiredWhenExample.hasRequiredValues();
+        this.recipeMessages = {
+            ...this.recipeMessages,
+            requiredWhen: valid ? 'Valid — all currently required fields have values.' : 'Follow-up notes are required when follow-up is Yes.',
         };
         this.requestUpdate();
     };
@@ -585,6 +811,69 @@ export class FdlInputDemo extends LitElement {
         }
     }
 
+    private renderFocusedModifierLive(index: number) {
+        switch (index) {
+            case 0:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> switch the expense type and watch the amount label change.</p>
+                    ${this.renderField(this.labelExample, 'expenseType')}${this.renderField(this.labelExample, 'amount')}
+                </div>`;
+            case 1:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> edit the ID, then clear the record to restore its declared default.</p>
+                    ${this.renderField(this.defaultValueExample, 'requestId')}
+                    <button type="button" @click=${this.clearDefaultValue}>Clear record</button>
+                </div>`;
+            case 2:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> choose Store pickup to remove the shipping address from the form.</p>
+                    ${this.renderField(this.visibleWhenExample, 'fulfillment')}${this.renderField(this.visibleWhenExample, 'shippingAddress')}
+                </div>`;
+            case 3:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> approve the request to disable budget editing while keeping the value visible.</p>
+                    ${this.renderField(this.disabledWhenExample, 'status')}${this.renderField(this.disabledWhenExample, 'approvedBudget')}
+                </div>`;
+            case 4:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> submit the request to replace the owner input with printed text.</p>
+                    ${this.renderField(this.readOnlyWhenExample, 'status')}${this.renderField(this.readOnlyWhenExample, 'requestOwner')}
+                </div>`;
+            case 5:
+                return html`<form class="recipe-card" novalidate @submit=${this.validateRequiredWhen}>
+                    <p class="try-this"><strong>Try this:</strong> choose Yes, leave the notes empty, and check the form.</p>
+                    ${this.renderField(this.requiredWhenExample, 'followUp')}${this.renderField(this.requiredWhenExample, 'followUpNotes')}
+                    <button type="submit">Check required fields</button>${this.renderRecipeMessage('requiredWhen')}
+                </form>`;
+            case 6:
+                return html`<form class="recipe-card" novalidate @submit=${(event: SubmitEvent) => this.submitRecipe(event, 'validator', this.validatorExample)}>
+                    <p class="try-this"><strong>Try this:</strong> enter ABC, validate it, then try a code such as PRJ-1234.</p>
+                    ${this.renderField(this.validatorExample, 'projectCode')}
+                    <button type="submit">Validate code</button>${this.renderRecipeMessage('validator')}
+                </form>`;
+            case 7:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> change departments and watch the assignee choices refresh.</p>
+                    ${this.renderField(this.dependentOptionsExample, 'department')}${this.renderField(this.dependentOptionsExample, 'assignee')}
+                </div>`;
+            case 8:
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> choose a quantity and watch the total recalculate at $25 each.</p>
+                    ${this.renderField(this.reactionExample, 'quantity')}${this.renderField(this.reactionExample, 'total')}
+                </div>`;
+            case 9: {
+                const count = String(this.maxLengthExample.getField('instructions')).length;
+                return html`<div class="recipe-card">
+                    <p class="try-this"><strong>Try this:</strong> enter delivery notes; the browser stops accepting text at 80 characters.</p>
+                    ${this.renderField(this.maxLengthExample, 'instructions')}
+                    <p class="character-count">${count} / 80 characters</p>
+                </div>`;
+            }
+            default:
+                return nothing;
+        }
+    }
+
     private invoiceClass(invoice: Invoice) {
         return this.invoiceTypes.status.rowClasses(invoice.status, undefined as any).join(' ');
     }
@@ -599,6 +888,16 @@ export class FdlInputDemo extends LitElement {
         this.projectTeam.addEventListener('change', this.onRecordChange);
         this.reportFilters.addEventListener('change', this.onRecordChange);
         this.migrationFields.addEventListener('change', this.onRecordChange);
+        this.labelExample.addEventListener('change', this.onRecordChange);
+        this.defaultValueExample.addEventListener('change', this.onRecordChange);
+        this.requiredWhenExample.addEventListener('change', this.onRecordChange);
+        this.visibleWhenExample.addEventListener('change', this.onRecordChange);
+        this.disabledWhenExample.addEventListener('change', this.onRecordChange);
+        this.readOnlyWhenExample.addEventListener('change', this.onRecordChange);
+        this.validatorExample.addEventListener('change', this.onRecordChange);
+        this.dependentOptionsExample.addEventListener('change', this.onRecordChange);
+        this.reactionExample.addEventListener('change', this.onRecordChange);
+        this.maxLengthExample.addEventListener('change', this.onRecordChange);
     }
 
     disconnectedCallback() {
@@ -610,6 +909,16 @@ export class FdlInputDemo extends LitElement {
         this.projectTeam.removeEventListener('change', this.onRecordChange);
         this.reportFilters.removeEventListener('change', this.onRecordChange);
         this.migrationFields.removeEventListener('change', this.onRecordChange);
+        this.labelExample.removeEventListener('change', this.onRecordChange);
+        this.defaultValueExample.removeEventListener('change', this.onRecordChange);
+        this.requiredWhenExample.removeEventListener('change', this.onRecordChange);
+        this.visibleWhenExample.removeEventListener('change', this.onRecordChange);
+        this.disabledWhenExample.removeEventListener('change', this.onRecordChange);
+        this.readOnlyWhenExample.removeEventListener('change', this.onRecordChange);
+        this.validatorExample.removeEventListener('change', this.onRecordChange);
+        this.dependentOptionsExample.removeEventListener('change', this.onRecordChange);
+        this.reactionExample.removeEventListener('change', this.onRecordChange);
+        this.maxLengthExample.removeEventListener('change', this.onRecordChange);
         super.disconnectedCallback();
     }
 
@@ -632,7 +941,7 @@ export class FdlInputDemo extends LitElement {
                         <a href="#onboarding">Employee onboarding</a>
                         <a href="#order">Purchase order</a>
                         <a href="#invoices">Invoice table</a>
-                        <a href="#cookbook">Modifier cookbook</a>
+                        <a href="#cookbook">Focused modifier guide</a>
                     </nav>
                 </header>
 
@@ -709,12 +1018,14 @@ export class FdlInputDemo extends LitElement {
                         ${modifierGroups.map(([heading, modifiers]) => html`<article><h3>${heading}</h3><p>${modifiers}</p></article>`)}
                     </div>
                     <section id="cookbook" class="modifier-cookbook">
-                        <p class="eyebrow">Practical cookbook</p>
-                        <h3>Use every modifier in a realistic workflow.</h3>
-                        <p>Every recipe is editable: try the live control first, then open its field definition.</p>
-                        ${modifierExamples.map((example, index) => html`<article class="cookbook-recipe">
+                        <p class="eyebrow">Focused modifier guide</p>
+                        <h3>Ten modifiers, one clear behavior at a time.</h3>
+                        <p>Each example centers on one modifier. Supporting fields only provide the condition or context needed to see it work.</p>
+                        ${focusedModifierExamples.map((example, index) => html`<article class="cookbook-recipe">
+                            <p class="modifier-name"><code>${example.modifier}</code></p>
                             <h4>${example.title}</h4>
-                            ${this.renderCookbookLive(index)}
+                            <p class="modifier-explanation">${example.explanation}</p>
+                            ${this.renderFocusedModifierLive(index)}
                             ${this.renderCode('View the field types', example.source)}
                         </article>`)}
                     </section>
@@ -738,8 +1049,8 @@ export class FdlInputDemo extends LitElement {
         .callout { margin-top: 1rem; color: #636b7b; font-size: .83rem; line-height: 1.6; } code { color: #4539bf; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; } .callout code { color: #5d6474; }
         .code-panel { margin-top: 1.25rem; border: 1px solid #dfe3ee; border-radius: .75rem; background: #101629; color: #d8def0; } .code-panel summary { cursor: pointer; color: #d8def0; font-size: .85rem; font-weight: 700; padding: .8rem 1rem; } .code-panel pre { overflow-x: auto; margin: 0; border-top: 1px solid #29314a; padding: 1rem; } .code-panel code { color: #d8def0; font-size: .76rem; line-height: 1.65; white-space: pre; }
         .table-card { overflow-x: auto; padding: .5rem; } table { width: 100%; border-collapse: collapse; min-width: 38rem; } th, td { border-bottom: 1px solid #edf0f5; padding: 1rem; text-align: left; } th { color: #737b8b; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; } td { font-size: .94rem; } .amount { text-align: right; font-variant-numeric: tabular-nums; } .high-value { font-weight: 800; } .status { border-radius: 100px; background: #edf0f6; color: #485065; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; white-space: nowrap; } .status.danger { background: #ffebe9; color: #b42318; } .status.warning { background: #fff2d8; color: #a15c00; } .disputed-row { background: #fffdf7; } tfoot td { border: 0; color: #182136; font-weight: 800; }
-        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .modifier-cookbook { margin-top: 3rem; } .modifier-cookbook > h3 { color: #111a31; font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; letter-spacing: -.025em; } .modifier-cookbook > p:not(.eyebrow) { color: #586174; line-height: 1.6; } .cookbook-recipe { margin-top: 2.25rem; } .cookbook-recipe h4 { color: #111a31; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 500; margin-bottom: .75rem; } .recipe-card { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .live-label { color: #5b52d6; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; } .field-note { color: #667085; font-size: .83rem; line-height: 1.5; margin: .4rem 0 .8rem 9rem; } .recipe-message { color: #067647; font-size: .85rem; font-weight: 700; margin: .8rem 0 0; } .page-status { color: #586174; font-size: .85rem; margin-left: .7rem; } .table-link { color: #4438c7; font-weight: 700; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
-        @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint { margin-left: 0; } }
+        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .modifier-cookbook { margin-top: 3rem; } .modifier-cookbook > h3 { color: #111a31; font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; letter-spacing: -.025em; } .modifier-cookbook > p:not(.eyebrow) { color: #586174; line-height: 1.6; } .cookbook-recipe { margin-top: 2.75rem; padding-top: 2.25rem; border-top: 1px solid #dfe3ee; } .cookbook-recipe h4 { color: #111a31; font-family: Georgia, serif; font-size: 1.35rem; font-weight: 500; margin-bottom: .45rem; } .modifier-name { margin: 0 0 .45rem; } .modifier-name code { display: inline-block; border-radius: 100px; background: #eeecff; color: #4438c7; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; } .modifier-explanation { max-width: 46rem; color: #586174; line-height: 1.6; margin-bottom: 1rem; } .recipe-card { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .try-this { color: #343b53; font-size: .9rem; line-height: 1.5; margin-bottom: 1rem; } .character-count { color: #667085; font-size: .8rem; margin: .5rem 0 0 9rem; } .live-label { color: #5b52d6; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; } .field-note { color: #667085; font-size: .83rem; line-height: 1.5; margin: .4rem 0 .8rem 9rem; } .recipe-message { color: #067647; font-size: .85rem; font-weight: 700; margin: .8rem 0 0; } .page-status { color: #586174; font-size: .85rem; margin-left: .7rem; } .table-link { color: #4438c7; font-weight: 700; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
+        @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint, .character-count { margin-left: 0; } }
     `;
 }
 

@@ -21,7 +21,7 @@ The page contains three realistic scenarios:
   row classes, and aggregation.
 
 The complete modifier reference at the end of the page includes every builder
-API, including table, search, date-range, and compatibility modifiers. Its
-practical cookbook provides a realistic, expandable code example for every
-modifier. Each live scenario also has an expandable code panel showing the
-JavaScript field-type definitions behind its controls.
+API, including table, search, date-range, and compatibility modifiers. A focused
+guide follows it with ten representative modifiers. Each guide entry explains
+one behavior, gives a short interaction to try, renders a live control, and
+includes an expandable field-type definition.

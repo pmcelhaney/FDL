@@ -90,12 +90,13 @@ describe('<fdl-input-demo>', () => {
         document.body.append(element);
 
         await element.updateComplete;
-        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(11);
-        expect(element.shadowRoot?.textContent).toContain(".and.visibleWhen(record => record.getField('fulfillment') === 'ship')");
+        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(13);
+        expect(element.shadowRoot?.querySelectorAll('.cookbook-recipe').length).toBe(10);
+        expect(element.shadowRoot?.textContent).toContain('Ten modifiers, one clear behavior at a time.');
         expect(element.shadowRoot?.textContent).toContain('readOnlyExceptionWhen()');
         expect(element.shadowRoot?.textContent).toContain('hashFunction()');
-        expect(element.shadowRoot?.textContent).toContain('Configure native inputs for an asset intake form');
-        expect(element.shadowRoot?.textContent).toContain('Define table behavior for the accounts-receivable report');
+        expect(element.shadowRoot?.textContent).toContain('Compute a label from the record');
+        expect(element.shadowRoot?.textContent).toContain('Cap the length of entered text');
         const form = element.shadowRoot?.querySelector('form');
         form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await element.updateComplete;
