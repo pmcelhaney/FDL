@@ -689,6 +689,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use parser(...) to convert dynamic range input into the stored value. */
     parseDynamicRange() {
         const copy = this.copy();
         copy.properties.parseDynamicRange = true;
