@@ -1,183 +1,301 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import FieldType from '../../field-type.js';
 import Record from '../../record.js';
 import './fdl-input';
 import './fdl-select';
 
+const currency = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+});
+
+const modifierGroups = [
+    ['Input attributes', 'tag, type, accept, autocomplete, autofocus, list, max, pattern, step, placeholder'],
+    ['Labels and guidance', 'label, hideLabel, iconMessage, description'],
+    ['State and layout', 'defaultValue, disabled, disabledWhen, readOnly, readOnlyWhen, readOnlyExceptionWhen, visibleWhen, inline, inlineWhen, segmented, rowCount, textAlign, toggle, selectOnFocus'],
+    ['Value and validation', 'formatter, parser, formatOnChange, inputMask, validator, asyncValidator, required, requiredWhen, minLength, maxLength, emptyWhen'],
+    ['Choices and lookups', 'options, multipleValues, filter, hashFunction, search, hasSearch, selectionDisabledFunctions, filtering'],
+    ['Dates and reactions', 'range, parseDynamicRange, onValueChange, field, additionalProperties'],
+    ['Tables', 'template, cellClass, conditionalCellClass, rowClasses, usesCustomPrint, compareFunction, sortable, reducer, minColumnWidth, targetColumnWidth, maxColumnWidth'],
+    ['Examples and compatibility', 'exampleValue, schema, formElement'],
+];
+
+type Invoice = {
+    invoice: string;
+    customer: string;
+    dueDate: string;
+    amount: number;
+    status: 'Paid' | 'Due soon' | 'Overdue' | 'Disputed';
+};
+
+const invoices: Invoice[] = [
+    { invoice: 'INV-1048', customer: 'Northstar Labs', dueDate: 'Jul 18', amount: 12480, status: 'Overdue' },
+    { invoice: 'INV-1051', customer: 'Brightline Health', dueDate: 'Jul 29', amount: 6340, status: 'Due soon' },
+    { invoice: 'INV-1053', customer: 'Cedar & Co.', dueDate: 'Aug 12', amount: 2180, status: 'Disputed' },
+    { invoice: 'INV-1057', customer: 'Tidalworks', dueDate: 'Aug 22', amount: 18900, status: 'Paid' },
+];
+
 export class FdlInputDemo extends LitElement {
-    private record = new Record(
+    private onboarding = new Record(
         {
             name: new FieldType().with
-                .label('Full name')
+                .label('Legal name')
                 .and.placeholder('Ada Lovelace')
+                .and.autocomplete('name')
+                .and.minLength(2)
                 .and.required(),
             email: new FieldType().with
-                .label('Email address')
+                .label('Work email')
                 .and.type('email')
-                .and.placeholder('ada@example.com')
+                .and.placeholder('ada@company.com')
+                .and.autocomplete('email')
                 .and.requiredWhen(record => String(record.getField('name')).trim().length > 0)
                 .and.validator({
                     name: 'must be a valid email address',
-                    validate: modelValue => {
-                        const value = String(modelValue ?? '');
-                        return value === '' || /^\S+@\S+\.\S+$/.test(value);
-                    },
+                    validate: value => value === '' || /^\S+@\S+\.\S+$/.test(String(value)),
                 }),
-            contactMethod: new FieldType().with
+            employmentType: new FieldType().with
                 .tag('select')
-                .and.label('Preferred contact method')
+                .and.label('Employment type')
                 .and.options([
-                    { text: 'Choose a method', value: '' },
-                    { text: 'Email', value: 'email' },
-                    { text: 'Phone', value: 'phone' },
+                    { text: 'Choose a type', value: '' },
+                    { text: 'Full-time', value: 'full-time' },
+                    { text: 'Contractor', value: 'contractor' },
                 ])
                 .and.required(),
+            employeeId: new FieldType().with
+                .label('Employee ID')
+                .and.defaultValue('Assigned after approval')
+                .and.readOnly()
+                .and.description('The HR system assigns this value after the record is approved.'),
         },
-        { name: '', email: '', contactMethod: '' }
+        { name: '', email: '', employmentType: '', employeeId: 'Assigned after approval' }
     );
+
+    private order = new Record(
+        {
+            fulfillment: new FieldType().with
+                .tag('select')
+                .and.label('Fulfillment')
+                .and.options([
+                    { text: 'Ship to customer', value: 'ship' },
+                    { text: 'Store pickup', value: 'pickup' },
+                ]),
+            address: new FieldType().with
+                .label('Shipping address')
+                .and.placeholder('12 Market Street, Boston, MA')
+                .and.visibleWhen(record => record.getField('fulfillment') === 'ship')
+                .and.requiredWhen(record => record.getField('fulfillment') === 'ship'),
+            deliveryWindow: new FieldType().with
+                .tag('select')
+                .and.label('Delivery window')
+                .and.disabledWhen(record => record.getField('fulfillment') === 'pickup')
+                .and.options([
+                    { text: '8–10 AM', value: 'morning' },
+                    { text: '12–2 PM', value: 'midday' },
+                    { text: '4–6 PM', value: 'afternoon' },
+                ]),
+            instructions: new FieldType().with
+                .tag('textarea')
+                .and.label('Delivery instructions')
+                .and.rowCount(3)
+                .and.maxLength(140)
+                .and.placeholder('Loading dock entrance is on 4th Street.')
+                .and.emptyWhen(value => String(value).trim() === ''),
+        },
+        { fulfillment: 'ship', address: '', deliveryWindow: 'morning', instructions: '' }
+    );
+
+    private invoiceTypes = {
+        amount: new FieldType().with
+            .formatter(value => currency.format(Number(value)))
+            .and.cellClass('numeric')
+            .and.textAlign('right')
+            .and.conditionalCellClass((value: number) => value > 10000, 'high-value')
+            .and.minColumnWidth(100)
+            .and.targetColumnWidth(130)
+            .and.maxColumnWidth(180)
+            .and.reducer('sum'),
+        status: new FieldType().with
+            .template(value => String(value))
+            .and.conditionalCellClass((value: string) => value === 'Overdue', 'danger')
+            .and.conditionalCellClass((value: string) => value === 'Disputed', 'warning')
+            .and.rowClasses((value: string) => (value === 'Disputed' ? ['disputed-row'] : [])),
+    };
 
     private hasSubmitted = false;
 
     private errors: { [field: string]: string[] } = {};
 
-    private validationErrors() {
+    private validationErrors(record: Record) {
         return Object.fromEntries(
-            Object.keys(this.record.fieldTypes).map(field => [
-                field,
-                this.record.readableFieldErrors(field),
-            ])
+            Object.keys(record.fieldTypes).map(field => [field, record.readableFieldErrors(field)])
         );
     }
 
     private onRecordChange = () => {
-        if (this.hasSubmitted) this.errors = this.validationErrors();
+        if (this.hasSubmitted) this.errors = this.validationErrors(this.onboarding);
         this.requestUpdate();
     };
 
     private validate = (event: SubmitEvent) => {
         event.preventDefault();
         this.hasSubmitted = true;
-        this.errors = this.validationErrors();
+        this.errors = this.validationErrors(this.onboarding);
         this.requestUpdate();
+    };
+
+    private resetOnboarding = () => {
+        this.onboarding.clear();
+        this.hasSubmitted = false;
+        this.errors = {};
     };
 
     private renderErrors(field: string) {
         const errors = this.errors[field] ?? [];
-        if (!this.hasSubmitted || errors.length === 0) return null;
-        return html`<ul class="errors" role="alert">
-            ${errors.map(error => html`<li>${error}</li>`)}
-        </ul>`;
+        if (!this.hasSubmitted || errors.length === 0) return nothing;
+        return html`<ul class="errors" role="alert">${errors.map(error => html`<li>${error}</li>`)}</ul>`;
+    }
+
+    private renderField(record: Record, field: string) {
+        const fieldType = record.fieldTypeForField(field);
+        const element = fieldType.tag() === 'select' ? 'fdl-select' : 'fdl-input';
+        return html`<div class="field">
+            ${element === 'fdl-select'
+                ? html`<fdl-select field=${field} .record=${record}></fdl-select>`
+                : html`<fdl-input field=${field} .record=${record}></fdl-input>`}
+        </div>`;
+    }
+
+    private invoiceClass(invoice: Invoice) {
+        return this.invoiceTypes.status.rowClasses(invoice.status, undefined as any).join(' ');
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.record.addEventListener('change', this.onRecordChange);
+        this.onboarding.addEventListener('change', this.onRecordChange);
+        this.order.addEventListener('change', this.onRecordChange);
     }
 
     disconnectedCallback() {
-        this.record.removeEventListener('change', this.onRecordChange);
+        this.onboarding.removeEventListener('change', this.onRecordChange);
+        this.order.removeEventListener('change', this.onRecordChange);
         super.disconnectedCallback();
     }
 
     render() {
+        const outstanding = invoices
+            .filter(invoice => invoice.status !== 'Paid')
+            .map(invoice => invoice.amount);
+        const totalOutstanding = this.invoiceTypes.amount.aggregate(outstanding);
+
         return html`
             <main>
-                <h1><code>&lt;fdl-input&gt;</code> demo</h1>
-                <p>
-                    Each field is an <code>fdl-input</code> subclass of
-                    <code>FormElement</code>, bound to the same FDL record.
-                </p>
-                <p>
-                    The email address is optional until a full name is entered; then FDL's
-                    <code>requiredWhen()</code> rule makes it required.
-                </p>
-                <p>
-                    Preferred contact method uses <code>.tag('select').options(...)</code> to
-                    create and populate a native dropdown.
-                </p>
+                <header class="hero">
+                    <p class="eyebrow">Digital FDL · field-type modifiers</p>
+                    <h1>Forms that adapt to the work.</h1>
+                    <p class="lede">
+                        Three realistic workflows show how a field definition can control input,
+                        validation, conditional behavior, and data-table presentation.
+                    </p>
+                    <nav aria-label="Demo sections">
+                        <a href="#onboarding">Employee onboarding</a>
+                        <a href="#order">Purchase order</a>
+                        <a href="#invoices">Invoice table</a>
+                    </nav>
+                </header>
 
-                <form novalidate @submit=${this.validate}>
-                    <div class="field">
-                        <fdl-input field="name" .record=${this.record}></fdl-input>
+                <section id="onboarding" class="scenario">
+                    <div class="section-heading">
+                        <p class="eyebrow">Scenario 01</p>
+                        <h2>Employee onboarding</h2>
+                        <p>Start typing a legal name: the work email becomes required. Employee ID remains a read-only value supplied by HR.</p>
+                    </div>
+                    <form class="card" novalidate @submit=${this.validate}>
+                        ${this.renderField(this.onboarding, 'name')}
                         ${this.renderErrors('name')}
-                    </div>
-                    <div class="field">
-                        <fdl-input field="email" .record=${this.record}></fdl-input>
+                        ${this.renderField(this.onboarding, 'email')}
                         ${this.renderErrors('email')}
-                    </div>
-                    <div class="field">
-                        <fdl-select field="contactMethod" .record=${this.record}></fdl-select>
-                        ${this.renderErrors('contactMethod')}
-                    </div>
-                    <button type="submit">Validate form</button>
-                </form>
+                        ${this.renderField(this.onboarding, 'employmentType')}
+                        ${this.renderErrors('employmentType')}
+                        ${this.renderField(this.onboarding, 'employeeId')}
+                        <div class="actions">
+                            <button type="submit">Validate application</button>
+                            <button type="button" class="secondary" @click=${this.resetOnboarding}>Reset</button>
+                        </div>
+                        ${this.hasSubmitted && this.onboarding.isValid()
+                            ? html`<p class="success" role="status">Ready for HR review.</p>`
+                            : nothing}
+                    </form>
+                    <aside class="callout"><code>label · placeholder · autocomplete · type · required · requiredWhen · validator · options · defaultValue · readOnly</code></aside>
+                </section>
 
-                ${this.hasSubmitted && this.record.isValid()
-                    ? html`<p class="success" role="status">The record is valid.</p>`
-                    : null}
+                <section id="order" class="scenario split">
+                    <div class="section-heading">
+                        <p class="eyebrow">Scenario 02</p>
+                        <h2>Purchase order delivery</h2>
+                        <p>Switch to store pickup to hide the address and disable the delivery window. The notes field demonstrates a multi-row input.</p>
+                    </div>
+                    <div class="card">
+                        ${this.renderField(this.order, 'fulfillment')}
+                        ${this.renderField(this.order, 'address')}
+                        ${this.renderField(this.order, 'deliveryWindow')}
+                        ${this.renderField(this.order, 'instructions')}
+                        <p class="hint">${String(this.order.getField('instructions')).length}/140 characters</p>
+                    </div>
+                    <aside class="callout"><code>visibleWhen · disabledWhen · requiredWhen · rowCount · maxLength · emptyWhen · tag</code></aside>
+                </section>
 
-                <h2>Record values</h2>
-                <pre>${JSON.stringify(this.record.values, null, 2)}</pre>
+                <section id="invoices" class="scenario">
+                    <div class="section-heading">
+                        <p class="eyebrow">Scenario 03</p>
+                        <h2>Invoice collection</h2>
+                        <p>Field types also define how a table looks and behaves: formatted money, conditional cell styles, row emphasis, and a calculated total.</p>
+                    </div>
+                    <div class="table-card">
+                        <table>
+                            <thead><tr><th>Invoice</th><th>Customer</th><th>Due date</th><th class="amount">Amount</th><th>Status</th></tr></thead>
+                            <tbody>
+                                ${invoices.map(invoice => html`<tr class=${this.invoiceClass(invoice)}>
+                                    <td>${invoice.invoice}</td><td>${invoice.customer}</td><td>${invoice.dueDate}</td>
+                                    <td class="amount ${this.invoiceTypes.amount.cellClasses(invoice.amount).join(' ')}">${this.invoiceTypes.amount.print(invoice.amount, undefined as any)}</td>
+                                    <td><span class="status ${this.invoiceTypes.status.cellClasses(invoice.status).join(' ')}">${this.invoiceTypes.status.print(invoice.status, undefined as any)}</span></td>
+                                </tr>`)}
+                            </tbody>
+                            <tfoot><tr><td colspan="3">Outstanding balance</td><td class="amount">${currency.format(totalOutstanding)}</td><td></td></tr></tfoot>
+                        </table>
+                    </div>
+                    <aside class="callout"><code>formatter · template · cellClass · conditionalCellClass · rowClasses · textAlign · reducer · minColumnWidth · targetColumnWidth · maxColumnWidth</code></aside>
+                </section>
+
+                <section class="reference">
+                    <p class="eyebrow">Complete reference</p>
+                    <h2>Every builder modifier, grouped by intent.</h2>
+                    <div class="modifier-grid">
+                        ${modifierGroups.map(([heading, modifiers]) => html`<article><h3>${heading}</h3><p>${modifiers}</p></article>`)}
+                    </div>
+                    <p class="legacy-note"><code>schema()</code> and <code>formElement()</code> are compatibility APIs; new controls should use <code>tag()</code> and <code>additionalProperties()</code>.</p>
+                </section>
             </main>
         `;
     }
 
     static styles = css`
-        :host {
-            display: block;
-            color: #1f2937;
-            font-family: system-ui, sans-serif;
-        }
-
-        main {
-            max-width: 42rem;
-            margin: 3rem auto;
-            padding: 0 1.25rem;
-        }
-
-        h1 {
-            margin-bottom: 0.25rem;
-        }
-
-        p {
-            color: #4b5563;
-        }
-
-        form {
-            margin: 2rem 0;
-        }
-
-        .field {
-            margin-bottom: 0.75rem;
-        }
-
-        button {
-            border: 0;
-            border-radius: 0.25rem;
-            background: #1d4ed8;
-            color: white;
-            cursor: pointer;
-            font: inherit;
-            padding: 0.5rem 0.75rem;
-        }
-
-        .errors {
-            color: #b91c1c;
-            font-size: 0.875rem;
-            margin: 0.25rem 0 0 9rem;
-        }
-
-        .success {
-            color: #15803d;
-        }
-
-        pre {
-            overflow: auto;
-            border-radius: 0.375rem;
-            background: #111827;
-            color: #e5e7eb;
-            padding: 1rem;
-        }
+        :host { display: block; min-height: 100vh; color: #172033; background: #f6f8fc; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+        main { max-width: 72rem; margin: 0 auto; padding: 0 1.25rem 5rem; }
+        .hero { padding: 5.5rem 0 4rem; max-width: 48rem; }
+        .eyebrow { margin: 0 0 .6rem; color: #5b52d6; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        h1, h2, h3, p { margin-top: 0; } h1 { max-width: 42rem; margin-bottom: 1rem; color: #111a31; font-family: Georgia, serif; font-size: clamp(2.7rem, 7vw, 5.4rem); font-weight: 500; letter-spacing: -.055em; line-height: .98; }
+        h2 { margin-bottom: .6rem; color: #111a31; font-family: Georgia, serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 500; letter-spacing: -.035em; } h3 { font-size: .9rem; margin-bottom: .35rem; }
+        .lede, .section-heading > p:not(.eyebrow) { color: #586174; font-size: 1.1rem; line-height: 1.65; } nav { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.7rem; } nav a { border: 1px solid #d6daea; border-radius: 100px; color: #343b53; padding: .5rem .8rem; text-decoration: none; }
+        .scenario { padding: 3.5rem 0; border-top: 1px solid #dfe3ee; } .section-heading { max-width: 42rem; margin-bottom: 1.5rem; }
+        .card, .table-card { box-sizing: border-box; border: 1px solid #dfe3ee; border-radius: 1rem; background: white; box-shadow: 0 12px 34px rgba(34, 45, 78, .06); padding: 1.5rem; } .field { margin-bottom: .8rem; } .field:last-of-type { margin-bottom: 0; }
+        .actions { display: flex; gap: .6rem; margin-top: 1.25rem; } button { border: 0; border-radius: .5rem; background: #4438c7; color: #fff; cursor: pointer; font: inherit; font-weight: 700; padding: .7rem 1rem; } button.secondary { background: #eceef8; color: #303850; } .errors { color: #b42318; font-size: .85rem; margin: -.45rem 0 .65rem 9rem; } .success { color: #067647; font-weight: 700; margin: 1rem 0 0; } .hint { color: #6b7384; font-size: .82rem; margin: .6rem 0 0 9rem; }
+        .callout { margin-top: 1rem; color: #636b7b; font-size: .83rem; line-height: 1.6; } code { color: #4539bf; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; } .callout code { color: #5d6474; }
+        .table-card { overflow-x: auto; padding: .5rem; } table { width: 100%; border-collapse: collapse; min-width: 38rem; } th, td { border-bottom: 1px solid #edf0f5; padding: 1rem; text-align: left; } th { color: #737b8b; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; } td { font-size: .94rem; } .amount { text-align: right; font-variant-numeric: tabular-nums; } .high-value { font-weight: 800; } .status { border-radius: 100px; background: #edf0f6; color: #485065; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; white-space: nowrap; } .status.danger { background: #ffebe9; color: #b42318; } .status.warning { background: #fff2d8; color: #a15c00; } .disputed-row { background: #fffdf7; } tfoot td { border: 0; color: #182136; font-weight: 800; }
+        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
+        @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint { margin-left: 0; } }
     `;
 }
 

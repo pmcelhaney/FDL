@@ -37,6 +37,49 @@ describe('<fdl-input>', () => {
 
         element.remove();
     });
+
+    it('creates a textarea without assigning an unsupported input type', async () => {
+        const record = new Record(
+            { notes: new FieldType().with.tag('textarea').and.rowCount(3) },
+            { notes: '' }
+        );
+        const element = document.createElement('fdl-input') as HTMLElement & {
+            field: string;
+            record: Record;
+            updateComplete: Promise<boolean>;
+        };
+        element.field = 'notes';
+        element.record = record;
+        document.body.append(element);
+
+        await element.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(element.shadowRoot?.querySelector('textarea')?.rows).toBe(3);
+        element.remove();
+    });
+
+    it('does not render a field when visibleWhen() returns false', async () => {
+        const record = new Record(
+            { address: new FieldType().with.label('Address').and.visibleWhen(() => false) },
+            { address: '' }
+        );
+        const element = document.createElement('fdl-input') as HTMLElement & {
+            field: string;
+            record: Record;
+            updateComplete: Promise<boolean>;
+        };
+        element.field = 'address';
+        element.record = record;
+        document.body.append(element);
+
+        await element.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(element.shadowRoot?.querySelector('label')).toBeNull();
+        expect(element.shadowRoot?.querySelector('input')).toBeNull();
+        element.remove();
+    });
 });
 
 describe('<fdl-input-demo>', () => {
@@ -52,7 +95,7 @@ describe('<fdl-input-demo>', () => {
         await element.updateComplete;
 
         expect(element.shadowRoot?.querySelector('[role="alert"]')?.textContent).toContain(
-            'Full name is required'
+            'Legal name is required'
         );
         expect(element.shadowRoot?.querySelectorAll('[role="alert"]').length).toBe(2);
 
@@ -66,31 +109,37 @@ describe('<fdl-input-demo>', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
         await element.updateComplete;
 
-        expect(element.shadowRoot?.querySelector('[role="alert"]')?.textContent).toContain(
-            'Email address is required'
-        );
+        expect(element.shadowRoot?.textContent).toContain('Work email is required');
         expect(element.shadowRoot?.querySelectorAll('[role="alert"]').length).toBe(2);
 
+        const emailField = element.shadowRoot?.querySelector('fdl-input[field="email"]') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        await emailField.updateComplete;
+        const emailInput = emailField.shadowRoot?.querySelector('input') as HTMLInputElement;
+        emailInput.value = 'ada@example.com';
+        emailInput.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await element.updateComplete;
+
         const contactMethodField = element.shadowRoot?.querySelector(
-            'fdl-select[field="contactMethod"]'
+            'fdl-select[field="employmentType"]'
         ) as HTMLElement & { updateComplete: Promise<boolean> };
         await contactMethodField.updateComplete;
         const contactMethod = contactMethodField.shadowRoot?.querySelector(
             'select'
         ) as HTMLSelectElement;
         expect([...contactMethod.options].map(option => option.text)).toEqual([
-            'Choose a method',
-            'Email',
-            'Phone',
+            'Choose a type',
+            'Full-time',
+            'Contractor',
         ]);
 
-        contactMethod.value = 'phone';
+        contactMethod.value = 'full-time';
         contactMethod.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
         await new Promise(resolve => setTimeout(resolve, 0));
         await element.updateComplete;
-        expect(element.shadowRoot?.querySelector('pre')?.textContent).toContain(
-            '"contactMethod": "phone"'
-        );
+        expect(element.shadowRoot?.textContent).toContain('Ready for HR review.');
 
         element.remove();
     });

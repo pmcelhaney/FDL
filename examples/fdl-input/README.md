@@ -1,4 +1,4 @@
-# FDL input demo
+# FDL modifier scenarios
 
 This example uses TypeScript source files, so it must be served by Vite rather
 than opened directly from the filesystem.
@@ -11,9 +11,14 @@ Then open the exact URL printed by Vite (normally
 [`http://localhost:5173/`](http://localhost:5173/)). Do not open
 `examples/fdl-input/index.html` with a `file://` URL.
 
-The page contains two `<fdl-input>` elements. Each extends `FormElement` and
-is connected to the same `Record`; the JSON preview updates after a field's
-native `change` event. The email field also uses `requiredWhen()` and becomes
-required after the full-name field has a value. A third field demonstrates an
-`fdl-select` subclass of `FormElement`; its field type uses
-`.tag('select').options(...)` to create the native dropdown inside it.
+The page contains three realistic scenarios:
+
+- employee onboarding demonstrates labels, native input attributes, validation,
+  conditional requirements, defaults, and read-only values;
+- a purchase order demonstrates conditional visibility, disabled state, a native
+  select, and a multi-row textarea;
+- an invoice collection table demonstrates formatting, conditional classes,
+  row classes, and aggregation.
+
+The complete modifier reference at the end of the page includes the remaining
+builder APIs, including table, search, date-range, and compatibility modifiers.

@@ -79,7 +79,7 @@ class FormElement extends ListeningElement {
         // @ts-ignore
         this.element.value = this.record?.getField(this.field);
         this.element.id = this.field;
-        if (!(this.element instanceof HTMLSelectElement)) {
+        if (this.element instanceof HTMLInputElement) {
             this.element.type = this.fieldType?.type();
         }
         this.element.required = this.fieldType?.required(this.record);
@@ -173,6 +173,7 @@ class FormElement extends ListeningElement {
     renderElement() {
         if (!this.record) return nothing;
         if (!this.element) return nothing;
+        if (!this.fieldType?.visible(this.record)) return nothing;
         if (this.element.readonly && !this.fieldType?.usesCustomPrint())
             return html`<div class="control">${this.record.print(this.field)}</div>`;
         return html`<div class="control" id=${this.field}>${this.element}</div>`;

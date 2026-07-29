@@ -20,7 +20,8 @@ export class FdlInput extends FormElement {
             }
 
             input,
-            select {
+            select,
+            textarea {
                 width: 100%;
                 border: 1px solid #9ca3af;
                 border-radius: 0.25rem;
@@ -28,7 +29,8 @@ export class FdlInput extends FormElement {
                 font: inherit;
             }
 
-            input:focus-visible {
+            input:focus-visible,
+            textarea:focus-visible {
                 outline: 2px solid #2563eb;
                 outline-offset: 2px;
             }
