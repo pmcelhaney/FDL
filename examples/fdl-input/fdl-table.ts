@@ -221,6 +221,24 @@ export class FdlTable extends LitElement {
             text-align: left;
         }
 
+        .numeric-cell {
+            background: #f7f8ff;
+            color: #34308f;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+
+        .high-value {
+            background: #fff4d6;
+            color: #8a4b00;
+            font-weight: 800;
+        }
+
+        tr.disputed-row {
+            background: #fffdf7;
+            box-shadow: inset 0.25rem 0 #d89b24;
+        }
+
         th {
             color: #586174;
             font-size: 0.75rem;
