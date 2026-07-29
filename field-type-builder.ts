@@ -245,6 +245,7 @@ export default class FieldTypeBuilder<T> {
         return new this.FieldType<T>({ ...this.properties });
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     accept(string: string) {
         const copy = this.copy();
         copy.properties.accept = string;
@@ -255,6 +256,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     autofocus() {
         const copy = this.copy();
         copy.properties.autofocus = true;
@@ -265,6 +267,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     list(id: string) {
         const copy = this.copy();
         copy.properties.list = id;
@@ -275,6 +278,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     max(number: number) {
         const copy = this.copy();
         copy.properties.max = number;
@@ -285,6 +289,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     pattern(p: RegExp) {
         const copy = this.copy();
         copy.properties.pattern = p;
@@ -295,6 +300,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific input configuration instead. */
     step(increment: number) {
         const copy = this.copy();
         copy.properties.step = increment;
@@ -428,12 +434,14 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Label visibility belongs to the renderer, not the field definition. */
     hideLabel() {
         const copy = this.copy();
         copy.properties.hideLabel = true;
         return copy;
     }
 
+    /** @deprecated Custom print behavior belongs to the renderer. */
     usesCustomPrint() {
         const copy = this.copy();
         copy.properties.usesCustomPrint = true;
@@ -537,6 +545,7 @@ export default class FieldTypeBuilder<T> {
     }
 
     /**
+     * @deprecated Use a renderer-specific control configuration instead.
      * the html tag to be used on this field type
      * @param tag
      */
@@ -568,6 +577,7 @@ export default class FieldTypeBuilder<T> {
     }
 
     /**
+     * @deprecated Tooltip presentation belongs to the renderer.
      * Supply a message to be used with an information icon tooltip for fields displayed in Omega forms.
      */
     iconMessage(message: string) {
@@ -770,6 +780,7 @@ export default class FieldTypeBuilder<T> {
     }
 
     /**
+     * @deprecated Composite-control read-only exceptions belong to the renderer.
      * Determines whether an exception exists for another read only condition.
      * For example, if a field has multiple sub-components with different read-only conditions
      * @param {{(record:Record) : boolean}} fn
@@ -988,6 +999,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Formatting policy belongs to the renderer and value pipeline. */
     formatOnChange() {
         const copy = this.copy();
         copy.properties.formatOnChange = true;
@@ -998,6 +1010,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Express derived values through record/model behavior instead. */
     onValueChange(fn: Function) {
         const copy = this.copy();
         copy.properties.descriptions = [...copy.properties.descriptions, 'on value change'];
@@ -1006,6 +1019,7 @@ export default class FieldTypeBuilder<T> {
     }
 
     /**
+     * @deprecated Field definitions should be bound by the record/renderer, not by an alias.
      * The field used on this field type's record / recordset
      */
     field(field: string) {
@@ -1015,6 +1029,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Avoid passing arbitrary renderer properties through the field definition. */
     additionalProperties(additionalProperties: any) {
         const copy = this.copy();
         copy.properties.additionalProperties = additionalProperties;

@@ -136,6 +136,29 @@ describe('<fdl-input-demo>', () => {
         expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
 
         [
+            'accept',
+            'additionalProperties',
+            'autofocus',
+            'field',
+            'formatOnChange',
+            'hideLabel',
+            'iconMessage',
+            'list',
+            'max',
+            'onValueChange',
+            'pattern',
+            'readOnlyExceptionWhen',
+            'step',
+            'tag',
+            'usesCustomPrint',
+        ].forEach(modifier => {
+            const card = catalog.shadowRoot?.querySelector<HTMLElement>(
+                `[data-modifier="${modifier}"]`
+            );
+            expect(card?.dataset.status).toBe('placeholder');
+        });
+
+        [
             'cellClass',
             'compareFunction',
             'conditionalCellClass',

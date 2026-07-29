@@ -31,8 +31,7 @@ const onboardingCode = `const onboarding = {
       validate: value => value === '' || /\\S+@\\S+\\.\\S+/.test(String(value)),
     }),
   employmentType: new FieldType().with
-    .tag('select')
-    .and.label('Employment type')
+    .label('Employment type')
     .and.options([
       { text: 'Choose a type', value: '' },
       { text: 'Full-time', value: 'full-time' },
@@ -47,8 +46,7 @@ const onboardingCode = `const onboarding = {
 
 const orderCode = `const order = {
   fulfillment: new FieldType().with
-    .tag('select')
-    .and.label('Fulfillment')
+    .label('Fulfillment')
     .and.options([
       { text: 'Ship to customer', value: 'ship' },
       { text: 'Store pickup', value: 'pickup' },
@@ -59,8 +57,7 @@ const orderCode = `const order = {
     .and.visibleWhen(record => record.getField('fulfillment') === 'ship')
     .and.requiredWhen(record => record.getField('fulfillment') === 'ship'),
   deliveryWindow: new FieldType().with
-    .tag('select')
-    .and.label('Delivery window')
+    .label('Delivery window')
     .and.disabledWhen(record => record.getField('fulfillment') === 'pickup')
     .and.options([
       { text: '8–10 AM', value: 'morning' },
@@ -68,8 +65,7 @@ const orderCode = `const order = {
       { text: '4–6 PM', value: 'afternoon' },
     ]),
   instructions: new FieldType().with
-    .tag('textarea')
-    .and.label('Delivery instructions')
+    .label('Delivery instructions')
     .and.rowCount(3)
     .and.maxLength(140)
     .and.placeholder('Loading dock entrance is on 4th Street.')
@@ -127,8 +123,7 @@ export class FdlInputDemo extends LitElement {
                     validate: value => value === '' || /^\S+@\S+\.\S+$/.test(String(value)),
                 }),
             employmentType: new FieldType().with
-                .tag('select')
-                .and.label('Employment type')
+                .label('Employment type')
                 .and.options([
                     { text: 'Choose a type', value: '' },
                     { text: 'Full-time', value: 'full-time' },
@@ -147,8 +142,7 @@ export class FdlInputDemo extends LitElement {
     private order = new Record(
         {
             fulfillment: new FieldType().with
-                .tag('select')
-                .and.label('Fulfillment')
+                .label('Fulfillment')
                 .and.options([
                     { text: 'Ship to customer', value: 'ship' },
                     { text: 'Store pickup', value: 'pickup' },
@@ -159,8 +153,7 @@ export class FdlInputDemo extends LitElement {
                 .and.visibleWhen(record => record.getField('fulfillment') === 'ship')
                 .and.requiredWhen(record => record.getField('fulfillment') === 'ship'),
             deliveryWindow: new FieldType().with
-                .tag('select')
-                .and.label('Delivery window')
+                .label('Delivery window')
                 .and.disabledWhen(record => record.getField('fulfillment') === 'pickup')
                 .and.options([
                     { text: '8–10 AM', value: 'morning' },
@@ -168,8 +161,7 @@ export class FdlInputDemo extends LitElement {
                     { text: '4–6 PM', value: 'afternoon' },
                 ]),
             instructions: new FieldType().with
-                .tag('textarea')
-                .and.label('Delivery instructions')
+                .label('Delivery instructions')
                 .and.rowCount(3)
                 .and.maxLength(140)
                 .and.placeholder('Loading dock entrance is on 4th Street.')
@@ -236,13 +228,11 @@ export class FdlInputDemo extends LitElement {
         </details>`;
     }
 
-    private renderField(record: Record, field: string) {
-        const fieldType = record.fieldTypeForField(field);
-        const element = fieldType.tag() === 'select' ? 'fdl-select' : 'fdl-input';
+    private renderField(record: Record, field: string, control: 'input' | 'select' | 'textarea' = 'input') {
         return html`<div class="field">
-            ${element === 'fdl-select'
+            ${control === 'select'
                 ? html`<fdl-select field=${field} .record=${record}></fdl-select>`
-                : html`<fdl-input field=${field} .record=${record}></fdl-input>`}
+                : html`<fdl-input field=${field} control=${control} .record=${record}></fdl-input>`}
         </div>`;
     }
 
@@ -296,7 +286,7 @@ export class FdlInputDemo extends LitElement {
                         ${this.renderErrors('name')}
                         ${this.renderField(this.onboarding, 'email')}
                         ${this.renderErrors('email')}
-                        ${this.renderField(this.onboarding, 'employmentType')}
+                        ${this.renderField(this.onboarding, 'employmentType', 'select')}
                         ${this.renderErrors('employmentType')}
                         ${this.renderField(this.onboarding, 'employeeId')}
                         <div class="actions">
@@ -318,13 +308,13 @@ export class FdlInputDemo extends LitElement {
                         <p>Switch to store pickup to hide the address and disable the delivery window. The notes field demonstrates a multi-row input.</p>
                     </div>
                     <div class="card">
-                        ${this.renderField(this.order, 'fulfillment')}
+                        ${this.renderField(this.order, 'fulfillment', 'select')}
                         ${this.renderField(this.order, 'address')}
-                        ${this.renderField(this.order, 'deliveryWindow')}
-                        ${this.renderField(this.order, 'instructions')}
+                        ${this.renderField(this.order, 'deliveryWindow', 'select')}
+                        ${this.renderField(this.order, 'instructions', 'textarea')}
                         <p class="hint">${String(this.order.getField('instructions')).length}/140 characters</p>
                     </div>
-                    <aside class="callout"><code>visibleWhen · disabledWhen · requiredWhen · rowCount · maxLength · emptyWhen · tag</code></aside>
+                    <aside class="callout"><code>visibleWhen · disabledWhen · requiredWhen · rowCount · maxLength · emptyWhen</code></aside>
                     ${this.renderCode('View the order field types', orderCode)}
                 </section>
 

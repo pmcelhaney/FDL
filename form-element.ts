@@ -33,7 +33,8 @@ class FormElement extends ListeningElement {
         if (!this.record) throw new Error('OmegaFormElement: record is required');
         if (!this.field) throw new Error('OmegaFormElement: field is required');
         this.fieldType = this.record.fieldTypeForField(this.field);
-        const tag = this.fieldType?.tag();
+        const tag = this.getAttribute('control') ??
+            (this.localName === 'fdl-select' ? 'select' : this.fieldType?.tag());
         this.element = document.createElement(tag);
         await this.destructureFieldType();
         this.addListenersToElement();

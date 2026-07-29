@@ -9,11 +9,11 @@ import './fdl-table';
 type DemoName =
     | 'additionalProperties' | 'cellClass' | 'compareFunction' | 'conditionalCellClass'
     | 'defaultValue' | 'description' | 'disabled' | 'disabledWhen' | 'emptyWhen'
-    | 'exampleValue' | 'field' | 'filter' | 'formatter' | 'hashFunction' | 'hideLabel'
+    | 'exampleValue' | 'filter' | 'formatter' | 'hashFunction'
     | 'inputMask' | 'label' | 'maxColumnWidth' | 'maxLength'
-    | 'minColumnWidth' | 'minLength' | 'onValueChange' | 'options'
+    | 'minColumnWidth' | 'minLength' | 'options'
     | 'placeholder' | 'readOnly' | 'readOnlyWhen' | 'reducer' | 'required'
-    | 'requiredWhen' | 'rowClasses' | 'rowCount' | 'sortable' | 'step' | 'tag'
+    | 'requiredWhen' | 'rowClasses' | 'rowCount' | 'sortable'
     | 'targetColumnWidth' | 'template' | 'textAlign' | 'type' | 'validator'
     | 'visibleWhen';
 
@@ -39,7 +39,7 @@ const placeholder = (name: string, intent: string, limitation: string): CatalogE
 
 const entries: CatalogEntry[] = [
     placeholder('accept', 'Restricts the file types offered by a file input.', 'The native attribute is wired, but choosing a file exposes a current adapter bug: FormElement writes the browser’s file-path string back to input[type=file], which browsers reject. A live picker would therefore be misleading.'),
-    live('additionalProperties', 'Assigns extra properties directly to the rendered control.', 'additionalProperties', `.additionalProperties({ title: 'Used by the finance team' })`),
+    placeholder('additionalProperties', 'Assigns extra properties directly to the rendered control.', 'This renderer escape hatch is deprecated because it couples a field definition to arbitrary component properties.'),
     placeholder('asyncValidator', 'Registers a validation rule intended to run asynchronously.', 'The builder stores async validators, but current FieldType.validate() and Record validation do not execute that collection. There is no completion or error path to demonstrate yet.'),
     placeholder('autocomplete', 'Sets the browser autocomplete token for a control.', 'The attribute is wired, but a functional demonstration depends on browser profile data and autofill policy. The example cannot produce a deterministic, privacy-safe result.'),
     placeholder('autofocus', 'Requests focus when the control is first connected.', 'Autofocusing one card in a long reference page would unexpectedly steal focus and scroll position. A reliable example needs an isolated route or dialog lifecycle.'),
@@ -65,7 +65,7 @@ const entries: CatalogEntry[] = [
     live('disabledWhen', 'Disables a control only while a record predicate is true.', 'disabledWhen', `.disabledWhen(record => record.getField('status') === 'approved')`),
     live('emptyWhen', 'Defines additional values that should count as empty during validation.', 'emptyWhen', `.emptyWhen(value => value === 'N/A')`),
     live('exampleValue', 'Supplies fixed or index-derived values for generated example records.', 'exampleValue', `.exampleValue(index => \`Sample contact \${index + 1}\`)`),
-    live('field', 'Associates an alternate source-field name with the field type.', 'field', `.field('owner_id')`),
+    placeholder('field', 'Associates an alternate source-field name with the field type.', 'Field definitions should be bound by the Record and renderer rather than storing a second field-name alias.'),
     live('filter', 'Defines how a search term matches a candidate value.', 'filter', `.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase()))`),
     placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
     placeholder('formatOnChange', 'Requests that a control apply its formatter while the value changes.', 'FormElement forwards this as an expando property, but native controls do not read it and the adapter writes raw values directly to the record.'),
@@ -73,7 +73,7 @@ const entries: CatalogEntry[] = [
     placeholder('formElement', 'Selects a legacy custom form element and passes it properties.', legacyGap),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
     placeholder('hasSearch', 'Enables search affordances without supplying a full search configuration.', customControlGap),
-    live('hideLabel', 'Keeps a configured label for metadata while hiding its visual rendering.', 'hideLabel', `.label('Search').and.hideLabel()`),
+    placeholder('hideLabel', 'Keeps a configured label for metadata while hiding its visual rendering.', 'Label visibility is renderer policy and is deprecated on the field definition.'),
     placeholder('iconMessage', 'Supplies informational tooltip text for a field.', 'FieldType exposes the message, but FormElement never renders an icon or tooltip. A live example needs a design-system control that consumes it.'),
     placeholder('inline', 'Marks a compatible control as using an inline layout.', customControlGap),
     placeholder('inlineWhen', 'Enables inline layout only while a record predicate is true.', customControlGap),
@@ -86,7 +86,7 @@ const entries: CatalogEntry[] = [
     live('minColumnWidth', 'Sets the minimum width requested for a table column.', 'minColumnWidth', `.minColumnWidth(110)`),
     live('minLength', 'Sets a minimum input length and adds equivalent record validation.', 'minLength', `.minLength(4)`),
     placeholder('multipleValues', 'Models a field as an array with minimum and maximum selection counts.', 'FormElement sets the native multiple property but reads only event.target.value, so it stores one string instead of the selected array and does not enforce the count bounds.'),
-    live('onValueChange', 'Runs a record-level reaction after this field commits a changed value.', 'onValueChange', `.onValueChange(record => record.setField('total', Number(record.getField('quantity')) * 25))`),
+    placeholder('onValueChange', 'Runs a record-level reaction after this field commits a changed value.', 'Imperative event reactions are deprecated here; derived values should be expressed through record/model behavior.'),
     live('options', 'Supplies static or fetched choices and can refresh them from dependency fields.', 'options', `.options({ fields: ['department'], fetch: record => directory[record.getField('department')] })`),
     placeholder('parseDynamicRange', 'Requests parsing for expressions such as relative or dynamic date ranges.', 'The flag is forwarded for a custom date-range control, but this example has no date-range parser or control to consume it.'),
     placeholder('parser', 'Transforms an incoming display value into the stored model representation.', 'FieldType.parse() and Record.parseAndSetField() can invoke the parser, but FormElement commits native input with record.setField() and bypasses it. A standalone computed call would not demonstrate the actual form path.'),
@@ -100,15 +100,15 @@ const entries: CatalogEntry[] = [
     live('required', 'Always requires a non-empty value and adds record validation.', 'required', `.required()`),
     live('requiredWhen', 'Requires a value only while a record predicate is true.', 'requiredWhen', `.requiredWhen(record => record.getField('followUp') === 'yes')`),
     live('rowClasses', 'Computes CSS classes for the table row containing a value.', 'rowClasses', `.rowClasses(value => value === 'Disputed' ? ['disputed-row'] : [])`),
-    live('rowCount', 'Sets the visible row count of textarea-like controls.', 'rowCount', `.tag('textarea').and.rowCount(4)`),
+    live('rowCount', 'Sets the visible row count of textarea-like controls.', 'rowCount', `.rowCount(4)`),
     placeholder('schema', 'Associates a deprecated legacy schema identifier with the field.', 'The value is retained as deprecated metadata, but the native FormElement adapter does not select a control from it. The remaining range/datepicker special cases do not define a clear standalone form contract.'),
     placeholder('search', 'Enables a rich option-search dialog and describes its result columns.', customControlGap),
     placeholder('segmented', 'Requests segmented-choice presentation from a compatible control.', customControlGap),
     placeholder('selectionDisabledFunctions', 'Supplies predicates that disable individual choices, such as dates.', 'FormElement only forwards the date predicate as an expando property. Native select and date inputs do not use it to disable individual choices.'),
     placeholder('selectOnFocus', 'Requests selecting all text when a compatible control receives focus.', 'The flag is forwarded as an expando property, but FormElement does not attach a focus handler and native inputs do not interpret that property.'),
     live('sortable', 'Enables or disables sorting for a table column.', 'sortable', `.sortable(false)`),
-    live('step', 'Sets the increment used by numeric or date inputs.', 'step', `.type('number').and.step(0.25)`),
-    live('tag', 'Chooses the native or custom tag created for the form control.', 'tag', `.tag('textarea')`),
+    placeholder('step', 'Sets the increment used by numeric or date inputs.', 'Native control configuration is renderer-specific and this modifier is deprecated.'),
+    placeholder('tag', 'Chooses the native or custom tag created for the form control.', 'Control selection is renderer policy and is deprecated on the field definition.'),
     live('targetColumnWidth', 'Sets the preferred width requested for a table column.', 'targetColumnWidth', `.targetColumnWidth(140)`),
     live('template', 'Transforms a formatted value into its final printed or table representation.', 'template', `.template(value => \`Invoice #\${value}\`)`),
     live('textAlign', 'Stores the preferred left, center, or right alignment for rendered values.', 'textAlign', `.textAlign('right')`),
@@ -131,33 +131,31 @@ export class FdlModifierCatalog extends LitElement {
 
     private record = new Record(
         {
-            extraProperty: new FieldType().with.label('Hover for the native title').and.additionalProperties({ title: 'Used by the finance team' }),
+            extraProperty: new FieldType().with.label('Extra property example'),
             lockedId: new FieldType().with.label('System ID').and.disabled(),
-            approvalStatus: new FieldType().with.tag('select').and.label('Approval status').and.options([{ text: 'Draft', value: 'draft' }, { text: 'Approved', value: 'approved' }]),
+            approvalStatus: new FieldType().with.label('Approval status').and.options([{ text: 'Draft', value: 'draft' }, { text: 'Approved', value: 'approved' }]),
             budget: new FieldType().with.label('Budget').and.type('number').and.disabledWhen(record => record.getField('approvalStatus') === 'approved'),
             emptyCode: new FieldType().with.label('Reference').and.required().and.emptyWhen(value => value === 'N/A'),
-            hiddenSearch: new FieldType().with.label('Search directory').and.hideLabel().and.placeholder('Search directory').and.additionalProperties({ ariaLabel: 'Search directory' }),
-            expenseType: new FieldType().with.tag('select').and.label('Expense type').and.options([{ text: 'Travel', value: 'travel' }, { text: 'Equipment', value: 'equipment' }]),
+            hiddenSearch: new FieldType().with.label('Search directory').and.placeholder('Search directory'),
+            expenseType: new FieldType().with.label('Expense type').and.options([{ text: 'Travel', value: 'travel' }, { text: 'Equipment', value: 'equipment' }]),
             dynamicAmount: new FieldType<any>().with.label((record: any) => `Amount for ${record.getField('expenseType')}`).and.type('number'),
             shortCode: new FieldType().with.label('Short code').and.maxLength(12),
             longCode: new FieldType().with.label('Access code').and.minLength(4),
-            quantity: new FieldType<any>().with.tag('select').and.label('Quantity').and.options([{ text: '1', value: 1 }, { text: '2', value: 2 }, { text: '4', value: 4 }]).and.onValueChange((record: any) => record.setField('total', Number(record.getField('quantity')) * 25)),
+            quantity: new FieldType<any>().with.label('Quantity').and.options([{ text: '1', value: 1 }, { text: '2', value: 2 }, { text: '4', value: 4 }]),
             total: new FieldType().with.label('Total at $25 each').and.formatter(value => currency.format(Number(value))).and.readOnly(),
-            department: new FieldType().with.tag('select').and.label('Department').and.options([{ text: 'Engineering', value: 'engineering' }, { text: 'Finance', value: 'finance' }]),
-            assignee: new FieldType<any>().with.tag('select').and.label('Assignee').and.options({ fields: ['department'], fetch: (record: any) => Promise.resolve(record.getField('department') === 'finance' ? [{ text: 'Katherine Johnson', value: 'katherine' }, { text: 'Mary Jackson', value: 'mary' }] : [{ text: 'Grace Hopper', value: 'grace' }, { text: 'Margaret Hamilton', value: 'margaret' }]) }),
+            department: new FieldType().with.label('Department').and.options([{ text: 'Engineering', value: 'engineering' }, { text: 'Finance', value: 'finance' }]),
+            assignee: new FieldType<any>().with.label('Assignee').and.options({ fields: ['department'], fetch: (record: any) => Promise.resolve(record.getField('department') === 'finance' ? [{ text: 'Katherine Johnson', value: 'katherine' }, { text: 'Mary Jackson', value: 'mary' }] : [{ text: 'Grace Hopper', value: 'grace' }, { text: 'Margaret Hamilton', value: 'margaret' }]) }),
             projectName: new FieldType().with.label('Project name').and.placeholder('For example, Apollo migration'),
             fixedOwner: new FieldType().with.label('Owner').and.readOnly(),
-            phase: new FieldType().with.tag('select').and.label('Phase').and.options([{ text: 'Draft', value: 'draft' }, { text: 'Submitted', value: 'submitted' }]),
+            phase: new FieldType().with.label('Phase').and.options([{ text: 'Draft', value: 'draft' }, { text: 'Submitted', value: 'submitted' }]),
             conditionalOwner: new FieldType().with.label('Request owner').and.readOnlyWhen(record => record.getField('phase') === 'submitted'),
             requiredName: new FieldType().with.label('Legal name').and.required(),
-            followUp: new FieldType().with.tag('select').and.label('Follow-up needed?').and.options([{ text: 'No', value: 'no' }, { text: 'Yes', value: 'yes' }]),
-            followUpNotes: new FieldType().with.tag('textarea').and.label('Follow-up notes').and.rowCount(2).and.requiredWhen(record => record.getField('followUp') === 'yes'),
-            comments: new FieldType().with.tag('textarea').and.label('Comments').and.rowCount(4),
-            increment: new FieldType().with.label('Increment').and.type('number').and.step(0.25),
-            textareaTag: new FieldType().with.tag('textarea').and.label('Control created by tag()').and.rowCount(2),
+            followUp: new FieldType().with.label('Follow-up needed?').and.options([{ text: 'No', value: 'no' }, { text: 'Yes', value: 'yes' }]),
+            followUpNotes: new FieldType().with.label('Follow-up notes').and.rowCount(2).and.requiredWhen(record => record.getField('followUp') === 'yes'),
+            comments: new FieldType().with.label('Comments').and.rowCount(4),
             dateType: new FieldType().with.label('Start date').and.type('date'),
             projectCode: new FieldType().with.label('Project code').and.validator({ name: 'must look like PRJ-1234', validate: value => /^PRJ-\d{4}$/.test(String(value)) }),
-            fulfillment: new FieldType().with.tag('select').and.label('Fulfillment').and.options([{ text: 'Ship', value: 'ship' }, { text: 'Pickup', value: 'pickup' }]),
+            fulfillment: new FieldType().with.label('Fulfillment').and.options([{ text: 'Ship', value: 'ship' }, { text: 'Pickup', value: 'pickup' }]),
             address: new FieldType().with.label('Shipping address').and.visibleWhen(record => record.getField('fulfillment') === 'ship'),
         },
         {
@@ -165,14 +163,13 @@ export class FdlModifierCatalog extends LitElement {
             emptyCode: 'N/A', hiddenSearch: '', expenseType: 'travel', dynamicAmount: '',
             shortCode: '', longCode: '', quantity: 2, total: 50, department: 'engineering', assignee: 'grace',
             projectName: '', fixedOwner: 'Ada Lovelace', phase: 'draft', conditionalOwner: 'Ada Lovelace', requiredName: '',
-            followUp: 'no', followUpNotes: '', comments: '', increment: 1, textareaTag: '', dateType: '', projectCode: '',
+            followUp: 'no', followUpNotes: '', comments: '', dateType: '', projectCode: '',
             fulfillment: 'ship', address: '',
         }
     );
 
     private descriptionType = new FieldType().with.description('Internal finance reference');
     private exampleType = new FieldType<string>().with.exampleValue(index => `Sample contact ${index + 1}`);
-    private fieldType = new FieldType().with.field('owner_id');
     private filterType = new FieldType().with.filter(((text: string, value: string) => value.toLowerCase().startsWith(text.toLowerCase())) as any);
     private hashType = new FieldType().with.hashFunction((employee: { id: string }) => employee.id);
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
@@ -273,11 +270,10 @@ export class FdlModifierCatalog extends LitElement {
         this.requestUpdate();
     };
 
-    private renderField(field: string, record: Record<any> = this.record) {
-        const fieldType = record.fieldTypeForField(field);
-        return fieldType.tag() === 'select'
+    private renderField(field: string, record: Record<any> = this.record, control: 'input' | 'select' | 'textarea' = 'input') {
+        return control === 'select'
             ? html`<fdl-select field=${field} .record=${record}></fdl-select>`
-            : html`<fdl-input field=${field} .record=${record}></fdl-input>`;
+            : html`<fdl-input field=${field} control=${control} .record=${record}></fdl-input>`;
     }
 
     private setMessage(field: string) {
@@ -292,8 +288,8 @@ export class FdlModifierCatalog extends LitElement {
         return this.messages[field] ? html`<p class="result" role="status">${this.messages[field]}</p>` : nothing;
     }
 
-    private renderValidation(field: string) {
-        return html`${this.renderField(field)}<button type="button" @click=${() => this.setMessage(field)}>Check value</button>${this.message(field)}`;
+    private renderValidation(field: string, control: 'input' | 'textarea' = 'input') {
+        return html`${this.renderField(field, this.record, control)}<button type="button" @click=${() => this.setMessage(field)}>Check value</button>${this.message(field)}`;
     }
 
     private renderWidth(name: 'maxColumnWidth' | 'minColumnWidth' | 'targetColumnWidth') {
@@ -303,7 +299,6 @@ export class FdlModifierCatalog extends LitElement {
 
     private renderDemo(name: DemoName): TemplateResult {
         switch (name) {
-            case 'additionalProperties': return html`<p class="try">Hover the input to see the extra native <code>title</code> property.</p>${this.renderField('extraProperty')}`;
             case 'cellClass': return html`<p class="try">The Amount cells receive the <code>numeric-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="category"></fdl-column></fdl-table>`;
             case 'compareFunction': {
                 return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
@@ -317,40 +312,36 @@ export class FdlModifierCatalog extends LitElement {
             case 'defaultValue': return html`${this.renderField('defaultId', this.defaultRecord)}<button type="button" @click=${this.clearDefaultRecord}>Clear the record</button><p class="computed">Current record value: ${this.defaultRecord.getField('defaultId')}</p>`;
             case 'description': return html`<p class="computed">FieldType.info(): ${this.descriptionType.info()}</p>`;
             case 'disabled': return html`${this.renderField('lockedId')}`;
-            case 'disabledWhen': return html`<p class="try">Choose Approved to disable Budget.</p>${this.renderField('approvalStatus')}${this.renderField('budget')}`;
+            case 'disabledWhen': return html`<p class="try">Choose Approved to disable Budget.</p>${this.renderField('approvalStatus', this.record, 'select')}${this.renderField('budget')}`;
             case 'emptyWhen': return html`<p class="try">“N/A” is configured to count as empty.</p>${this.renderValidation('emptyCode')}`;
             case 'exampleValue': return html`<p class="computed">Generated values: ${[0, 1, 2].map(index => this.exampleType.exampleValue()(index)).join(', ')}</p>`;
-            case 'field': return html`<p class="computed">Mapped source field: <code>${this.fieldType.field()}</code></p>`;
             case 'filter': return html`<p class="computed">Search “gr” matches Grace: ${String(this.filterType.match('gr', 'Grace'))}; matches Ada: ${String(this.filterType.match('gr', 'Ada'))}</p>`;
             case 'formatter': return html`<p class="try">The record stores <code>1250</code>; the table prints the formatted value.</p><fdl-table .recordset=${this.formatterRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="invoice"></fdl-column></fdl-table>`;
             case 'hashFunction': return html`<p class="computed">Two separate employee objects hash to “${this.hashType.hashFunction()({ id: 'ada' })}” and “${this.hashType.hashFunction()({ id: 'ada' })}”, so a consumer can match their identity.</p>`;
-            case 'hideLabel': return html`<p class="try">The visual label is hidden; the input keeps an accessible name and placeholder.</p>${this.renderField('hiddenSearch')}`;
             case 'inputMask': return html`<p class="computed">Allowed: “7” ${String(this.maskType.allowInputChar('7'))}, “.” ${String(this.maskType.allowInputChar('.'))}; blocked: “A” ${String(this.maskType.allowInputChar('A'))}. The native adapter does not enforce this during typing.</p>`;
-            case 'label': return html`<p class="try">Change the expense type and watch the amount label.</p>${this.renderField('expenseType')}${this.renderField('dynamicAmount')}`;
+            case 'label': return html`<p class="try">Change the expense type and watch the amount label.</p>${this.renderField('expenseType', this.record, 'select')}${this.renderField('dynamicAmount')}`;
             case 'maxColumnWidth': return this.renderWidth('maxColumnWidth');
             case 'maxLength': return this.renderValidation('shortCode');
             case 'minColumnWidth': return this.renderWidth('minColumnWidth');
             case 'minLength': return this.renderValidation('longCode');
-            case 'onValueChange': return html`<p class="try">Choose a quantity; Total updates at $25 each.</p>${this.renderField('quantity')}${this.renderField('total')}`;
-            case 'options': return html`<p class="try">Change Department; Assignee choices refresh.</p>${this.renderField('department')}${this.renderField('assignee')}`;
+            case 'options': return html`<p class="try">Change Department; Assignee choices refresh.</p>${this.renderField('department', this.record, 'select')}${this.renderField('assignee', this.record, 'select')}`;
             case 'placeholder': return html`${this.renderField('projectName')}`;
             case 'readOnly': return html`${this.renderField('fixedOwner')}`;
-            case 'readOnlyWhen': return html`<p class="try">Choose Submitted to replace the owner input with printed text.</p>${this.renderField('phase')}${this.renderField('conditionalOwner')}`;
+            case 'readOnlyWhen': return html`<p class="try">Choose Submitted to replace the owner input with printed text.</p>${this.renderField('phase', this.record, 'select')}${this.renderField('conditionalOwner')}`;
             case 'reducer': return html`<p class="computed">aggregate([1200, 800, 500]) → ${currency.format(this.reducerType.aggregate([1200, 800, 500]))}</p>`;
             case 'required': return this.renderValidation('requiredName');
-            case 'requiredWhen': return html`<p class="try">Choose Yes, then check the empty notes.</p>${this.renderField('followUp')}${this.renderValidation('followUpNotes')}`;
+            case 'requiredWhen': return html`<p class="try">Choose Yes, then check the empty notes.</p>${this.renderField('followUp', this.record, 'select')}${this.renderValidation('followUpNotes', 'textarea')}`;
             case 'rowClasses': return html`<p class="try">Only the Disputed row receives the <code>disputed-row</code> class.</p><fdl-table .recordset=${this.rowClassRecordset}><fdl-column field="status"></fdl-column><fdl-column field="owner"></fdl-column></fdl-table>`;
-            case 'rowCount': return html`${this.renderField('comments')}`;
+            case 'rowCount': return html`${this.renderField('comments', this.record, 'textarea')}`;
             case 'sortable': return html`<p class="computed">Sortable metadata: ${String((this.sortableType as any).properties.sortable)}. The disabled sort button represents the consuming table.</p><button type="button" disabled>Sort column</button>`;
-            case 'step': return html`${this.renderField('increment')}<p class="computed">Use the spinner: it advances by 0.25.</p>`;
-            case 'tag': return html`${this.renderField('textareaTag')}`;
             case 'targetColumnWidth': return this.renderWidth('targetColumnWidth');
             case 'template': return html`<p class="try">The stored value <code>1048</code> is rendered through the field template.</p><fdl-table .recordset=${this.templateRecordset}><fdl-column field="invoice"></fdl-column><fdl-column field="status"></fdl-column></fdl-table>`;
             case 'textAlign': return html`<p class="try">The columns demonstrate left, center, and right alignment.</p><fdl-table .recordset=${this.alignRecordset}><fdl-column field="left"></fdl-column><fdl-column field="center"></fdl-column><fdl-column field="right"></fdl-column></fdl-table>`;
             case 'type': return html`${this.renderField('dateType')}`;
             case 'validator': return this.renderValidation('projectCode');
-            case 'visibleWhen': return html`<p class="try">Choose Pickup to remove Shipping address.</p>${this.renderField('fulfillment')}${this.renderField('address')}`;
+            case 'visibleWhen': return html`<p class="try">Choose Pickup to remove Shipping address.</p>${this.renderField('fulfillment', this.record, 'select')}${this.renderField('address')}`;
         }
+        return html``;
     }
 
     private renderEntry(entry: CatalogEntry) {
