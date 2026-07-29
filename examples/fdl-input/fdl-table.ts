@@ -25,15 +25,6 @@ export class FdlColumn extends HTMLElement {
         this.setAttribute('label', value);
     }
 
-    get sortable() {
-        const value = this.getAttribute('sortable');
-        return value !== null && value !== 'false';
-    }
-
-    set sortable(value: boolean) {
-        if (value) this.setAttribute('sortable', 'true');
-        else this.removeAttribute('sortable');
-    }
 }
 
 export class FdlTable extends LitElement {
@@ -95,8 +86,12 @@ export class FdlTable extends LitElement {
         return index < 0 ? undefined : index + 1;
     }
 
+    private isSortable(column: FdlColumn) {
+        return this.recordset?.getFieldType(column.field).sortable() ?? false;
+    }
+
     private async sort(column: FdlColumn) {
-        if (!this.recordset || !column.sortable) return;
+        if (!this.recordset || !this.isSortable(column)) return;
 
         const currentSort = this.sortFor(column.field)?.sort;
         const sort =
@@ -146,7 +141,7 @@ export class FdlTable extends LitElement {
                 : nothing;
 
         return html`<th aria-sort=${ariaSort}>
-            ${column.sortable
+            ${this.isSortable(column)
                 ? html`<button
                       type="button"
                       class=${activeSort ? 'sorted' : ''}

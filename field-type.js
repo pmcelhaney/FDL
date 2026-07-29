@@ -408,6 +408,10 @@ export default class FieldType {
         return this.properties.textAlign;
     }
 
+    sortable() {
+        return this.properties.sortable;
+    }
+
     field() {
         return this.properties.field;
     }

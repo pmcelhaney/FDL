@@ -48,8 +48,8 @@ const entries: CatalogEntry[] = [
 }, data);
 
 <fdl-table .recordset=\${people}>
-  <fdl-column field="firstName" sortable="true"></fdl-column>
-  <fdl-column field="lastName" sortable="true"></fdl-column>
+  <fdl-column field="firstName"></fdl-column>
+  <fdl-column field="lastName"></fdl-column>
   <fdl-column field="team"></fdl-column>
 </fdl-table>`),
     live('conditionalCellClass', 'Adds a table-cell class when a value predicate passes.', 'conditionalCellClass', `.conditionalCellClass(value => value > 10000, 'high-value')`),
@@ -178,7 +178,7 @@ export class FdlModifierCatalog extends LitElement {
             lastName: new FieldType().with
                 .label('Last name')
                 .and.compareFunction((left: string, right: string) => left.localeCompare(right) as -1 | 0 | 1),
-            team: new FieldType().with.label('Team'),
+            team: new FieldType().with.label('Team').and.sortable(false),
         },
         [
             { firstName: 'Ada', lastName: 'Zulu', team: 'Research' },
@@ -283,8 +283,8 @@ export class FdlModifierCatalog extends LitElement {
             case 'compareFunction': {
                 return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
                     <fdl-table .recordset=${this.compareRecordset}>
-                        <fdl-column field="firstName" sortable="true"></fdl-column>
-                        <fdl-column field="lastName" sortable="true"></fdl-column>
+                        <fdl-column field="firstName"></fdl-column>
+                        <fdl-column field="lastName"></fdl-column>
                         <fdl-column field="team"></fdl-column>
                     </fdl-table>`;
             }

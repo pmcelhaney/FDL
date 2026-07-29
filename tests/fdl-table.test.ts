@@ -72,8 +72,8 @@ describe('<fdl-table>', () => {
         const table = document.createElement('fdl-table') as TestTable;
         table.recordset = recordset;
         table.innerHTML = `
-            <fdl-column field="firstName" sortable="true"></fdl-column>
-            <fdl-column field="lastName" sortable="true"></fdl-column>
+            <fdl-column field="firstName"></fdl-column>
+            <fdl-column field="lastName"></fdl-column>
         `;
         document.body.append(table);
 
@@ -111,9 +111,9 @@ describe('<fdl-table>', () => {
         table.remove();
     });
 
-    it('does not sort columns without the sortable attribute', async () => {
+    it('does not sort fields configured with sortable(false)', async () => {
         const recordset = new Recordset(
-            { name: new FieldType() },
+            { name: new FieldType().with.sortable(false) },
             [{ name: 'Zulu' }, { name: 'Alpha' }]
         );
         const table = document.createElement('fdl-table') as TestTable;
