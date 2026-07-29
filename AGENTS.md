@@ -28,6 +28,23 @@ rendering. The published package is `digital-fdl`.
   changing exported APIs.
 - Add or update focused Jest coverage for behavior changes.
 
+## Architecture and design principles
+
+- Read [the design principles](docs/design-principles.md) before changing
+  modifiers, components, or presentation behavior.
+- Keep business rules, UI semantics, and visual presentation orthogonal:
+  FDL owns reusable field and record behavior, components own accessible
+  structure and interaction, and CSS owns visual expression.
+- Modifiers should describe renderer-independent field behavior or stable
+  cross-consumer presentation intent. Do not add DOM-specific properties,
+  component escape hatches, lifecycle hooks, or event-driven orchestration to
+  `FieldType`.
+- When a rule is model behavior, enforce it in `FieldType`, `Record`, or
+  `Recordset`; do not rely on CSS or a browser attribute as the source of
+  truth.
+- Keep the dependency direction moving forward: business rules -> semantic
+  state -> accessible component -> visual theme.
+
 ## Live example presentation
 
 - In table examples, scalar numeric fields such as amounts, totals, counts,
