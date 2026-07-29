@@ -1,8 +1,10 @@
 import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
 import FieldType from '../../field-type.js';
 import Record from '../../record.js';
+import Recordset from '../../recordset.js';
 import './fdl-input';
 import './fdl-select';
+import './fdl-table';
 
 type DemoName =
     | 'additionalProperties' | 'cellClass' | 'compareFunction' | 'conditionalCellClass'
@@ -42,7 +44,20 @@ const entries: CatalogEntry[] = [
     placeholder('autocomplete', 'Sets the browser autocomplete token for a control.', 'The attribute is wired, but a functional demonstration depends on browser profile data and autofill policy. The example cannot produce a deterministic, privacy-safe result.'),
     placeholder('autofocus', 'Requests focus when the control is first connected.', 'Autofocusing one card in a long reference page would unexpectedly steal focus and scroll position. A reliable example needs an isolated route or dialog lifecycle.'),
     live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('numeric-cell')`),
-    live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `.compareFunction((a, b) => a.localeCompare(b))`),
+    live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `const people = new Recordset({
+  firstName: new FieldType().with
+    .label('First name')
+    .and.compareFunction((a, b) => a.localeCompare(b)),
+  lastName: new FieldType().with
+    .label('Last name')
+    .and.compareFunction((a, b) => a.localeCompare(b)),
+}, data);
+
+<fdl-table .recordset=\${people}>
+  <fdl-column field="firstName" sortable="true"></fdl-column>
+  <fdl-column field="lastName" sortable="true"></fdl-column>
+  <fdl-column field="team"></fdl-column>
+</fdl-table>`),
     live('conditionalCellClass', 'Adds a table-cell class when a value predicate passes.', 'conditionalCellClass', `.conditionalCellClass(value => value > 10000, 'high-value')`),
     live('defaultValue', 'Defines the value Record.clear() restores for this field.', 'defaultValue', `.defaultValue('Pending assignment')`),
     live('description', 'Adds human-readable information to FieldType introspection metadata.', 'description', `.description('Internal finance reference')`),
@@ -165,7 +180,23 @@ export class FdlModifierCatalog extends LitElement {
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
     private cellClassType = new FieldType().with.cellClass('numeric-cell');
     private conditionalClassType = new FieldType().with.conditionalCellClass((value: number) => value > 10000, 'high-value');
-    private compareType = new FieldType().with.compareFunction((left: string, right: string) => left.localeCompare(right) as -1 | 0 | 1);
+    private compareRecordset = new Recordset(
+        {
+            firstName: new FieldType().with
+                .label('First name')
+                .and.compareFunction((left: string, right: string) => left.localeCompare(right) as -1 | 0 | 1),
+            lastName: new FieldType().with
+                .label('Last name')
+                .and.compareFunction((left: string, right: string) => left.localeCompare(right) as -1 | 0 | 1),
+            team: new FieldType().with.label('Team'),
+        },
+        [
+            { firstName: 'Ada', lastName: 'Zulu', team: 'Research' },
+            { firstName: 'Grace', lastName: 'Alpha', team: 'Platform' },
+            { firstName: 'Ada', lastName: 'Mike', team: 'Platform' },
+            { firstName: 'Grace', lastName: 'Beta', team: 'Research' },
+        ]
+    );
     private reducerType = new FieldType().with.reducer('sum');
     private rowClassType = new FieldType().with.rowClasses((value: string) => value === 'Disputed' ? ['disputed-row'] : []);
     private widthTypes = {
@@ -227,7 +258,14 @@ export class FdlModifierCatalog extends LitElement {
         switch (name) {
             case 'additionalProperties': return html`<p class="try">Hover the input to see the extra native <code>title</code> property.</p>${this.renderField('extraProperty')}`;
             case 'cellClass': return html`<table><caption>Applied cell class</caption><tbody><tr><td class=${this.cellClassType.cellClasses(42).join(' ')}>42 has class “numeric-cell”</td></tr></tbody></table>`;
-            case 'compareFunction': return html`<p class="computed">Sorted with compare(): ${['Zulu', 'Alpha', 'Mike'].sort((a, b) => this.compareType.compare(a, b)).join(', ')}</p>`;
+            case 'compareFunction': {
+                return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
+                    <fdl-table .recordset=${this.compareRecordset}>
+                        <fdl-column field="firstName" sortable="true"></fdl-column>
+                        <fdl-column field="lastName" sortable="true"></fdl-column>
+                        <fdl-column field="team"></fdl-column>
+                    </fdl-table>`;
+            }
             case 'conditionalCellClass': return html`<table><caption>Conditional class</caption><tbody><tr><td class=${this.conditionalClassType.cellClasses(12000).join(' ')}>$12,000 receives “high-value”</td></tr><tr><td class=${this.conditionalClassType.cellClasses(2000).join(' ')}>$2,000 does not</td></tr></tbody></table>`;
             case 'defaultValue': return html`${this.renderField('defaultId', this.defaultRecord)}<button type="button" @click=${this.clearDefaultRecord}>Clear the record</button><p class="computed">Current record value: ${this.defaultRecord.getField('defaultId')}</p>`;
             case 'description': return html`<p class="computed">FieldType.info(): ${this.descriptionType.info()}</p>`;
