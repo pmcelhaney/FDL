@@ -1,24 +1,25 @@
 # FDL
 
-FDL, pronounced "fiddle", is a library developed by Jack Henry's Digital UX team to **build complex forms and tables with many interdependent fields and validation rules**.
+FDL (pronounced “fiddle”) is a library for building complex forms and tables
+with interdependent fields and validation rules. It keeps field behavior in a
+declarative model so UI components can focus on presentation.
 
 ## Example: Dog Walking Service
 
-Let's say you're building a scheduling form for your dog walking business. It has four fields: name, date, new customer, and comments, with the following rules:
+Imagine a scheduling form for a dog-walking business. It has four fields:
+name, date, new-customer status, and comments, with these rules:
 
-- the name can be between 2 and 20 characters and should be capitalized when displayed (regardless of how it's input)
-- new customer is <del>a checkbox</del> <del>radio buttons</del> a checkbox that defaults to "yes" and becomes disabled if the name isn't recognized
-- the date can be any Monday - Friday, excluding holidays, and new customers can only book on Friday
-- comments are optional, unless it's a new customer
+- Name must be 2–20 characters and is capitalized for display.
+- The new-customer checkbox is disabled for unrecognized names.
+- Dates must be weekdays, cannot be holidays, and new customers may book only on Friday.
+- Comments are required for new customers.
 
-**Traditionally we would put all of these rules in the HTML template**, but that gets hairy quick. Then we try to move some of the business logic to the controller, and it still gets hard to maintain. (We're typically dealing with 10-20 fields with a lot more rules and the business constantly throwing us curve balls).
-
-FDL is a powerful but easy to read **domain specific language** that corrals all of these business rules so **the view code only has to worry about what field goes where**.
-
-It looks something like this:
+Putting these rules directly in a template or scattering them through event
+handlers makes them difficult to reuse and maintain. With FDL, define the
+rules alongside each field type; the view only decides where to render fields.
 
 ```js
-import { string, boolean, date, Record } from "@jack-henry/FDL";
+import { string, boolean, date, Record } from "digital-fdl";
 
 const name = string.with
   .minLength(2)
@@ -27,17 +28,25 @@ const name = string.with
 const newCustomer = boolean.with
   .defaultValue(false)
   .thatIs.disabledWhen(isNewCustomer);
-const date = date.with
-  .validator((record) => isWeekday(record.date))
-  .and.validator((record) => isNotHoliday(record.date))
-  .and.validator(isExistingCustomerOrNewCustomerDay);
+const appointmentDate = date.with
+  .validator({ name: "weekday", validate: isWeekday })
+  .and.validator({ name: "not-holiday", validate: isNotHoliday })
+  .and.validator({
+    name: "new-customer-day",
+    validate: isExistingCustomerOrNewCustomerDay,
+  });
 const comments = string.thatIs.requiredWhen(isNewCustomer);
 
 const appointment = new Record({
   name,
   newCustomer,
-  date,
+  date: appointmentDate,
   comments,
+}, {
+  name: "",
+  newCustomer: false,
+  date: null,
+  comments: "",
 });
 
 function capitalize(str) {
@@ -45,26 +54,33 @@ function capitalize(str) {
 }
 
 function isNewCustomer(record) {
-  return !existingCustomers.includes(record.name);
+  return !existingCustomers.includes(record.getField("name"));
 }
 
-function isWeekday(date) {
-  return date.getDay() !== 0 && date.getDay() !== 6;
+function isWeekday(value) {
+  return value.getDay() !== 0 && value.getDay() !== 6;
 }
 
-function isNotHoliday(date) {
-  return !holidays.includes(date);
+function isNotHoliday(value) {
+  return !holidays.includes(value);
 }
 
-function isExistingCustomerOrNewCustomerDay(record) {
-  return existingCustomers.includes(record.name) || record.date.getDay() === 5;
+function isExistingCustomerOrNewCustomerDay(value, _, record) {
+  return existingCustomers.includes(record.getField("name")) || value.getDay() === 5;
 }
 ```
 
 ## Docs
 
-In the above code, `string`, `boolean`, and `date` are all instances of [FieldType](./docs/field-type.md) class. They're connected to one another in a [Record](./docs/record.md). Not shown is a [Recordset](./docs/recordset.md), which we would use to present a list of appointments, with pagination, sorting, filtering, and specific rules around how those work for each field.
+In the example, `string`, `boolean`, and `date` are `FieldType` instances. A
+[Record](./docs/record.md) connects those definitions to values. A
+[Recordset](./docs/recordset.md) manages a collection of records, including
+fetching, sorting, filtering, and pagination.
 
-## More to come
+Custom Lit controls can extend [`FormElement`](./docs/form-element.md) to connect a component to a field in a `Record`.
 
-Currently the best way to understand FDL is looking at how it's used in Jack Henry's internal codebase. We decided to open source the core as we believe it can be useful in other contexts.
+## Development
+
+Run the test suite with `npm test`. The interactive form-control example is in
+[`examples/fdl-input`](./examples/fdl-input/); start it with
+`npm run example:fdl-input`.

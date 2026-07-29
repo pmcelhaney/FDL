@@ -79,7 +79,9 @@ class FormElement extends ListeningElement {
         // @ts-ignore
         this.element.value = this.record?.getField(this.field);
         this.element.id = this.field;
-        this.element.type = this.fieldType?.type();
+        if (!(this.element instanceof HTMLSelectElement)) {
+            this.element.type = this.fieldType?.type();
+        }
         this.element.required = this.fieldType?.required(this.record);
         this.element.visible = this.fieldType?.visible(this.record);
         this.element.readonly = this.fieldType?.readonly(this.record);
@@ -126,10 +128,25 @@ class FormElement extends ListeningElement {
 
         if (this.fieldType?.hasOptions()) {
             this.element.loading = true;
-            const options = await this.fieldType?.options(this.record);
-            this.element.options = options;
-            this.element.items = options; // should deprecate and use options
-            this.element.radios = options; // should deprecate and use options
+            const options = (await this.fieldType?.options(this.record)) as Array<{
+                text: unknown;
+                value: unknown;
+            }>;
+            if (this.element instanceof HTMLSelectElement) {
+                this.element.replaceChildren(
+                    ...options.map(option => {
+                        const nativeOption = document.createElement('option');
+                        nativeOption.value = String(option.value);
+                        nativeOption.textContent = String(option.text);
+                        return nativeOption;
+                    })
+                );
+                this.element.value = String((this.record as any)?.getField(this.field) ?? '');
+            } else {
+                this.element.options = options;
+                this.element.items = options; // should deprecate and use options
+                this.element.radios = options; // should deprecate and use options
+            }
             this.element.loading = false;
         }
         this.requestUpdate();

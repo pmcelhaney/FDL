@@ -1,6 +1,8 @@
 module.exports = {
     setupFilesAfterEnv: ['./tests/jest-helpers/jest.init.js'],
-    transformIgnorePatterns: ['/node_modules/(?!@open-wc/testing-helpers/)'],
+    transformIgnorePatterns: [
+        '/node_modules/(?!(@lit/reactive-element|@open-wc/testing-helpers|lit|lit-element|lit-html)/)',
+    ],
     watchman: false,
     testEnvironment: 'jsdom',
     verbose: false,

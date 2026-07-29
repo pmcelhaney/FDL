@@ -1,120 +1,77 @@
 # Record
 
-A record is a group of named fields, described by FieldTypes, with each field having a value. In [Domain Driven Design](https://martinfowler.com/bliki/EvansClassification.html) parlance, a Record is an entity. In PoEE, it's a [data transfer object](https://martinfowler.com/eaaCatalog/dataTransferObject.html).
-
-Unless you're working on the components themselves, you won't interact with Record much other than to instantiate them and pass them to `field`
+A `Record` combines a map of field names and `FieldType` definitions with one
+object of values. It is the model passed to FDL form controls.
 
 ```js
-import { name, accountNumber, money } from "FDL/fieldTypes";
+import { Record, string } from 'digital-fdl';
 
-const accountRecord = new Record(
+const account = new Record(
   {
-    // FieldTypes
-    name,
-    accountNumber,
-    collectedBalance: money,
-    availableBalance: money,
-    currentBalance: money,
+    name: string.with.label('Account name'),
+    accountNumber: string,
   },
   {
-    // values
-    name: "Checking",
-    accountNumber: "92120391",
-    collectedBalance: 1000,
-    availableBalance: 1900,
-    currentBalance: 900,
+    name: 'Checking',
+    accountNumber: '92120391',
   }
 );
 ```
 
-```html
-<your-field .record="accountRecord" field="name" label="Name"></your-field>
-<your-field
-  .record="accountRecord"
-  field="accountNumber"
-  label="Account Number"
-></your-field>
-<your-field
-  .record="accountRecord"
-  field="collectedBalance"
-  label="Balance (Col)"
-></your-field>
-<your-field
-  .record="accountRecord"
-  field="availableBalance"
-  label="Balance (Avl)"
-></your-field>
-<your-field
-  .record="accountRecord"
-  field="currentBalance"
-  label="Balance (Cur)"
-></your-field>
-```
+## Working with fields
 
-## Methods
-
-### field(fieldName)
-
-### reset()
-
-Resets all values to those that were passed into the constructor.
+Prefer `record.field(name)` in components and other UI code. It returns a
+`Field` object that exposes formatted and raw values, validity, and the field
+definition. For example, assigning `field.value` parses the displayed value
+before storing it, while `field.rawValue` reads or writes the stored value.
 
 ```js
-accountRecord.setField("accountNumber", "99999");
-accountRecord.getField("accountNumber"); // '99999'
-accountRecord.reset();
-accountRecord.getField("accountNumber"); // '92120391'
+const name = account.field('name');
+
+name.value; // formatted value for display
+name.rawValue; // 'Checking'
+name.valid; // true or false
 ```
 
-### onChange(listener)
-
-Notifies the listener when the record is changed.
+`getField()` and `setField()` remain useful for model or service code. Both
+support dot-separated paths for nested values.
 
 ```js
-accountRecord.addEventListener("change", () => console.log("changed"));
-accountRecord.setField("name", "Make It Rain"); // prints 'changed' to the console
+account.setField('name', 'Savings');
+account.getField('name'); // 'Savings'
 ```
 
-### isValid()
+## Change events and lifecycle
 
-Returns true if all of the values in the record are valid (according to their respective fieldTypes).
+Changing a value dispatches a native `change` event with the changed field in
+`event.detail.field`. `blur` events use the same detail shape.
 
 ```js
-accountRecord.setField("name", "$aving$");
-accountRecord.isValid(); // false
+account.addEventListener('change', event => {
+  console.log(event.detail.field);
+});
 
-accountRecord.setField("name", "Savings");
-accountRecord.isValid(); // true
+account.setField('name', 'Savings');
 ```
 
-### errors() / errorCount() / hasErrors()
+`reset()` restores the initial values supplied to the constructor. `clear()`
+replaces each value with its field type's default value. `hasChanged` reports
+whether the current values differ from those initial values.
 
-_Here be dragons. These functions exist, but they're not used anywhere yet and the design needs to be reviewed. We will need this functionality in ACH recipients, where we have a table of recipients that can be edited, and the first column marks the recipients that have errors._
+## Validation and display
 
-## Deprecated Functions
-
-_A field object (described at the top of this page) is a much more powerful abstraction that can do all of the below and more._
-
-### getField(fieldName)
-
-Returns the value of the specified field.
+`isValid()` checks the entire record; `isValid(fieldName)` checks one field.
+Use `errors()`, `errorCount()`, or `hasErrors()` when the individual validation
+errors are needed. `print(fieldName)` formats a value for display, and
+`parse(fieldName, value)` applies that field's parsers.
 
 ```js
-const howMuchCanISpend = accountRecord.getField("availableBalance"); // 1900
+if (!account.isValid()) {
+  console.log(account.readableRecordErrors());
+}
+
+account.print('name');
 ```
 
-### setField(fieldName, value)
-
-Sets the value of the specified field.
-
-```js
-accountRecord.setField("name", "Make It Rain");
-```
-
-### fieldTypeForField(fieldName)
-
-Returns the FieldType corresponding to the field.
-
-```js
-accountRecord.fieldTypeForField("currentBalance"); // returns a FieldType object
-```
+`fieldTypeForField(name)` returns the `FieldType` definition for integrations
+that need it directly.

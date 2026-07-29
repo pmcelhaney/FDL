@@ -1,78 +1,90 @@
 # Recordset
 
-A Recordset is an aggregate of Records that can be sorted, filtered, and paginated. In practice, it's common to start with a LocalRecordset with test data and switch to a Recordset when the API is available.
+A `Recordset` manages a collection of `Record` instances. It can fetch data,
+sort and filter it, paginate the visible records, and report collection-level
+validation errors.
 
-## Recordset Definition
-
-A Recordset is constructed from a set of fields and a "fetch" function that returns a promise with the data. The fetch function takes five arguments:
-
-- `sortColumns`: An array of objects, where `field` is the name of the field and `sort` is "ascending" or "descending"
-- `filterTree`: A LISP-inspired data structure describing all of the filters and supports nested boolean expressions. It's used by LocalRecordset and can be used by Recordset if the fetchFunction supports it.
-- `startRowNumber`: The first row to fetch (i.e. would be 11 if there are 10 rows per page and you want page 2)
-- `rowCount`: How many rows to fetch (i.e. how many rows per page)
-- `parameters`: key-value pair that acts as a dumbed-down version of filterTree (doesn't support nested expressions but easier to use)
+Use the same `FieldType` map for every row:
 
 ```js
+import { boolean, Recordset, string } from 'digital-fdl';
+
 const fields = {
-  id,
+  id: string,
   title: string,
   isFavorite: boolean,
-  isCustom: boolean,
 };
-
-// Note: "reportsAPI" is an imaginary API that demonstrates how the fetchFunction may need to massage
-// the input and output data
-function fetchReports(
-  sortColumns,
-  filterTree,
-  startRowNumber,
-  rowCount,
-  parameters
-) {
-  return reportsApi
-    .fetch(
-      { type: parameters.type, includeCustom: true },
-      sortColumn[0].field,
-      sortColumn[0].direction,
-      startRowNumber,
-      rowCount
-    )
-    .then((reports) =>
-      reports.map((report) => ({
-        id: report.id,
-        title: report.customTitle ?? report.title,
-        isFavorite: favoriteReports.includes(report.id),
-        isCustom: report.isCustom,
-      }))
-    );
-}
-
-const reports = new Recordset(fields, fetchReports);
-
-const reportsTable = html`<!-- -->
-  <your-table .recordset=${reports}>
-    <your-table-column
-      field="title"
-      label="Title"
-      path="/reports/:id"
-    ></your-table-column>
-    <your-table-column field="isFavorite" label="Favorite?"></your-table-column>
-  </your-table>`;
 ```
+
+## Fetching data
+
+Pass a fetch function as the second constructor argument. The function receives
+one request object and may return data synchronously or as a promise. It can
+return either an array of row values or `{ data, totalCount, summary }`.
+
+```js
+const reports = new Recordset(fields, async ({
+  parameters,
+  startIndex,
+  pageSize,
+  sort,
+}) => {
+  const response = await reportsApi.fetch({
+    type: parameters.type,
+    startIndex,
+    pageSize,
+    sort,
+  });
+
+  return {
+    data: response.items.map(report => ({
+      id: report.id,
+      title: report.customTitle ?? report.title,
+      isFavorite: report.favorite,
+    })),
+    totalCount: response.totalCount,
+  };
+});
+
+await reports.requestHardUpdate();
+```
+
+The request object contains `parameters`, `startIndex`, `pageSize`, `page`,
+`sort`, and `isFirstFetch`. Set `parameters`, `sortColumns`, `pageNumber`, or
+`pageSize` to request an updated view. Those setters schedule an update; use
+`recordset.updating` when code needs to wait for it.
+
+```js
+reports.parameters = { type: 'standard' };
+reports.sortColumns = [{ field: 'title', sort: 'ascending' }];
+await reports.updating;
+```
+
+## Client-side and server-side data
+
+When the fetched `totalCount` equals the number of returned rows, the
+`Recordset` treats the data as client-side: it sorts, filters, and slices the
+current page locally. Otherwise, it treats the data as server-side and the
+fetch function is responsible for paging and sorting.
+
+For client-side filtering, assign a predicate that receives each `Record`:
+
+```js
+reports.filter = record => record.getField('isFavorite');
+await reports.updating;
+```
+
+Useful read-only properties include `allRecords`, `currentPage`,
+`filteredCount`, `totalCount`, `isLoading`, and `hasChanged`.
 
 ## ExampleRecordset
 
-For use in prototyping only, ExampleRecordset generates random data automatically, using FieldType#exampleValues() to produce values. The second argument is the number of values to produce.
-
-_ExampleRecordset is handicapped until we can find a better way to produce random values. We were using Chance.js, but that bloated the build. We might want to configure the build so that it substitutes a dummy object for Chance that throws an exception when any function is called, as we don't want to use example values in production. And we should look at using Faker instead of chance._
+`ExampleRecordset` is intended for prototypes and demos. It creates the given
+number of rows using each field type's `exampleValue()` function.
 
 ```js
-const fields = {
-  id,
-  title: string,
-  isFavorite: boolean,
-  isCustom: boolean,
-};
+import ExampleRecordset from '../example-recordset';
 
-const recordset = new ExampleRecordset(fields, 100);
+const exampleReports = new ExampleRecordset(fields, 100);
+await exampleReports.requestHardUpdate();
 ```

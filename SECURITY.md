@@ -8,4 +8,7 @@
 
 ## Reporting a Vulnerability
 
-Please report (suspected) security vulnerabilities to ben.mercer@banno.com You will receive a response from us within 48 hours. If the issue is confirmed, we will release a patch as soon as possible depending on complexity but historically within a few days.
+Please report suspected security vulnerabilities to ben.mercer@banno.com.
+We will acknowledge reports within 48 hours. If we confirm an issue, we will
+work on a patch as quickly as possible; timing depends on the issue's
+complexity.
