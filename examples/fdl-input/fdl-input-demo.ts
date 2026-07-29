@@ -11,14 +11,14 @@ const currency = new Intl.NumberFormat('en-US', {
 });
 
 const modifierGroups = [
-    ['Input attributes', 'tag, type, accept, autocomplete, autofocus, list, max, pattern, step, placeholder'],
-    ['Labels and guidance', 'label, hideLabel, iconMessage, description'],
-    ['State and layout', 'defaultValue, disabled, disabledWhen, readOnly, readOnlyWhen, readOnlyExceptionWhen, visibleWhen, inline, inlineWhen, segmented, rowCount, textAlign, toggle, selectOnFocus'],
-    ['Value and validation', 'formatter, parser, formatOnChange, inputMask, validator, asyncValidator, required, requiredWhen, minLength, maxLength, emptyWhen'],
-    ['Choices and lookups', 'options, multipleValues, filter, hashFunction, search, hasSearch, selectionDisabledFunctions, filtering'],
-    ['Dates and reactions', 'range, parseDynamicRange, onValueChange, field, additionalProperties'],
-    ['Tables', 'template, cellClass, conditionalCellClass, rowClasses, usesCustomPrint, compareFunction, sortable, reducer, minColumnWidth, targetColumnWidth, maxColumnWidth'],
-    ['Examples and compatibility', 'exampleValue, schema, formElement'],
+    ['Input attributes', 'tag(), type(), accept(), autocomplete(), autofocus(), list(), max(), pattern(), step(), placeholder()'],
+    ['Labels and guidance', 'label(), hideLabel(), iconMessage(), description()'],
+    ['State and layout', 'defaultValue(), disabled(), disabledWhen(), readOnly(), readOnlyWhen(), readOnlyExceptionWhen(), visibleWhen(), inline(), inlineWhen(), segmented(), rowCount(), textAlign(), toggle(), selectOnFocus()'],
+    ['Value and validation', 'formatter(), parser(), formatOnChange(), inputMask(), validator(), asyncValidator(), required(), requiredWhen(), minLength(), maxLength(), emptyWhen()'],
+    ['Choices and lookups', 'options(), multipleValues(), filter(), filtering(), search(), hasSearch(), selectionDisabledFunctions()'],
+    ['Dates and reactions', 'range(), parseDynamicRange(), onValueChange(), field(), additionalProperties()'],
+    ['Tables', 'template(), cellClass(), conditionalCellClass(), rowClasses(), usesCustomPrint(), compareFunction(), sortable(), reducer(), minColumnWidth(), targetColumnWidth(), maxColumnWidth()'],
+    ['Examples and compatibility', 'exampleValue(), schema(), formElement()'],
 ];
 
 const onboardingCode = `const onboarding = {

@@ -92,6 +92,8 @@ describe('<fdl-input-demo>', () => {
         await element.updateComplete;
         expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(3);
         expect(element.shadowRoot?.textContent).toContain(".and.visibleWhen(record => record.getField('fulfillment') === 'ship')");
+        expect(element.shadowRoot?.textContent).toContain('readOnlyExceptionWhen()');
+        expect(element.shadowRoot?.textContent).not.toContain('hashFunction');
         const form = element.shadowRoot?.querySelector('form');
         form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await element.updateComplete;
