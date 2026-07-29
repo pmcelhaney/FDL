@@ -1,6 +1,6 @@
 import FieldType from '../field-type.js';
 import Recordset from '../recordset.js';
-import '../examples/fdl-input/fdl-table';
+import { resizeColumnWidths } from '../examples/fdl-input/fdl-table';
 
 type TestTable = HTMLElement & {
     recordset: Recordset<any>;
@@ -19,6 +19,36 @@ const settle = async (table: TestTable) => {
 };
 
 describe('<fdl-table>', () => {
+    it('resizes the left column and distributes the difference to columns on its right', () => {
+        expect(
+            resizeColumnWidths(
+                [150, 100, 100],
+                [{ min: 50 }, { min: 80 }, { min: 50 }],
+                0,
+                40
+            )
+        ).toEqual([190, 80, 80]);
+    });
+
+    it('stops a resize at the configured column limits', () => {
+        expect(
+            resizeColumnWidths(
+                [150, 100],
+                [{ min: 100, max: 160 }, { min: 90, max: 110 }],
+                0,
+                30
+            )
+        ).toEqual([160, 90]);
+        expect(
+            resizeColumnWidths(
+                [150, 100],
+                [{ min: 100, max: 160 }, { min: 90, max: 110 }],
+                0,
+                -30
+            )
+        ).toEqual([140, 110]);
+    });
+
     it('renders recordset fields through declarative columns', async () => {
         const recordset = new Recordset(
             {
