@@ -20,7 +20,8 @@ The page contains three realistic scenarios:
 - an invoice collection table demonstrates formatting, conditional classes,
   row classes, and aggregation.
 
-The complete modifier reference at the end of the page includes the remaining
-builder APIs, including table, search, date-range, and compatibility modifiers.
-Each scenario also has an expandable code panel showing the JavaScript field
-type definitions behind its live controls.
+The complete modifier reference at the end of the page includes every builder
+API, including table, search, date-range, and compatibility modifiers. Its
+practical cookbook provides a realistic, expandable code example for every
+modifier. Each live scenario also has an expandable code panel showing the
+JavaScript field-type definitions behind its controls.

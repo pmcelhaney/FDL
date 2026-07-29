@@ -90,10 +90,12 @@ describe('<fdl-input-demo>', () => {
         document.body.append(element);
 
         await element.updateComplete;
-        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(3);
+        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(11);
         expect(element.shadowRoot?.textContent).toContain(".and.visibleWhen(record => record.getField('fulfillment') === 'ship')");
         expect(element.shadowRoot?.textContent).toContain('readOnlyExceptionWhen()');
-        expect(element.shadowRoot?.textContent).not.toContain('hashFunction');
+        expect(element.shadowRoot?.textContent).toContain('hashFunction()');
+        expect(element.shadowRoot?.textContent).toContain('Configure native inputs for an asset intake form');
+        expect(element.shadowRoot?.textContent).toContain('Define table behavior for the accounts-receivable report');
         const form = element.shadowRoot?.querySelector('form');
         form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await element.updateComplete;

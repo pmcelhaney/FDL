@@ -15,10 +15,184 @@ const modifierGroups = [
     ['Labels and guidance', 'label(), hideLabel(), iconMessage(), description()'],
     ['State and layout', 'defaultValue(), disabled(), disabledWhen(), readOnly(), readOnlyWhen(), readOnlyExceptionWhen(), visibleWhen(), inline(), inlineWhen(), segmented(), rowCount(), textAlign(), toggle(), selectOnFocus()'],
     ['Value and validation', 'formatter(), parser(), formatOnChange(), inputMask(), validator(), asyncValidator(), required(), requiredWhen(), minLength(), maxLength(), emptyWhen()'],
-    ['Choices and lookups', 'options(), multipleValues(), filter(), filtering(), search(), hasSearch(), selectionDisabledFunctions()'],
+    ['Choices and lookups', 'options(), multipleValues(), filter(), filtering(), search(), hasSearch(), selectionDisabledFunctions(), hashFunction()'],
     ['Dates and reactions', 'range(), parseDynamicRange(), onValueChange(), field(), additionalProperties()'],
     ['Tables', 'template(), cellClass(), conditionalCellClass(), rowClasses(), usesCustomPrint(), compareFunction(), sortable(), reducer(), minColumnWidth(), targetColumnWidth(), maxColumnWidth()'],
     ['Examples and compatibility', 'exampleValue(), schema(), formElement()'],
+];
+
+const modifierExamples = [
+    {
+        title: 'Configure native inputs for an asset intake form',
+        source: `const assetIntake = {
+  assetTag: new FieldType().with
+    .label('Asset tag')
+    .and.type('text')
+    .and.autocomplete('off')
+    .and.autofocus()
+    .and.list('known-asset-tags')
+    .and.pattern(/[A-Z]{3}-\\d{4}/)
+    .and.placeholder('LAP-0421'),
+  replacementCost: new FieldType().with
+    .label('Replacement cost')
+    .and.type('number')
+    .and.max(25000)
+    .and.step(0.01),
+  receipt: new FieldType().with
+    .label('Receipt image')
+    .and.tag('input')
+    .and.type('file')
+    .and.accept('image/png,image/jpeg'),
+};`,
+    },
+    {
+        title: 'Give a finance request clear labels and guidance',
+        source: `const reimbursement = {
+  amount: new FieldType().with
+    .label(record => \`Amount for \${record.getField('expenseType')}\`)
+    .and.iconMessage('Enter the amount before tax.')
+    .and.description('Attach a receipt for expenses over $25.'),
+  receiptReference: new FieldType().with
+    .label('Receipt reference')
+    .and.hideLabel()
+    .and.placeholder('Optional receipt number'),
+};`,
+    },
+    {
+        title: 'Adapt a purchase request to its approval state',
+        source: `const purchaseRequest = {
+  requestId: new FieldType().with
+    .label('Request ID')
+    .and.defaultValue('Assigned after submission')
+    .and.readOnly(),
+  vendor: new FieldType().with
+    .label('Vendor')
+    .and.disabledWhen(record => record.getField('status') === 'approved'),
+  submittedBy: new FieldType().with
+    .label('Submitted by')
+    .and.disabled(),
+  negotiatedRate: new FieldType().with
+    .label('Negotiated rate')
+    .and.readOnlyWhen(record => record.getField('status') === 'approved')
+    .and.readOnlyExceptionWhen(record => record.getField('role') === 'procurement'),
+  deliveryAddress: new FieldType().with
+    .label('Delivery address')
+    .and.visibleWhen(record => record.getField('deliveryMethod') === 'ship'),
+  subtotal: new FieldType().with
+    .label('Subtotal')
+    .and.inline()
+    .and.textAlign('right'),
+  discount: new FieldType().with
+    .label('Discount')
+    .and.inlineWhen(record => record.getField('hasDiscount')),
+  paymentTerms: new FieldType().with
+    .label('Payment terms')
+    .and.segmented(),
+  expedited: new FieldType().with
+    .label('Expedited delivery')
+    .and.toggle(),
+  approverComment: new FieldType().with
+    .label('Approver comment')
+    .and.selectOnFocus()
+    .and.rowCount(4),
+};`,
+    },
+    {
+        title: 'Validate and transform an invoice amount',
+        source: `const invoiceAmount = new FieldType().with
+  .label('Invoice amount')
+  .and.formatter(value => currency.format(Number(value)))
+  .and.parser(value => String(value).replace(/[$,]/g, ''))
+  .and.formatOnChange()
+  .and.inputMask(/[0-9$.,]/)
+  .and.validator({
+    name: 'must be positive',
+    validate: value => Number(value) > 0,
+  })
+  .and.asyncValidator({
+    name: 'within approval limit',
+    validate: value => Number(value) <= 10000,
+  })
+  .and.required()
+  .and.requiredWhen(record => record.getField('expenseType') === 'capital')
+  .and.minLength(1)
+  .and.maxLength(12)
+  .and.emptyWhen(value => value === 'Not applicable');`,
+    },
+    {
+        title: 'Choose project staff from a searchable directory',
+        source: `const projectTeam = {
+  members: new FieldType().with
+    .label('Project team')
+    .and.options({
+      fetch: () => directoryService.activeEmployees(),
+      text: employee => employee.name,
+      value: employee => employee.id,
+      fields: ['departmentId'],
+    })
+    .and.multipleValues(2, 8)
+    .and.filter((searchText, employee) =>
+      employee.name.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .and.filtering()
+    .and.search({
+      title: 'Find an employee',
+      columns: [{ label: 'Name', field: 'name' }],
+    })
+    .and.hasSearch()
+    .and.selectionDisabledFunctions({
+      contractor: employee => employee.isContractor,
+    })
+    .and.hashFunction(employee => employee.id),
+};`,
+    },
+    {
+        title: 'Coordinate a reporting period and dependent fields',
+        source: `const reportFilters = {
+  reportingPeriod: new FieldType().with
+    .label('Reporting period')
+    .and.range()
+    .and.parseDynamicRange()
+    .and.onValueChange(record => record.setField('page', 1)),
+  ownerId: new FieldType().with
+    .field('owner_id'),
+  region: new FieldType().with
+    .label('Region')
+    .and.additionalProperties({ 'data-analytics-filter': 'region' }),
+};`,
+    },
+    {
+        title: 'Define table behavior for the accounts-receivable report',
+        source: `const receivables = {
+  invoiceNumber: new FieldType().with
+    .template(value => \`Invoice #\${value}\`)
+    .and.usesCustomPrint()
+    .and.sortable(false),
+  balance: new FieldType().with
+    .formatter(value => currency.format(Number(value)))
+    .and.cellClass('numeric')
+    .and.conditionalCellClass(value => value < 0, 'credit')
+    .and.rowClasses((value, record) =>
+      record.getField('isDisputed') ? ['disputed-row'] : []
+    )
+    .and.compareFunction((left, right) => Number(left) - Number(right))
+    .and.reducer('sum')
+    .and.minColumnWidth(110)
+    .and.targetColumnWidth(140)
+    .and.maxColumnWidth(180),
+};`,
+    },
+    {
+        title: 'Support generated records and legacy form integrations',
+        source: `const migrationFields = {
+  sampleContact: new FieldType().with
+    .exampleValue(index => \`Sample contact \${index + 1}\`),
+  legacyAddress: new FieldType().with
+    .schema('address'),
+  legacyControl: new FieldType().with
+    .formElement('legacy-address', { country: 'US' }),
+};`,
+    },
 ];
 
 const onboardingCode = `const onboarding = {
@@ -291,6 +465,7 @@ export class FdlInputDemo extends LitElement {
                         <a href="#onboarding">Employee onboarding</a>
                         <a href="#order">Purchase order</a>
                         <a href="#invoices">Invoice table</a>
+                        <a href="#cookbook">Modifier cookbook</a>
                     </nav>
                 </header>
 
@@ -366,6 +541,12 @@ export class FdlInputDemo extends LitElement {
                     <div class="modifier-grid">
                         ${modifierGroups.map(([heading, modifiers]) => html`<article><h3>${heading}</h3><p>${modifiers}</p></article>`)}
                     </div>
+                    <section id="cookbook" class="modifier-cookbook">
+                        <p class="eyebrow">Practical cookbook</p>
+                        <h3>Use every modifier in a realistic workflow.</h3>
+                        <p>Each example below uses the modifiers from its category in a form or table definition.</p>
+                        ${modifierExamples.map(example => this.renderCode(example.title, example.source))}
+                    </section>
                     <p class="legacy-note"><code>schema()</code> and <code>formElement()</code> are compatibility APIs; new controls should use <code>tag()</code> and <code>additionalProperties()</code>.</p>
                 </section>
             </main>
@@ -386,7 +567,7 @@ export class FdlInputDemo extends LitElement {
         .callout { margin-top: 1rem; color: #636b7b; font-size: .83rem; line-height: 1.6; } code { color: #4539bf; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; } .callout code { color: #5d6474; }
         .code-panel { margin-top: 1.25rem; border: 1px solid #dfe3ee; border-radius: .75rem; background: #101629; color: #d8def0; } .code-panel summary { cursor: pointer; color: #d8def0; font-size: .85rem; font-weight: 700; padding: .8rem 1rem; } .code-panel pre { overflow-x: auto; margin: 0; border-top: 1px solid #29314a; padding: 1rem; } .code-panel code { color: #d8def0; font-size: .76rem; line-height: 1.65; white-space: pre; }
         .table-card { overflow-x: auto; padding: .5rem; } table { width: 100%; border-collapse: collapse; min-width: 38rem; } th, td { border-bottom: 1px solid #edf0f5; padding: 1rem; text-align: left; } th { color: #737b8b; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; } td { font-size: .94rem; } .amount { text-align: right; font-variant-numeric: tabular-nums; } .high-value { font-weight: 800; } .status { border-radius: 100px; background: #edf0f6; color: #485065; font-size: .78rem; font-weight: 800; padding: .3rem .55rem; white-space: nowrap; } .status.danger { background: #ffebe9; color: #b42318; } .status.warning { background: #fff2d8; color: #a15c00; } .disputed-row { background: #fffdf7; } tfoot td { border: 0; color: #182136; font-weight: 800; }
-        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
+        .reference { padding: 3.5rem 0 0; border-top: 1px solid #dfe3ee; } .modifier-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; } .modifier-grid article { border: 1px solid #dfe3ee; border-radius: .75rem; background: #fff; padding: 1rem; } .modifier-grid p { color: #667085; font: .78rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 0; } .modifier-cookbook { margin-top: 3rem; } .modifier-cookbook > h3 { color: #111a31; font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; letter-spacing: -.025em; } .modifier-cookbook > p:not(.eyebrow) { color: #586174; line-height: 1.6; } .legacy-note { color: #667085; font-size: .9rem; margin: 1.25rem 0 0; }
         @media (max-width: 42rem) { .hero { padding: 3.5rem 0 2.5rem; } .scenario { padding: 2.5rem 0; } .modifier-grid { grid-template-columns: 1fr; } .card { padding: 1rem; } .errors, .hint { margin-left: 0; } }
     `;
 }
