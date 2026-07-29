@@ -79,6 +79,9 @@ fetching, sorting, filtering, and pagination.
 
 Custom Lit controls can extend [`FormElement`](./docs/form-element.md) to connect a component to a field in a `Record`.
 
+Contributors adding or reviewing field modifiers should follow the
+[FDL design principles](./docs/design-principles.md).
+
 ## Development
 
 Run the test suite with `npm test`. The interactive form-control example is in
