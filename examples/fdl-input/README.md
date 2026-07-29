@@ -20,8 +20,8 @@ The page contains three realistic scenarios:
 - an invoice collection table demonstrates formatting, conditional classes,
   row classes, and aggregation.
 
-The complete modifier reference at the end of the page includes every builder
-API, including table, search, date-range, and compatibility modifiers. A focused
-guide follows it with ten representative modifiers. Each guide entry explains
-one behavior, gives a short interaction to try, renders a live control, and
-includes an expandable field-type definition.
+The modifier cookbook at the end of the page includes every public builder API
+in alphabetical order. Each entry explains one modifier and either provides a
+focused live example or clearly documents why this native-control example does
+not yet have enough integration to demonstrate it honestly. Expandable field-
+type definitions accompany the functional examples.

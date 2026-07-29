@@ -83,6 +83,97 @@ describe('<fdl-input>', () => {
 });
 
 describe('<fdl-input-demo>', () => {
+    it('renders every public field type modifier once in alphabetical order', async () => {
+        const element = document.createElement('fdl-input-demo') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        document.body.append(element);
+
+        await element.updateComplete;
+
+        const catalog = element.shadowRoot?.querySelector('fdl-modifier-catalog') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        expect(catalog).toBeTruthy();
+        await catalog.updateComplete;
+
+        const builder = new FieldType().with as unknown as { [name: string]: unknown };
+        const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
+            .filter(name => name !== 'constructor' && name !== 'copy')
+            .filter(name => typeof builder[name] === 'function')
+            .sort((left, right) => left.localeCompare(right));
+        const cards = [...(catalog.shadowRoot?.querySelectorAll<HTMLElement>('[data-modifier]') ?? [])];
+        const renderedModifiers = cards.map(card => card.dataset.modifier as string);
+
+        expect(renderedModifiers).toEqual(expectedModifiers);
+        expect(new Set(renderedModifiers).size).toBe(renderedModifiers.length);
+        expect(renderedModifiers).toEqual(
+            [...renderedModifiers].sort((left, right) => left.localeCompare(right))
+        );
+
+        cards.forEach(card => {
+            expect(card.dataset.status).toMatch(/^(live|placeholder)$/);
+            expect(card.textContent?.trim().length).toBeGreaterThan(
+                (card.dataset.modifier?.length ?? 0) + 20
+            );
+            if (card.dataset.status === 'live') {
+                expect(card.querySelector('.demo')).not.toBeNull();
+                expect(card.querySelector('details')).not.toBeNull();
+            } else {
+                expect(card.querySelector('.placeholder-body')?.textContent).toContain('Intent:');
+                expect(card.querySelector('.placeholder-body')?.textContent).toContain(
+                    'Why there is no live example:'
+                );
+            }
+        });
+
+        const asyncValidator = catalog.shadowRoot?.querySelector<HTMLElement>(
+            '[data-modifier="asyncValidator"]'
+        );
+        expect(asyncValidator?.dataset.status).toBe('placeholder');
+        expect(asyncValidator?.textContent).toMatch(/async|asynchronous/i);
+        expect(asyncValidator?.textContent).toMatch(/validat/i);
+        expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
+
+        element.remove();
+    });
+
+    it('keeps representative catalog examples interactive', async () => {
+        const element = document.createElement('fdl-input-demo') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        document.body.append(element);
+        await element.updateComplete;
+
+        const catalog = element.shadowRoot?.querySelector('fdl-modifier-catalog') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        await catalog.updateComplete;
+
+        const defaultCard = catalog.shadowRoot?.querySelector<HTMLElement>(
+            '[data-modifier="defaultValue"]'
+        );
+        (defaultCard?.querySelector('button') as HTMLButtonElement).click();
+        await catalog.updateComplete;
+        expect(defaultCard?.textContent).toContain('Current record value: Pending assignment');
+
+        const visibleCard = catalog.shadowRoot?.querySelector<HTMLElement>(
+            '[data-modifier="visibleWhen"]'
+        );
+        const fulfillment = visibleCard?.querySelector(
+            'fdl-select[field="fulfillment"]'
+        ) as HTMLElement & { updateComplete: Promise<boolean> };
+        await fulfillment.updateComplete;
+        const select = fulfillment.shadowRoot?.querySelector('select') as HTMLSelectElement;
+        select.value = 'pickup';
+        select.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await catalog.updateComplete;
+        expect(visibleCard?.querySelector('fdl-input[field="address"]')?.shadowRoot?.querySelector('input')).toBeNull();
+
+        element.remove();
+    });
+
     it('renders FDL validation errors after submission', async () => {
         const element = document.createElement('fdl-input-demo') as HTMLElement & {
             updateComplete: Promise<boolean>;
@@ -90,13 +181,6 @@ describe('<fdl-input-demo>', () => {
         document.body.append(element);
 
         await element.updateComplete;
-        expect(element.shadowRoot?.querySelectorAll('.code-panel').length).toBe(13);
-        expect(element.shadowRoot?.querySelectorAll('.cookbook-recipe').length).toBe(10);
-        expect(element.shadowRoot?.textContent).toContain('Ten modifiers, one clear behavior at a time.');
-        expect(element.shadowRoot?.textContent).toContain('readOnlyExceptionWhen()');
-        expect(element.shadowRoot?.textContent).toContain('hashFunction()');
-        expect(element.shadowRoot?.textContent).toContain('Compute a label from the record');
-        expect(element.shadowRoot?.textContent).toContain('Cap the length of entered text');
         const form = element.shadowRoot?.querySelector('form');
         form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
         await element.updateComplete;
