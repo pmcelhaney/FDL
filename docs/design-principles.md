@@ -5,7 +5,82 @@ of the components that render them. A field definition should capture reusable
 meaning and behavior so forms, tables, printed output, filters, tests, and other
 consumers can interpret the same definition consistently.
 
-This document defines the boundary for adding modifiers to `FieldType`.
+The larger architecture separates three concerns: business rules, UI
+semantics, and visual presentation. This document defines those boundaries and
+applies them to modifiers, components, and styles.
+
+## Three orthogonal concerns
+
+Business rules, UI semantics, and visual presentation should be independently
+variable. Each layer has one kind of authority and communicates with the next
+through an explicit contract.
+
+| Layer | Owns | Does not own |
+| --- | --- | --- |
+| Business model and FDL | Validation, dependencies, parsing, formatting, comparison, and field state | DOM structure, component selection, layout, color, and typography |
+| Component semantics | Elements, roles, labels, accessible state, focus, keyboard behavior, and events | Business policy, themes, spacing, color, and typography |
+| Visual presentation | Layout, color, typography, density, decoration, and animation | Meaning, validation rules, accessible state, and interaction behavior |
+
+The dependency direction is:
+
+```text
+business rules -> semantic state -> accessible component -> visual theme
+```
+
+Information flows forward. Presentation must not reach backward and determine
+semantics, and a component must not invent business rules because they are
+convenient for one screen.
+
+Orthogonal does not mean isolated. The layers cooperate through contracts:
+
+- FDL exposes reusable field behavior and state;
+- components translate that state into accessible structure and interaction;
+- components expose semantic parts, states, attributes, and design tokens for
+  styling;
+- CSS responds to those hooks without becoming the source of truth.
+
+Changing a visual treatment should not silently change meaning. Changing a
+business rule should not require rewriting a component or stylesheet.
+
+## Separate UI semantics from presentation
+
+"Keep HTML separate from CSS" is a useful shorthand, but the deeper boundary
+is meaning versus appearance. Semantic HTML, ARIA, labeling, focus management,
+keyboard interaction, and event contracts belong together in the component
+layer. CSS owns how that semantic structure looks.
+
+CSS must not be the only place a state or relationship is expressed. A red
+border cannot be the sole indication that a field is invalid, `display: none`
+cannot decide whether a field exists in the workflow, and visual order cannot
+replace a logical reading and focus order.
+
+HTML and CSS still need deliberate integration. A component may expose parts,
+classes, attributes, custom properties, or design tokens as styling hooks. The
+hooks describe stable semantic states; they do not transfer ownership of those
+states to the stylesheet. Some interaction patterns also require different
+semantic structures, so the goal is not identical markup for every visual
+treatment. The goal is to prevent presentation choices from becoming hidden
+sources of meaning or behavior.
+
+### Example: a required field
+
+- FDL determines whether the field is required for the current record.
+- The component expresses requiredness with the appropriate native attribute,
+  label, and accessible state.
+- CSS decides whether the indication is red, bold, inline, icon-based, or
+  otherwise styled.
+
+The component must not decide requiredness because it displays an asterisk.
+CSS must not be the only place requiredness is communicated. FDL must not
+prescribe a red asterisk.
+
+### Example: choosing among values
+
+FDL provides the options, value identity, and selection rules. A component
+chooses an appropriate semantic interaction such as a select, radio group,
+autocomplete, or command palette. The visual system controls its appearance.
+Changing between those interactions should not require moving option rules or
+business validation into the component.
 
 ## What a modifier is
 
@@ -93,12 +168,12 @@ Those concerns may be necessary, but they belong at a different boundary.
 
 | Concern | Where it belongs |
 | --- | --- |
-| HTML tag, native attribute, focus behavior | Form renderer or adapter |
-| Custom-element properties and events | Design-system integration |
+| Semantic elements, native attributes, focus behavior | Component or form adapter |
+| Custom-element contracts and events | Component library or design-system integration |
 | Derived values and cross-field updates | Record or application model |
 | Business validation and dependencies | Field type and record |
 | Formatting, parsing, comparison, filtering | Field type |
-| Screen-specific layout and label placement | View or renderer |
+| Screen-specific layout and visual label placement | View and CSS |
 
 An adapter can combine a field's semantic definition with local rendering
 configuration. Keeping those inputs separate allows the same `FieldType` to be
@@ -135,5 +210,6 @@ When a new modifier is justified:
 - update public documentation, declarations, and examples together.
 
 The goal is not to maximize the number of modifiers. It is to maintain a small,
-coherent language that keeps field behavior reusable and presentation code
-focused on rendering.
+coherent language in which FDL defines reusable domain behavior, components
+translate that behavior into accessible interaction, and CSS supplies an
+interchangeable visual expression.
