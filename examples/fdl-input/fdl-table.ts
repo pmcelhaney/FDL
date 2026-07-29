@@ -100,6 +100,7 @@ export class FdlTable extends LitElement {
 
     disconnectedCallback() {
         this.columnObserver.disconnect();
+        this.stopResizeListeners();
         this.stopObservingRecordset();
         super.disconnectedCallback();
     }
@@ -180,11 +181,13 @@ export class FdlTable extends LitElement {
         const widths = [...columnElements].map(column => column.getBoundingClientRect().width);
         this.resizing = { leftIndex, startX: event.clientX, widths };
         this.columnWidths = widths;
-        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+        window.addEventListener('pointermove', this.resize);
+        window.addEventListener('pointerup', this.endResize);
+        window.addEventListener('pointercancel', this.endResize);
         event.preventDefault();
     }
 
-    private resize(event: PointerEvent) {
+    private resize = (event: PointerEvent) => {
         if (!this.resizing) return;
         this.columnWidths = resizeColumnWidths(
             this.resizing.widths,
@@ -193,12 +196,18 @@ export class FdlTable extends LitElement {
             event.clientX - this.resizing.startX
         );
         this.requestUpdate();
-    }
+    };
 
-    private endResize(event: PointerEvent) {
+    private endResize = () => {
         if (!this.resizing) return;
         this.resizing = undefined;
-        (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+        this.stopResizeListeners();
+    };
+
+    private stopResizeListeners() {
+        window.removeEventListener('pointermove', this.resize);
+        window.removeEventListener('pointerup', this.endResize);
+        window.removeEventListener('pointercancel', this.endResize);
     }
 
     private async sort(column: FdlColumn) {
@@ -276,9 +285,6 @@ export class FdlTable extends LitElement {
                       aria-label=${`Resize ${this.heading(column)} column`}
                       aria-orientation="vertical"
                       @pointerdown=${(event: PointerEvent) => this.startResize(event, index)}
-                      @pointermove=${this.resize}
-                      @pointerup=${this.endResize}
-                      @pointercancel=${this.endResize}
                   ></div>`
                 : nothing}
         </th>`;
@@ -371,7 +377,7 @@ export class FdlTable extends LitElement {
             position: absolute;
             z-index: 1;
             top: 0;
-            right: -0.4rem;
+            right: 0;
             width: 0.8rem;
             height: 100%;
             cursor: col-resize;
@@ -382,7 +388,7 @@ export class FdlTable extends LitElement {
             position: absolute;
             top: 0.35rem;
             bottom: 0.35rem;
-            left: calc(50% - 1px);
+            right: 0;
             width: 2px;
             border-radius: 1px;
             background: transparent;
