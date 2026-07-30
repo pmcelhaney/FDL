@@ -8,12 +8,12 @@ import { Record, FieldType as _FieldType } from '.';
 import { inputType } from './types/input-types.types';
 
 function caseInsensitiveTextMatch(searchText: string, value: any) {
-    return value.toString().toLowerCase().includes(searchText.toLowerCase());
+    return String(value ?? '').toLowerCase().includes(searchText.toLowerCase());
 }
 
 const defaultTrueFunction = () => true;
 
-function printFunction(fn: Function) {
+function printFunction(fn?: Function) {
     if (typeof fn === 'undefined') {
         return '<none>';
     }
@@ -108,7 +108,7 @@ export interface Properties<T = unknown> {
     emptyFunctions: Array<BooleanPredicate>;
     exampleValue: (index: number) => T;
     field?: string;
-    filter: ((record: Record) => boolean) | typeof caseInsensitiveTextMatch;
+    filter: (searchText: string, value: any) => boolean;
     filtering?: boolean;
     formatOnChange: boolean;
     formatters: Array<Function>;
@@ -184,7 +184,7 @@ export const defaultProperties: Properties = {
     disableFunctions: [() => false],
     emptyFunctions: [defaultEmptyFunction],
     exampleValue: (index: number) => index,
-    filter: (record: Record) => true,
+    filter: (_searchText: string, _value: any) => true,
     formatters: [],
     formatOnChange: false,
     formElement: null,
@@ -881,13 +881,11 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
-    /**
-     *
-     * @param {{(record:Record):boolean}} [fn]
-     */
-    filter(fn: (record: Record) => boolean) {
+    /** Defines how a table filter term matches this field's value. */
+    filter(fn?: (searchText: string, value: any) => boolean) {
         const copy = this.copy();
         copy.properties.filter = fn ?? caseInsensitiveTextMatch;
+        copy.properties.filtering = true;
         copy.properties.descriptions = [
             ...copy.properties.descriptions,
             `filter: ${printFunction(fn)}`,

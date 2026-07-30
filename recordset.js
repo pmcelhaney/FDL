@@ -68,6 +68,7 @@ export default class Recordset extends EventTarget {
             fetch: typeof fetch === 'function' ? fetch : () => fetch,
             /** @type {Object.<string, FieldType<T>>} */
             fieldTypes,
+            /** @type {(record: FdlRecord<T>) => boolean} */
             filter: () => true,
             isLoading: false,
             /**

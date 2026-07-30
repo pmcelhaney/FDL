@@ -591,6 +591,7 @@ describe('FieldType', () => {
         it('custom filter', () => {
             const type = new FieldType().with.filter((text, value) => value.startsWith(text));
 
+            expect(type.hasFilter()).toEqual(true);
             expect(type.match('searchText', 'value')).toEqual(false);
             expect(type.match('va', 'value')).toEqual(true);
             expect(type.match('ue', 'value')).toEqual(false);
@@ -602,6 +603,7 @@ describe('FieldType', () => {
             expect(type.match('searchText', 'value')).toEqual(false);
             expect(type.match('val', 'value')).toEqual(true);
             expect(type.match('ALU', 'value')).toEqual(true);
+            expect(type.match('anything', null)).toEqual(false);
         });
     });
 
