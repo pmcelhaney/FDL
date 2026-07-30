@@ -116,7 +116,14 @@ export default class FieldType {
         /* eslint-disable no-param-reassign */
         const errors = [];
         this.properties.validators.forEach(validator => {
-            if (!validator.validate(modelValue, viewValue, record, options, field)) {
+            const result = validator.validate(modelValue, viewValue, record, options, field);
+            if (result && typeof result.then === 'function') {
+                result.catch(() => {});
+                throw new Error(
+                    'FieldType.validate() cannot run async validators; use validateAsync() instead.'
+                );
+            }
+            if (!result) {
                 errors.push({
                     name: validator.name,
                     field,
@@ -129,6 +136,29 @@ export default class FieldType {
         });
 
         return errors;
+    }
+
+    async validateAsync(field, modelValue, viewValue, record, options) {
+        const results = await Promise.all(
+            this.properties.validators.map(validator =>
+                Promise.resolve(validator.validate(modelValue, viewValue, record, options, field))
+            )
+        );
+
+        return results.reduce((errors, valid, index) => {
+            if (!valid) {
+                const validator = this.properties.validators[index];
+                errors.push({
+                    name: validator.name,
+                    field,
+                    modelValue,
+                    viewValue,
+                    record,
+                    options,
+                });
+            }
+            return errors;
+        }, []);
     }
 
     defaultValue(value) {

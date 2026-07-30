@@ -62,9 +62,18 @@ export default class Field extends EventTarget {
         return !this.valid;
     }
 
+    async isValidAsync() {
+        return this.record.isValidAsync(this.fieldName, this.rawValue);
+    }
+
     isValidValue(inputValue) {
         const value = this.fieldType.parse(inputValue);
         return this.record.isValid(this.fieldName, value);
+    }
+
+    async isValidValueAsync(inputValue) {
+        const value = this.fieldType.parse(inputValue);
+        return this.record.isValidAsync(this.fieldName, value);
     }
 
     onChange(fn) {

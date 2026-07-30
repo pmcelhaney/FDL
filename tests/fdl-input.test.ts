@@ -168,13 +168,6 @@ describe('<fdl-input-demo>', () => {
             }
         });
 
-        const asyncValidator = catalog.shadowRoot?.querySelector<HTMLElement>(
-            '[data-modifier="asyncValidator"]'
-        );
-        expect(asyncValidator?.dataset.status).toBe('placeholder');
-        expect(asyncValidator?.textContent).toMatch(/async|asynchronous/i);
-        expect(asyncValidator?.textContent).toMatch(/validat/i);
-        expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
         expect(catalog.shadowRoot?.querySelector('[data-modifier="inline"]')).toBeNull();
         expect(catalog.shadowRoot?.querySelector('[data-modifier="inlineWhen"]')).toBeNull();
         expect(catalog.shadowRoot?.querySelector('[data-modifier="segmented"]')).toBeNull();

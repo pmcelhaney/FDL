@@ -50,8 +50,8 @@ function parseUsd(value) {
 ```
 
 `validator()` accepts an object with a `name` and `validate` function. The
-function receives `(modelValue, viewValue, record, options, field)` and must
-return `true` for a valid value.
+function receives `(modelValue, viewValue, record, options, field)` and returns
+either `true`/`false` or a promise of `true`/`false`.
 
 ```js
 const positiveNumber = number.with.validator({
@@ -59,6 +59,11 @@ const positiveNumber = number.with.validator({
   validate: value => value > 0,
 });
 ```
+
+Synchronous validation is available through `FieldType.validate()` and
+`Record#isValid()`. For a field type containing an asynchronous validator, use
+`FieldType.validateAsync()`, `Record#isValidAsync()`, or the corresponding
+`Field` methods.
 
 `minLength(n)`, `maxLength(n)`, `required()`, `requiredWhen(predicate)`, and
 `emptyWhen(predicate)` add common validation behavior. Predicates receive the
