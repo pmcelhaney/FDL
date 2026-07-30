@@ -81,7 +81,6 @@ const entries: CatalogEntry[] = [
     live('rowClasses', 'Computes CSS classes for the table row containing a value.', 'rowClasses', `.rowClasses(value => value === 'Disputed' ? ['disputed-row'] : [])`),
     live('rowCount', 'Sets the visible row count of textarea-like controls.', 'rowCount', `.rowCount(4)`),
     placeholder('search', 'Enables a rich option-search dialog and describes its result columns.', customControlGap),
-    placeholder('segmented', 'Requests segmented-choice presentation from a compatible control.', customControlGap),
     placeholder('selectionDisabledFunctions', 'Supplies predicates that disable individual choices, such as dates.', 'FormElement only forwards the date predicate as an expando property. Native select and date inputs do not use it to disable individual choices.'),
     placeholder('selectOnFocus', 'Requests selecting all text when a compatible control receives focus.', 'The flag is forwarded as an expando property, but FormElement does not attach a focus handler and native inputs do not interpret that property.'),
     live('sortable', 'Enables or disables sorting for a table column.', 'sortable', `.sortable(false)`),

@@ -759,6 +759,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use a renderer-specific control configuration instead. */
     segmented() {
         const copy = this.copy();
         copy.properties.segmentedFunctions = [
