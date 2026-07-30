@@ -134,10 +134,24 @@ classes, and the column-width modifiers shown in the first example.
 `template(fn)` customizes the printed representation; it can return a Lit
 template for rich cell content.
 
+Use `filter()` to make a table column filterable with case-insensitive text
+matching. Pass a matcher when the field needs different behavior; it receives
+the entered text and each candidate value. The table combines active column
+filters with AND semantics and preserves any predicate already assigned to the
+`Recordset`.
+
+```js
+const fields = {
+  name: new FieldType().with.filter(),
+  accountCode: new FieldType().with.filter((text, value) =>
+    value.toLowerCase().startsWith(text.toLowerCase())
+  ),
+};
+```
+
 ## Other modifiers
 
-Additional modifiers include `filter()` for type-to-filter matching,
-`hashFunction(fn)` for matching object-valued options, `exampleValue(value)`
+Additional modifiers include `hashFunction(fn)` for matching object-valued options, `exampleValue(value)`
 for `ExampleRecordset`, `onValueChange(fn)` for reactions to value changes, and
 `search(config)` for search-capable option controls. `schema(name)` is retained
 for compatibility and should be avoided in new code.

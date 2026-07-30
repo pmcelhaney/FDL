@@ -274,4 +274,128 @@ describe('<fdl-table>', () => {
 
         table.remove();
     });
+
+    it('filters a column from an accessible header control', async () => {
+        const recordset = new Recordset(
+            {
+                name: new FieldType().with.label('Name').and.filter(),
+                team: new FieldType().with.label('Team'),
+            },
+            [
+                { name: 'Ada', team: 'Research' },
+                { name: 'Grace', team: 'Platform' },
+                { name: 'Margaret', team: 'Research' },
+            ]
+        );
+        const table = document.createElement('fdl-table') as TestTable;
+        table.recordset = recordset;
+        table.innerHTML = `
+            <fdl-column field="name"></fdl-column>
+            <fdl-column field="team"></fdl-column>
+        `;
+        document.body.append(table);
+        await settle(table);
+
+        expect(table.shadowRoot?.querySelector('[aria-label="Filter Team"]')).toBeNull();
+        const filterButton = table.shadowRoot?.querySelector<HTMLButtonElement>(
+            '[aria-label="Filter Name"]'
+        );
+        filterButton?.click();
+        await table.updateComplete;
+
+        expect(filterButton?.getAttribute('aria-expanded')).toBe('true');
+        const input = table.shadowRoot?.querySelector<HTMLInputElement>('[data-filter-input="name"]');
+        expect(table.shadowRoot?.activeElement).toBe(input);
+        input?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+        await table.updateComplete;
+        expect(table.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+        expect(table.shadowRoot?.activeElement).toBe(filterButton);
+
+        filterButton?.click();
+        await table.updateComplete;
+        const reopenedInput = table.shadowRoot?.querySelector<HTMLInputElement>(
+            '[data-filter-input="name"]'
+        );
+        reopenedInput!.value = 'gr';
+        reopenedInput?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        await recordset.requestUpdate();
+        await settle(table);
+
+        expect(rows(table)).toEqual([['Grace', 'Platform']]);
+        expect(table.shadowRoot?.querySelector('.filter-chip')?.textContent).toContain(
+            'Name: “gr”'
+        );
+        expect(filterButton?.classList.contains('filtered')).toBe(true);
+
+        table.shadowRoot?.querySelector<HTMLButtonElement>('.filter-chip')?.click();
+        await recordset.requestUpdate();
+        await settle(table);
+        expect(rows(table)).toEqual([
+            ['Ada', 'Research'],
+            ['Grace', 'Platform'],
+            ['Margaret', 'Research'],
+        ]);
+
+        table.remove();
+    });
+
+    it('combines column filters with an application-owned Recordset filter', async () => {
+        const recordset = new Recordset(
+            {
+                name: new FieldType().with.filter((text, value) =>
+                    value.toLowerCase().startsWith(text.toLowerCase())
+                ),
+                team: new FieldType().with.filter(),
+            },
+            [
+                { name: 'Ada', team: 'Research' },
+                { name: 'Grace', team: 'Research' },
+                { name: 'Margaret', team: 'Platform' },
+            ]
+        );
+        const applicationFilter = (record: any) => record.getField('team') === 'Research';
+        recordset.filter = applicationFilter;
+        await recordset.requestUpdate();
+
+        const table = document.createElement('fdl-table') as TestTable;
+        table.recordset = recordset;
+        table.innerHTML = `
+            <fdl-column field="name"></fdl-column>
+            <fdl-column field="team"></fdl-column>
+        `;
+        document.body.append(table);
+        await settle(table);
+
+        const setColumnFilter = async (field: string, value: string) => {
+            table.shadowRoot
+                ?.querySelector<HTMLButtonElement>(`[aria-label="Filter ${field[0].toUpperCase()}${field.slice(1)}"]`)
+                ?.click();
+            await table.updateComplete;
+            const input = table.shadowRoot?.querySelector<HTMLInputElement>(
+                `[data-filter-input="${field}"]`
+            );
+            input!.value = value;
+            input?.dispatchEvent(new InputEvent('input', { bubbles: true }));
+            await recordset.requestUpdate();
+            await settle(table);
+        };
+
+        await setColumnFilter('name', 'gr');
+        expect(rows(table)).toEqual([['Grace', 'Research']]);
+
+        await setColumnFilter('team', 'search');
+        expect(rows(table)).toEqual([['Grace', 'Research']]);
+        expect(table.shadowRoot?.querySelectorAll('.filter-chip')).toHaveLength(2);
+
+        table.shadowRoot?.querySelector<HTMLButtonElement>('.clear-all')?.click();
+        await recordset.requestUpdate();
+        await settle(table);
+        expect(recordset.filter).toBe(applicationFilter);
+        expect(rows(table)).toEqual([
+            ['Ada', 'Research'],
+            ['Grace', 'Research'],
+        ]);
+
+        table.remove();
+    });
 });

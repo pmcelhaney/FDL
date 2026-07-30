@@ -57,7 +57,7 @@ const entries: CatalogEntry[] = [
     live('disabledWhen', 'Disables a control only while a record predicate is true.', 'disabledWhen', `.disabledWhen(record => record.getField('status') === 'approved')`),
     live('emptyWhen', 'Defines additional values that should count as empty during validation.', 'emptyWhen', `.emptyWhen(value => value === 'N/A')`),
     live('exampleValue', 'Supplies fixed or index-derived values for generated example records.', 'exampleValue', `.exampleValue(index => \`Sample contact \${index + 1}\`)`),
-    live('filter', 'Defines how a search term matches a candidate value.', 'filter', `.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase()))`),
+    live('filter', 'Makes a table column filterable and defines how text matches its values.', 'filter', `.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase()))`),
     placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
     live('formatter', 'Transforms a stored value for display without changing the model value.', 'formatter', `.formatter(value => currency.format(Number(value)))`),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
@@ -149,7 +149,19 @@ export class FdlModifierCatalog extends LitElement {
     );
 
     private exampleType = new FieldType<string>().with.exampleValue(index => `Sample contact ${index + 1}`);
-    private filterType = new FieldType().with.filter(((text: string, value: string) => value.toLowerCase().startsWith(text.toLowerCase())) as any);
+    private filterRecordset = new Recordset(
+        {
+            name: new FieldType<string>().with
+                .label('Name')
+                .and.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase())),
+            team: new FieldType().with.label('Team'),
+        },
+        [
+            { name: 'Ada', team: 'Research' },
+            { name: 'Grace', team: 'Platform' },
+            { name: 'Margaret', team: 'Research' },
+        ]
+    );
     private hashType = new FieldType().with.hashFunction((employee: { id: string }) => employee.id);
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
     private cellClassRecordset = new Recordset(
@@ -319,7 +331,7 @@ export class FdlModifierCatalog extends LitElement {
             case 'disabledWhen': return html`<p class="try">Choose Approved to disable Budget.</p>${this.renderField('approvalStatus', this.record, 'select')}${this.renderField('budget')}`;
             case 'emptyWhen': return html`<p class="try">“N/A” is configured to count as empty.</p>${this.renderValidation('emptyCode')}`;
             case 'exampleValue': return html`<p class="computed">Generated values: ${[0, 1, 2].map(index => this.exampleType.exampleValue()(index)).join(', ')}</p>`;
-            case 'filter': return html`<p class="computed">Search “gr” matches Grace: ${String(this.filterType.match('gr', 'Grace'))}; matches Ada: ${String(this.filterType.match('gr', 'Ada'))}</p>`;
+            case 'filter': return html`<p class="try">Open the filter in the Name heading. This matcher uses “starts with,” so entering “gr” keeps Grace.</p><fdl-table .recordset=${this.filterRecordset}><fdl-column field="name"></fdl-column><fdl-column field="team"></fdl-column></fdl-table>`;
             case 'formatter': return html`<p class="try">The record stores <code>1250</code>; the table prints the formatted value.</p><fdl-table .recordset=${this.formatterRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="invoice"></fdl-column></fdl-table>`;
             case 'hashFunction': return html`<p class="computed">Two separate employee objects hash to “${this.hashType.hashFunction()({ id: 'ada' })}” and “${this.hashType.hashFunction()({ id: 'ada' })}”, so a consumer can match their identity.</p>`;
             case 'inputMask': return html`<p class="computed">Allowed: “7” ${String(this.maskType.allowInputChar('7'))}, “.” ${String(this.maskType.allowInputChar('.'))}; blocked: “A” ${String(this.maskType.allowInputChar('A'))}. The native adapter does not enforce this during typing.</p>`;
