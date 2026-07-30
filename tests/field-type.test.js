@@ -83,6 +83,30 @@ describe('FieldType', () => {
                 },
             ]);
         });
+
+        it('validates async predicates through validateAsync', async () => {
+            const fieldType = new FieldType().with.validator(badAccountTypeAsyncValidator);
+
+            await expect(
+                fieldType.validateAsync('accountNumber', '1111', '1111', invalidRecord, options)
+            ).resolves.toEqual([
+                expect.objectContaining({
+                    field: 'accountNumber',
+                    name: 'bad-account-type',
+                }),
+            ]);
+            await expect(
+                fieldType.validateAsync('accountNumber', '2222', '2222', invalidRecord, options)
+            ).resolves.toEqual([]);
+        });
+
+        it('rejects async predicates from synchronous validation', () => {
+            const fieldType = new FieldType().with.validator(badAccountTypeAsyncValidator);
+
+            expect(() =>
+                fieldType.validate('accountNumber', '1111', '1111', invalidRecord, options)
+            ).toThrow(/validateAsync/);
+        });
     });
 
     describe('with.formatter', () => {

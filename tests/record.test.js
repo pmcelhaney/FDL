@@ -53,6 +53,22 @@ describe('Record', () => {
         const valid = record.isValid();
         expect(errors).toEqual(!valid);
     });
+
+    it('supports asynchronous field validation', async () => {
+        const asyncRecord = new Record(
+            {
+                username: new FieldType().with.validator({
+                    name: 'username-is-available',
+                    validate: async value => value !== 'taken',
+                }),
+            },
+            { username: 'taken' }
+        );
+
+        await expect(asyncRecord.isValidAsync('username')).resolves.toBe(false);
+        asyncRecord.setField('username', 'available');
+        await expect(asyncRecord.isValidAsync()).resolves.toBe(true);
+    });
     it('resets record back to initial load', () => {
         record.setField('name', 'Tyler');
         record.setField('battingAverage', '0.4');

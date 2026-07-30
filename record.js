@@ -104,6 +104,22 @@ export default class Record extends EventTarget {
         });
     }
 
+    async errorsAsync() {
+        return Promise.all(
+            Object.keys(this.values).map(key => {
+                const fieldType = this.fieldTypeForField(key);
+                if (fieldType.hasParts) {
+                    return Promise.all(
+                        fieldType.parts().map(part =>
+                            part.type.validateAsync(part.key, this.values[key][part.key], null, this)
+                        )
+                    );
+                }
+                return fieldType.validateAsync(key, this.values[key], null, this);
+            })
+        );
+    }
+
     /**
      *
      * @returns {number}
@@ -163,6 +179,15 @@ export default class Record extends EventTarget {
         }
 
         return !this.hasErrors();
+    }
+
+    async isValidAsync(key, value = this.values[key]) {
+        if (key) {
+            return (await this.fieldTypeForField(key).validateAsync(key, value, null, this))
+                .length === 0;
+        }
+
+        return (await this.errorsAsync()).flat(2).length === 0;
     }
 
     get invalidValues() {

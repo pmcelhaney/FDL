@@ -34,7 +34,6 @@ const placeholder = (name: string, intent: string, limitation: string): CatalogE
 });
 
 const entries: CatalogEntry[] = [
-    placeholder('asyncValidator', 'Registers a validation rule intended to run asynchronously.', 'The builder stores async validators, but current FieldType.validate() and Record validation do not execute that collection. There is no completion or error path to demonstrate yet.'),
     live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('amount-cell')`),
     live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `const people = new Recordset({
   firstName: new FieldType().with

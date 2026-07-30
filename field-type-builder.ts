@@ -56,7 +56,7 @@ type ValidatorFunction<T> = (
     record: Record<T>,
     options: OptionsApi,
     field: any
-) => boolean | Function;
+) => boolean | Promise<boolean>;
 
 interface Validator<T> {
     name: string;
@@ -96,7 +96,6 @@ export interface Properties<T = unknown> {
     additionalProperties: object;
     aggregate: Function | string;
     allowInputChar?: (char: string) => boolean;
-    asyncValidators: Array<Validator<T>>;
     autocomplete?: AutoComplete;
     autofocus: boolean;
     cellClasses: Array<string>;
@@ -174,7 +173,6 @@ export const defaultProperties: Properties = {
     additionalProperties: {},
     aggregate: () => '',
     allowInputChar: () => true,
-    asyncValidators: [],
     autocomplete: 'off',
     autofocus: false,
     cellClasses: [],
@@ -321,13 +319,6 @@ export default class FieldTypeBuilder<T> {
             ...copy.properties.descriptions,
             `validator: ${validator.name}}`,
         ];
-        return copy;
-    }
-
-    asyncValidator(validator: Validator<T>) {
-        const copy = this.copy();
-        copy.properties.asyncValidators = [...copy.properties.asyncValidators, validator];
-
         return copy;
     }
 
