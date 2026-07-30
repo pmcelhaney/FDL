@@ -1,10 +1,9 @@
 import FieldType from '../field-type.js';
 import Record from '../record.js';
-import '../examples/fdl-input/fdl-input';
-import '../examples/fdl-input/fdl-select';
+import '../examples/fdl-input/fdl-field';
 import '../examples/fdl-input/fdl-input-demo';
 
-describe('<fdl-input>', () => {
+describe('<fdl-field>', () => {
     it('creates and initializes the native input from the record field type', async () => {
         const record = new Record(
             {
@@ -16,7 +15,7 @@ describe('<fdl-input>', () => {
             { name: 'Ada' }
         );
 
-        const element = document.createElement('fdl-input') as HTMLElement & {
+        const element = document.createElement('fdl-field') as HTMLElement & {
             field: string;
             record: Record;
             updateComplete: Promise<boolean>;
@@ -43,7 +42,7 @@ describe('<fdl-input>', () => {
             { notes: new FieldType().with.tag('textarea').and.rowCount(3) },
             { notes: '' }
         );
-        const element = document.createElement('fdl-input') as HTMLElement & {
+        const element = document.createElement('fdl-field') as HTMLElement & {
             field: string;
             record: Record;
             updateComplete: Promise<boolean>;
@@ -59,12 +58,47 @@ describe('<fdl-input>', () => {
         element.remove();
     });
 
+    it('creates a native select from the field metadata and loads its options', async () => {
+        const record = new Record(
+            {
+                status: new FieldType().with
+                    .tag('select')
+                    .and.options([
+                        { text: 'Draft', value: 'draft' },
+                        { text: 'Approved', value: 'approved' },
+                    ]),
+            },
+            { status: 'approved' }
+        );
+        const element = document.createElement('fdl-field') as HTMLElement & {
+            field: string;
+            record: Record;
+            updateComplete: Promise<boolean>;
+        };
+        element.field = 'status';
+        element.record = record;
+        document.body.append(element);
+
+        await element.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await element.updateComplete;
+
+        const select = element.shadowRoot?.querySelector('select');
+        expect(select?.value).toBe('approved');
+        expect([...select?.options ?? []].map(option => option.textContent)).toEqual([
+            'Draft',
+            'Approved',
+        ]);
+        expect(element.shadowRoot?.querySelector('input')).toBeNull();
+        element.remove();
+    });
+
     it('does not render a field when visibleWhen() returns false', async () => {
         const record = new Record(
             { address: new FieldType().with.label('Address').and.visibleWhen(() => false) },
             { address: '' }
         );
-        const element = document.createElement('fdl-input') as HTMLElement & {
+        const element = document.createElement('fdl-field') as HTMLElement & {
             field: string;
             record: Record;
             updateComplete: Promise<boolean>;
@@ -169,7 +203,7 @@ describe('<fdl-input-demo>', () => {
         ).toBeNull();
 
         const cookbookControls = [
-            ...(catalog.shadowRoot?.querySelectorAll('fdl-input, fdl-select') ?? []),
+            ...(catalog.shadowRoot?.querySelectorAll('fdl-field') ?? []),
         ];
         expect(catalog.shadowRoot?.querySelectorAll('input, select, textarea')).toHaveLength(0);
         expect(cookbookControls.length).toBeGreaterThan(0);
@@ -208,7 +242,7 @@ describe('<fdl-input-demo>', () => {
             '[data-modifier="visibleWhen"]'
         );
         const fulfillment = visibleCard?.querySelector(
-            'fdl-select[field="fulfillment"]'
+            'fdl-field[field="fulfillment"]'
         ) as HTMLElement & { updateComplete: Promise<boolean> };
         await fulfillment.updateComplete;
         const select = fulfillment.shadowRoot?.querySelector('select') as HTMLSelectElement;
@@ -216,7 +250,7 @@ describe('<fdl-input-demo>', () => {
         select.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
         await new Promise(resolve => setTimeout(resolve, 0));
         await catalog.updateComplete;
-        expect(visibleCard?.querySelector('fdl-input[field="address"]')?.shadowRoot?.querySelector('input')).toBeNull();
+        expect(visibleCard?.querySelector('fdl-field[field="address"]')?.shadowRoot?.querySelector('input')).toBeNull();
 
         element.remove();
     });
@@ -234,7 +268,7 @@ describe('<fdl-input-demo>', () => {
         await catalog.updateComplete;
 
         const parserCard = catalog.shadowRoot?.querySelector<HTMLElement>('[data-modifier="parser"]');
-        const inputControl = parserCard?.querySelector('fdl-input') as HTMLElement & {
+        const inputControl = parserCard?.querySelector('fdl-field') as HTMLElement & {
             updateComplete: Promise<boolean>;
         };
         await inputControl.updateComplete;

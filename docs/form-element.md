@@ -13,22 +13,23 @@ The base class owns the FDL integration:
 - it loads `FieldType.options()` when the field has options; and
 - it listens for child events and synchronizes the value back to the record.
 
-## A minimal subclass
+## A unified field component
 
-The subclass normally supplies presentation and registers a custom-element
-name. Preserve the base stylesheet by overriding its static getter, not by
-assigning a static class field:
+Applications should expose one field custom element and let `FormElement`
+create the native control named by the field metadata. Preserve the base
+stylesheet by overriding its static getter, not by assigning a static class
+field:
 
 ```ts
 import { css } from 'lit';
 import FormElement from '../form-element';
 
-export class FdlSelect extends FormElement {
+export class FdlField extends FormElement {
   static get styles() {
     return css`
       ${FormElement.styles}
 
-      select {
+      input, select, textarea {
         border: 1px solid #9ca3af;
         border-radius: 0.25rem;
         padding: 0.5rem;
@@ -37,11 +38,11 @@ export class FdlSelect extends FormElement {
   }
 }
 
-customElements.define('fdl-select', FdlSelect);
+customElements.define('fdl-field', FdlField);
 ```
 
-Use the subclass as the form control and pass the record and field. The
-`FieldType` tag names the child control created *inside* the subclass:
+Always use that component as the outer form control and pass the record and
+field. The `FieldType` tag names the native child created inside it:
 
 ```ts
 const contactMethod = new FieldType().with
@@ -57,13 +58,12 @@ const record = new Record({ contactMethod }, { contactMethod: '' });
 ```
 
 ```ts
-html`<fdl-select field="contactMethod" .record=${record}></fdl-select>`
+html`<fdl-field field="contactMethod" .record=${record}></fdl-field>`
 ```
 
-Do not set the field type's tag to `fdl-select` in this arrangement. That
-would make `FormElement` create another `fdl-select` inside the first one.
-Use `tag('select')` for the native child and the custom element name for the
-outer component.
+Do not create separate `<fdl-input>`, `<fdl-select>`, or `<fdl-textarea>` APIs.
+Use `tag('input')`, `tag('select')`, or `tag('textarea')` in the field metadata
+and keep `<fdl-field>` stable at the call site.
 
 ## Native dropdowns
 
@@ -74,4 +74,4 @@ Include an empty option when the field starts empty, and use `.required()` or
 `.requiredWhen(...)` if choosing an option is part of validation.
 
 See the working example in [`examples/fdl-input`](../examples/fdl-input/) for
-`fdl-input`, `fdl-select`, conditional validation, and a live `Record` preview.
+the unified `fdl-field`, conditional validation, and a live `Record` preview.
