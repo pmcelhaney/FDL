@@ -36,6 +36,8 @@ one custom element per native control. A consumer renders `<fdl-field>` for a
 field, and that component creates the appropriate native control from the
 field's metadata. Input, select, and textarea are semantic implementation
 choices inside the field component; they are not separate FDL component APIs.
+This decision is recorded in
+[ADR001](./adr/0001-use-one-field-custom-element.md).
 
 Orthogonal does not mean isolated. The layers cooperate through contracts:
 
