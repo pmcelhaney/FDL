@@ -96,6 +96,7 @@ future retirement work from losing historical context.
 | `pattern` | Deprecated | Model validation or renderer input configuration | Browser constraint is not model-enforced. |
 | `readOnlyExceptionWhen` | Deprecated | Renderer | Composite-control exception. |
 | `schema` | Deprecated | Application metadata outside `FieldType` | Legacy metadata without reusable field behavior. |
+| `selectionDisabledFunctions` | Deprecated | Renderer or form adapter | Individual choice disabling is renderer-specific and is not enforced by the FDL model or native controls. |
 | `segmented` | Deprecated | Renderer-specific control configuration | Control presentation choice. |
 | `step` | Deprecated | Renderer-specific input configuration | Browser input attribute. |
 | `tag` | Deprecated | Renderer-specific control configuration | HTML/control selection. |

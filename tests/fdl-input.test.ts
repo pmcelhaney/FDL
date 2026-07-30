@@ -136,7 +136,7 @@ describe('<fdl-input-demo>', () => {
             'accept', 'additionalProperties', 'autofocus', 'autocomplete', 'field', 'formElement',
             'filtering', 'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
             'description', 'hasSearch', 'inline', 'inlineWhen', 'parseDynamicRange', 'pattern',
-            'readOnlyExceptionWhen', 'schema', 'segmented', 'step', 'tag', 'usesCustomPrint',
+            'readOnlyExceptionWhen', 'schema', 'segmented', 'selectionDisabledFunctions', 'step', 'tag', 'usesCustomPrint',
         ]);
         const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(name => name !== 'constructor' && name !== 'copy')
