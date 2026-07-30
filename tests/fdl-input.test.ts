@@ -101,7 +101,8 @@ describe('<fdl-input-demo>', () => {
         const omittedModifiers = new Set([
             'accept', 'additionalProperties', 'autofocus', 'autocomplete', 'field', 'formElement',
             'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
-            'description', 'hasSearch', 'parseDynamicRange', 'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
+            'description', 'hasSearch', 'inline', 'inlineWhen', 'parseDynamicRange', 'pattern',
+            'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
         ]);
         const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(name => name !== 'constructor' && name !== 'copy')
@@ -140,6 +141,8 @@ describe('<fdl-input-demo>', () => {
         expect(asyncValidator?.textContent).toMatch(/async|asynchronous/i);
         expect(asyncValidator?.textContent).toMatch(/validat/i);
         expect(asyncValidator?.textContent).toMatch(/not|doesn.t|isn.t|without|current/i);
+        expect(catalog.shadowRoot?.querySelector('[data-modifier="inline"]')).toBeNull();
+        expect(catalog.shadowRoot?.querySelector('[data-modifier="inlineWhen"]')).toBeNull();
 
         [
             'cellClass',

@@ -734,6 +734,7 @@ export default class FieldTypeBuilder<T> {
 
     /**
      * Sets a field to inline
+     * @deprecated Inline layout is no longer part of the cookbook's supported modifier surface.
      *
      */
     inline() {
@@ -746,6 +747,7 @@ export default class FieldTypeBuilder<T> {
     /**
      * Sets a field to inline based on a conditional expression
      * @param {{(record:Record) : boolean}} fn - Conditional expression that should return true when a field should be inline
+     * @deprecated Inline layout is no longer part of the cookbook's supported modifier surface.
      */
     inlineWhen(fn: BooleanPredicate) {
         const copy = this.copy();

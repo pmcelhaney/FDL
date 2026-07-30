@@ -61,8 +61,6 @@ const entries: CatalogEntry[] = [
     placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
     live('formatter', 'Transforms a stored value for display without changing the model value.', 'formatter', `.formatter(value => currency.format(Number(value)))`),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
-    placeholder('inline', 'Marks a compatible control as using an inline layout.', customControlGap),
-    placeholder('inlineWhen', 'Enables inline layout only while a record predicate is true.', customControlGap),
     live('inputMask', 'Defines which individual typed characters a field accepts.', 'inputMask', `.inputMask(/[0-9.]/)`),
     live('label', 'Provides a static label or derives one from the current record.', 'label', `.label(record => \`Amount for \${record.getField('expenseType')}\`)`),
     live('maxColumnWidth', 'Sets the maximum width requested for a table column.', 'maxColumnWidth', `.maxColumnWidth(180)`),
