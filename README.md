@@ -1,8 +1,22 @@
 # FDL
 
-FDL (pronounced “fiddle”) is a library for building complex forms and tables
-with interdependent fields and validation rules. It keeps field behavior in a
-declarative model so UI components can focus on presentation.
+[![Tests](https://github.com/pmcelhaney/FDL/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/tests.yml)
+[![Type check](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml)
+[![Portfolio build](https://github.com/pmcelhaney/FDL/actions/workflows/portfolio-build.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/portfolio-build.yml)
+
+FDL (pronounced “fiddle”) solves a recurring problem in complex forms: the same
+business rule is often rewritten in input handlers, validation, review tables,
+and exported output. FDL puts that behavior in one declarative field definition
+so every consumer can interpret the same rule consistently.
+
+The package models field types, records, and recordsets independently of the UI.
+Renderers remain responsible for accessible controls and presentation; FDL owns
+reusable behavior such as parsing, formatting, validation, dependencies,
+comparison, filtering, and aggregation.
+
+Explore the portfolio locally through the narrative `/demo`, engineering
+`/case-study`, complete `/reference`, and documentation `/docs` routes. A public
+deployment URL will be added only after hosting is configured.
 
 ## Example: Dog Walking Service
 
@@ -82,8 +96,48 @@ Custom Lit controls can extend [`FormElement`](./docs/form-element.md) to connec
 Contributors working on field behavior, components, or presentation should
 follow the [FDL design principles](./docs/design-principles.md).
 
-## Development
+The portfolio’s [modifier support matrix](./portfolio/app/reference/page.tsx)
+distinguishes demonstrated behavior, model-only behavior, and adapter work. See
+the [release guide](./docs/releases.md) and [changelog](./CHANGELOG.md) for the
+current rehabilitation and versioning discipline.
 
-Run the test suite with `npm test`. The interactive form-control example is in
-[`examples/fdl-input`](./examples/fdl-input/); start it with
-`npm run example:fdl-input`.
+## Run locally
+
+Use Node 22.13 or newer so the library and portfolio share one runtime baseline.
+
+```sh
+git clone https://github.com/pmcelhaney/FDL.git
+cd FDL
+npm ci
+npm test
+npm run typecheck
+```
+
+Start the interactive Lit form-control example with:
+
+```sh
+npm run example:fdl-input
+```
+
+Run the portfolio in a second terminal:
+
+```sh
+cd portfolio
+npm ci
+npm run dev
+```
+
+Create a production portfolio build with `npm run build` from `portfolio/`.
+
+## Project status
+
+The core library is being rehabilitated as a portfolio-quality reference. The
+work emphasizes explicit architecture, candid capability documentation,
+automated verification, and a reproducible first run. See the
+[roadmap](./ROADMAP.md) for product direction; roadmap entries are intent, not
+claims of shipped support.
+
+## License
+
+FDL is available under the [Apache License 2.0](./LICENSE). Preserve the
+repository’s existing copyright and attribution notices when redistributing it.
