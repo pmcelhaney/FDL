@@ -896,6 +896,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Configure choice disabling in the renderer or form adapter. */
     selectionDisabledFunctions(functions: FunctionCollection) {
         const copy = this.copy();
         copy.properties.selectionDisabledFunctions = functions;

@@ -72,7 +72,6 @@ const modifiers: Modifier[] = [
   { name: "search", summary: "Describes a rich option-search dialog.", support: "Adapter / planned", note: "The model stores the configuration; the native adapter has no search dialog." },
   { name: "segmented", summary: "Requests segmented-control presentation.", support: "Adapter / planned", deprecated: true, docs: "adr" },
   { name: "selectOnFocus", summary: "Requests selecting a control's text on focus.", support: "Model-only", note: "Stored and forwarded, but the native adapter has no focus handler." },
-  { name: "selectionDisabledFunctions", summary: "Defines predicates that disable individual choices.", support: "Model-only", note: "Stored and partly forwarded; native select and date inputs do not enforce it." },
   { name: "sortable", summary: "Enables or disables sorting for a table field.", support: "Live / implemented", docs: "field-type" },
   { name: "step", summary: "Stores a browser numeric-step hint.", support: "Adapter / planned", deprecated: true, docs: "adr" },
   { name: "tag", summary: "Selects the native child control in the current Lit adapter.", support: "Adapter / planned", deprecated: true, note: "Implemented by the current adapter, but deprecated as renderer-specific metadata.", docs: "adr" },
