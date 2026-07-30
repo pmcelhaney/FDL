@@ -20,7 +20,7 @@ export type EventTypes = [
 export const Events = [
     // 'click',
     'custom',
-    // 'input',
+    'input',
     'change',
     // 'keydown',
     // 'keyup',

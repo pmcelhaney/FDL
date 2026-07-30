@@ -220,4 +220,33 @@ describe('<fdl-input-demo>', () => {
         element.remove();
     });
 
+    it('demonstrates formatted money input being parsed into the raw record value', async () => {
+        const element = document.createElement('fdl-input-demo') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        document.body.append(element);
+        await element.updateComplete;
+
+        const catalog = element.shadowRoot?.querySelector('fdl-modifier-catalog') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        await catalog.updateComplete;
+
+        const parserCard = catalog.shadowRoot?.querySelector<HTMLElement>('[data-modifier="parser"]');
+        const inputControl = parserCard?.querySelector('fdl-input') as HTMLElement & {
+            updateComplete: Promise<boolean>;
+        };
+        await inputControl.updateComplete;
+        const input = inputControl.shadowRoot?.querySelector('input') as HTMLInputElement;
+
+        expect(input.value).toBe('$1,000.00');
+        input.value = '$1,500.00';
+        input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await catalog.updateComplete;
+
+        expect(parserCard?.textContent).toContain('Raw stored value: 1500');
+        element.remove();
+    });
+
 });

@@ -13,7 +13,7 @@ type DemoName =
     | 'inputMask' | 'label' | 'maxColumnWidth' | 'maxLength'
     | 'minColumnWidth' | 'minLength' | 'options'
     | 'placeholder' | 'readOnly' | 'readOnlyWhen' | 'reducer' | 'required'
-    | 'requiredWhen' | 'rowClasses' | 'rowCount' | 'sortable'
+    | 'parser' | 'requiredWhen' | 'rowClasses' | 'rowCount' | 'sortable'
     | 'targetColumnWidth' | 'template' | 'textAlign' | 'type' | 'validator'
     | 'visibleWhen';
 
@@ -69,7 +69,8 @@ const entries: CatalogEntry[] = [
     live('minLength', 'Sets a minimum input length and adds equivalent record validation.', 'minLength', `.minLength(4)`),
     placeholder('multipleValues', 'Models a field as an array with minimum and maximum selection counts.', 'FormElement sets the native multiple property but reads only event.target.value, so it stores one string instead of the selected array and does not enforce the count bounds.'),
     live('options', 'Supplies static or fetched choices and can refresh them from dependency fields.', 'options', `.options({ fields: ['department'], fetch: record => directory[record.getField('department')] })`),
-    placeholder('parser', 'Transforms an incoming display value into the stored model representation.', 'FieldType.parse() and Record.parseAndSetField() can invoke the parser, but FormElement commits native input with record.setField() and bypasses it. A standalone computed call would not demonstrate the actual form path.'),
+    live('parser', 'Transforms an incoming display value into the stored model representation.', 'parser', `.formatter(value => currency.format(Number(value)))
+  .and.parser(value => Number(String(value).replace(/[$,]/g, '')))`),
     live('placeholder', 'Shows temporary hint text while an input is empty.', 'placeholder', `.placeholder('For example, Apollo migration')`),
     placeholder('range', 'Marks a field as representing a start/end range rather than one value.', 'FieldType stores the flag, but FormElement neither chooses nor implements a range control. The intended value and event contract are not clear in this native example.'),
     live('readOnly', 'Always renders the field as a printed, non-editable value.', 'readOnly', `.readOnly()`),
@@ -113,6 +114,10 @@ export class FdlModifierCatalog extends LitElement {
             hiddenSearch: new FieldType().with.label('Search directory').and.placeholder('Search directory'),
             expenseType: new FieldType().with.label('Expense type').and.options([{ text: 'Travel', value: 'travel' }, { text: 'Equipment', value: 'equipment' }]),
             dynamicAmount: new FieldType<any>().with.label((record: any) => `Amount for ${record.getField('expenseType')}`).and.type('number'),
+            money: new FieldType<number>().with
+                .label('Money')
+                .and.formatter(value => currency.format(Number(value)))
+                .and.parser(value => Number(String(value).replace(/[$,]/g, ''))),
             shortCode: new FieldType().with.label('Short code').and.maxLength(12),
             longCode: new FieldType().with.label('Access code').and.minLength(4),
             quantity: new FieldType<any>().with.label('Quantity').and.options([{ text: '1', value: 1 }, { text: '2', value: 2 }, { text: '4', value: 4 }]),
@@ -135,6 +140,7 @@ export class FdlModifierCatalog extends LitElement {
         {
             extraProperty: '', lockedId: 'SYS-77', approvalStatus: 'draft', budget: 5000,
             emptyCode: 'N/A', hiddenSearch: '', expenseType: 'travel', dynamicAmount: '',
+            money: 1000,
             shortCode: '', longCode: '', quantity: 2, total: 50, department: 'engineering', assignee: 'grace',
             projectName: '', fixedOwner: 'Ada Lovelace', phase: 'draft', conditionalOwner: 'Ada Lovelace', requiredName: '',
             followUp: 'no', followUpNotes: '', comments: '', dateType: '', projectCode: '',
@@ -323,6 +329,7 @@ export class FdlModifierCatalog extends LitElement {
             case 'minColumnWidth': return this.renderWidth('minColumnWidth');
             case 'minLength': return this.renderValidation('longCode');
             case 'options': return html`<p class="try">Change Department; Assignee choices refresh.</p>${this.renderField('department', this.record, 'select')}${this.renderField('assignee', this.record, 'select')}`;
+            case 'parser': return html`<p class="try">Edit the money field. The input is formatted as currency, while the raw stored value updates as you type.</p>${this.renderField('money')}<p class="computed">Raw stored value: <code>${this.record.getField('money')}</code></p>`;
             case 'placeholder': return html`${this.renderField('projectName')}`;
             case 'readOnly': return html`${this.renderField('fixedOwner')}`;
             case 'readOnlyWhen': return html`<p class="try">Choose Submitted to replace the owner input with printed text.</p>${this.renderField('phase', this.record, 'select')}${this.renderField('conditionalOwner')}`;

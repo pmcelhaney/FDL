@@ -377,7 +377,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
-    parser(fn: () => any) {
+    parser(fn: (value: any) => any) {
         const copy = this.copy();
         copy.properties.parsers = [fn, ...copy.properties.parsers];
         copy.properties.descriptions = [

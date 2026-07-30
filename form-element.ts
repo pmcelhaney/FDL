@@ -51,7 +51,7 @@ class FormElement extends ListeningElement {
                     value = event.target.value;
                 }
                 // @ts-ignore
-                this.record?.setField(this.field, value);
+                this.record?.parseAndSetField(this.field, value);
                 this.fieldType?.onValueChange(this.record);
                 this.element.dispatchEvent(new CustomEvent('update', { detail: { value, event } }));
             });
@@ -78,7 +78,7 @@ class FormElement extends ListeningElement {
          * assign all standard properties we can from the modifiers
          */
         // @ts-ignore
-        this.element.value = this.record?.getField(this.field);
+        this.element.value = this.record?.getFormattedField(this.field, 'input-focus');
         this.element.id = this.field;
         if (this.element instanceof HTMLInputElement) {
             this.element.type = this.fieldType?.type();
