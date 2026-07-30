@@ -164,6 +164,13 @@ describe('<fdl-input-demo>', () => {
             catalog.shadowRoot?.querySelector('[data-modifier="label"] fdl-table')
         ).toBeNull();
 
+        const cookbookControls = [
+            ...(catalog.shadowRoot?.querySelectorAll('fdl-input, fdl-select') ?? []),
+        ];
+        expect(catalog.shadowRoot?.querySelectorAll('input, select, textarea')).toHaveLength(0);
+        expect(cookbookControls.length).toBeGreaterThan(0);
+        cookbookControls.forEach(control => expect(control.getAttribute('field')).toBeTruthy());
+
         const cellClassTable = catalog.shadowRoot?.querySelector<HTMLElement>(
             '[data-modifier="cellClass"] fdl-table'
         ) as HTMLElement & { updateComplete: Promise<boolean> };

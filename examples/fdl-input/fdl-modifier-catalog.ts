@@ -26,7 +26,7 @@ type CatalogEntry = {
 };
 
 const customControlGap =
-    'The modifier configures a richer custom control API. This example only provides native input, select, and textarea controls, which do not implement that contract.';
+    'The modifier configures a richer custom control API. The cookbook uses FDL-backed form adapters, which do not implement that richer contract.';
 const live = (name: string, intent: string, demo: DemoName, snippet?: string): CatalogEntry => ({
     name, intent, demo, snippet,
 });
