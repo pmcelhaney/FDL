@@ -1,20 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Footer } from "./components/Footer";
+import { Header } from "./components/Header";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Starter Project",
-  description: "A clean starting point for building your site.",
+  title: {
+    default: "FDL — One definition, every surface",
+    template: "%s — FDL",
+  },
+  description:
+    "A field definition language for keeping forms, validation, tables, and export-oriented output consistent.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -28,10 +23,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );
