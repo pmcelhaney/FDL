@@ -59,11 +59,6 @@ from supporting richer interactions when their semantics require them.
   visibility, disabled state, parsing, formatting, and validation continue to
   come from `FieldType` and `Record`.
 
-## Relevant radar blips
-
-None. FDL does not currently maintain a technology radar, and this decision
-does not introduce or retire a technology.
-
 ## Options considered
 
 ### One `<fdl-field>` that builds the native control from metadata
@@ -144,5 +139,3 @@ Cons:
 
 - [FDL design principles](../design-principles.md)
 - [FormElement documentation](../form-element.md)
-- [Andrew Harmel-Law, "Scaling the Practice of Architecture,
-  Conversationally"](https://martinfowler.com/articles/scaling-architecture-conversationally.html)

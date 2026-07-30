@@ -52,6 +52,13 @@ rendering. The published package is `digital-fdl`.
   configuration. This is a presentation convention for examples, not a rule
   the framework should apply automatically.
 
+## Architecture decision records
+
+- Store ADRs in `docs/adr/` and keep them focused on one decision.
+- ADRs must not include a radar-blips section or cite Andrew Harmel-Law's
+  article. Record the repository-specific context, decision, options,
+  consequences, and advice directly.
+
 ## Working-tree and Git rules
 
 - Treat the repository root checkout as an integration-only checkout. Do not
