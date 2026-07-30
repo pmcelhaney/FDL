@@ -373,6 +373,7 @@ export class FdlTable extends LitElement {
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         th,
@@ -382,9 +383,13 @@ export class FdlTable extends LitElement {
             text-align: left;
         }
 
-        .numeric-cell {
-            background: #f7f8ff;
+        .amount-cell {
+            border-left: 0.3rem solid #5b52d6;
+            background: #e9edff;
             color: #34308f;
+            font-family: Georgia, serif;
+            font-size: 1.08rem;
+            font-weight: 800;
             font-variant-numeric: tabular-nums;
         }
 
@@ -396,7 +401,7 @@ export class FdlTable extends LitElement {
 
         tr.disputed-row {
             background: #fffdf7;
-            box-shadow: inset 0.25rem 0 #d89b24;
+            box-shadow: inset 0.25rem 0 #ff695b;
         }
 
         th {
@@ -455,12 +460,12 @@ export class FdlTable extends LitElement {
         th button:hover,
         th button:focus-visible,
         th button.sorted {
-            color: #4438c7;
+            color: #7657ff;
         }
 
         th button:focus-visible {
             border-radius: 0.2rem;
-            outline: 2px solid #766de0;
+            outline: 2px solid #7657ff;
             outline-offset: 0.25rem;
         }
 

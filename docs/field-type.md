@@ -108,8 +108,28 @@ const users = new FieldType().with.options({
 
 ## Table behavior
 
-For tables, use `compareFunction(fn)` to define sorting,
-`cellClass(name)` and `conditionalCellClass(predicate, name)` for cell CSS
+For tables, use `compareFunction(fn)` to define how a column's values are
+ordered. The table uses that comparator when its sort state includes the
+column:
+
+```js
+import { FieldType, Recordset } from 'digital-fdl';
+
+const fields = {
+  name: new FieldType().with.compareFunction((a, b) => a.localeCompare(b)),
+};
+
+const people = new Recordset(fields, [
+  { name: 'Zulu' },
+  { name: 'Alpha' },
+  { name: 'Mike' },
+]);
+
+people.sortColumns = [{ field: 'name', sort: 'ascending' }];
+// A table bound to people renders: Alpha, Mike, Zulu
+```
+
+Use `cellClass(name)` and `conditionalCellClass(predicate, name)` for cell CSS
 classes, and the column-width modifiers shown in the first example.
 `template(fn)` customizes the printed representation; it can return a Lit
 template for rich cell content.

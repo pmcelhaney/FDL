@@ -36,7 +36,7 @@ const placeholder = (name: string, intent: string, limitation: string): CatalogE
 
 const entries: CatalogEntry[] = [
     placeholder('asyncValidator', 'Registers a validation rule intended to run asynchronously.', 'The builder stores async validators, but current FieldType.validate() and Record validation do not execute that collection. There is no completion or error path to demonstrate yet.'),
-    live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('numeric-cell')`),
+    live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('amount-cell')`),
     live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `const people = new Recordset({
   firstName: new FieldType().with
     .label('First name')
@@ -151,7 +151,7 @@ export class FdlModifierCatalog extends LitElement {
     private maskType = new FieldType().with.inputMask(/[0-9.]/);
     private cellClassRecordset = new Recordset(
         {
-            amount: new FieldType().with.label('Amount').and.cellClass('numeric-cell').and.textAlign('right'),
+            amount: new FieldType().with.label('Amount').and.cellClass('amount-cell').and.textAlign('right'),
             category: new FieldType().with.label('Category'),
         },
         [{ amount: 42, category: 'Travel' }, { amount: 84, category: 'Meals' }]
@@ -301,7 +301,7 @@ export class FdlModifierCatalog extends LitElement {
 
     private renderDemo(name: DemoName): TemplateResult {
         switch (name) {
-            case 'cellClass': return html`<p class="try">The Amount cells receive the <code>numeric-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="category"></fdl-column></fdl-table>`;
+            case 'cellClass': return html`<p class="try">The Amount column is bold, blue, and highlighted because its cells receive the <code>amount-cell</code> class.</p><fdl-table .recordset=${this.cellClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="category"></fdl-column></fdl-table>`;
             case 'compareFunction': {
                 return html`<p class="try">Click First name and Last name. Numbered arrows show the primary and secondary sort.</p>
                     <fdl-table .recordset=${this.compareRecordset}>
@@ -312,7 +312,6 @@ export class FdlModifierCatalog extends LitElement {
             }
             case 'conditionalCellClass': return html`<p class="try">Only 12000 receives the <code>high-value</code> class.</p><fdl-table .recordset=${this.conditionalClassRecordset}><fdl-column field="amount"></fdl-column><fdl-column field="label"></fdl-column></fdl-table>`;
             case 'defaultValue': return html`${this.renderField('defaultId', this.defaultRecord)}<button type="button" @click=${this.clearDefaultRecord}>Clear the record</button><p class="computed">Current record value: ${this.defaultRecord.getField('defaultId')}</p>`;
-            case 'description': return html`<p class="computed">FieldType.info(): ${this.descriptionType.info()}</p>`;
             case 'disabled': return html`${this.renderField('lockedId')}`;
             case 'disabledWhen': return html`<p class="try">Choose Approved to disable Budget.</p>${this.renderField('approvalStatus', this.record, 'select')}${this.renderField('budget')}`;
             case 'emptyWhen': return html`<p class="try">“N/A” is configured to count as empty.</p>${this.renderValidation('emptyCode')}`;
@@ -383,7 +382,7 @@ export class FdlModifierCatalog extends LitElement {
         .catalog { display: grid; gap: 1rem; }
         .cookbook-recipe { border: 1px solid #dfe3ee; border-radius: 1rem; background: #fff; box-shadow: 0 8px 24px rgba(34,45,78,.04); padding: 1.25rem; }
         .entry-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-        .modifier-name { border-radius: 100px; background: #eeecff; color: #4438c7; font-size: .8rem; font-weight: 800; padding: .35rem .6rem; }
+        .modifier-name { border-radius: .35rem; background: #eeecff; color: #7657ff; font-size: .8rem; font-weight: 800; padding: .35rem .6rem; }
         .status { border-radius: 100px; font-size: .7rem; font-weight: 800; letter-spacing: .06em; padding: .3rem .55rem; text-transform: uppercase; }
         .status.live { background: #e8f7ef; color: #067647; } .status.placeholder { background: #f1f3f7; color: #586174; }
         .demo, .placeholder-body { border-radius: .75rem; background: #f7f8fc; padding: 1rem; }
@@ -391,7 +390,7 @@ export class FdlModifierCatalog extends LitElement {
         .placeholder-body p:last-child { margin-bottom: 0; }
         .try, .computed { color: #586174; font-size: .88rem; line-height: 1.55; }
         fdl-input, fdl-select { display: block; margin-bottom: .7rem; }
-        button { border: 0; border-radius: .5rem; background: #4438c7; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: .65rem .9rem; }
+        button { border: 0; border-radius: .45rem; background: #10233f; color: white; cursor: pointer; font: inherit; font-weight: 700; padding: .65rem .9rem; }
         button:disabled { background: #aeb4c2; cursor: not-allowed; }
         .result { color: #9b2c20; font-size: .85rem; font-weight: 700; margin: .7rem 0 0; }
         details { margin-top: .8rem; border: 1px solid #dfe3ee; border-radius: .65rem; background: #101629; color: #d8def0; }

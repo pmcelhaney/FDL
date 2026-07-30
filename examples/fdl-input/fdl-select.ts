@@ -18,15 +18,15 @@ export class FdlSelect extends FormElement {
 
             select {
                 width: 100%;
-                border: 1px solid #9ca3af;
-                border-radius: 0.25rem;
+                border: 1px solid #cbd2df;
+                border-radius: 0.45rem;
                 background: white;
                 padding: 0.5rem 0.625rem;
                 font: inherit;
             }
 
             select:focus-visible {
-                outline: 2px solid #2563eb;
+                outline: 2px solid #7657ff;
                 outline-offset: 2px;
             }
         `;

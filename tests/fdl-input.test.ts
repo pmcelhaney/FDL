@@ -164,6 +164,13 @@ describe('<fdl-input-demo>', () => {
             catalog.shadowRoot?.querySelector('[data-modifier="label"] fdl-table')
         ).toBeNull();
 
+        const cellClassTable = catalog.shadowRoot?.querySelector<HTMLElement>(
+            '[data-modifier="cellClass"] fdl-table'
+        ) as HTMLElement & { updateComplete: Promise<boolean> };
+        await cellClassTable.updateComplete;
+        expect(cellClassTable.shadowRoot?.querySelectorAll('tbody td.amount-cell')).toHaveLength(2);
+        expect(cellClassTable.shadowRoot?.querySelectorAll('tbody td:not(.amount-cell)')).toHaveLength(2);
+
         element.remove();
     });
 
