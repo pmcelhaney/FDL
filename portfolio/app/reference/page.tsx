@@ -52,7 +52,7 @@ const modifiers: Modifier[] = [
   { name: "maxLength", summary: "Caps input length and adds model validation.", support: "Live / implemented", docs: "field-type" },
   { name: "minColumnWidth", summary: "Sets minimum table-column width guidance.", support: "Live / implemented", docs: "field-type" },
   { name: "minLength", summary: "Sets minimum input length and model validation.", support: "Live / implemented", docs: "field-type" },
-  { name: "multipleValues", summary: "Models an array with minimum and maximum selection counts.", support: "Model-only", note: "The native adapter currently stores one selected string and does not enforce the bounds." },
+  { name: "multipleValues", summary: "Marks a native select as allowing more than one choice.", support: "Live / implemented", docs: "field-type" },
   { name: "onValueChange", summary: "Runs imperative reactions after value changes.", support: "Adapter / planned", deprecated: true, docs: "adr" },
   { name: "options", summary: "Supplies static, fetched, or dependency-aware choices.", support: "Live / implemented", docs: "field-type" },
   { name: "parseDynamicRange", summary: "Requests conversion of a dynamic range input.", support: "Adapter / planned", deprecated: true, docs: "adr" },

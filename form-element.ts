@@ -95,7 +95,11 @@ class FormElement extends ListeningElement {
         this.element.maxLength = this.fieldType?.maxLength();
         this.element.minLength = this.fieldType?.minLength();
         this.element.placeholder = this.fieldType?.placeholder();
-        this.element.multiple = this.fieldType?.hasMultipleValues();
+        if (this.element instanceof HTMLSelectElement) {
+            this.element.toggleAttribute('multiple', this.fieldType?.hasMultipleValues() ?? false);
+        } else {
+            this.element.multiple = this.fieldType?.hasMultipleValues();
+        }
         this.element.accept = this.fieldType?.accept();
         this.element.autocomplete = this.fieldType?.autocomplete();
         this.element.autofocus = this.fieldType?.autofocus();
