@@ -23,6 +23,7 @@ export class FdlSelect extends FormElement {
                 background: white;
                 padding: 0.5rem 0.625rem;
                 font: inherit;
+                min-height: 2.35rem;
             }
 
             select:focus-visible {

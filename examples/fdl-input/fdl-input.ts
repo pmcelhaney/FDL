@@ -29,6 +29,11 @@ export class FdlInput extends FormElement {
                 font: inherit;
             }
 
+            input,
+            select {
+                min-height: 2.35rem;
+            }
+
             input:focus-visible,
             textarea:focus-visible {
                 outline: 2px solid #7657ff;
