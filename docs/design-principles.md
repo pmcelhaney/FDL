@@ -37,7 +37,7 @@ field, and that component creates the appropriate native control from the
 field's metadata. Input, select, and textarea are semantic implementation
 choices inside the field component; they are not separate FDL component APIs.
 This decision is recorded in
-[ADR001](./adr/0001-use-one-field-custom-element.md).
+[ADR-0002](./adr/0002-use-one-field-custom-element.md).
 
 Orthogonal does not mean isolated. The layers cooperate through contracts:
 

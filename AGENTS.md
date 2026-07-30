@@ -54,7 +54,8 @@ rendering. The published package is `digital-fdl`.
 
 ## Architecture decision records
 
-- Store ADRs in `docs/adr/` and keep them focused on one decision.
+- Store ADRs in `docs/adr/` with a unique, sequential numeric identifier and
+  keep them focused on one decision.
 - ADRs must not include a radar-blips section or cite Andrew Harmel-Law's
   article. Record the repository-specific context, decision, options,
   consequences, and advice directly.
