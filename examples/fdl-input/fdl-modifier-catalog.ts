@@ -10,7 +10,7 @@ type DemoName =
     | 'defaultValue' | 'disabled' | 'disabledWhen' | 'emptyWhen'
     | 'exampleValue' | 'filter' | 'formatter' | 'hashFunction'
     | 'inputMask' | 'label' | 'maxColumnWidth' | 'maxLength'
-    | 'minColumnWidth' | 'minLength' | 'options'
+    | 'minColumnWidth' | 'minLength' | 'multipleValues' | 'options'
     | 'placeholder' | 'readOnly' | 'readOnlyWhen' | 'reducer' | 'required'
     | 'parser' | 'requiredWhen' | 'rowClasses' | 'rowCount' | 'sortable'
     | 'targetColumnWidth' | 'template' | 'textAlign' | 'type' | 'validator'
@@ -64,7 +64,13 @@ const entries: CatalogEntry[] = [
     live('maxLength', 'Caps input length and adds equivalent record validation.', 'maxLength', `.maxLength(12)`),
     live('minColumnWidth', 'Sets the minimum width requested for a table column.', 'minColumnWidth', `.minColumnWidth(110)`),
     live('minLength', 'Sets a minimum input length and adds equivalent record validation.', 'minLength', `.minLength(4)`),
-    placeholder('multipleValues', 'Models a field as an array with minimum and maximum selection counts.', 'FormElement sets the native multiple property but reads only event.target.value, so it stores one string instead of the selected array and does not enforce the count bounds.'),
+    live('multipleValues', 'Marks a native select as allowing more than one choice.', 'multipleValues', `.tag('select')
+  .and.multipleValues()
+  .and.options([
+    { text: 'Design', value: 'design' },
+    { text: 'Engineering', value: 'engineering' },
+    { text: 'Research', value: 'research' },
+  ])`),
     live('options', 'Supplies static or fetched choices and can refresh them from dependency fields.', 'options', `.options({ fields: ['department'], fetch: record => directory[record.getField('department')] })`),
     live('parser', 'Transforms an incoming display value into the stored model representation.', 'parser', `.formatter(value => currency.format(Number(value)))
   .and.parser(value => Number(String(value).replace(/[$,]/g, '')))`),
@@ -115,6 +121,11 @@ export class FdlModifierCatalog extends LitElement {
                 .and.parser(value => Number(String(value).replace(/[$,]/g, ''))),
             shortCode: new FieldType().with.label('Short code').and.maxLength(12),
             longCode: new FieldType().with.label('Access code').and.minLength(4),
+            skills: new FieldType().with.label('Skills').and.tag('select').and.multipleValues().and.options([
+                { text: 'Design', value: 'design' },
+                { text: 'Engineering', value: 'engineering' },
+                { text: 'Research', value: 'research' },
+            ]),
             quantity: new FieldType<any>().with.label('Quantity').and.tag('select').and.options([{ text: '1', value: 1 }, { text: '2', value: 2 }, { text: '4', value: 4 }]),
             total: new FieldType().with.label('Total at $25 each').and.formatter(value => currency.format(Number(value))).and.readOnly(),
             department: new FieldType().with.label('Department').and.tag('select').and.options([{ text: 'Engineering', value: 'engineering' }, { text: 'Finance', value: 'finance' }]),
@@ -136,7 +147,7 @@ export class FdlModifierCatalog extends LitElement {
             extraProperty: '', lockedId: 'SYS-77', approvalStatus: 'draft', budget: 5000,
             emptyCode: 'N/A', hiddenSearch: '', expenseType: 'travel', dynamicAmount: '',
             money: 1000,
-            shortCode: '', longCode: '', quantity: 2, total: 50, department: 'engineering', assignee: 'grace',
+            shortCode: '', longCode: '', skills: 'design', quantity: 2, total: 50, department: 'engineering', assignee: 'grace',
             projectName: '', fixedOwner: 'Ada Lovelace', phase: 'draft', conditionalOwner: 'Ada Lovelace', requiredName: '',
             followUp: 'no', followUpNotes: '', comments: '', dateType: '', projectCode: '',
             fulfillment: 'ship', address: '',
@@ -333,6 +344,7 @@ export class FdlModifierCatalog extends LitElement {
             case 'maxLength': return this.renderValidation('shortCode');
             case 'minColumnWidth': return this.renderWidth('minColumnWidth');
             case 'minLength': return this.renderValidation('longCode');
+            case 'multipleValues': return html`<p class="try">Hold Ctrl (Windows/Linux) or Command (macOS) to choose more than one option.</p>${this.renderField('skills')}`;
             case 'options': return html`<p class="try">Change Department; Assignee choices refresh.</p>${this.renderField('department')}${this.renderField('assignee')}`;
             case 'parser': return html`<p class="try">Edit the money field. The input is formatted as currency, while the raw stored value updates as you type.</p>${this.renderField('money')}<p class="computed">Raw stored value: <code>${this.record.getField('money')}</code></p>`;
             case 'placeholder': return html`${this.renderField('projectName')}`;

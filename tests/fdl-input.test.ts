@@ -37,6 +37,38 @@ describe('<fdl-field>', () => {
         element.remove();
     });
 
+    it('adds the multiple attribute to a native select for multipleValues()', async () => {
+        const record = new Record(
+            {
+                colors: new FieldType().with
+                    .tag('select')
+                    .and.multipleValues()
+                    .and.options([
+                        { text: 'Blue', value: 'blue' },
+                        { text: 'Green', value: 'green' },
+                    ]),
+            },
+            { colors: 'blue' }
+        );
+        const element = document.createElement('fdl-field') as HTMLElement & {
+            field: string;
+            record: Record;
+            updateComplete: Promise<boolean>;
+        };
+        element.field = 'colors';
+        element.record = record;
+        document.body.append(element);
+
+        await element.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await element.updateComplete;
+
+        const select = element.shadowRoot?.querySelector('select');
+        expect(select?.hasAttribute('multiple')).toBe(true);
+        expect((select as HTMLSelectElement)?.multiple).toBe(true);
+        element.remove();
+    });
+
     it('creates a textarea without assigning an unsupported input type', async () => {
         const record = new Record(
             { notes: new FieldType().with.tag('textarea').and.rowCount(3) },
