@@ -99,9 +99,9 @@ describe('<fdl-input-demo>', () => {
 
         const builder = new FieldType().with as unknown as { [name: string]: unknown };
         const omittedModifiers = new Set([
-            'accept', 'additionalProperties', 'autofocus', 'field', 'formElement',
+            'accept', 'additionalProperties', 'autofocus', 'autocomplete', 'field', 'formElement',
             'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
-            'parseDynamicRange', 'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
+            'description', 'parseDynamicRange', 'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
         ]);
         const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(name => name !== 'constructor' && name !== 'copy')

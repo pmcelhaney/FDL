@@ -8,7 +8,7 @@ import './fdl-table';
 
 type DemoName =
     | 'cellClass' | 'compareFunction' | 'conditionalCellClass'
-    | 'defaultValue' | 'description' | 'disabled' | 'disabledWhen' | 'emptyWhen'
+    | 'defaultValue' | 'disabled' | 'disabledWhen' | 'emptyWhen'
     | 'exampleValue' | 'filter' | 'formatter' | 'hashFunction'
     | 'inputMask' | 'label' | 'maxColumnWidth' | 'maxLength'
     | 'minColumnWidth' | 'minLength' | 'options'
@@ -53,7 +53,6 @@ const entries: CatalogEntry[] = [
 </fdl-table>`),
     live('conditionalCellClass', 'Adds a table-cell class when a value predicate passes.', 'conditionalCellClass', `.conditionalCellClass(value => value > 10000, 'high-value')`),
     live('defaultValue', 'Defines the value Record.clear() restores for this field.', 'defaultValue', `.defaultValue('Pending assignment')`),
-    live('description', 'Adds human-readable information to FieldType introspection metadata.', 'description', `.description('Internal finance reference')`),
     live('disabled', 'Makes a control visible but permanently unavailable for editing.', 'disabled', `.disabled()`),
     live('disabledWhen', 'Disables a control only while a record predicate is true.', 'disabledWhen', `.disabledWhen(record => record.getField('status') === 'approved')`),
     live('emptyWhen', 'Defines additional values that should count as empty during validation.', 'emptyWhen', `.emptyWhen(value => value === 'N/A')`),
@@ -146,7 +145,6 @@ export class FdlModifierCatalog extends LitElement {
         }
     );
 
-    private descriptionType = new FieldType().with.description('Internal finance reference');
     private exampleType = new FieldType<string>().with.exampleValue(index => `Sample contact ${index + 1}`);
     private filterType = new FieldType().with.filter(((text: string, value: string) => value.toLowerCase().startsWith(text.toLowerCase())) as any);
     private hashType = new FieldType().with.hashFunction((employee: { id: string }) => employee.id);
