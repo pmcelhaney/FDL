@@ -134,7 +134,7 @@ describe('<fdl-input-demo>', () => {
         const builder = new FieldType().with as unknown as { [name: string]: unknown };
         const omittedModifiers = new Set([
             'accept', 'additionalProperties', 'autofocus', 'autocomplete', 'field', 'formElement',
-            'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
+            'filtering', 'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
             'description', 'hasSearch', 'inline', 'inlineWhen', 'parseDynamicRange', 'pattern',
             'readOnlyExceptionWhen', 'schema', 'segmented', 'step', 'tag', 'usesCustomPrint',
         ]);

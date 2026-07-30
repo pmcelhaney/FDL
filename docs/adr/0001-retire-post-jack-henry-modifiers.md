@@ -44,11 +44,6 @@ without expanding the reusable modeling language.
 
 See [FDL design principles](../design-principles.md).
 
-## Relevant radar blips
-
-None. This decision is a correction to FDL's public modeling boundary, not an
-adoption or retirement of an external technology.
-
 ## Options considered
 
 1. Retain every modifier for backward compatibility. This preserves existing
@@ -86,6 +81,7 @@ future retirement work from losing historical context.
 | `autocomplete` | Deprecated | Renderer-specific input configuration | Browser interaction hint. |
 | `autofocus` | Deprecated | Renderer-specific input configuration | Focus behavior belongs to the component. |
 | `field` | Deprecated | Record/renderer binding | View binding alias, not field behavior. |
+| `filtering` | Deprecated | Renderer-specific option-control configuration | Interactive option-control behavior is not reusable field behavior. |
 | `formElement` | Deprecated | Renderer integration | Component selection and private properties. |
 | `formatOnChange` | Deprecated | Renderer and value pipeline | Input-event formatting policy. |
 | `hasSearch` | Deprecated | `search(config)` | Redundant shorthand for search configuration. |
