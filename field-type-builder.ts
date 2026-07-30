@@ -586,6 +586,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Browser autocomplete behavior belongs to the renderer. */
     autocomplete(string: AutoComplete) {
         const copy = this.copy();
         copy.properties.autocomplete = string;

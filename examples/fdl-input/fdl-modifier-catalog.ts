@@ -36,7 +36,6 @@ const placeholder = (name: string, intent: string, limitation: string): CatalogE
 
 const entries: CatalogEntry[] = [
     placeholder('asyncValidator', 'Registers a validation rule intended to run asynchronously.', 'The builder stores async validators, but current FieldType.validate() and Record validation do not execute that collection. There is no completion or error path to demonstrate yet.'),
-    placeholder('autocomplete', 'Sets the browser autocomplete token for a control.', 'The attribute is wired, but a functional demonstration depends on browser profile data and autofill policy. The example cannot produce a deterministic, privacy-safe result.'),
     live('cellClass', 'Adds a CSS class to every table cell for this field.', 'cellClass', `.cellClass('numeric-cell')`),
     live('compareFunction', 'Defines how two field values are ordered.', 'compareFunction', `const people = new Recordset({
   firstName: new FieldType().with
