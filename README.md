@@ -15,8 +15,9 @@ reusable behavior such as parsing, formatting, validation, dependencies,
 comparison, filtering, and aggregation.
 
 Explore the portfolio locally through the narrative `/demo`, engineering
-`/case-study`, complete `/reference`, and documentation `/docs` routes. A public
-deployment URL will be added only after hosting is configured.
+`/case-study`, complete `/reference`, and documentation `/docs` routes. The
+portfolio is local-only by default and must not be deployed without explicit
+authorization.
 
 ## Example: Dog Walking Service
 
@@ -119,15 +120,15 @@ Start the interactive Lit form-control example with:
 npm run example:fdl-input
 ```
 
-Run the portfolio in a second terminal:
+Set up and run the portfolio from the repository root:
 
 ```sh
-cd portfolio
-npm ci
-npm run dev
+npm run portfolio:setup
+npm run portfolio:dev
 ```
 
-Create a production portfolio build with `npm run build` from `portfolio/`.
+Open the local URL printed by the development server. Create a production
+portfolio build with `npm run portfolio:build`.
 
 ## Project status
 

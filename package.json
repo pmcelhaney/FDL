@@ -7,6 +7,10 @@
   "private": false,
   "scripts": {
     "example:fdl-input": "vite examples/fdl-input",
+    "portfolio:setup": "npm --prefix portfolio ci",
+    "portfolio:dev": "npm --prefix portfolio run dev",
+    "portfolio:build": "npm --prefix portfolio run build",
+    "portfolio:test": "npm --prefix portfolio test",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "test:watch": "jest --watch",

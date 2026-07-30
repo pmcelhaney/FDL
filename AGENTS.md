@@ -28,6 +28,14 @@ rendering. The published package is `digital-fdl`.
   changing exported APIs.
 - Add or update focused Jest coverage for behavior changes.
 
+## Portfolio site
+
+- Treat `portfolio/` as local-only unless the user explicitly requests a
+  deployment in the current task. Building or previewing the site does not
+  authorize publishing it.
+- Run `npm run portfolio:setup` once, then `npm run portfolio:dev` from the
+  repository root. Use `npm run portfolio:build` for production-build checks.
+
 ## Architecture and design principles
 
 - Read [the design principles](docs/design-principles.md) before changing
