@@ -155,14 +155,34 @@ export class FdlTable extends LitElement {
         };
     }
 
+    private measureColumnWidths() {
+        const headers = this.shadowRoot?.querySelectorAll<HTMLTableCellElement>('thead th');
+        const headerWidths = headers
+            ? [...headers].map(header => header.getBoundingClientRect().width)
+            : [];
+        if (
+            headerWidths.length === this.columns.length &&
+            headerWidths.every(width => width > 0)
+        ) {
+            return headerWidths;
+        }
+
+        // Keep a fallback for layout engines and tests that expose geometry on
+        // <col>, although Safari does not consistently give <col> a layout box.
+        const columnElements = this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
+        const columnWidths = columnElements
+            ? [...columnElements].map(column => column.getBoundingClientRect().width)
+            : [];
+        return columnWidths.length === this.columns.length && columnWidths.every(width => width > 0)
+            ? columnWidths
+            : undefined;
+    }
+
     updated() {
         if (this.columnWidths) return;
-        const columnElements = this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
-        if (!columnElements?.length) return;
-
-        const widths = [...columnElements].map(column => column.getBoundingClientRect().width);
+        const widths = this.measureColumnWidths();
         // JSDOM does not lay out tables; wait for a real layout before fixing widths.
-        if (widths.some(width => width <= 0)) return;
+        if (!widths) return;
 
         this.columnWidths = widths.map((width, index) => {
             const limit = this.columnLimits(this.columns[index]);
@@ -187,10 +207,8 @@ export class FdlTable extends LitElement {
         input: 'mouse' | 'pointer'
     ) {
         if (this.resizing || event.button !== 0) return;
-        const columnElements = this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
-        if (!columnElements || leftIndex >= columnElements.length - 1) return;
-
-        const widths = [...columnElements].map(column => column.getBoundingClientRect().width);
+        const widths = this.measureColumnWidths();
+        if (!widths || leftIndex >= widths.length - 1) return;
         const handle = event.currentTarget as HTMLElement;
         const pointerId = input === 'pointer' ? (event as PointerEvent).pointerId : undefined;
         if (input === 'pointer' && pointerId !== undefined && Number.isInteger(pointerId)) {
