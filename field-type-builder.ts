@@ -871,6 +871,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
+    /** @deprecated Use search(config) to configure search behavior instead. */
     hasSearch() {
         const copy = this.copy();
         copy.properties.search = true;

@@ -101,7 +101,7 @@ describe('<fdl-input-demo>', () => {
         const omittedModifiers = new Set([
             'accept', 'additionalProperties', 'autofocus', 'autocomplete', 'field', 'formElement',
             'formatOnChange', 'hideLabel', 'iconMessage', 'list', 'max', 'onValueChange',
-            'description', 'parseDynamicRange', 'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
+            'description', 'hasSearch', 'parseDynamicRange', 'pattern', 'readOnlyExceptionWhen', 'schema', 'step', 'tag', 'usesCustomPrint',
         ]);
         const expectedModifiers = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(name => name !== 'constructor' && name !== 'copy')

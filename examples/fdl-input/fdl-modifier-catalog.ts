@@ -61,7 +61,6 @@ const entries: CatalogEntry[] = [
     placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
     live('formatter', 'Transforms a stored value for display without changing the model value.', 'formatter', `.formatter(value => currency.format(Number(value)))`),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
-    placeholder('hasSearch', 'Enables search affordances without supplying a full search configuration.', customControlGap),
     placeholder('inline', 'Marks a compatible control as using an inline layout.', customControlGap),
     placeholder('inlineWhen', 'Enables inline layout only while a record predicate is true.', customControlGap),
     live('inputMask', 'Defines which individual typed characters a field accepts.', 'inputMask', `.inputMask(/[0-9.]/)`),
