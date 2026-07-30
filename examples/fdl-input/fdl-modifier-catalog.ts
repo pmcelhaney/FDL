@@ -56,7 +56,6 @@ const entries: CatalogEntry[] = [
     live('emptyWhen', 'Defines additional values that should count as empty during validation.', 'emptyWhen', `.emptyWhen(value => value === 'N/A')`),
     live('exampleValue', 'Supplies fixed or index-derived values for generated example records.', 'exampleValue', `.exampleValue(index => \`Sample contact \${index + 1}\`)`),
     live('filter', 'Makes a table column filterable and defines how text matches its values.', 'filter', `.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase()))`),
-    placeholder('filtering', 'Marks an option control as supporting interactive filtering.', customControlGap),
     live('formatter', 'Transforms a stored value for display without changing the model value.', 'formatter', `.formatter(value => currency.format(Number(value)))`),
     live('hashFunction', 'Defines stable identity for complex option values.', 'hashFunction', `.hashFunction(employee => employee.id)`),
     live('inputMask', 'Defines which individual typed characters a field accepts.', 'inputMask', `.inputMask(/[0-9.]/)`),

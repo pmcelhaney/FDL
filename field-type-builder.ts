@@ -585,7 +585,7 @@ export default class FieldTypeBuilder<T> {
         return copy;
     }
 
-    // TODO: need check here for filtering as arg to be used in report factory
+    /** @deprecated Option-control filtering belongs to the renderer or integration layer. */
     filtering() {
         const copy = this.copy();
         copy.properties.filtering = true;
