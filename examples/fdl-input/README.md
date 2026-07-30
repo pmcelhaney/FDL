@@ -17,3 +17,7 @@ Each entry explains one modifier and either provides a
 focused live example or clearly documents why this native-control example does
 not yet have enough integration to demonstrate it honestly. Expandable field-
 type definitions accompany the functional examples.
+
+Every editable example renders the same `<fdl-field>` custom element. The
+field's metadata determines whether that component creates a native input,
+select, or textarea.

@@ -31,6 +31,12 @@ Information flows forward. Presentation must not reach backward and determine
 semantics, and a component must not invent business rules because they are
 convenient for one screen.
 
+For field editing, the component boundary is one field component rather than
+one custom element per native control. A consumer renders `<fdl-field>` for a
+field, and that component creates the appropriate native control from the
+field's metadata. Input, select, and textarea are semantic implementation
+choices inside the field component; they are not separate FDL component APIs.
+
 Orthogonal does not mean isolated. The layers cooperate through contracts:
 
 - FDL exposes reusable field behavior and state;

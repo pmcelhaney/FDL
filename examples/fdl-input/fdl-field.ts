@@ -2,13 +2,13 @@ import { css } from 'lit';
 import FormElement from '../../form-element';
 
 /**
- * A small, styled form control built on FDL's generic FormElement.
+ * The example's single FDL field component.
  *
- * FormElement supplies the label, creates the native input from the FieldType,
- * and keeps it synchronized with the Record. This subclass only adds the
- * design-system-specific presentation for text-like inputs.
+ * FormElement resolves the field metadata, creates the configured native
+ * control, and synchronizes it with the Record. This subclass supplies only
+ * the example's visual treatment across all supported native controls.
  */
-export class FdlInput extends FormElement {
+export class FdlField extends FormElement {
     static get styles() {
         return css`
             ${FormElement.styles}
@@ -25,6 +25,7 @@ export class FdlInput extends FormElement {
                 width: 100%;
                 border: 1px solid #cbd2df;
                 border-radius: 0.45rem;
+                background: white;
                 padding: 0.5rem 0.625rem;
                 font: inherit;
             }
@@ -35,6 +36,7 @@ export class FdlInput extends FormElement {
             }
 
             input:focus-visible,
+            select:focus-visible,
             textarea:focus-visible {
                 outline: 2px solid #7657ff;
                 outline-offset: 2px;
@@ -43,4 +45,4 @@ export class FdlInput extends FormElement {
     }
 }
 
-customElements.define('fdl-input', FdlInput);
+customElements.define('fdl-field', FdlField);
