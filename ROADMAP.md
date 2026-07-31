@@ -10,6 +10,12 @@ reference. The portfolio should make FDL's core value clear quickly: one
 declarative field definition can drive forms, validation, tables, and
 print/export-oriented output consistently.
 
+That definition should also be extensible: applications can establish a shared
+domain type, such as `money`, and derive context-specific types such as
+`money.with.cellClass('balance')` without mutating the baseline. This
+baseline-to-specialization pattern is a core part of FDL's value, not merely a
+builder convenience.
+
 The modifier cookbook remains valuable reference material, but should be a
 secondary destination (for example, a reference page) rather than the primary
 landing experience.
