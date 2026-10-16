@@ -1,11 +1,18 @@
 import { LitElement, html } from 'lit';
 import './fdl-example';
+import type { FdlExample } from './fdl-example';
 import './delivery-form';
 import modelSource from './delivery-model.ts?raw';
 import formSource from './delivery-form.ts?raw';
 import dataSource from './delivery-data.ts?raw';
 
 export class FdlDeliveryExperiment extends LitElement {
+    async showInteractive() {
+        await this.updateComplete;
+        const example = this.shadowRoot?.querySelector<FdlExample>('fdl-example');
+        await example?.showInteractive();
+    }
+
     render() {
         return html`<fdl-example
             heading="See FDL in Action"

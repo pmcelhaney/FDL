@@ -11,6 +11,7 @@ import { renderCategoryOverview } from './category-overview';
 import type { ExplorerRecipe } from './modifier-explorer-recipes';
 import { html } from 'lit';
 import './fdl-delivery-experiment';
+import type { FdlDeliveryExperiment } from './fdl-delivery-experiment';
 import './fdl-specialization-experiment';
 import './fdl-learning-path';
 import type { LearningState } from './fdl-learning-path';
@@ -65,9 +66,10 @@ function renderModelDiagram(part: 'field' | 'record' | 'recordset') {
     </figure>`;
 }
 
-function focusDeliveryExample(event: Event) {
+async function focusDeliveryExample(event: Event) {
     const root = (event.currentTarget as HTMLElement).getRootNode() as ShadowRoot;
-    const example = root.querySelector<HTMLElement>('#delivery-example');
+    const example = root.querySelector<FdlDeliveryExperiment>('#delivery-example');
+    await example?.showInteractive();
     example?.focus({ preventScroll: true });
     example?.scrollIntoView({ block: 'start' });
 }

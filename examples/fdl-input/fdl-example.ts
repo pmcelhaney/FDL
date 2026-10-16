@@ -23,6 +23,16 @@ export class FdlExample extends LitElement {
         if (!this.filenames.includes(this.activeTab)) this.activeTab = '';
     }
 
+    /** Reveal the working example without recreating its slotted content. */
+    async showInteractive() {
+        this.expanded = true;
+        this.activeTab = '';
+        await this.updateComplete;
+        // A native disclosure toggle may differ from the initial expanded property.
+        const details = this.shadowRoot?.querySelector('details');
+        if (details) details.open = true;
+    }
+
     private selectTab(filename: string) {
         this.activeTab = filename;
     }
