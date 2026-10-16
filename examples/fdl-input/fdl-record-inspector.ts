@@ -199,9 +199,9 @@ export class FdlRecordInspector extends LitElement {
                               >
                               ${statusLegend()}
                               <p class="validation" role="status"
-                                  >Record validation:
+                                  >${this.fields ? 'Displayed fields validation:' : 'Record validation:'}
                                   <strong
-                                      >${record.isValid() ? 'Valid' : 'Invalid'}</strong
+                                      >${(this.fields ? this.fields.every(name => record.isValid(name)) : record.isValid()) ? 'Valid' : 'Invalid'}</strong
                                   ></p
                               >`
                         : html`<p>No record selected.</p>`

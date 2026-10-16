@@ -14,36 +14,64 @@ async function inspect(record?: Record<any>, fields?: string[]) {
 }
 
 it('inspects declared fields, including unset values, and preserves falsy stored values', async () => {
-    const record = new Record({
-        count: field.label('Count'), enabled: field, missing: field, empty: field,
-        data: field, nil: field, nonfinite: field,
-    }, { count: 0, enabled: false, empty: '', data: { answer: 42 }, nil: null, nonfinite: NaN });
+    const record = new Record(
+        {
+            count: field.label('Count'),
+            enabled: field,
+            missing: field,
+            empty: field,
+            data: field,
+            nil: field,
+            nonfinite: field,
+        },
+        { count: 0, enabled: false, empty: '', data: { answer: 42 }, nil: null, nonfinite: NaN }
+    );
     const inspector = await inspect(record);
     const root = inspector.shadowRoot!;
     expect(root.querySelectorAll('tbody tr')).toHaveLength(7);
-    expect([...root.querySelectorAll('thead th')].map(cell => cell.textContent)).toEqual(['', 'Field', 'Label', 'Stored value']);
+    expect([...root.querySelectorAll('thead th')].map(cell => cell.textContent)).toEqual([
+        '',
+        'Field',
+        'Label',
+        'Stored value',
+    ]);
     const countRow = root.querySelector('[data-field="count"]')!;
     expect(countRow.firstElementChild!.classList.contains('status-column')).toBe(true);
     expect(countRow.querySelector('.field-name')!.textContent).toBe('count');
     expect(countRow.querySelector('.field-label')!.textContent).toBe('Count');
-    expect([...root.querySelectorAll('tbody .stored-value')].map(cell => cell.textContent)).toEqual([
-        '0', 'false', '(undefined)', '(empty string)', '{"answer":42}', 'null', 'NaN',
-    ]);
+    expect([...root.querySelectorAll('tbody .stored-value')].map(cell => cell.textContent)).toEqual(
+        ['0', 'false', '(undefined)', '(empty string)', '{"answer":42}', 'null', 'NaN']
+    );
     inspector.fields = ['enabled', 'count'];
     await inspector.updateComplete;
-    expect([...root.querySelectorAll('tbody th')].map(cell => cell.textContent)).toEqual(['enabled', 'count']);
+    expect([...root.querySelectorAll('tbody th')].map(cell => cell.textContent)).toEqual([
+        'enabled',
+        'count',
+    ]);
 });
 
 it('reflects dependent field state and record validity without a parent rerender', async () => {
-    const record = new Record({
-        name: field.label('Name').required().visible(() => false).disabled().readOnly(),
-    }, { name: '' });
+    const record = new Record(
+        {
+            name: field
+                .label('Name')
+                .required()
+                .visible(() => false)
+                .disabled()
+                .readOnly(),
+        },
+        { name: '' }
+    );
     const inspector = await inspect(record);
     const root = inspector.shadowRoot!;
-    expect([...root.querySelectorAll('tbody [role="img"]')].map(icon => icon.getAttribute('aria-label'))).toEqual([
-        'Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid',
-    ]);
-    expect(root.querySelector('tbody tr')!.firstElementChild!.querySelectorAll('[role="img"]')).toHaveLength(5);
+    expect(
+        [...root.querySelectorAll('tbody [role="img"]')].map(icon =>
+            icon.getAttribute('aria-label')
+        )
+    ).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
+    expect(
+        root.querySelector('tbody tr')!.firstElementChild!.querySelectorAll('[role="img"]')
+    ).toHaveLength(5);
     expect(root.querySelector('.validation')!.textContent).toContain('Invalid');
     record.setField('name', 'Ada');
     await inspector.updateComplete;
@@ -85,13 +113,17 @@ it('moves its subscription when replaced and removes it on disconnect, then reco
     first.setField('name', 'Old record');
     second.setField('name', 'New record');
     await inspector.updateComplete;
-    expect(inspector.shadowRoot!.querySelector('tbody .stored-value')!.textContent).toBe('New record');
+    expect(inspector.shadowRoot!.querySelector('tbody .stored-value')!.textContent).toBe(
+        'New record'
+    );
     inspector.remove();
     expect(removeSecond).toHaveBeenCalledWith('change', expect.any(Function));
     second.setField('name', 'Reconnected');
     document.body.append(inspector);
     await inspector.updateComplete;
-    expect(inspector.shadowRoot!.querySelector('tbody .stored-value')!.textContent).toBe('Reconnected');
+    expect(inspector.shadowRoot!.querySelector('tbody .stored-value')!.textContent).toBe(
+        'Reconnected'
+    );
 });
 
 it('supports an empty inspector and a record assigned later', async () => {
@@ -100,4 +132,22 @@ it('supports an empty inspector and a record assigned later', async () => {
     inspector.record = new Record({ name: field }, { name: 'Ada' });
     await inspector.updateComplete;
     expect(inspector.shadowRoot!.querySelector('tbody .stored-value')!.textContent).toBe('Ada');
+});
+
+it('validates only the displayed fields when inspecting part of a record', async () => {
+    const record = new Record(
+        { shown: field.required(), unrelated: field.required() },
+        { shown: 'Ada', unrelated: '' }
+    );
+    const inspector = await inspect(record);
+    inspector.fields = ['shown'];
+    await inspector.updateComplete;
+    expect(record.isValid()).toBe(false);
+    expect(inspector.shadowRoot!.querySelector('.validation')!.textContent).toContain(
+        'Displayed fields validation:'
+    );
+    expect(inspector.shadowRoot!.querySelector('.validation strong')!.textContent).toBe('Valid');
+    record.setField('shown', '');
+    await inspector.updateComplete;
+    expect(inspector.shadowRoot!.querySelector('.validation strong')!.textContent).toBe('Invalid');
 });
