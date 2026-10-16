@@ -655,7 +655,7 @@ export class FdlModifierExplorer extends LitElement {
                         this.navigationOpen = !this.navigationOpen;
                         this.requestUpdate();
                     }}
-                    ><span>Browse modifiers</span
+                    ><span>Browse documentation</span
                     ><small
                         >${this.page === 'modifier' ? `.${recipe.name}()` : sitePages.find(entry => entry.id === this.page)?.title}</small
                     ><span aria-hidden="true"
