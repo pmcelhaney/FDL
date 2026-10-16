@@ -491,7 +491,7 @@ export class FdlModifierExplorer extends LitElement {
                     and rule selectors are omitted.</p
                 >
                 ${/\.rowCount\(/.test(source.definition) ? html`<p class="compatibility-note"><strong>Example adapter compatibility:</strong> <code>rowCount()</code> sizes this textarea. It is a deprecated compatibility API. Keep control selection and sizing in your adapter for new integrations; the reusable rules remain in the field model. <a href="#integration">Read the adapter boundary.</a></p>` : ''}
-                ${recipe.name === 'validator' ? renderValidatorContract() : ''}<section
+                ${recipe.name === 'validator' ? renderValidatorContract(false) : ''}<section
                     class="explanation"
                     ><h3>What happens</h3
                     ><ol

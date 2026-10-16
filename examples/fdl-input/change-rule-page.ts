@@ -75,7 +75,7 @@ export const accountFields = {
 export const createAccount = (country = 'US', taxId = '') =>
     new Record(accountFields, { country, taxId });
 export const account = createAccount();`;
-export function renderValidatorContract() {
+export function renderValidatorContract(includeExample = true) {
     return html`<section
         ><h3>Validator callback contract</h3>
         <pre
@@ -98,17 +98,25 @@ export function renderValidatorContract() {
             empty values in a format rule when requiredness should decide
             emptiness separately.</p
         >
-        <p
-            >Model file:
-            <code>examples/fdl-input/conditional-validation-model.ts</code>.
-            This consumer-facing version imports FDL by its package name.</p
-        >
-        <fdl-example
-            heading="Conditional validation"
-            .filenames=${['conditional-validation-model.ts', 'change-rule-page.ts']}
-            .sources=${{ 'conditional-validation-model.ts': conditionalRuleSource, 'change-rule-page.ts': viewSource }}
-            ><fdl-conditional-validation></fdl-conditional-validation
-        ></fdl-example>
+        ${
+            includeExample
+                ? html`
+                      <p
+                          >Model file:
+                          <code
+                              >examples/fdl-input/conditional-validation-model.ts</code
+                          >. This consumer-facing version imports FDL by its
+                          package name.</p
+                      >
+                      <fdl-example
+                          heading="Conditional validation"
+                          .filenames=${['conditional-validation-model.ts', 'change-rule-page.ts']}
+                          .sources=${{ 'conditional-validation-model.ts': conditionalRuleSource, 'change-rule-page.ts': viewSource }}
+                          ><fdl-conditional-validation></fdl-conditional-validation
+                      ></fdl-example>
+                  `
+                : ''
+        }
         <p
             ><a href="#change-a-rule"
                 >Trace this change through the model, consumers, and behavior
