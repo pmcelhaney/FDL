@@ -20,11 +20,16 @@ it('explores delivery visibility and requiredness without discarding the address
     const rows = inspection.querySelectorAll('tbody tr');
     expect(rows).toHaveLength(6);
     expect(Array.from(rows).map(row => row.querySelector('.field-label')!.textContent)).toEqual([
-        'Delivery method', 'Shipping address', 'City', 'State', 'ZIP code', 'Pickup store',
+        'Delivery method',
+        'Shipping address',
+        'City',
+        'State',
+        'ZIP code',
+        'Pickup store',
     ]);
-    expect(Array.from(inspection.querySelectorAll('.legend li')).map(item =>
-        item.textContent!.trim()
-    )).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
+    expect(
+        Array.from(inspection.querySelectorAll('.legend li')).map(item => item.textContent!.trim())
+    ).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
     expect(rows[0].querySelectorAll('[role="img"]')).toHaveLength(0);
     const field = demo.shadowRoot!.querySelector('fdl-field[field="fulfillment"]') as any;
     await field.updateComplete;
@@ -35,12 +40,14 @@ it('explores delivery visibility and requiredness without discarding the address
     select.dispatchEvent(new Event('change'));
     await demo.updateComplete;
     const addressRow = (await inspectorRoot(demo)).querySelector('tr[data-field="address"]')!;
-    expect(Array.from(addressRow.querySelectorAll('[role="img"]')).map(icon =>
-        icon.getAttribute('aria-label')
-    )).toEqual(['Hidden']);
     expect(
-        (await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()
-    ).toContain('42 Orchard Street');
+        Array.from(addressRow.querySelectorAll('[role="img"]')).map(icon =>
+            icon.getAttribute('aria-label')
+        )
+    ).toEqual(['Hidden']);
+    expect((await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()).toContain(
+        '42 Orchard Street'
+    );
     select.value = 'ship';
     select.dispatchEvent(new Event('input'));
     select.dispatchEvent(new Event('change'));
@@ -60,9 +67,9 @@ it('explores delivery visibility and requiredness without discarding the address
     input.value = '';
     input.dispatchEvent(new Event('input'));
     await demo.updateComplete;
-    expect(
-        (await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()
-    ).toContain('Invalid');
+    expect((await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()).toContain(
+        'Invalid'
+    );
 });
 
 it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable selections', async () => {
@@ -82,7 +89,9 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
             disabled
         );
         expect(storeField.shadowRoot.querySelector('select').disabled).toBe(disabled);
-        const status = (await inspectorRoot(demo)).querySelector('tr[data-field="store"] .field-status')!;
+        const status = (await inspectorRoot(demo)).querySelector(
+            'tr[data-field="store"] .field-status'
+        )!;
         expect(status.querySelector('[aria-label="Disabled"]') !== null).toBe(disabled);
     }
     expect(storeVisible()).toBe(false);
@@ -235,7 +244,10 @@ it('reveals the actual source files alongside the slotted delivery form', async 
     await form.updateComplete;
     expect(form.shadowRoot!.querySelector('fdl-record-inspector')).not.toBeNull();
     expect([...root.querySelectorAll('[role="tab"]')].map(tab => tab.textContent!.trim())).toEqual([
-        'Interactive example', 'delivery-model.ts', 'delivery-form.ts', 'delivery-data.ts',
+        'Interactive example',
+        'delivery-model.ts',
+        'delivery-form.ts',
+        'delivery-data.ts',
     ]);
     for (let index = 0; index < frame.filenames.length; index++) {
         const tab = root.querySelector<HTMLButtonElement>(`#example-tab-${index + 1}`)!;
@@ -244,11 +256,15 @@ it('reveals the actual source files alongside the slotted delivery form', async 
         expect(tab.getAttribute('aria-selected')).toBe('true');
         const panel = root.getElementById(tab.getAttribute('aria-controls')!)!;
         expect(panel.hasAttribute('hidden')).toBe(false);
-        expect(panel.querySelector('code')!.textContent).toBe(frame.sources[frame.filenames[index]]);
+        expect(panel.querySelector('code')!.textContent).toBe(
+            frame.sources[frame.filenames[index]]
+        );
         expect(root.querySelectorAll('[role="tabpanel"]:not([hidden])')).toHaveLength(1);
     }
     expect(frame.sources['delivery-form.ts']).toContain('<fdl-record-inspector');
-    expect(frame.sources['delivery-model.ts']).toContain('.required(whenDeliveryMethodRequiresAddress)');
+    expect(frame.sources['delivery-model.ts']).toContain(
+        '.required(whenDeliveryMethodRequiresAddress)'
+    );
     const requiredLink = root.querySelector('#example-panel-1 a[href="#required"]')!;
     expect(requiredLink.getAttribute('title')).toBe(
         'Requires a nonempty value, optionally depending on other values in the record.'
@@ -356,30 +372,31 @@ it('removes requiredness from both model validation and the displayed definition
     root.querySelector<HTMLInputElement>('.rule-control input')!.click();
     await page.updateComplete;
     expect(root.querySelector('.result')!.textContent).toContain('record is valid');
-    expect(root.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain('required rule is removed');
+    expect(
+        root.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent
+    ).toContain('required rule is removed');
 });
-it('changes the minimum-length definition while retaining the value', async () => {
+it('changes length rules while preserving the value and matching the selected minimum', async () => {
     const page = await openExplorer('#minLength');
-    const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as FdlModifierCatalog;
-    await catalog.updateComplete;
-    await editField(catalog.shadowRoot!, 'longCode', 'ABC');
-    catalog.shadowRoot!.querySelector<HTMLButtonElement>('button')!.click();
-    await catalog.updateComplete;
-    const rule = catalog.shadowRoot!.querySelector<HTMLSelectElement>('.minimum-rule')!;
-    rule.value = '2';
-    rule.dispatchEvent(new Event('change'));
-    await catalog.updateComplete;
-    await page.updateComplete;
-    expect(catalog.shadowRoot!.querySelector('.result')!.textContent).toContain('Valid');
-    const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
-    await inspector.updateComplete;
-    expect(inspector.shadowRoot!.querySelector('[data-field="longCode"]')!.textContent).toContain('ABC');
-    expect(page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain('.minLength(2)');
-    page.shadowRoot!.querySelector<HTMLAnchorElement>(
-        '.modifier-list a[href="#minLength"]'
-    )!.click();
-    await page.updateComplete;
-    expect(page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain('.minLength(2)');
+    const demo = page.shadowRoot!.querySelector('fdl-text-length') as any;
+    await demo.updateComplete;
+    await editField(demo.shadowRoot, 'code', 'ABC');
+    demo.shadowRoot.querySelector('button').click();
+    await demo.updateComplete;
+    expect(demo.shadowRoot.querySelector('.result').textContent).toContain('minimum length is 4');
+    const setting = demo.shadowRoot.querySelector('fdl-field[field="minimum"]') as any;
+    await setting.updateComplete;
+    const select = setting.shadowRoot.querySelector('select');
+    expect(select.value).toBe('4');
+    select.value = '2';
+    select.dispatchEvent(new Event('input'));
+    await demo.updateComplete;
+    expect(demo.shadowRoot.querySelector('.result').textContent).toContain('Valid');
+    const code = demo.shadowRoot.querySelector('fdl-field[field="code"]') as any;
+    expect(code.record.getField('code')).toBe('ABC');
+    const frame = demo.shadowRoot.querySelector('fdl-example') as any;
+    await frame.updateComplete;
+    expect(frame.sources['text-length-model.js']).toContain('.minLength(2)');
 });
 
 it('shows semantic state with the shared inspector icons', async () => {
@@ -405,7 +422,9 @@ it('explains actual sort precedence without requiring a JSON read', async () => 
     await catalog.updateComplete;
     const inspector = catalog.shadowRoot!.querySelector('fdl-recordset-inspector')!;
     await inspector.updateComplete;
-    const counts = inspector.shadowRoot!.querySelector('.counts')!.textContent!.replace(/\s+/g, ' ');
+    const counts = inspector
+        .shadowRoot!.querySelector('.counts')!
+        .textContent!.replace(/\s+/g, ' ');
     expect(counts).toContain('Sorted by lastName ↑');
     expect(counts).toContain('6 of 6');
     expect(inspector.shadowRoot!.querySelector('details')!.hasAttribute('open')).toBe(false);
@@ -427,7 +446,9 @@ it('automatically clears an assignee removed from the available choices', async 
     const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
     await inspector.updateComplete;
     expect(inspector.record!.getField('assignee')).toBeUndefined();
-    expect(inspector.shadowRoot!.querySelector('[data-field="assignee"]')!.textContent).toContain('(undefined)');
+    expect(inspector.shadowRoot!.querySelector('[data-field="assignee"]')!.textContent).toContain(
+        '(undefined)'
+    );
 });
 
 it('offers email, quantity, and username validator examples', async () => {
@@ -463,7 +484,10 @@ it('compares prefix and substring matching and updates the executable rule', asy
     await editField(catalog.shadowRoot!, 'matchRule', 'contains');
     await catalog.updateComplete;
     await page.updateComplete;
-    expect(page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain('.includes(');
+    expect(
+        page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!
+            .textContent
+    ).toContain('.includes(');
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     expect(table.recordset.getFieldType('name').match('ar', 'Margaret')).toBe(true);
 });
@@ -665,7 +689,10 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
         '$125.25',
     ]);
     expect(
-        page.shadowRoot!.getElementById('cellClass')!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent
+        page
+            .shadowRoot!.getElementById('cellClass')!
+            .querySelector('fdl-example')!
+            .shadowRoot!.querySelector('.code')!.textContent
     ).toContain('value > 125.25');
 });
 
@@ -684,7 +711,9 @@ it('sorts the live T-shirt size column in size order and highlights all comparat
             row.querySelectorAll('td')[2].textContent.trim()
         )
     ).toEqual(['XS', 'S', 'M', 'L', 'XL', 'XXL']);
-    const focused = page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelectorAll('.code .focused-line');
+    const focused = page
+        .shadowRoot!.querySelector('fdl-example')!
+        .shadowRoot!.querySelectorAll('.code .focused-line');
     expect(
         [...focused].filter(line => line.textContent!.includes('.compareFunction('))
     ).toHaveLength(3);
@@ -719,8 +748,12 @@ it('keeps a shared selection in both function and async-function options after t
             expect(field.record.getField(field.field)).toBe('margaret');
         }
     }
-    expect(page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain(
-        '.options(async record =>'
-    );
-    expect(page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent).toContain('.options(record =>');
+    expect(
+        page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!
+            .textContent
+    ).toContain('.options(async record =>');
+    expect(
+        page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!
+            .textContent
+    ).toContain('.options(record =>');
 });

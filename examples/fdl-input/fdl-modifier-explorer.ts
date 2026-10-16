@@ -1,5 +1,6 @@
 import './fdl-example';
 import './fdl-column-widths';
+import './fdl-text-length';
 import { renderValidatorContract } from './change-rule-page';
 import { field } from '../../index';
 import { modifierPage } from './modifier-page-groups';
@@ -556,6 +557,26 @@ export class FdlModifierExplorer extends LitElement {
             >
             <fdl-column-widths></fdl-column-widths>`;
     }
+    private renderTextLength() {
+        return html`${['minLength', 'maxLength'].map(
+                name =>
+                    html`<section
+                        class="modifier-section"
+                        id=${name}
+                        data-modifier=${name}
+                    >
+                        <h2 class="modifier-signature" tabindex="-1"
+                            ><code>${modifierSignatures[name]}</code></h2
+                        >
+                        <p
+                            >${recipes.find(recipe => recipe.name === name)!.note}</p
+                        >
+                    </section>`
+            )}<p
+                >Use a fixed length or a function of the owning record. Both
+                rules validate model assignments as well as user input.</p
+            ><fdl-text-length></fdl-text-length>`;
+    }
     render() {
         const recipe = recipes[this.selected];
         const group = modifierPage(recipe.name);
@@ -911,7 +932,7 @@ export class FdlModifierExplorer extends LitElement {
                                             >`
                                           : ''
                                   }
-                                  ${group.title === 'Column widths' ? this.renderColumnWidths() : group.names.map(name => keyed(name, this.renderModifierSection(recipes.find(entry => entry.name === name)!)))}
+                                  ${group.title === 'Column widths' ? this.renderColumnWidths() : group.title === 'Text length' ? this.renderTextLength() : group.names.map(name => keyed(name, this.renderModifierSection(recipes.find(entry => entry.name === name)!)))}
                                   <footer
                                       ><button
                                           class="pager"

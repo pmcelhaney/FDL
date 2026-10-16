@@ -227,8 +227,10 @@ describe('complete explorer', () => {
                 recipe.category
             );
 
-            if (modifierPage(name).title === 'Column widths') {
-                expect(page.shadowRoot!.querySelector('fdl-column-widths')).toBeTruthy();
+            if (modifierPage(name).names.length > 1) {
+                expect(
+                    page.shadowRoot!.querySelector('fdl-column-widths, fdl-text-length')
+                ).toBeTruthy();
                 page.remove();
                 return;
             }
@@ -396,16 +398,14 @@ describe('extended model exercises', () => {
 
     it('rejects an overlong value assigned directly to the model', async () => {
         const page = await openPage('#maxLength');
-        const catalog = page.shadowRoot!.querySelector(
-            'fdl-modifier-catalog[modifier="maxLength"]'
-        ) as FdlModifierCatalog;
+        const catalog = page.shadowRoot!.querySelector('fdl-text-length') as any;
         await catalog.updateComplete;
-        catalog.shadowRoot!.querySelector<HTMLButtonElement>('.model-assignment')!.click();
+        catalog.shadowRoot!.querySelector('.model-assignment')!.click();
         await catalog.updateComplete;
-        const field = catalog.shadowRoot!.querySelector('fdl-field') as any;
+        const field = catalog.shadowRoot!.querySelector('fdl-field[field="code"]') as any;
         await field.updateComplete;
         expect(field.shadowRoot.querySelector('[aria-invalid="true"]')).toBeTruthy();
-        expect(await stateText(catalog)).toContain('THIS-CODE-IS-TOO-LONG');
+        expect(await stateText(catalog)).toContain('XXXXXXXXXXXXX');
     });
 });
 
@@ -545,8 +545,10 @@ it('defines valid, reciprocal related links for every modifier', () => {
 });
 it.each(explorerRecipes.map(recipe => recipe.name))('lists related modifiers on %s', async name => {
     const page = await openPage(`#${name}`);
-    if (modifierPage(name).title === 'Column widths') {
-        expect(page.shadowRoot!.querySelectorAll('.page-sections a')).toHaveLength(3);
+    if (modifierPage(name).names.length > 1) {
+        expect(page.shadowRoot!.querySelectorAll('.page-sections a')).toHaveLength(
+            modifierPage(name).names.length
+        );
         return;
     }
     const section = page.shadowRoot!.getElementById(name)!.querySelector('.related-modifiers')!;
@@ -881,7 +883,9 @@ it.each([
     'validator',
 ])('inspects the live record and relevant fields on the %s page', async name => {
     const page = await openPage(`#${name}`);
-    const catalog = page.shadowRoot!.querySelector<FdlModifierCatalog>('fdl-modifier-catalog');
+    const catalog = page.shadowRoot!.querySelector<FdlModifierCatalog>(
+        'fdl-modifier-catalog, fdl-text-length'
+    );
     if (catalog) await catalog.updateComplete;
     const root = (catalog ?? page).shadowRoot!;
     const inspector = root.querySelector('fdl-record-inspector')!;
