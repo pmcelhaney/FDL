@@ -17,6 +17,7 @@ import { renderSitePage, sitePages, type SitePage } from './fdl-site-pages';
 import { exampleSource, type ExampleSettings } from './modifier-example-source';
 import { inputText, valuePipeline } from './value-pipeline';
 import { exampleTheme } from './example-theme';
+import { highlightJavaScript } from './highlight-javascript';
 import './fdl-record-inspector';
 import { explainDependency } from './dependency-explanation';
 import { keyed } from 'lit/directives/keyed.js';
@@ -427,6 +428,7 @@ export class FdlModifierExplorer extends LitElement {
             id=${recipe.name}
             data-modifier=${recipe.name}
         >
+            ${recipe.deprecation ? html`<p class="deprecation-note"><strong>Deprecated.</strong> ${recipe.deprecation} The existing modifier remains available for compatibility.</p>` : ''}
             <h2 class="modifier-signature" tabindex="-1"
                 ><code>${modifierSignatures[recipe.name]}</code></h2
             >
@@ -437,46 +439,66 @@ export class FdlModifierExplorer extends LitElement {
                     >Public types, callback contracts, and composition rules</a
                 ></p
             ><p class="description">${recipe.description}</p>
-            ${recipe.deprecation ? html`<p class="deprecation-note"><strong>Deprecated.</strong> ${recipe.deprecation} The existing modifier remains available for compatibility.</p>` : ''}
-            <fdl-example
-                heading="Interactive example"
-                modifier=${recipe.name}
-                .filenames=${[source.modelFile, source.uiFile, ...(source.styles ? ['example.css'] : [])]}
-                .sources=${{
-                    [source.modelFile]: source.definition,
-                    [source.uiFile]: source.ui,
-                    ...(source.styles ? { 'example.css': source.styles } : {}),
-                }}
-            >
-                <section
-                    class="playground"
-                    data-modifier=${recipe.name}
-                    aria-label="Interactive example"
-                >
-                    <div class="section-bar"
-                        ><span
-                            ><i></i>
-                            ${recipe.limitation ? 'ADAPTER CONTRACT' : ['hashFunction', 'reducer'].includes(recipe.name) ? 'MODEL EXERCISE' : 'LIVE EXAMPLE'}</span
-                        >${recipe.limitation ? html`` : html`<button class="reset" @click=${() => this.reset(recipe.name)}>Reset example ↺</button>`}</div
-                    >
-                    <p class="instruction">${recipe.prompt}</p>
-                    <div
-                        class=${!standaloneDemo ? 'demo-grid catalog-demo' : 'demo-grid'}
-                        ><div
-                            class="controls"
-                            role="group"
-                            aria-label="Current modifier effect"
-                            >${keyed(`${recipe.name}-${this.resetVersions[recipe.name] ?? 0}`, this.demo(recipe.name))}</div
-                        >${
-                            standaloneDemo
-                                ? html`<fdl-record-inspector
-                                      .record=${model}
-                                  ></fdl-record-inspector>`
-                                : ''
-                        }</div
-                    >
-                </section>
-            </fdl-example>
+            ${
+                recipe.limitation
+                    ? html`<section
+                          class="limitation"
+                          aria-label="Adapter contract"
+                      >
+                          <h3>Adapter contract</h3><p>${recipe.limitation}</p>
+                          <pre><code>${highlightJavaScript(source.definition)}</code></pre>
+                          <p
+                              ><a href="#integration"
+                                  >Read the adapter responsibilities</a
+                              >
+                              before implementing this configuration.</p
+                          >
+                      </section>`
+                    : html`
+                          <fdl-example
+                              heading="Interactive example"
+                              .expanded=${!recipe.deprecation}
+                              modifier=${recipe.name}
+                              .filenames=${[source.modelFile, source.uiFile, ...(source.styles ? ['example.css'] : [])]}
+                              .sources=${{
+                                  [source.modelFile]: source.definition,
+                                  [source.uiFile]: source.ui,
+                                  ...(source.styles
+                                      ? { 'example.css': source.styles }
+                                      : {}),
+                              }}
+                          >
+                              <section
+                                  class="playground"
+                                  data-modifier=${recipe.name}
+                                  aria-label="Interactive example"
+                              >
+                                  <div class="section-bar"
+                                      ><span
+                                          ><i></i>
+                                          ${recipe.limitation ? 'ADAPTER CONTRACT' : ['hashFunction', 'reducer'].includes(recipe.name) ? 'MODEL EXERCISE' : 'LIVE EXAMPLE'}</span
+                                      >${recipe.limitation ? html`` : html`<button class="reset" @click=${() => this.reset(recipe.name)}>Reset example ↺</button>`}</div
+                                  >
+                                  <p class="instruction">${recipe.prompt}</p>
+                                  <div
+                                      class=${!standaloneDemo ? 'demo-grid catalog-demo' : 'demo-grid'}
+                                      ><div
+                                          class="controls"
+                                          role="group"
+                                          aria-label="Current modifier effect"
+                                          >${keyed(`${recipe.name}-${this.resetVersions[recipe.name] ?? 0}`, this.demo(recipe.name))}</div
+                                      >${
+                                          standaloneDemo
+                                              ? html`<fdl-record-inspector
+                                                    .record=${model}
+                                                ></fdl-record-inspector>`
+                                              : ''
+                                      }</div
+                                  >
+                              </section>
+                          </fdl-example>
+                      `
+            }
             <div class="details">
                 ${recipe.name === 'validator' ? renderValidatorContract(false) : ''}
             </div>

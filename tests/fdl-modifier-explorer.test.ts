@@ -234,6 +234,14 @@ describe('complete explorer', () => {
                 page.remove();
                 return;
             }
+            if (recipe.limitation) {
+                expect(section.querySelector('fdl-example')).toBeNull();
+                expect(section.querySelector('.limitation pre')!.textContent).toContain(
+                    `.${name}(`
+                );
+                page.remove();
+                return;
+            }
             const frame = section.querySelector('fdl-example') as FdlExample;
             await frame.updateComplete;
             expect(frame.sources[exampleSource(name).modelFile]).toBe(
