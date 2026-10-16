@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import FormElement from '../form-element';
-import Record from '../record.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import FormElement from '../src/form-element';
+import Record from '../src/record.js';
 
 const testTag = 'test-accessible-form-element';
 

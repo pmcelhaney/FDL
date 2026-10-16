@@ -1,5 +1,5 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
 import '../examples/fdl-input/fdl-field';
 
 type TestElement = HTMLElement & { updateComplete: Promise<boolean> };

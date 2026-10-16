@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { boolean, date, field, number, Record, Recordset, string } from '../index';
+import { boolean, date, field, number, Record, Recordset, string } from '../src/index';
 
 // Execute the actual published example so undefined helpers and callback drift
 // fail here instead of in a reader's first application.

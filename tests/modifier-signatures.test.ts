@@ -5,7 +5,7 @@ it('keeps tooltip signatures aligned with the actual TypeScript builder API', ()
     const root = ts.sys.getCurrentDirectory();
     const config = ts.readConfigFile(`${root}/tsconfig.json`, ts.sys.readFile).config;
     const options = ts.convertCompilerOptionsFromJson(config.compilerOptions, root).options;
-    const filename = `${root}/field-type-builder.ts`;
+    const filename = `${root}/src/field-type-builder.ts`;
     const program = ts.createProgram([filename], options);
     const checker = program.getTypeChecker();
     const source = program.getSourceFile(filename)!;

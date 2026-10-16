@@ -1,5 +1,5 @@
-import FieldTypeBuilder from '../field-type-builder';
-import { Record } from '../index';
+import FieldTypeBuilder from '../src/field-type-builder';
+import { Record } from '../src/index';
 
 function checkClassModifierTypes() {
     const field = new FieldTypeBuilder<number>();

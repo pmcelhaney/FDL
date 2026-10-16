@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
-import Recordset from '../recordset.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
+import Recordset from '../src/recordset.js';
 import '../examples/fdl-input/fdl-table';
 
 type TestTable = HTMLElement & {

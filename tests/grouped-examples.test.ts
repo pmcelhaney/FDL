@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { html, render } from 'lit';
-import { field, Record, Recordset } from '../index';
+import { field, Record, Recordset } from '../src/index';
 import '../examples/fdl-input/fdl-column-widths';
 import '../examples/fdl-input/fdl-text-length';
 

@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
-import equalsFilter from '../filters/equals-filter.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
+import equalsFilter from '../src/filters/equals-filter.js';
 
 describe('equalsFilter(key, substring)', () => {
     const name = new FieldTypeBuilder();

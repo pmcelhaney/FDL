@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { tableExampleStyles } from './table-example-styles';
-import type Record from '../../record.js';
-import Recordset from '../../recordset.js';
+import type Record from '../../src/record.js';
+import Recordset from '../../src/recordset.js';
 
 type SortDirection = 'ascending' | 'descending';
 type SortColumn = {

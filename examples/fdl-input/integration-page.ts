@@ -48,11 +48,11 @@ export function renderIntegration() {
                 ></li
             >
             <li
-                ><a href=${reference('index.d.ts')}
+                ><a href=${reference('src/index.d.ts')}
                     >Public TypeScript exports</a
                 >
                 and
-                <a href=${reference('field-type-builder.ts')}
+                <a href=${reference('src/field-type-builder.ts')}
                     >builder callback and configuration types</a
                 ></li
             >

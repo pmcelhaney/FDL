@@ -1,11 +1,11 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import './fdl-transfer-challenge';
 import { compositionLink } from './learning-continuation';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../record.js';
-import Recordset from '../../recordset.js';
+import Record from '../../src/record.js';
+import Recordset from '../../src/recordset.js';
 import { recordSummary } from './model-summary';
 import { highlightJavaScript } from './highlight-javascript';
 import './fdl-field';
@@ -252,7 +252,7 @@ export class FdlLearningPath extends LitElement {
                     ></details
                 >
                 <h3>The current definition</h3
-                ><pre><code>${highlightJavaScript(this.code())}</code></pre>
+                >><pre><code>${highlightJavaScript(this.code())}</code></pre>
                 <p
                     ><a href=${`#${lesson.reference}`}
                         >Explore ${lesson.reference} in the modifier

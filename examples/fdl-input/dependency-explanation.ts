@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 
 type RuleState = 'visible' | 'required' | 'disabled' | 'readonly';
 /** Read the same public field-state API used by the adapter, rather than reimplementing its predicate. */

@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import { Record } from '../index';
-import type { RecordSetting, ColumnSetting, DefaultSetting } from '../index';
+import FieldTypeBuilder from '../src/field-type-builder';
+import { Record } from '../src/index';
+import type { RecordSetting, ColumnSetting, DefaultSetting } from '../src/index';
 
 function checkSettings() {
     const label: RecordSetting<string, { unit: string }> = record => record.values.unit;

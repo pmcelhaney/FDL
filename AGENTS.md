@@ -9,11 +9,9 @@ rendering. The npm package is `@pmcelhaney/fdl`.
 
 ## Layout
 
-- Root JavaScript modules contain the core runtime: `field.js`, `record.js`,
-  `recordset.js`, filters, and utilities.
-- TypeScript files provide builder APIs, form integration, declarations, and
-  shared types. Public type exports are organized under `types/` and
-  `index.d.ts`.
+- `src/` contains the library runtime, builder APIs, form integration, and
+  declarations. Filters, helpers, shared types, and utilities live in matching
+  subdirectories. Public entry points are `src/index.js` and `src/index.d.ts`.
 - `tests/` contains Jest unit and integration tests; TypeScript tests run via
   `ts-jest`.
 - `docs/` holds the public API documentation.

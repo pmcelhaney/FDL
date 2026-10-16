@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
-import containsFilter from '../filters/contains-filter.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
+import containsFilter from '../src/filters/contains-filter.js';
 
 describe('containsFilter(key, substring)', () => {
     const name = new FieldTypeBuilder();

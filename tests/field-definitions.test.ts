@@ -7,9 +7,9 @@ import {
     FieldType,
     Record,
     Recordset,
-} from '../index';
-import type { FieldDefinition } from '../index';
-import * as api from '../index';
+} from '../src/index';
+import type { FieldDefinition } from '../src/index';
+import * as api from '../src/index';
 
 it('exports reusable string definitions individually and as a collection', () => {
     for (const [key, preset] of Object.entries(fieldDefinitions)) {

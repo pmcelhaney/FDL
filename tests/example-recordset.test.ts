@@ -1,5 +1,5 @@
-import FieldTypeBuilder from '../field-type-builder';
-import ExampleRecordset from '../example-recordset';
+import FieldTypeBuilder from '../src/field-type-builder';
+import ExampleRecordset from '../src/example-recordset';
 
 it('creates example rows through an explicit application factory', async () => {
     const rows = new ExampleRecordset(

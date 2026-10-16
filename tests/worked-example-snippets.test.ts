@@ -1,7 +1,7 @@
 import { render } from 'lit';
 import type { FdlExample } from '../examples/fdl-input/fdl-example';
 import ts from 'typescript';
-import { field, Record, Recordset } from '../index';
+import { field, Record, Recordset } from '../src/index';
 import { renderChangeRule } from '../examples/fdl-input/change-rule-page';
 import { renderEditableRecordset } from '../examples/fdl-input/editable-recordset-page';
 

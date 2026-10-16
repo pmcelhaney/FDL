@@ -1,5 +1,5 @@
-import FieldTypeBuilder from '../field-type-builder';
-import { Record, Recordset } from '../index';
+import FieldTypeBuilder from '../src/field-type-builder';
+import { Record, Recordset } from '../src/index';
 
 const settings = [
     ['label', 'label', 'Amount'],

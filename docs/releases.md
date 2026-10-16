@@ -41,7 +41,7 @@ separately when they cannot all be verified.
 
 - Confirm the working tree is clean and the intended commit is on the release
   branch.
-- Review runtime exports, `index.d.ts`, and files under `types/` for alignment.
+- Review runtime exports, `src/index.d.ts`, and files under `src/types/` for alignment.
 - Update focused tests, public documentation, examples, ADR inventories, and
   migration guidance for every affected API.
 - Run `npm ci`, `npm test`, and `npm run typecheck` from the repository root.

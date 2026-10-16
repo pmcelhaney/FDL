@@ -1,5 +1,5 @@
-import { field } from '../index';
-import Recordset from '../recordset.js';
+import { field } from '../src/index';
+import Recordset from '../src/recordset.js';
 import '../examples/fdl-input/fdl-recordset-inspector';
 
 function data() {
@@ -94,7 +94,9 @@ it('collapses accessibly and reopens with current data', async () => {
     const heading = inspector.shadowRoot!.querySelector('h3')!;
     expect(heading.textContent).toBe('Recordset Inspector');
     expect(heading.parentElement!.hasAttribute('hidden')).toBe(true);
-    expect(inspector.shadowRoot!.querySelector('section')!.getAttribute('aria-label')).toBe('Recordset Inspector');
+    expect(inspector.shadowRoot!.querySelector('section')!.getAttribute('aria-label')).toBe(
+        'Recordset Inspector'
+    );
     expect(button.getAttribute('aria-expanded')).toBe('false');
     expect(button.getAttribute('aria-label')).toBe('Inspect recordset');
     expect(inspector.shadowRoot!.getElementById('recordset-details')!.hidden).toBe(true);

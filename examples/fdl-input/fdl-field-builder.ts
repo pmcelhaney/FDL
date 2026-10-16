@@ -1,7 +1,7 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 import {
     buildFieldRecord,
     builderSource,
@@ -129,9 +129,9 @@ export class FdlFieldBuilder extends LitElement {
                 ></div
             >
             <h3>${source.modelFile}</h3
-            ><pre><code>${highlightJavaScript(source.definition)}</code></pre
+            >><pre><code>${highlightJavaScript(source.definition)}</code></pre
             ><h3>${source.uiFile}</h3
-            ><pre><code>${highlightJavaScript(source.ui)}</code></pre>`;
+            >><pre><code>${highlightJavaScript(source.ui)}</code></pre>`;
     }
     static styles = css`
         :host {

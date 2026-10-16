@@ -1,7 +1,7 @@
 import { css } from 'lit';
 import { disabledFieldStyles } from './field-example-styles';
 import { exampleTheme } from './example-theme';
-import FormElement from '../../form-element';
+import FormElement from '../../src/form-element';
 
 /**
  * The example's single FDL field component.

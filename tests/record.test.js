@@ -1,7 +1,7 @@
-import FieldTypeBuilder from '../field-type-builder';
+import FieldTypeBuilder from '../src/field-type-builder';
 /* eslint-disable sonarjs/no-duplicate-string */
 
-import Record from '../record.js';
+import Record from '../src/record.js';
 
 function helloFormat(name) {
     return `Hello, ${name}!`;

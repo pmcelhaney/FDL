@@ -44,7 +44,7 @@ field:
 
 ```ts
 import { css } from 'lit';
-import FormElement from '../form-element';
+import FormElement from '../src/form-element';
 
 export class FdlField extends FormElement {
     static get styles() {

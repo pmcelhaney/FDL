@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
-import { field } from '../../index';
-import Record from '../../record.js';
+import { field } from '../../src/index';
+import Record from '../../src/record.js';
 import { exampleTheme } from './example-theme';
 import './fdl-example';
 import './fdl-field';

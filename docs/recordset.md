@@ -93,7 +93,7 @@ Useful read-only properties include `allRecords`, `currentPage`,
 number of rows using an explicit row factory owned by the application.
 
 ```js
-import ExampleRecordset from '../example-recordset';
+import ExampleRecordset from '../src/example-recordset';
 
 const exampleReports = new ExampleRecordset(fields, 100, index => ({
     id: String(index + 1),

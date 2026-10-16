@@ -1,4 +1,4 @@
-import deepEquality from '../utilities/deep-equality';
+import deepEquality from '../src/utilities/deep-equality';
 
 describe('Objects are deep compared', () => {
     const fiProductFeatures = {

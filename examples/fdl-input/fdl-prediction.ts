@@ -1,6 +1,6 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 import {
     addressCases,
     compositionExplanation,

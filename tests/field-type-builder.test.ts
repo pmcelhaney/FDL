@@ -1,7 +1,7 @@
-import FieldTypeBuilder from '../field-type-builder';
-import { FieldType, field, Record, Recordset, string, number, boolean, date } from '../index';
-import type { FieldDefinition } from '../index';
-import * as publicApi from '../index';
+import FieldTypeBuilder from '../src/field-type-builder';
+import { FieldType, field, Record, Recordset, string, number, boolean, date } from '../src/index';
+import type { FieldDefinition } from '../src/index';
+import * as publicApi from '../src/index';
 
 it('chains modifiers into builders and explicitly finalizes runtime behavior', () => {
     const definition = string.required().maxLength(5).label('Name');

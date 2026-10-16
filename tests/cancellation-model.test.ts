@@ -1,4 +1,4 @@
-import Record from '../record.js';
+import Record from '../src/record.js';
 import {
     cancellationFields,
     checkCancellation,

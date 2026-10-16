@@ -1,7 +1,7 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
-import orFilter from '../filters/or-filter.js';
-import containsFilter from '../filters/contains-filter.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
+import orFilter from '../src/filters/or-filter.js';
+import containsFilter from '../src/filters/contains-filter.js';
 
 const name = new FieldTypeBuilder();
 const iceCream = new FieldTypeBuilder();

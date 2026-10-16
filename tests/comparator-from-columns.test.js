@@ -1,5 +1,5 @@
-import comparatorFromColumns from '../utilities/comparator-from-columns.js';
-import { string, number } from '../primitives.js';
+import comparatorFromColumns from '../src/utilities/comparator-from-columns.js';
+import { string, number } from '../src/primitives.js';
 
 const stats = [
     { name: 'Andy', battingAverage: 0.321 },

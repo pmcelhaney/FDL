@@ -234,3 +234,12 @@ output, dependencies, worktrees, and bundled agent skills are excluded.
 
 Examples use an 80-character print width, including their static displayed code
 snippets. Other files use a 100-character print width.
+
+## Repository layout
+
+- `src/` contains library source and public type declarations, with filters,
+  helpers, types, and utilities in their own subdirectories.
+- `tests/` contains unit and integration tests.
+- `examples/fdl-input/` contains the interactive documentation site.
+- `docs/` contains API references and architecture decisions.
+- `scripts/` contains development and build tooling.

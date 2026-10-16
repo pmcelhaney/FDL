@@ -1,8 +1,8 @@
 import { LitElement, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { field } from '../../index';
-import Record from '../../record.js';
-import Recordset from '../../recordset.js';
+import { field } from '../../src/index';
+import Record from '../../src/record.js';
+import Recordset from '../../src/recordset.js';
 import { exampleTheme } from './example-theme';
 import './fdl-example';
 import './fdl-field';

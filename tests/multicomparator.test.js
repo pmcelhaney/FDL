@@ -1,4 +1,4 @@
-import multicomparator from '../utilities/multicomparator.js';
+import multicomparator from '../src/utilities/multicomparator.js';
 
 /* eslint-disable no-unused-vars */
 const EQUAL = (a, b) => 0;

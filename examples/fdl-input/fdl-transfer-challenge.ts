@@ -1,7 +1,7 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 import {
     cancellationFields,
     cancellationDefinition,

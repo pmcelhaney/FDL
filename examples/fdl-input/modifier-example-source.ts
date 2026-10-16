@@ -4,7 +4,7 @@ import {
     inputTypeInitialValue,
     inputTypeNeedsNumber,
 } from './input-type-example';
-import type { inputType } from '../../types/input-types.types';
+import type { inputType } from '../../src/types/input-types.types';
 import { assigneeDirectory, optionsDelay } from './assignee-options';
 import { shirtOrders, compareShirtSizesSource } from './shirt-size-example';
 import { weeklyExpenses, expenseHighlightThreshold } from './weekly-expenses';

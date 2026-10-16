@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 
 export const describeValue = (value: unknown): string => {
     if (typeof value === 'number' && !Number.isFinite(value))

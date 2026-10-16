@@ -1,6 +1,6 @@
-import FieldTypeBuilder from '../field-type-builder';
-import Record from '../record.js';
-import betweenFilter from '../filters/between-filter.js';
+import FieldTypeBuilder from '../src/field-type-builder';
+import Record from '../src/record.js';
+import betweenFilter from '../src/filters/between-filter.js';
 
 describe('betweenFilter(key, start, end)', () => {
     const name = new FieldTypeBuilder();

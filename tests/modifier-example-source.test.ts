@@ -1,10 +1,10 @@
-import { inputTypes, type inputType } from '../types/input-types.types';
+import { inputTypes, type inputType } from '../src/types/input-types.types';
 import { html, render } from 'lit';
 import * as ts from 'typescript';
-import FieldType from '../field-type.js';
-import { field } from '../index';
-import Record from '../record.js';
-import Recordset from '../recordset.js';
+import FieldType from '../src/field-type.js';
+import { field } from '../src/index';
+import Record from '../src/record.js';
+import Recordset from '../src/recordset.js';
 import { explorerRecipes } from '../examples/fdl-input/fdl-modifier-explorer';
 import { exampleSource, type ExampleSettings } from '../examples/fdl-input/modifier-example-source';
 

@@ -1,6 +1,6 @@
 import { LitElement, css, html, type PropertyValues } from 'lit';
-import type Recordset from '../../recordset.js';
-import type Record from '../../record.js';
+import type Recordset from '../../src/recordset.js';
+import type Record from '../../src/record.js';
 import {
     FdlRecordInspector,
     storedValue,

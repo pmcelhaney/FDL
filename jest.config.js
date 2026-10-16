@@ -1,5 +1,8 @@
 module.exports = {
-    setupFilesAfterEnv: ['./tests/jest-helpers/jest.init.js', './tests/jest-helpers/raw-sources.js'],
+    setupFilesAfterEnv: [
+        './tests/jest-helpers/jest.init.js',
+        './tests/jest-helpers/raw-sources.js',
+    ],
     transformIgnorePatterns: [
         '/node_modules/(?!(@lit/reactive-element|@open-wc/testing-helpers|lit|lit-element|lit-html)/)',
     ],
@@ -20,12 +23,7 @@ module.exports = {
     reporters: ['default'],
     roots: ['./tests'],
 
-    collectCoverageFrom: [
-        './*.{js,ts}',
-        './filters/*.js',
-        './helpers/*.js',
-        './utilities/*.{js,ts}',
-    ],
+    collectCoverageFrom: ['./src/**/*.{js,ts}', '!./src/**/*.d.ts'],
     transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.(js|mjs)$': 'babel-jest',

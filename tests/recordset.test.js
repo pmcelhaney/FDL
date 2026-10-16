@@ -1,7 +1,7 @@
-import FieldTypeBuilder from '../field-type-builder';
+import FieldTypeBuilder from '../src/field-type-builder';
 // Import the helper directly so Jest does not initialize Open WC's browser-runner Chai plugins.
 import { nextFrame } from '@open-wc/testing-helpers/src/helpers.js'; // eslint-disable-line import/no-extraneous-dependencies
-import Recordset from '../recordset.js';
+import Recordset from '../src/recordset.js';
 
 function manyObjects(n) {
     return new Array(n).fill(null).map(() => ({}));

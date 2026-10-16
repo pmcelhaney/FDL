@@ -1,4 +1,4 @@
-import clone from '../helpers/clone.js';
+import clone from '../src/helpers/clone.js';
 
 describe('clone', () => {
     it('deeply clones objects without sharing nested data', () => {

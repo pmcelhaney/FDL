@@ -1,5 +1,5 @@
-import { field } from '../index';
-import Record from '../record.js';
+import { field } from '../src/index';
+import Record from '../src/record.js';
 import '../examples/fdl-input/fdl-record-inspector';
 
 afterEach(() => document.body.replaceChildren());

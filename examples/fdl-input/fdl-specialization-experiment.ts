@@ -1,8 +1,8 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 import './fdl-field';
 
 export class FdlSpecializationExperiment extends LitElement {

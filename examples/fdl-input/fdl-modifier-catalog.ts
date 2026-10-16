@@ -1,4 +1,4 @@
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { validatorExamples } from './validator-examples';
 import {
     inputTypeChoices,
@@ -6,7 +6,7 @@ import {
     inputTypeInitialValue,
     inputTypeNote,
 } from './input-type-example';
-import type { inputType } from '../../types/input-types.types';
+import type { inputType } from '../../src/types/input-types.types';
 import { assigneeDirectory, optionsDelay } from './assignee-options';
 import {
     compareShirtSizes,
@@ -16,8 +16,8 @@ import {
 import { weeklyExpenses, expenseHighlightThreshold } from './weekly-expenses';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
-import Record from '../../record.js';
-import Recordset from '../../recordset.js';
+import Record from '../../src/record.js';
+import Recordset from '../../src/recordset.js';
 import './fdl-field';
 import { inputText, valuePipeline } from './value-pipeline';
 import {

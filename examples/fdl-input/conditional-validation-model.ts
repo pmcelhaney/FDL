@@ -1,4 +1,4 @@
-import { field, Record } from '../../index';
+import { field, Record } from '../../src/index';
 
 export const isInternational = (record: Record<any>) =>
     record.getField('country') !== 'US';

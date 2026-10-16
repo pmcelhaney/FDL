@@ -2,7 +2,7 @@ import './fdl-example';
 import './fdl-column-widths';
 import './fdl-text-length';
 import { renderValidatorContract } from './change-rule-page';
-import { field } from '../../index';
+import { field } from '../../src/index';
 import { modifierPage } from './modifier-page-groups';
 import { relatedModifierNames } from './related-modifiers';
 import {
@@ -21,7 +21,7 @@ import { highlightJavaScript } from './highlight-javascript';
 import './fdl-record-inspector';
 import { explainDependency } from './dependency-explanation';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../record.js';
+import Record from '../../src/record.js';
 import './fdl-field';
 import './fdl-modifier-catalog';
 import {

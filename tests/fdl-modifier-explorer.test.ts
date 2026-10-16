@@ -1,7 +1,7 @@
 import type { FdlExample } from '../examples/fdl-input/fdl-example';
 import type { FdlField } from '../examples/fdl-input/fdl-field';
-import FieldTypeBuilder from '../field-type-builder';
-import { inputTypes } from '../types/input-types.types';
+import FieldTypeBuilder from '../src/field-type-builder';
+import { inputTypes } from '../src/types/input-types.types';
 import { modifierPage, modifierPageGroups } from '../examples/fdl-input/modifier-page-groups';
 import { relatedModifierNames } from '../examples/fdl-input/related-modifiers';
 import { categoryDescriptions } from '../examples/fdl-input/category-icon';
