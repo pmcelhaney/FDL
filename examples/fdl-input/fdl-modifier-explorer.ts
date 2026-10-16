@@ -438,7 +438,7 @@ export class FdlModifierExplorer extends LitElement {
                 ><a href="#integration"
                     >Public types, callback contracts, and composition rules</a
                 ></p
-            ><p class="description">${recipe.description}</p>
+            >${recipe.deprecation ? '' : html`<p class="description">${recipe.description}</p>`}
             ${
                 recipe.limitation
                     ? html`<section

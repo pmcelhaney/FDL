@@ -23,8 +23,9 @@ npm run docs:build
 The production output is `examples/fdl-input/dist/`, with a single `index.html`
 entry point. Building and previewing do not deploy the site.
 
-Every interactive example uses `<fdl-example>` for its collapsible frame and
-source-file tabs. Slot the working demo inside it and pass `filenames` and
+Primary interactive examples open by default in `<fdl-example>`, with source-file
+tabs alongside the working demo. Set `.expanded=${false}` for secondary examples
+such as the deprecated row-count demonstration. Slot the working demo inside it and pass `filenames` and
 `sources` for the model, view, and optional CSS. Modifier examples also set
 `modifier` to highlight the relevant calls in the model tab.
 
@@ -51,21 +52,23 @@ Repository API references and architecture decision records remain in `docs/`.
   rules to six model-computed outcomes and a selected live form. Selecting an
   outcome loads its exact sample; editing the form highlights the matching
   address category. The address-format check is illustrative.
-- How it Works includes an immutable-specialization experiment using the same
-  definitions in form and table consumers.
-- Modifier pages summarize model state first. Expand **Inspect full JSON** to
-  see the complete values. Dependency traces read FDL's public state methods.
-- Requiredness, minimum length, and filter matching have adjustable rules. The
-  model tab updates with the complete definition; reset restores its default.
+- How it Works compares a base field with two independent specializations, then
+  demonstrates model-only validation before binding a component.
+- Inspectors stay visible where model values, validation, or collection membership
+  are the lesson. Presentation examples put their full inspector behind
+  **Inspect stored values and state**. Dependency traces read FDL's public state methods.
+- Requiredness, text lengths, column widths, and filter matching have adjustable
+  rules. Their model tabs reflect the current rules. Length changes preserve the
+  entered code; width changes restore the initial table layout.
 - Validator, filter, and comparator examples compare several cases at once.
   Parser and formatter pages trace original input through stored and display values.
-- Every modifier example has connected model and view source tabs: the
+- Supported modifier examples have connected model and view source tabs: the
   complete record or recordset definition, followed by the Lit UI using that
   same model. Save the labeled files in the same folder: the model file exports
   its record and any shared helpers; the Lit file imports them explicitly.
   Component imports refer to this site’s adapters.
   Teaching panels and rule selectors are omitted from the snippets. Unsupported
-  adapter interactions remain explicit.
+  adapter interactions appear directly as contracts with configuration code.
 - Class-based styling examples (`cellClass` and
   `rowClass`) also provide a CSS tab. These rules are shared
   with the live table and belong in its shadow-root stylesheet, not the page
@@ -80,7 +83,7 @@ while keeping their values readable. The `disabled` page
 shows the same CSS used by the field adapter.
 
 The learning path uses a compact question selector and a reset for the current
-question. Its final step distinguishes the form/review record from table
+question. Its final step distinguishes the edited form record from table
 snapshots, lists abilities to check, and offers an optional cancellation-rule
 transfer challenge. Continuing into composition carries the delivery choice and
 charge snapshot in the link; changing between a continued scenario and a plain
@@ -89,15 +92,12 @@ composition link starts a fresh experiment.
 Composition places rule controls directly before the outcome comparison. Optional
 prediction practice reveals actual model outcomes after a guess. Keep up to six
 custom cases to compare their saved rules with current rules, restore them, or
-remove them. The explorer retains this experiment, its kept cases, and the field
-builder while visiting other pages in the same session. Returning resumes that
+remove them. The explorer retains this experiment and its kept cases while visiting other
+pages in the same session. Returning resumes that
 work.
 Opening a different composition scenario starts a fresh experiment; reloading
 the site also starts fresh. Reset rules and example preserves kept cases;
-Remove and Clear kept cases delete them. Reset builder restores its initial
-configuration and preview values.
-The optional field builder uses structured rules, previews an actual FDL Record,
-and displays matching model and Lit code below the preview.
+Remove and Clear kept cases delete them.
 
 Reference paging follows active search/category results. Narrow screens collapse
 navigation behind Browse modifiers. Conditional-cell styling exposes an editable
@@ -112,7 +112,10 @@ Related modifiers share one reference page: permanent and conditional cell
 classes, disabled state, read-only state, and requiredness; minimum and maximum
 text length; and minimum, target, and maximum column widths. Every modifier
 retains its original hash link and sidebar entry, which opens its section.
-Each section has its own live example, reset, model source, and Lit source. Previous/Next navigates between distinct reference pages.
+Text length and Column widths each use one shared interactive example, retaining
+individual signatures and deep links. Previous/Next navigates between distinct
+reference pages. The validator reference links to the complete conditional tax-ID
+example on Change and test a rule instead of embedding a second copy.
 
 ## Reusing the record inspector
 
@@ -127,8 +130,9 @@ The inspector shows every declared field by default, including fields with no
 stored value. Set `.fields=${['name', 'email']}` to select and order the displayed
 fields. Values are the record's raw stored values, so an option's key appears
 rather than its display label. Status icons expose hidden, disabled, read-only,
-required, and invalid states; record validity covers the complete record even
-when only some fields are displayed.
+required, and invalid states. When `fields` selects part of a record, the
+validation status covers those displayed fields; otherwise it covers the whole
+record.
 
 The magnifying glass button collapses and expands the panel. Set `collapsed`
 as an HTML attribute or `.collapsed=${true}` to start with only the icon. The
@@ -143,7 +147,9 @@ imported from the example source alongside `fdl-field`.
 Import `./fdl-recordset-inspector` and bind the live recordset:
 
 ```ts
-html`<fdl-recordset-inspector .recordset=${recordset}></fdl-recordset-inspector>`;
+html`<fdl-recordset-inspector
+    .recordset=${recordset}
+></fdl-recordset-inspector>`;
 ```
 
 The inspector displays matching, total, loaded, and current-page counts, the page
