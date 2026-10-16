@@ -143,10 +143,10 @@ export class FdlTransferChallenge extends LitElement {
                 ></details
             ><details
                 ><summary>Inspect a solution</summary
-                >><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre></fdl-code-snippet>
+                ><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre></fdl-code-snippet>
             </details>
             <h3>Your current definition</h3
-            >><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre></fdl-code-snippet>`;
+            ><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre></fdl-code-snippet>`;
     }
     static styles = css`
         :host {

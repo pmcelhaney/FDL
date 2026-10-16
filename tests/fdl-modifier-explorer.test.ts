@@ -914,6 +914,7 @@ it.each([
     'disabled',
     'emptyWhen',
     'label',
+    'inputMask',
     'maxLength',
     'minLength',
     'multipleValues',
@@ -933,6 +934,7 @@ it.each([
     const root = (catalog ?? page).shadowRoot!;
     const inspector = root.querySelector('fdl-record-inspector')!;
     expect(inspector).toBeTruthy();
+    expect(inspector.closest('details')).toBeNull();
     await inspector.updateComplete;
     const fields = [...root.querySelectorAll<FdlField>('fdl-field')];
     await Promise.all(fields.map(field => field.updateComplete));
@@ -980,6 +982,7 @@ it.each([
     await catalog.updateComplete;
     const inspector = catalog.shadowRoot!.querySelector('fdl-recordset-inspector')!;
     expect(inspector).toBeTruthy();
+    expect(inspector.closest('details')).toBeNull();
     await inspector.updateComplete;
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     await table.updateComplete;
@@ -996,4 +999,27 @@ it('initializes the catalog minimum selector to the enforced rule', async () => 
     expect(select.value).toBe('4');
     const control = demo.shadowRoot!.querySelector('fdl-field') as FdlField;
     expect(control.record!.fieldTypeForField('longCode').minLength()).toBe(4);
+});
+
+it('uses the inputMask inspector collapse control while keeping live values current', async () => {
+    const page = await openPage('#inputMask');
+    const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as FdlModifierCatalog;
+    await catalog.updateComplete;
+    const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
+    await inspector.updateComplete;
+    const toggle = inspector.shadowRoot!.querySelector<HTMLButtonElement>('button')!;
+    toggle.click();
+    await inspector.updateComplete;
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    const field = catalog.shadowRoot!.querySelector<FdlField>('fdl-field')!;
+    await field.updateComplete;
+    const input = field.shadowRoot!.querySelector('input')!;
+    input.value = '12abc.34';
+    input.dispatchEvent(new Event('input'));
+    await catalog.updateComplete;
+    toggle.click();
+    await inspector.updateComplete;
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(inspector.shadowRoot!.querySelector('[data-field="input"]')!.textContent).toContain('12.34');
+    expect(inspector.fields).toEqual(['input']);
 });

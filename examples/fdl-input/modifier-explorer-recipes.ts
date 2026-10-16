@@ -230,9 +230,9 @@ const details: { [name: string]: Detail } = {
         [
             'The function returns choices for the current department.',
             'The async function returns the same choices after a simulated directory lookup.',
-            'A value shared by both lists stays selected. Refreshing options does not reset either stored value.',
+            'A value shared by both lists stays selected. A selection missing from the refreshed choices is cleared.',
         ],
-        'Both functions receive the current record. A regular function returns an array; an async function returns a promise of an array. A shared option remains selected after the list refreshes. If a stored value is absent from the new list, the native dropdown appears blank while the record keeps the value until the application clears it.',
+        'Both functions receive the current record. A regular function returns an array; an async function returns a promise of an array. A shared option remains selected after the list refreshes. If a stored value is absent from the new list, the record automatically clears it when the latest choices finish loading.',
         'Dependent dropdowns, shared choices, and asynchronously loaded directories.',
     ],
     parser: [

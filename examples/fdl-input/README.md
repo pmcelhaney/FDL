@@ -54,9 +54,9 @@ Repository API references and architecture decision records remain in `docs/`.
   address category. The address-format check is illustrative.
 - How it Works compares a base field with two independent specializations, then
   demonstrates model-only validation before binding a component.
-- Inspectors stay visible where model values, validation, or collection membership
-  are the lesson. Presentation examples put their full inspector behind
-  **Inspect stored values and state**. Dependency traces read FDL's public state methods.
+- Record and recordset inspectors appear directly beside or below their examples.
+  Each inspector owns its collapse control; do not wrap it in another disclosure.
+  Dependency traces read FDL's public state methods.
 - Requiredness, text lengths, column widths, and filter matching have adjustable
   rules. Their model tabs reflect the current rules. Length changes preserve the
   entered code; width changes restore the initial table layout.

@@ -130,9 +130,9 @@ export class FdlFieldBuilder extends LitElement {
                 ></div
             >
             <h3>${source.modelFile}</h3
-            >><fdl-code-snippet><pre><code>${highlightJavaScript(source.definition)}</code></pre
+            ><fdl-code-snippet><pre><code>${highlightJavaScript(source.definition)}</code></pre
             ></fdl-code-snippet><h3>${source.uiFile}</h3
-            >><fdl-code-snippet><pre><code>${highlightJavaScript(source.ui)}</code></pre></fdl-code-snippet>`;
+            ><fdl-code-snippet><pre><code>${highlightJavaScript(source.ui)}</code></pre></fdl-code-snippet>`;
     }
     static styles = css`
         :host {
