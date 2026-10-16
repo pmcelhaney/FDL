@@ -3,7 +3,8 @@ import { html } from 'lit';
 import { highlightJavaScript } from './highlight-javascript';
 
 export const firstFormSource = `import { html, render } from 'lit';
-import { field, Record } from '@pmcelhaney/fdl';
+import { field } from '@pmcelhaney/fdl/primitives';
+import Record from '@pmcelhaney/fdl/record';
 import FormElement from '@pmcelhaney/fdl/form-element';
 
 // Register a local adapter. Its styles and control semantics belong here.
@@ -70,23 +71,22 @@ export function renderQuickstart() {
             Country code from US to CA makes Tax ID required. Check the empty
             form, fill the required values, and watch it become valid.</p>
         <h2>Create a local application</h2>
-        <p>Start with a fresh checkout so the package and this example use the
-            same API. Build an installable package, then create a separate
-            application beside the checkout. Lit supplies the example adapter.</p>
-        <fdl-code-snippet><pre class="code"><code>git clone https://github.com/pmcelhaney/FDL.git
-cd FDL
-npm install
-npm pack
-cd ..
-mkdir fdl-first-form
+        <p>Create a new application and install the published npm package.
+            Lit supplies the example adapter; Vite runs the application locally.</p>
+        <fdl-code-snippet><pre class="code"><code>mkdir fdl-first-form
 cd fdl-first-form
 npm init -y
-npm install ../FDL/pmcelhaney-fdl-0.0.1.tgz lit
+npm install @pmcelhaney/fdl lit
 npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snippet>
-        <p><code>npm pack</code> builds the JavaScript and type declarations.
-            The archive name above matches this checkout’s package version,
-            <code>0.0.1</code>. If that version changes, use the archive name
-            printed by <code>npm pack</code>.</p>
+        <p>No repository checkout or package build is needed. The npm package
+            includes compiled JavaScript, TypeScript declarations, and the
+            <code>@pmcelhaney/fdl/form-element</code> adapter used below.</p>
+        <p><strong>Version 0.0.1 import workaround:</strong> the published
+            package is missing the JavaScript file for its root entry point.
+            The script below imports the included <code>primitives</code>,
+            <code>record</code>, and <code>form-element</code> modules directly.
+            Use these imports with 0.0.1; the usual root import will fail in
+            that release.</p>
         <p>Create an <code>index.html</code> with the following body and save
             the complete script below as <code>main.ts</code> beside it. Add
             the <code>tsconfig.json</code> below, then run <code>npx vite</code>
@@ -147,8 +147,8 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snipp
         <p
             >Your application owns submission, routing, persistence,
             server-error mapping, and when errors are shown. The example adapter
-            displays synchronous model validation; it does not await
-            asynchronous validators or manage pending server requests. Submit
+            requires synchronous validators. Use async Record APIs with a
+            dedicated adapter for asynchronous validation and pending server requests. Submit
             Record data explicitly: shadow-root controls do not provide
             application form submission.</p
         >

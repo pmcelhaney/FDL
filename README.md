@@ -22,6 +22,10 @@ The API and documentation may change before that release.
 npm install @pmcelhaney/fdl
 ```
 
+Version 0.0.1 is missing its root JavaScript entry file. Until a corrected
+release is published, import the included modules directly, as shown below
+and in the first-form guide.
+
 ## Try a rule without a UI
 
 A **field definition** describes reusable rules for one value. A **Record**
@@ -29,7 +33,8 @@ binds field definitions to a set of values; a **Recordset** manages a collection
 of records that share definitions.
 
 ```js
-import { field, Record } from '@pmcelhaney/fdl';
+import { field } from '@pmcelhaney/fdl/primitives';
+import Record from '@pmcelhaney/fdl/record';
 
 const account = new Record(
     {
@@ -56,24 +61,24 @@ record, rather than filling its constructor values.
 
 ## Build your first form
 
-The documentation site includes a complete first-form guide with imports,
-adapter registration, a displayed validation error, and TypeScript setup.
-To run it locally:
+Install the published package in a new application:
 
 ```sh
-git clone https://github.com/pmcelhaney/FDL.git
-cd FDL
-npm install
-npm run docs:dev
+mkdir fdl-first-form
+cd fdl-first-form
+npm init -y
+npm install @pmcelhaney/fdl lit
+npm install --save-dev vite@5.4.21 typescript@4.6.4
 ```
 
-Open [Your first form](http://localhost:5173/#quickstart). If the server prints
-a different URL, open that URL and choose **Your first form** from the navigation.
-The same site includes the interactive examples and API references.
+Follow [Your first form](https://patrickmcelhaney.org/FDL/#quickstart) for the
+complete script, HTML entry point, adapter registration, and TypeScript setup.
+Run `npx vite` in your application and open the local URL it prints. No FDL
+checkout or local package build is needed.
 
 The guide uses a Lit adapter. React applications can keep their existing
 components and connect them to the same FDL model; see
-[Adapter and API contracts](http://localhost:5173/#integration) on the local site
+[Adapter and API contracts](https://patrickmcelhaney.org/FDL/#integration)
 for subscriptions, edit handling, and accessible state mapping. Your application
 owns submission, server validation, routing, and persistence.
 

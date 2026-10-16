@@ -30,6 +30,10 @@ All notable changes to FDL will be documented in this file. The format follows
 
 ### Fixed
 
+- Install the published npm package directly in the first-form guide instead of
+  requiring a repository checkout and locally packed archive. Document direct
+  module imports to work around the missing root entry in published version 0.0.1.
+
 - Correct the README scheduling example, clarify primitive conversion and default
   lifecycle behavior, document synchronous/async validation boundaries, and align
   the adapter and modifier reference with current multiselect and emptiness rules.

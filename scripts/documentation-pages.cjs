@@ -58,7 +58,10 @@ function loadDocumentation() {
             md.renderer.rules.link_open = function (tokens, index, options, env, renderer) {
                 const token = tokens[index];
                 const href = token.attrGet('href');
-                if (href.startsWith('http://localhost:5173/#')) {
+                if (
+                    href.startsWith('http://localhost:5173/#') ||
+                    href.startsWith('https://patrickmcelhaney.org/FDL/#')
+                ) {
                     token.attrSet('href', href.slice(href.indexOf('#')));
                 } else if (!/^(?:[a-z]+:|\/\/)/i.test(href)) {
                     const [target, section] = href.split('#');
