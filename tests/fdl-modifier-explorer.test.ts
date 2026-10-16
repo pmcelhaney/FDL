@@ -492,7 +492,7 @@ describe('FDL site pages', () => {
     it('opens Home by default and separates site pages from the modifier reference', async () => {
         const page = await openPage('');
         const root = page.shadowRoot!;
-        expect(root.querySelector('h1')!.textContent).toBe('Field Definition Library');
+        expect(root.querySelector('h1')!.textContent).toBe('Finally, a framework for business rules.');
         expect(root.querySelector('.site-page')!.textContent).toContain('Recordset');
         expect(root.querySelector('.site-nav a[href="#quickstart"]')?.textContent).toContain(
             'Your first form'
@@ -519,7 +519,7 @@ describe('FDL site pages', () => {
         window.location.hash = 'home';
         window.dispatchEvent(new Event('hashchange'));
         await settle(page);
-        expect(root.querySelector('h1')!.textContent).toBe('Field Definition Library');
+        expect(root.querySelector('h1')!.textContent).toBe('Finally, a framework for business rules.');
         expect(document.title).toBe('Home — FDL');
     });
 });

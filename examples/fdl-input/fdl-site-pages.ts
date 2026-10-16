@@ -104,12 +104,14 @@ export function renderSitePage(
         ></article>`;
     if (page === 'home')
         return html` <article class="site-page">
-            <h1 tabindex="-1">Field Definition Library</h1>
+            <h1 tabindex="-1">Finally, a framework for business rules.</h1>
             <p class="description"
-                >FDL (pronounced “fiddle”) is a JavaScript and TypeScript
-                library for defining how your application’s fields behave and
-                applying those definitions to individual records and collections
-                of records.</p
+                >Define how your data behaves—what’s valid, what’s required, how
+                values are formatted, and what depends on what. FDL brings those
+                rules into a shared model for JavaScript and TypeScript,
+                independent of your frontend framework and design system. Use
+                the same rules across forms, tables, and other interfaces—even
+                as your UI changes.</p
             >
             <fdl-delivery-experiment></fdl-delivery-experiment>
             <p
