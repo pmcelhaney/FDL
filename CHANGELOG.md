@@ -6,6 +6,24 @@ All notable changes to FDL will be documented in this file. The format follows
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-10-16
+
+### Fixed
+
+- Include the root JavaScript entry point in the npm package so imports from
+  `@pmcelhaney/fdl` work alongside the public TypeScript declarations.
+- Include the documented `example-recordset` module in package builds.
+- Use the standard root import in the first-form guide and README after
+  verifying the packed package in an independent consumer application.
+- Preserve TypeScript resolution of root declarations and package subpaths.
+
+### Added
+
+- Check the packed archive for all declared root entry points and documented
+  adapter and example-recordset subpaths before release.
+
+## Earlier repository work
+
 ### Added
 
 - An in-site documentation library with API and adapter contracts, project guides,
@@ -31,8 +49,7 @@ All notable changes to FDL will be documented in this file. The format follows
 ### Fixed
 
 - Install the published npm package directly in the first-form guide instead of
-  requiring a repository checkout and locally packed archive. Document direct
-  module imports to work around the missing root entry in published version 0.0.1.
+  requiring a repository checkout and locally packed archive.
 
 - Correct the README scheduling example, clarify primitive conversion and default
   lifecycle behavior, document synchronous/async validation boundaries, and align
@@ -51,8 +68,7 @@ All notable changes to FDL will be documented in this file. The format follows
 
 ## Repository baseline
 
-The package manifest currently identifies version `1.0.0`. Historical release
-dates and contents have not been reconstructed, so this changelog does not
-present that manifest version as a newly verified or newly published release.
-Future releases should add dated, comparison-linked sections only after their
-tags and publication status are verified.
+Earlier repository history used a `1.0.0` manifest before the current prerelease
+versioning. That value is not evidence of a published 1.0 release. The verified
+patch release above follows the published npm version `0.0.1`; earlier work is
+listed separately because its release boundaries have not been reconstructed.

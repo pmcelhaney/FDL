@@ -73,8 +73,14 @@ Removal belongs in a major release and must update the complete inventory in
 ## Current automation boundary
 
 GitHub Actions verifies tests, type checking, and the documentation-site build. Registry
-credentials, trusted publishing, release-tag automation, and hosted documentation-site
-deployment are not configured in this repository. Until they are deliberately
-added and reviewed, releases and deployment remain manual, approval-gated
-operations. The current work should be described as portfolio rehabilitation,
-not as evidence of an automated delivery pipeline.
+publication and release tagging remain manual. The documentation workflow
+uploads and deploys the site to GitHub Pages on pushes to main. npm publication
+uses an authenticated maintainer and requires an explicit release request;
+passing the local build is not evidence of a registry publication.
+
+Before publication, `npm pack` must include both `dist/index.js` and
+`dist/index.d.ts`, plus the documented `form-element` and `example-recordset`
+subpaths. The package-build regression test checks these archive entries. Install
+the packed archive in a separate application and verify the first-form example
+with TypeScript and a production browser build. After publication, repeat those
+checks with the exact version downloaded from npm.

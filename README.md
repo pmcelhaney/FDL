@@ -22,10 +22,6 @@ The API and documentation may change before that release.
 npm install @pmcelhaney/fdl
 ```
 
-Version 0.0.1 is missing its root JavaScript entry file. Until a corrected
-release is published, import the included modules directly, as shown below
-and in the first-form guide.
-
 ## Try a rule without a UI
 
 A **field definition** describes reusable rules for one value. A **Record**
@@ -33,8 +29,7 @@ binds field definitions to a set of values; a **Recordset** manages a collection
 of records that share definitions.
 
 ```js
-import { field } from '@pmcelhaney/fdl/primitives';
-import Record from '@pmcelhaney/fdl/record';
+import { field, Record } from '@pmcelhaney/fdl';
 
 const account = new Record(
     {

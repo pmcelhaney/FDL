@@ -3,8 +3,7 @@ import { html } from 'lit';
 import { highlightJavaScript } from './highlight-javascript';
 
 export const firstFormSource = `import { html, render } from 'lit';
-import { field } from '@pmcelhaney/fdl/primitives';
-import Record from '@pmcelhaney/fdl/record';
+import { field, Record } from '@pmcelhaney/fdl';
 import FormElement from '@pmcelhaney/fdl/form-element';
 
 // Register a local adapter. Its styles and control semantics belong here.
@@ -67,38 +66,48 @@ export function renderQuickstart() {
             >Install the model, register an adapter, and display your first
             validation error.</p
         >
-        <p>You’ll build an account form where Name is required and changing
+        <p
+            >You’ll build an account form where Name is required and changing
             Country code from US to CA makes Tax ID required. Check the empty
-            form, fill the required values, and watch it become valid.</p>
+            form, fill the required values, and watch it become valid.</p
+        >
         <h2>Create a local application</h2>
-        <p>Create a new application and install the published npm package.
-            Lit supplies the example adapter; Vite runs the application locally.</p>
-        <fdl-code-snippet><pre class="code"><code>mkdir fdl-first-form
+        <p
+            >Create a new application and install the published npm package. Lit
+            supplies the example adapter; Vite runs the application locally.</p
+        >
+        <fdl-code-snippet>
+            <pre class="code"><code>mkdir fdl-first-form
 cd fdl-first-form
 npm init -y
 npm install @pmcelhaney/fdl lit
-npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snippet>
-        <p>No repository checkout or package build is needed. The npm package
+npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
+        </fdl-code-snippet>
+        <p
+            >No repository checkout or package build is needed. The npm package
             includes compiled JavaScript, TypeScript declarations, and the
-            <code>@pmcelhaney/fdl/form-element</code> adapter used below.</p>
-        <p><strong>Version 0.0.1 import workaround:</strong> the published
-            package is missing the JavaScript file for its root entry point.
-            The script below imports the included <code>primitives</code>,
-            <code>record</code>, and <code>form-element</code> modules directly.
-            Use these imports with 0.0.1; the usual root import will fail in
-            that release.</p>
-        <p>Create an <code>index.html</code> with the following body and save
-            the complete script below as <code>main.ts</code> beside it. Add
-            the <code>tsconfig.json</code> below, then run <code>npx vite</code>
-            and open the local URL it prints. The installed package contains
-            compiled JavaScript; your application’s TypeScript is handled by Vite.</p>
-        <fdl-code-snippet><pre class="code"><code>&lt;div id="app"&gt;&lt;/div&gt;
-&lt;script type="module" src="/main.ts"&gt;&lt;/script&gt;</code></pre></fdl-code-snippet>
-        <fdl-code-snippet><pre
-            class="code"
-        ><code>${highlightJavaScript(firstFormSource)}</code></pre></fdl-code-snippet>
+            <code>@pmcelhaney/fdl/form-element</code> adapter used below.</p
+        >
+        <p
+            >Create an <code>index.html</code> with the following body and save
+            the complete script below as <code>main.ts</code> beside it. Add the
+            <code>tsconfig.json</code> below, then run <code>npx vite</code> and
+            open the local URL it prints. The installed package contains
+            compiled JavaScript; your application’s TypeScript is handled by
+            Vite.</p
+        >
+        <fdl-code-snippet>
+            <pre class="code"><code>&lt;div id="app"&gt;&lt;/div&gt;
+&lt;script type="module" src="/main.ts"&gt;&lt;/script&gt;</code></pre>
+        </fdl-code-snippet>
+        <fdl-code-snippet>
+            <pre
+                class="code"
+            ><code>${highlightJavaScript(firstFormSource)}</code></pre>
+        </fdl-code-snippet>
         <h3>tsconfig.json</h3>
-        <fdl-code-snippet><pre class="code"><code>{
+        <fdl-code-snippet>
+            <pre class="code"><code>{
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
@@ -109,7 +118,8 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snipp
     "noEmit": true
   },
   "include": ["main.ts"]
-}</code></pre></fdl-code-snippet>
+}</code></pre>
+        </fdl-code-snippet>
         <p
             >Run <code>npx tsc --noEmit</code> to type-check this consumer
             independently of the documentation site.</p
@@ -148,9 +158,9 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snipp
             >Your application owns submission, routing, persistence,
             server-error mapping, and when errors are shown. The example adapter
             requires synchronous validators. Use async Record APIs with a
-            dedicated adapter for asynchronous validation and pending server requests. Submit
-            Record data explicitly: shadow-root controls do not provide
-            application form submission.</p
+            dedicated adapter for asynchronous validation and pending server
+            requests. Submit Record data explicitly: shadow-root controls do not
+            provide application form submission.</p
         >
         <p
             >Next: <a href="#required">conditional requiredness</a>,

@@ -17,8 +17,7 @@ it('type-checks the complete copied first-form script against the source package
         noEmit: true,
         baseUrl: process.cwd(),
         paths: {
-            '@pmcelhaney/fdl/primitives': ['src/primitives.js'],
-            '@pmcelhaney/fdl/record': ['src/record.js'],
+            '@pmcelhaney/fdl': ['src/index.js'],
             '@pmcelhaney/fdl/form-element': ['src/form-element.ts'],
         },
     };
