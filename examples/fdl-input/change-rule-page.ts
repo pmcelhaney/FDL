@@ -117,12 +117,7 @@ export function renderValidatorContract(includeExample = true) {
                   `
                 : ''
         }
-        <p
-            ><a href="#change-a-rule"
-                >Trace this change through the model, consumers, and behavior
-                tests.</a
-            ></p
-        >
+        ${includeExample ? '' : html`<p><a href="#change-a-rule">Trace this change through the model, consumers, and behavior tests.</a></p>`}
     </section>`;
 }
 export function renderChangeRule() {
