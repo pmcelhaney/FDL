@@ -951,3 +951,14 @@ it.each([
     expect(inspector.recordset === table.recordset).toBe(true);
     expect(catalog.shadowRoot!.querySelector('.focused-state')).toBeNull();
 });
+
+it('initializes the catalog minimum selector to the enforced rule', async () => {
+    const demo = document.createElement('fdl-modifier-catalog') as FdlModifierCatalog;
+    demo.modifier = 'minLength';
+    document.body.append(demo);
+    await demo.updateComplete;
+    const select = demo.shadowRoot!.querySelector<HTMLSelectElement>('.minimum-rule')!;
+    expect(select.value).toBe('4');
+    const control = demo.shadowRoot!.querySelector('fdl-field') as FdlField;
+    expect(control.record!.fieldTypeForField('longCode').minLength()).toBe(4);
+});

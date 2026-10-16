@@ -1141,7 +1141,7 @@ export class FdlModifierCatalog extends LitElement {
                                 );
                                 this.requestUpdate();
                             }}
-                            >${[2, 4, 8].map(value => html`<option value=${value}>${value} characters</option>`)}</select
+                            >${[2, 4, 8].map(value => html`<option value=${value} ?selected=${value === this.minimum}>${value} characters</option>`)}</select
                         ></label
                     >${this.renderValidation('longCode')}`;
             case 'multipleValues':
