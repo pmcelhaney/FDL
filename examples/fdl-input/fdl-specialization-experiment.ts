@@ -3,10 +3,7 @@ import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import Record from '../../record.js';
-import Recordset from '../../recordset.js';
 import './fdl-field';
-import './fdl-table';
-import './fdl-recordset-inspector';
 
 export class FdlSpecializationExperiment extends LitElement {
     private base = field.label('Name');
@@ -25,9 +22,6 @@ export class FdlSpecializationExperiment extends LitElement {
         required: '',
         sibling: '',
     });
-    private table = new Recordset(this.definitions, [
-        { ...this.record.values },
-    ]);
     private syncing = false;
     private sync = (event: Event) => {
         if (this.syncing) return;
@@ -40,7 +34,6 @@ export class FdlSpecializationExperiment extends LitElement {
             if (this.record.getField(key) !== value)
                 this.record.setField(key, value);
         });
-        this.table.setData([{ ...this.record.values }]);
         this.syncing = false;
         this.requestUpdate();
     };
@@ -60,14 +53,10 @@ export class FdlSpecializationExperiment extends LitElement {
             this.required,
             this.record.getField('required')
         );
-        this.table = new Recordset(this.definitions, [
-            { ...this.record.values },
-        ]);
         this.requestUpdate();
     };
     render() {
-        return html`<section aria-label="Explore immutable specialization"
-            ><h2>One base, independent specializations</h2>
+        return html`<section aria-label="Explore immutable specialization">
             <p
                 >Edit any name; all three receive the same test value. Remove
                 the required rule from its specialization and compare the base
@@ -96,13 +85,6 @@ export class FdlSpecializationExperiment extends LitElement {
                         >`
                 )}</div
             >
-            <h3>The same definitions in a table</h3>
-            <fdl-table .recordset=${this.table}
-                ><fdl-column field="base" label="baseName"></fdl-column
-                ><fdl-column field="required" label="requiredName"></fdl-column
-                ><fdl-column field="sibling" label="shortName"></fdl-column
-            ></fdl-table>
-            <fdl-recordset-inspector .recordset=${this.table}></fdl-recordset-inspector>
             <p role="status"
                 >The base is
                 ${this.base.valueOf().required(undefined, this.record) ? 'required' : 'optional'};

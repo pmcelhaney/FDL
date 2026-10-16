@@ -274,11 +274,6 @@ export function renderSitePage(
                 definition, so a shared base can be specialized for different
                 uses.</p
             >
-            <pre
-                class="code markup"
-            ><code>${highlightJavaScript(`const name = field.label('Name');
-const requiredName = name.required();
-// name is unchanged; requiredName adds the required rule.`)}</code></pre>
             <fdl-example
                 heading="One base, independent specializations"
                 .filenames=${['fdl-specialization-experiment.ts']}
@@ -294,7 +289,7 @@ const requiredName = name.required();
             >
             <pre
                 class="code markup"
-            ><code>${highlightJavaScript(`const person = new Record({ name: requiredName }, { name: '' });
+            ><code>${highlightJavaScript(`const person = new Record({ name: field.label('Name').required() }, { name: '' });
 
 person.setField('name', 'Ada');
 person.isValid(); // true`)}</code></pre>

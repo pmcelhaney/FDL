@@ -522,7 +522,7 @@ it('connects original currency text to parsed, stored, and formatted representat
 });
 
 import type { FdlSpecializationExperiment } from '../examples/fdl-input/fdl-specialization-experiment';
-it('keeps the base and sibling unchanged while specializing a shared form/table definition', async () => {
+it('keeps the base and sibling unchanged while specializing a shared definition', async () => {
     const page = await openExplorer('#how-it-works');
     const demo = page.shadowRoot!.querySelector(
         'fdl-specialization-experiment'
@@ -539,16 +539,10 @@ it('keeps the base and sibling unchanged while specializing a shared form/table 
     await editField(demo.shadowRoot!, 'base', 'A');
     await demo.updateComplete;
     expect(states()).toEqual(['Optional · Valid', 'Optional · Valid', 'Optional · Invalid']);
-    const table = demo.shadowRoot!.querySelector('fdl-table') as any;
-    await table.updateComplete;
-    await table.recordset.requestUpdate();
-    expect(table.recordset.currentPage[0].values).toEqual({
-        base: 'A',
-        required: 'A',
-        sibling: 'A',
-    });
-    expect(table.recordset.getFieldType('required').required()).toBe(false);
-    expect(table.recordset.getFieldType('sibling').minLength()).toBe(2);
+    const fields = [...demo.shadowRoot!.querySelectorAll('fdl-field')] as any[];
+    expect(fields.map(item => item.record.getField(item.field))).toEqual(['A', 'A', 'A']);
+    expect(fields[1].record.isValid('required')).toBe(true);
+    expect(fields[2].record.isValid('sibling')).toBe(false);
 });
 
 import type { FdlLearningPath } from '../examples/fdl-input/fdl-learning-path';
