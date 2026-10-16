@@ -478,16 +478,8 @@ export class FdlModifierExplorer extends LitElement {
                 </section>
             </fdl-example>
             <div class="details">
-                ${recipe.name === 'validator' ? renderValidatorContract(false) : ''}<section
-                    class="explanation"
-                    ><h3>What happens</h3
-                    ><ol
-                        >${recipe.steps.map(step => html`<li>${step}</li>`)}</ol
-                    ><p class="use"
-                        ><strong>Good for</strong>${recipe.use}</p
-                    ></section
-                ></div
-            >
+                ${recipe.name === 'validator' ? renderValidatorContract(false) : ''}
+            </div>
             <section class="note"
                 ><div
                     ><h3>Behavior details</h3><p>${recipe.note}</p></div

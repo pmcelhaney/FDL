@@ -63,7 +63,7 @@ const details: { [name: string]: Detail } = {
             'The table uses the field comparator when a heading is selected.',
             'compareShirtSizes orders sizes by their position in XS, S, M, L, XL, XXL.',
         ],
-        'The comparator defines ordering, not equality or filtering. Keep the comparison consistent for all values the field can contain.',
+        'A comparator returns a negative number, zero, or a positive number to place the first value before, alongside, or after the second. It defines ordering, not equality or filtering. Keep the comparison consistent for all values the field can contain.',
         'Names, domain-specific ordering, and values with a custom sort rule.',
     ],
     defaultValue: [
@@ -375,7 +375,7 @@ const details: { [name: string]: Detail } = {
             'The formatter supplies the dollar amount to the template.',
             'The template checks the raw balance: zero renders “✓ Paid in full”; otherwise it renders the amount with “Payment due”.',
         ],
-        'Templates change output without changing stored values. This example returns Lit markup and uses CSS for its paid and payment-due treatments.',
+        'The formatter supplies a display value to the template; the template can also read raw values from the record to choose its output. Templates leave stored values unchanged. This example returns Lit markup and uses CSS for its paid and payment-due treatments.',
         'Conditional labels, status summaries, and rich table cells.',
     ],
     textAlign: [
