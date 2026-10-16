@@ -1297,7 +1297,10 @@ export class FdlModifierCatalog extends LitElement {
     }
 
     private inspectedRecord(name: string): Record<any> | undefined {
-        if (this.tableRecordsets[name] || ['hashFunction', 'reducer'].includes(name))
+        if (
+            this.tableRecordsets[name] ||
+            ['hashFunction', 'reducer'].includes(name)
+        )
             return undefined;
         if (name === 'type') return this.inputTypeRecord;
         if (name === 'defaultValue') return this.defaultRecord;
@@ -1322,6 +1325,26 @@ export class FdlModifierCatalog extends LitElement {
         if (!entry) return nothing;
         const record = this.inspectedRecord(entry.name);
         const recordset = this.tableRecordsets[entry.name];
+        const inspection = record
+            ? html`<fdl-record-inspector
+                  .record=${record}
+                  .fields=${Object.keys(this.focusedState(entry.name) as object)}
+              ></fdl-record-inspector>`
+            : recordset
+              ? html`<fdl-recordset-inspector
+                    .recordset=${recordset}
+                ></fdl-recordset-inspector>`
+              : nothing;
+        const compact = record
+            ? ![
+                  'emptyWhen',
+                  'minLength',
+                  'maxLength',
+                  'validator',
+                  'options',
+              ].includes(entry.name)
+            : recordset && !['filter', 'compareFunction'].includes(entry.name);
+
         return html`<div
             class=${`focused ${['cellClass', 'columnClass', 'compareFunction', 'filter', 'formatter', 'maxColumnWidth', 'minColumnWidth', 'rowClass', 'sortable', 'targetColumnWidth', 'template', 'textAlign'].includes(entry.name) || !entry.demo ? 'full-width' : ''}`}
             data-modifier=${entry.name}
@@ -1330,24 +1353,26 @@ export class FdlModifierCatalog extends LitElement {
                 entry.demo
                     ? html`<div class="focused-demo"
                               >${this.renderDemo(entry.demo)}</div
-                          >${record
-                              ? html`<fdl-record-inspector
-                                    .record=${record}
-                                    .fields=${Object.keys(this.focusedState(entry.name) as object)}
-                                ></fdl-record-inspector>`
-                              : recordset
-                                ? html`<fdl-recordset-inspector
-                                      .recordset=${recordset}
-                                  ></fdl-recordset-inspector>`
-                                : html`<div class="focused-state"
-                              ><p class="state-label"
-                                  >MODEL EXERCISE</p
-                              >${this.stateSummary(entry.name)}<details
-                                  ><summary>Inspect full JSON</summary
-                                  ><pre>
+                          >${
+                              record || recordset
+                                  ? compact
+                                      ? html`<details class="inspector-details"
+                                            ><summary
+                                                >Inspect stored values and
+                                                state</summary
+                                            >${inspection}</details
+                                        >`
+                                      : inspection
+                                  : html`<div class="focused-state"
+                                        ><p class="state-label"
+                                            >MODEL EXERCISE</p
+                                        >${this.stateSummary(entry.name)}<details
+                                            ><summary>Inspect full JSON</summary
+                                            ><pre>
 ${JSON.stringify(this.focusedState(entry.name), null, 2)}</pre>
-                              </details></div
-                          >`}`
+                                        </details></div
+                                    >`
+                          }`
                     : html`<div class="limitation"
                           ><strong>Adapter support needed</strong
                           ><p>${entry.limitation}</p
