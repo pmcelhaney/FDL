@@ -436,7 +436,6 @@ export class FdlModifierExplorer extends LitElement {
                 ><a href="#integration"
                     >Public types, callback contracts, and composition rules</a
                 ></p
-            ><p class="modifier-title">${recipe.title}</p
             ><p class="description">${recipe.description}</p>
             ${recipe.deprecation ? html`<p class="deprecation-note"><strong>Deprecated.</strong> ${recipe.deprecation} The existing modifier remains available for compatibility.</p>` : ''}
             <fdl-example
