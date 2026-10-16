@@ -1435,6 +1435,20 @@ export class FdlModifierExplorer extends LitElement {
         .site-page {
             min-width: 0;
         }
+        .home-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px 24px;
+            margin: 24px 0;
+        }
+        #delivery-example {
+            scroll-margin-top: 24px;
+        }
+        #delivery-example:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 4px;
+        }
         .site-page h1 {
             font-family: Arial, Helvetica, sans-serif;
             font-size: clamp(30px, 3vw, 42px);

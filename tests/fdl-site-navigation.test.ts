@@ -41,3 +41,14 @@ it('focuses the destination heading after ordinary hash navigation and browser h
         );
     }
 });
+
+it('starts the delivery experiment without changing the route', async () => {
+    const page = await open();
+    const root = page.shadowRoot!;
+    const example = root.querySelector<HTMLElement>('#delivery-example')!;
+    root.querySelector<HTMLButtonElement>('.home-actions button')!.click();
+    expect(root.activeElement).toBe(example);
+    expect(example.scrollIntoView).toHaveBeenCalledWith({ block: 'start' });
+    expect(window.location.hash).toBe('#home');
+    expect(root.querySelector('.site-page a[href="#learn"]')).not.toBeNull();
+});

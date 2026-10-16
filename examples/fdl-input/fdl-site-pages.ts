@@ -65,6 +65,13 @@ function renderModelDiagram(part: 'field' | 'record' | 'recordset') {
     </figure>`;
 }
 
+function focusDeliveryExample(event: Event) {
+    const root = (event.currentTarget as HTMLElement).getRootNode() as ShadowRoot;
+    const example = root.querySelector<HTMLElement>('#delivery-example');
+    example?.focus({ preventScroll: true });
+    example?.scrollIntoView({ block: 'start' });
+}
+
 export function renderSitePage(
     page: SitePage,
     learningState?: LearningState,
@@ -110,6 +117,14 @@ export function renderSitePage(
                 applying those definitions to individual records and collections
                 of records.</p
             >
+            <div class="home-actions">
+                <button class="primary" @click=${focusDeliveryExample}>
+                    Try the delivery example
+                </button>
+                <a href="#quickstart">Build your first form</a>
+            </div>
+            <fdl-delivery-experiment id="delivery-example" tabindex="-1"
+                aria-label="Delivery example"></fdl-delivery-experiment>
             <p
                 >A field definition describes how to turn input into a stored
                 value, format it for display, check whether it is valid, and
@@ -133,7 +148,6 @@ export function renderSitePage(
                 the appearance. You can reuse the same model across different
                 interfaces.</p
             >
-            <fdl-delivery-experiment></fdl-delivery-experiment>
             <h2>Three parts of the model</h2>
             <div class="model-concepts">
                 <section class="model-concept" aria-labelledby="model-field">
@@ -205,7 +219,8 @@ export function renderSitePage(
                 model in any framework.</p
             >
             <p
-                >Continue with <a href="#how-it-works">How it Works</a>, build
+                >Continue with <a href="#learn">Learn by exploring</a>, read
+                <a href="#how-it-works">How it Works</a>, build
                 <a href="#quickstart">your first form</a>, or read
                 <a href="#integration">the adapter contract</a> for component
                 responsibilities.</p
