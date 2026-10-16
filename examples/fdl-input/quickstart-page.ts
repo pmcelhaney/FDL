@@ -65,26 +65,32 @@ export function renderQuickstart() {
             >Install the model, register an adapter, and display your first
             validation error.</p
         >
-        <h2>Use FDL in an existing application</h2>
-        <p
-            >The package is <code>@pmcelhaney/fdl</code>. These instructions use
-            the source layout in this checkout and a TypeScript-capable bundler.
-            For local evaluation, install this checkout by absolute path;
-            published versions may expose a different API. Lit is needed only
-            for this example adapter.</p
-        >
-        <pre class="code"><code>npm install /absolute/path/to/FDL lit
-npm install --save-dev vite typescript</code></pre>
-        <p
-            >For a package version that provides these APIs, use
-            <code>npm install @pmcelhaney/fdl lit</code>. Create an
-            <code>index.html</code> with the following body and save the
-            complete script below as <code>main.ts</code> beside it. Add the
-            <code>tsconfig.json</code> below, then run
-            <code>npx vite</code> from that directory. The current source
-            package includes JavaScript modules and legacy Lit decorators, so
-            these compiler settings are part of this setup.</p
-        >
+        <p>You’ll build an account form where Name is required and changing
+            Country code from US to CA makes Tax ID required. Check the empty
+            form, fill the required values, and watch it become valid.</p>
+        <h2>Create a local application</h2>
+        <p>Start with a fresh checkout so the package and this example use the
+            same API. Build an installable package, then create a separate
+            application beside the checkout. Lit supplies the example adapter.</p>
+        <pre class="code"><code>git clone https://github.com/pmcelhaney/FDL.git
+cd FDL
+npm install
+npm pack
+cd ..
+mkdir fdl-first-form
+cd fdl-first-form
+npm init -y
+npm install ../FDL/pmcelhaney-fdl-0.0.1.tgz lit
+npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
+        <p><code>npm pack</code> builds the JavaScript and type declarations.
+            The archive name above matches this checkout’s package version,
+            <code>0.0.1</code>. If that version changes, use the archive name
+            printed by <code>npm pack</code>.</p>
+        <p>Create an <code>index.html</code> with the following body and save
+            the complete script below as <code>main.ts</code> beside it. Add
+            the <code>tsconfig.json</code> below, then run <code>npx vite</code>
+            and open the local URL it prints. The installed package contains
+            compiled JavaScript; your application’s TypeScript is handled by Vite.</p>
         <pre class="code"><code>&lt;div id="app"&gt;&lt;/div&gt;
 &lt;script type="module" src="/main.ts"&gt;&lt;/script&gt;</code></pre>
         <pre
@@ -97,10 +103,8 @@ npm install --save-dev vite typescript</code></pre>
     "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
-    "allowJs": true,
     "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
+    "types": [],
     "noEmit": true
   },
   "include": ["main.ts"]
