@@ -59,7 +59,7 @@ export function explainModifierCall(
                 ? `Converts input for ${target} to a stored number${argument.includes('replace') ? ', removing dollar signs and commas first' : ''}.`
                 : `Converts input for ${target} to its stored value using this function.`;
         case 'defaultValue':
-            return `Initializes ${target} to ${literal !== undefined ? `“${literal}”` : argument.includes('=>') ? 'the value calculated from the record' : argument} when no value is supplied.`;
+            return `Restores ${target} to ${literal !== undefined ? `“${literal}”` : argument.includes('=>') ? 'the value calculated from the record' : argument} when Record.clear() is called.`;
         case 'emptyWhen':
             return `Treats ${target} as empty ${argument.includes('N/A') ? 'when its value is “N/A”' : 'when this empty-value test passes'}; required validation uses that result.`;
         case 'minLength':

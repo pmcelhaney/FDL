@@ -9,7 +9,7 @@ export const categoryId = (name: string) =>
 
 const relationships = {
     Values: html`<p
-            >${modifier('defaultValue')} supplies a starting or reset value;
+            >${modifier('defaultValue')} supplies the value restored by Record.clear();
             ${modifier('parser')} transforms incoming input into the value
             stored in the record. ${modifier('hashFunction')} identifies object
             values by a stable key, while ${modifier('reducer')} combines values

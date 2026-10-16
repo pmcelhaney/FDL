@@ -9,7 +9,7 @@ export const modifierDescriptions: Readonly<Record<string, string>> = {
     columnClass: 'Adds styling classes to a whole table column.',
     compareFunction: 'Defines how two field values are compared for sorting.',
     defaultValue:
-        'Supplies a fixed or calculated initial value when no value is provided.',
+        'Supplies a fixed or calculated value restored by Record.clear().',
     disabled:
         'Determines whether editing is disabled, optionally based on the record.',
     emptyWhen:
