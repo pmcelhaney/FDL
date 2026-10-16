@@ -1517,6 +1517,104 @@ export class FdlModifierExplorer extends LitElement {
                 gap: 4px;
             }
         }
+        .integration-header {
+            padding: 28px;
+            border: 1px solid #cbdcf5;
+            border-radius: 16px;
+            background: linear-gradient(120deg, #eff6ff, #f5f3ff);
+        }
+        .integration-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1d4ed8;
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+        .integration-header h1 { margin: 16px 0; }
+        .integration-header .description { margin-bottom: 0; }
+        .integration-flow {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+            list-style: none;
+            padding: 0;
+            margin: 24px 0 32px;
+        }
+        .integration-flow li {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+        .integration-flow li + li::before {
+            content: '→';
+            position: absolute;
+            left: -22px;
+            color: #64748b;
+        }
+        .integration-flow .category-icon { color: #2563eb; margin-top: 3px; }
+        .integration-flow strong, .integration-flow span,
+        .integration-reference strong, .integration-reference span span { display: block; }
+        .integration-flow span, .integration-reference span span { color: #475569; }
+        .integration-references {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .integration-reference {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 18px;
+            border: 1px solid #dfe3ee;
+            border-radius: 10px;
+            text-decoration: none;
+            background: white;
+        }
+        .integration-reference > span:nth-child(2) { flex: 1; min-width: 0; }
+        .integration-reference .category-icon { margin-top: 3px; }
+        .integration-reference strong { margin-bottom: 4px; }
+        .integration-reference span span { font-size: 0.9375rem; line-height: 1.5; }
+        .integration-reference:hover { border-color: #93b4eb; background: #f8faff; }
+        .integration-reference:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+        .integration-page h2 { display: flex; align-items: center; gap: 12px; }
+        .integration-page h2 .category-icon { color: #2563eb; width: 24px; height: 24px; }
+        .integration-note {
+            margin: 28px 0;
+            padding: 20px 24px;
+            border-left: 3px solid #7c3aed;
+            background: #f5f3ff;
+            border-radius: 0 10px 10px 0;
+        }
+        .integration-note h2 { margin-top: 0; font-size: 1.125rem; }
+        .integration-note p { margin-bottom: 0; }
+        .integration-page table { width: 100%; border-collapse: collapse; margin: 20px 0 32px; }
+        .integration-page th, .integration-page td {
+            padding: 16px;
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid #dfe3ee;
+            line-height: 1.65;
+        }
+        .integration-page thead { background: #eff6ff; }
+        .integration-page tbody th { width: 30%; font-weight: 600; }
+        .integration-row-label { display: flex; align-items: flex-start; gap: 10px; }
+        .integration-row-label .category-icon { margin-top: 3px; color: #475569; }
+        .integration-checklist { list-style: none; padding: 0; }
+        .integration-checklist li { position: relative; padding: 14px 16px 14px 44px; border-bottom: 1px solid #dfe3ee; }
+        .integration-checklist li::before { content: '□'; position: absolute; left: 14px; color: #166534; font-weight: 700; }
+        @media (max-width: 700px) {
+            .integration-header { padding: 20px; }
+            .integration-flow, .integration-references { grid-template-columns: minmax(0, 1fr); }
+            .integration-flow { gap: 20px; }
+            .integration-flow li + li::before { content: none; }
+            .integration-page th, .integration-page td { padding: 12px 8px; overflow-wrap: anywhere; }
+            .integration-row-label { flex-direction: column; gap: 4px; }
+        }
         .site-page .code {
             margin: 20px 0;
         }
