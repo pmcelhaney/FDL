@@ -220,10 +220,10 @@ export class FdlModifierExplorer extends LitElement {
         const page = sitePages.find(page => page.id === hash);
         if (page || !hash) {
             this.showPage(page?.id ?? 'home', false, Boolean(event));
-            if (page?.id === 'categories') {
+            if (page?.id === 'categories' || page?.id.startsWith('reference/')) {
                 const category = new URLSearchParams(
                     window.location.hash.split('?')[1]
-                ).get('category');
+                ).get(page?.id === 'categories' ? 'category' : 'section');
                 if (category)
                     this.updateComplete.then(() => {
                         const heading =
@@ -672,11 +672,11 @@ export class FdlModifierExplorer extends LitElement {
                 >
                 <aside id="site-navigation">
                     <nav class="site-nav" aria-label="Site pages"
-                        >${sitePages.map(
+                        >${sitePages.filter(entry => !entry.id.startsWith('reference/')).map(
                             entry =>
                                 html`<a
                                     href=${`#${entry.id}`}
-                                    aria-current=${this.page === entry.id ? 'page' : 'false'}
+                                    aria-current=${this.page === entry.id || (entry.id === 'reference' && this.page.startsWith('reference/')) ? 'page' : 'false'}
                                     @click=${(event: Event) => {
                                         event.preventDefault();
                                         this.showPage(entry.id);
@@ -1634,6 +1634,55 @@ export class FdlModifierExplorer extends LitElement {
             .integration-flow li + li::before { content: none; }
             .integration-page th, .integration-page td { padding: 12px 8px; overflow-wrap: anywhere; }
             .integration-row-label { flex-direction: column; gap: 4px; }
+        }
+        .reference-content {
+            overflow-wrap: anywhere;
+        }
+        .reference-content pre {
+            overflow-x: auto;
+            padding: 20px;
+            background: #f1f5f9;
+            line-height: 1.6;
+            border-radius: 8px;
+        }
+        .reference-content code {
+            font-size: 0.9em;
+        }
+        .reference-content table {
+            display: block;
+            overflow-x: auto;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+        .reference-content th,
+        .reference-content td {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            min-width: 140px;
+        }
+        .reference-content blockquote {
+            border-left: 4px solid #94a3b8;
+            margin-left: 0;
+            padding-left: 20px;
+        }
+        .reference-toc {
+            background: #f8fafc;
+            border: 1px solid #dfe3ee;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .reference-toc ul {
+            columns: 2;
+            padding-left: 20px;
+        }
+        .reference-toc li {
+            break-inside: avoid;
+        }
+        @media (max-width: 700px) {
+            .reference-toc ul {
+                columns: 1;
+            }
         }
         .site-page .code {
             margin: 20px 0;

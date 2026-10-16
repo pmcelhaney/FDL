@@ -1,4 +1,5 @@
 import './fdl-code-snippet';
+import { documentationPages, renderReference } from './reference-pages';
 import './fdl-example';
 import compositionSource from './fdl-composition-experiment.ts?raw';
 import compositionModelSource from './composition-model.ts?raw';
@@ -23,12 +24,14 @@ export const sitePages = [
     { id: 'how-it-works', title: 'How it Works' },
     { id: 'quickstart', title: 'Your first form' },
     { id: 'integration', title: 'Adapter and API contracts' },
+    { id: 'reference', title: 'Documentation library' },
     { id: 'editable-recordset', title: 'Edit a recordset' },
     { id: 'change-a-rule', title: 'Change and test a rule' },
     { id: 'learn', title: 'Learn by exploring' },
     { id: 'composition', title: 'Combine the rules' },
     { id: 'categories', title: 'Modifier categories' },
     { id: 'contributing', title: 'Contributing' },
+    ...documentationPages.map(function (page) { return { id: page.id, title: page.title }; }),
 ] as const;
 export type SitePage = (typeof sitePages)[number]['id'];
 
@@ -72,6 +75,7 @@ export function renderSitePage(
     compositionView?: HTMLElement,
     recipes: readonly ExplorerRecipe[] = []
 ) {
+    if (page === 'reference' || page.startsWith('reference/')) return renderReference(page);
     if (page === 'change-a-rule') return renderChangeRule();
     if (page === 'editable-recordset') return renderEditableRecordset();
     if (page === 'integration') return renderIntegration();
@@ -324,11 +328,11 @@ export function renderSitePage(
             >Start with the
             <a href="https://github.com/pmcelhaney/FDL">FDL repository</a> and
             its
-            <a href="https://github.com/pmcelhaney/FDL/blob/main/AGENTS.md"
+            <a href="#reference/AGENTS"
                 >contributor guide</a
             >. Read the
             <a
-                href="https://github.com/pmcelhaney/FDL/blob/main/docs/design-principles.md"
+                href="#reference/docs/design-principles"
                 >design principles</a
             >
             before changing modifiers, components, or presentation.</p

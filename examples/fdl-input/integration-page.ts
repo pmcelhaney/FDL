@@ -1,7 +1,8 @@
 import { html } from 'lit';
 import { categoryIcon } from './category-icon';
-const reference = (file: string) =>
-    `https://github.com/pmcelhaney/FDL/blob/main/${file}`;
+function reference(file: string) {
+    return `#reference/${file.replace(/\.md$/, '')}`;
+}
 
 export function renderIntegration() {
     return html`<article class="site-page integration-page"
@@ -89,23 +90,21 @@ export function renderIntegration() {
                         ${categoryIcon(category)}<span
                             ><strong>${title}</strong
                             ><span>${description}</span></span
-                        ><span aria-hidden="true">↗</span>
+                        ><span aria-hidden="true">→</span>
                     </a>
                 `
             )}
         </div>
         <p class="integration-types"
-            >Working in TypeScript? Read the
-            <a href=${reference('src/index.d.ts')}>public TypeScript exports</a>
-            and
-            <a href=${reference('src/field-type-builder.ts')}
-                >builder callback and configuration types</a
-            >.
+            >Working in TypeScript? The
+            <a
+                href="#reference/docs/field-type?section=fixed-and-calculated-settings"
+                >setting type reference</a
+            >
+            explains callback inputs and exported types. Browse the
+            <a href="#reference">documentation library</a> for all API
+            references, project guides, and architecture decisions.
         </p>
-        <p
-            >These links open repository references on main. For this local
-            checkout’s exact contracts, read the same paths locally.</p
-        >
         <section
             class="integration-note"
             aria-labelledby="legacy-configuration"
@@ -267,8 +266,10 @@ export function renderIntegration() {
         <p
             >Your application owns submission, routing, persistence,
             validation-display timing, pending requests, and server errors. The
-            Lit adapter displays synchronous validation; it does not await
-            asynchronous validators or resolve stale requests. Its shadow-root
+            Lit adapter requires synchronous validators: its Field facade reads
+            validity immediately, so a promise-returning validator throws even
+            when error display is off. Use async Record APIs with a dedicated
+            adapter for asynchronous validation. Its shadow-root
             controls do not define application submission. Custom composite
             controls, error summaries, live announcements, and focus routing
             need deliberate integration.</p

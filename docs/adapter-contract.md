@@ -75,8 +75,10 @@ an unrelated internal input.
 ## Current limits
 
 - Validation display uses synchronous `Record.readableFieldErrors()`. The
-  adapter does not await asynchronous validators, cancel stale requests, or
-  choose how pending and server errors are displayed.
+  adapter constructs a `Field` facade that reads validity immediately, so an
+  async validator throws even when error display is off. Use the async Record
+  APIs with an application-specific adapter for async rules. The built-in
+  adapter does not choose how pending validation and server errors are displayed.
 - The Lit host is not a form-associated custom element and does not use
   `ElementInternals`. Native controls inside its shadow root do not by
   themselves define application submission or persistence; submit Record data

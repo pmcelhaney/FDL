@@ -13,8 +13,8 @@ The base class owns the FDL integration:
 
 - it requires a `record` and `field` property;
 - it resolves the field's `FieldType` after the first update;
-- it creates a select for fields with options, a textarea for fields with more
-  than one requested row, and an input otherwise;
+- it creates a select for fields with options, a textarea when `rowCount()` is
+  configured, and an input otherwise;
 - it copies the field value and modifiers (`label`, `required`, `disabled`,
   `placeholder`, and so on) to that child;
 - it loads `FieldType.options()` when the field has options; and
@@ -44,7 +44,7 @@ field:
 
 ```ts
 import { css } from 'lit';
-import FormElement from '../src/form-element';
+import FormElement from '@pmcelhaney/fdl/form-element';
 
 export class FdlField extends FormElement {
     static get styles() {

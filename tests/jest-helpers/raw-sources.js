@@ -148,3 +148,14 @@ jest.mock(
     },
     { virtual: true }
 );
+
+jest.mock(
+    'virtual:fdl-documentation',
+    function () {
+        return {
+            __esModule: true,
+            default: require('../../scripts/documentation-pages.cjs').loadDocumentation(),
+        };
+    },
+    { virtual: true }
+);

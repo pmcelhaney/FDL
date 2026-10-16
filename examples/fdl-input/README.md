@@ -34,7 +34,10 @@ field metadata selects a native input, select, or textarea. Table separators
 support keyboard resizing: Left/Right for one pixel, Shift for ten pixels,
 and Home/End for the available minimum/maximum.
 
-Repository API references and architecture decision records remain in `docs/`.
+The Documentation library (`#reference`) renders all repository guides, API
+references, and architecture decisions within the site. Markdown in `docs/` and
+the repository root remains the source; Vite compiles it into the site and rewrites
+relative documentation links to local routes.
 
 ## Exploring the explanations
 

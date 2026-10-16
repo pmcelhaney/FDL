@@ -8,6 +8,9 @@ All notable changes to FDL will be documented in this file. The format follows
 
 ### Added
 
+- An in-site documentation library with API and adapter contracts, project guides,
+  architecture decisions, and section links built from repository Markdown.
+
 - A single documentation site with an introduction, contributor guidance, and
   one page per modifier with examples and explicit adapter limitations.
 - Continuous integration for tests, static type checking, and the documentation-site
