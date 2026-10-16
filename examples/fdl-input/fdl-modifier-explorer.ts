@@ -478,18 +478,6 @@ export class FdlModifierExplorer extends LitElement {
                 </section>
             </fdl-example>
             <div class="details">
-                <p class="source-intro"
-                    >The file tabs show starting values. The model and view
-                    require the repository’s example adapters and their
-                    dependencies. Read
-                    <a href="#quickstart">setup and adapter prerequisites</a>
-                    before copying them. Save the model and view in the same
-                    folder within that environment. The model file exports the
-                    record and the Lit file imports it to render the core
-                    example with its current rules. The demo’s teaching panels
-                    and rule selectors are omitted.</p
-                >
-                ${/\.rowCount\(/.test(source.definition) ? html`<p class="compatibility-note"><strong>Example adapter compatibility:</strong> <code>rowCount()</code> sizes this textarea. It is a deprecated compatibility API. Keep control selection and sizing in your adapter for new integrations; the reusable rules remain in the field model. <a href="#integration">Read the adapter boundary.</a></p>` : ''}
                 ${recipe.name === 'validator' ? renderValidatorContract(false) : ''}<section
                     class="explanation"
                     ><h3>What happens</h3
