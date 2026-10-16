@@ -123,6 +123,13 @@ export class FdlModifierExplorer extends LitElement {
     private tooltip?: { recipe: ExplorerRecipe; left: number; top: number };
     private tooltipTimer?: ReturnType<typeof setTimeout>;
     private showTooltip(event: Event, recipe: ExplorerRecipe) {
+        if (
+            window.innerWidth <= 800 ||
+            window.matchMedia?.('(hover: none), (pointer: coarse)').matches
+        ) {
+            this.hideTooltip();
+            return;
+        }
         clearTimeout(this.tooltipTimer);
         const bounds = (
             event.currentTarget as HTMLElement
@@ -2173,6 +2180,11 @@ export class FdlModifierExplorer extends LitElement {
             }
             .demo-grid {
                 grid-template-columns: minmax(0, 1fr);
+            }
+        }
+        @media (max-width: 800px), (hover: none), (pointer: coarse) {
+            #modifier-tooltip {
+                display: none;
             }
         }
         @media (max-width: 800px) {

@@ -50,6 +50,41 @@ afterEach(() => {
 });
 
 describe('modifier explorer', () => {
+    it.each([
+        [390, false],
+        [800, false],
+        [1024, true],
+    ])('keeps navigation links usable without tooltips at width %s with touch=%s', async (width, touch) => {
+        const originalWidth = window.innerWidth;
+        const originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+        Object.defineProperty(window, 'matchMedia', {
+            configurable: true,
+            value: jest.fn(() => ({ matches: touch })),
+        });
+        try {
+            const page = await openPage('#required');
+            const link = page.shadowRoot!.querySelector<HTMLAnchorElement>('.modifier-list a[href="#formatter"]')!;
+            link.dispatchEvent(new MouseEvent('mouseenter'));
+            link.dispatchEvent(new FocusEvent('focus'));
+            await settle(page);
+            expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
+            expect(link.getAttribute('aria-describedby')).toBe('');
+            link.click();
+            await settle(page);
+            expect(window.location.hash).toBe('#formatter');
+            expect(link.getAttribute('aria-current')).toBe('page');
+            expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
+        } finally {
+            Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth });
+            if (originalMatchMedia) {
+                Object.defineProperty(window, 'matchMedia', originalMatchMedia);
+            } else {
+                delete (window as any).matchMedia;
+            }
+        }
+    });
+
     it('shows one modifier, supports next/back and direct links, and disables boundary controls', async () => {
         const page = await openPage('#cellClass');
         const root = page.shadowRoot!;
