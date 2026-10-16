@@ -109,13 +109,13 @@ const details: { [name: string]: Detail } = {
         'Tables',
         '(matches)',
         'Define how filter text matches field values.',
-        'Enter gr in Search names to keep Grace. Change the matching rule and compare both outcomes.',
+        'Enter ar in Search names. Starts with matches no names; choose Contains to find Margaret.',
         [
             'The field defines how filter text matches a value.',
             'The table passes filter text and each cell value to the matcher.',
             'Matching rows remain in the view.',
         ],
-        'This example starts with prefix matching. Choose Contains to compare substring matching against the same rows. Filtering changes which records appear; it does not delete records from the source data.',
+        'This example starts with prefix matching: no name begins with ar. Choose Contains and Margaret appears because ar occurs inside the name. Filtering changes which records appear; it does not delete records from the source data.',
         'Prefix searches, case-insensitive lookup, and domain-specific matches.',
     ],
     hashFunction: [
