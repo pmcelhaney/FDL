@@ -13,10 +13,20 @@ export interface Listener<T> {
     fn: ListenerCallback<T>;
 }
 
+export interface ListeningElementMethods {
+    listenTo<T>(target: EventTarget, event: string, fn: ListenerCallback<T>): void;
+    listenToMulti<T>(target: EventTarget, eventNames: string[], fn: ListenerCallback<T>): void;
+    listenToRecordset<E extends RecordsetEvent>(
+        target: Recordset<any>,
+        event: E,
+        fn: RecordsetEventHandlerMap[E]
+    ): void;
+}
+
 // eslint-disable-next-line @treasury/filename-match-export
 export function ListeningElementMixin<BaseClass extends Constructor<LitElement>>(
     Superclass: BaseClass
-) {
+): BaseClass & Constructor<ListeningElementMethods> {
     /**
      * Provides functionality for `LitElement` instances to listen to an `EventTarget`
      * in a way that automatically cleans up subscribers on element destruction.
@@ -24,12 +34,12 @@ export function ListeningElementMixin<BaseClass extends Constructor<LitElement>>
     class ListeningElement extends Superclass {
         private listeningTo: Listener<any>[] = [];
 
-        protected listenTo<T>(target: EventTarget, event: string, fn: ListenerCallback<T>) {
+        public listenTo<T>(target: EventTarget, event: string, fn: ListenerCallback<T>) {
             target.addEventListener(event, fn as EventListener);
             this.listeningTo.push({ target, event, fn });
         }
 
-        protected listenToMulti<T>(
+        public listenToMulti<T>(
             target: EventTarget,
             eventNames: string[],
             fn: ListenerCallback<T>
@@ -41,7 +51,7 @@ export function ListeningElementMixin<BaseClass extends Constructor<LitElement>>
          * Syntax sugar method for getting strong typing on `Recordset` event names
          * and their corresponding payloads.
          */
-        protected listenToRecordset<E extends RecordsetEvent>(
+        public listenToRecordset<E extends RecordsetEvent>(
             target: Recordset<any>,
             event: E,
             fn: RecordsetEventHandlerMap[E]

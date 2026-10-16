@@ -1,4 +1,5 @@
 node_modules/
+/dist/
 coverage/
 .worktrees/
 examples/fdl-input/dist/

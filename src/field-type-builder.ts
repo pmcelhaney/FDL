@@ -83,7 +83,7 @@ interface Validator<T> {
     validate: ValidatorFunction<T>;
 }
 
-interface SearchConfig<T = unknown> {
+export interface SearchConfig<T = unknown> {
     title?: string;
     columns?: Array<{ label: string; field: keyof T; fieldType?: _FieldType<any> }>;
     filters?: { (record: Record): boolean };

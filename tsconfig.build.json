@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src",
+        "declaration": true,
+        "sourceMap": false,
+        "types": []
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "src/index.d.ts", "src/example-recordset.ts"]
+}
