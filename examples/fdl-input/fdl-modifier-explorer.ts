@@ -957,6 +957,19 @@ export class FdlModifierExplorer extends LitElement {
                     ${['learn', 'composition'].includes(this.page) ? html`<p class="compatibility-note">These live examples choose a select automatically when a field provides options. <a href="#integration">Read the model and adapter responsibilities</a>.</p>` : ''}
                 </main>
             </div>
+            <footer class="site-footer">
+                <div>
+                    <nav aria-label="Project links">
+                        <a href="https://github.com/pmcelhaney/FDL">GitHub</a>
+                        <a href="https://patrickmcelhaney.org">Patrick McElhaney</a>
+                    </nav>
+                    <p>FDL is a work in progress. Version 1.0 is expected in November 2026.</p>
+                </div>
+                <div class="footer-install">
+                    <p>Install with npm</p>
+                    <code>npm install @pmcelhaney/fdl</code>
+                </div>
+            </footer>
             ${
                 this.tooltip
                     ? html`<div
@@ -2033,6 +2046,43 @@ export class FdlModifierExplorer extends LitElement {
             justify-content: space-between;
             gap: 20px;
             margin-top: 24px;
+        }
+        .site-footer {
+            max-width: 1760px;
+            margin: 0 auto;
+            padding: 28px 32px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            color: var(--muted);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+        .site-footer nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 24px;
+        }
+        .site-footer a {
+            color: var(--accent);
+            text-underline-offset: 4px;
+        }
+        .site-footer p {
+            margin: 12px 0 0;
+        }
+        .footer-install {
+            min-width: 0;
+        }
+        .footer-install p {
+            margin: 0 0 8px;
+        }
+        .footer-install code {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #0f172a;
+            overflow-wrap: anywhere;
         }
         .pager {
             min-height: 48px;
