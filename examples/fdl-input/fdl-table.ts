@@ -396,6 +396,28 @@ export class FdlTable extends LitElement {
         this.requestUpdate();
     }
 
+    private explainColumnWidth(column: FdlColumn, index: number) {
+        if (!this.columnWidths) return 'Waiting for browser measurements.';
+        const width = this.columnWidths[index];
+        const limits = this.columnLimits(column);
+        const preferred = this.recordset?.getFieldType(column.field).targetColumnWidth();
+        const explanation: string[] = [];
+        if (preferred !== undefined) {
+            const difference = Math.round(width - preferred);
+            explanation.push(difference === 0
+                ? 'Matches the preferred width'
+                : `${Math.abs(difference)}px ${difference > 0 ? 'above' : 'below'} the preferred width`);
+        }
+        if (width <= limits.min) explanation.push('at the minimum');
+        else if (limits.max !== undefined && width >= limits.max)
+            explanation.push('at the maximum');
+        else explanation.push('within the width limits');
+        const otherWidth = this.columnWidths.reduce(
+            (total, value, otherIndex) => total + (otherIndex === index ? 0 : value), 0
+        );
+        return `${explanation.join('; ')}. Other columns use ${Math.round(otherWidth)}px.`;
+    }
+
     private columnStyle(column: FdlColumn, index: number) {
         const limits = this.columnLimits(column);
         const width = this.columnWidths?.[index];
@@ -881,8 +903,17 @@ export class FdlTable extends LitElement {
                     ? html`<section
                           class="width-diagnostics"
                           aria-label="Column width measurements"
-                          ><h3>Live column widths</h3
-                          ><ul
+                          ><h3>Live column widths</h3>
+                          <p>The browser lays out the initial columns using their
+                              content and available space, then the example
+                              applies the minimum and maximum limits. Preferred
+                              width is a fallback when measurements are unavailable;
+                              changing it may leave the measured layout unchanged.</p>
+                          ${this.columnWidths ? html`<p class="width-allocation">
+                              Current column space: ${Math.round(this.columnWidths.reduce((total, width) => total + width, 0))}px.
+                              Resizing transfers space between columns while keeping this total unchanged.
+                          </p>` : nothing}
+                          <ul
                               >${columns.map((column, index) => {
                                   const fieldType =
                                       this.recordset?.getFieldType(
@@ -892,7 +923,8 @@ export class FdlTable extends LitElement {
                                       ><strong>${this.heading(column)}</strong>:
                                       ${this.columnWidths ? `${Math.round(this.columnWidths[index])}px` : 'Measuring…'}
                                       · min
-                                      ${this.columnLimits(column).min}px${fieldType?.targetColumnWidth() ? ` · preferred ${fieldType.targetColumnWidth()}px` : ''}${fieldType?.maxColumnWidth() ? ` · max ${fieldType.maxColumnWidth()}px` : ''}</li
+                                      ${this.columnLimits(column).min}px${fieldType?.targetColumnWidth() ? ` · preferred ${fieldType.targetColumnWidth()}px` : ''}${fieldType?.maxColumnWidth() ? ` · max ${fieldType.maxColumnWidth()}px` : ''}
+                                      <p class="width-explanation">${this.explainColumnWidth(column, index)}</p></li
                                   >`;
                               })}</ul
                           ><p role="status"

@@ -107,6 +107,37 @@ describe('<fdl-table>', () => {
         ).toEqual([140, 110]);
     });
 
+    it('explains measured widths, preferences, limits and redistributed space', async () => {
+        const table = document.createElement('fdl-table') as TestTable;
+        table.recordset = new Recordset({
+            left: new FieldTypeBuilder().minColumnWidth(110).targetColumnWidth(160).maxColumnWidth(260),
+            right: new FieldTypeBuilder().minColumnWidth(80),
+        }, [{ left: 'Left', right: 'Right' }]);
+        table.setAttribute('show-width-diagnostics', '');
+        table.innerHTML = '<fdl-column field="left"></fdl-column><fdl-column field="right"></fdl-column>';
+        document.body.append(table);
+        await settle(table);
+        const headers = table.shadowRoot!.querySelectorAll('th');
+        headers[0].getBoundingClientRect = () => ({ width: 350 }) as DOMRect;
+        headers[1].getBoundingClientRect = () => ({ width: 300 }) as DOMRect;
+        table.requestUpdate();
+        await table.updateComplete;
+        await table.updateComplete;
+        const explanation = () => table.shadowRoot!.querySelector('.width-explanation')!.textContent!;
+        expect(explanation()).toContain('100px above the preferred width; at the maximum');
+        expect(explanation()).toContain('Other columns use 300px');
+        expect(table.shadowRoot!.querySelector('.width-allocation')!.textContent).toContain('560px');
+
+        table.shadowRoot!.querySelector('.resize-handle')!.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true })
+        );
+        await table.updateComplete;
+        expect(explanation()).toContain('50px below the preferred width; at the minimum');
+        expect(explanation()).toContain('Other columns use 450px');
+        expect(table.shadowRoot!.querySelector('.width-allocation')!.textContent).toContain('560px');
+        table.remove();
+    });
+
     it('exposes column width constraints and supports keyboard resizing', async () => {
         const recordset = new Recordset(
             {
