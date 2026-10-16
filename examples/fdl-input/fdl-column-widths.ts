@@ -88,10 +88,13 @@ export const rows = new Recordset(columns, [
 import { rows } from './column-widths-model.js';
 import './fdl-table';
 // Render using the repository's example adapter.
-render(html\`<fdl-table .recordset=\${rows} show-width-diagnostics>
-    <fdl-column field="constrained"></fdl-column>
-    <fdl-column field="flexible"></fdl-column>
-</fdl-table>\`, document.body);`;
+render(
+    html\`<fdl-table .recordset=\${rows} show-width-diagnostics>
+        <fdl-column field="constrained"></fdl-column>
+        <fdl-column field="flexible"></fdl-column>
+    </fdl-table>\`,
+    document.body
+);`;
         return html`<fdl-example
             heading="Resize one column"
             .filenames=${['column-widths-model.js', 'column-widths-view.js']}

@@ -67,7 +67,14 @@ export const record = new Record({
         const view = `import { html, render } from 'lit';
 import { record } from './text-length-model.js';
 import './fdl-field';
-render(html\`<fdl-field .record=\${record} field="code" .showValidationErrors=\${true}></fdl-field>\`, document.body);`;
+render(
+    html\`<fdl-field
+        .record=\${record}
+        field="code"
+        .showValidationErrors=\${true}
+    ></fdl-field>\`,
+    document.body
+);`;
         return html`<fdl-example
             heading="Check both length limits"
             .filenames=${['text-length-model.js', 'text-length-view.js']}

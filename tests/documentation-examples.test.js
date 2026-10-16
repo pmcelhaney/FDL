@@ -4,10 +4,10 @@ import { boolean, date, field, number, Record, Recordset, string } from '../src/
 
 // Execute the actual published example so undefined helpers and callback drift
 // fail here instead of in a reader's first application.
-function readmeAppointment() {
-    const markdown = fs.readFileSync(path.join(__dirname, '../README.md'), 'utf8');
+function documentedAppointment() {
+    const markdown = fs.readFileSync(path.join(__dirname, '../docs/scheduling-example.md'), 'utf8');
     const source = markdown
-        .slice(markdown.indexOf('## Example: Dog Walking Service'))
+        .slice(markdown.indexOf('# Example: Dog Walking Service'))
         .match(/```js\n([\s\S]*?)```/)[1]
         .replace(/^import .*;\n/m, '');
     return new Function('string', 'boolean', 'date', 'Record', `${source}\nreturn appointment;`)(
@@ -19,8 +19,8 @@ function readmeAppointment() {
 }
 
 describe('documentation examples', () => {
-    it('validates the README scheduling rules, including empty and invalid dates', () => {
-        const appointment = readmeAppointment();
+    it('validates the documented scheduling rules, including empty and invalid dates', () => {
+        const appointment = documentedAppointment();
         expect(appointment.isValid()).toBe(false);
         appointment.setFields({ name: 'Ada', date: new Date(2026, 9, 12) }); // Monday
         expect(appointment.isValid()).toBe(true);

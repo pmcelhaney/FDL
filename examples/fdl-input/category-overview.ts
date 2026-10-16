@@ -9,11 +9,11 @@ export const categoryId = (name: string) =>
 
 const relationships = {
     Values: html`<p
-            >${modifier('defaultValue')} supplies the value restored by Record.clear();
-            ${modifier('parser')} transforms incoming input into the value
-            stored in the record. ${modifier('hashFunction')} identifies object
-            values by a stable key, while ${modifier('reducer')} combines values
-            across records.</p
+            >${modifier('defaultValue')} supplies the value restored by
+            Record.clear(); ${modifier('parser')} transforms incoming input into
+            the value stored in the record. ${modifier('hashFunction')}
+            identifies object values by a stable key, while
+            ${modifier('reducer')} combines values across records.</p
         ><p
             >For a money field, use a parser to turn entered text into a number,
             a reducer to total numbers, and ${modifier('formatter')} from

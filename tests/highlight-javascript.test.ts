@@ -10,7 +10,9 @@ import { modifierDescriptions } from '../examples/fdl-input/modifier-description
 import { modifierSignatures } from '../examples/fdl-input/modifier-signatures';
 
 it('provides generic help for every supported modifier in actual source', () => {
-    expect(Object.keys(modifierDescriptions).sort()).toEqual(Object.keys(modifierSignatures).sort());
+    expect(Object.keys(modifierDescriptions).sort()).toEqual(
+        Object.keys(modifierSignatures).sort()
+    );
     const code = `import { field } from '@pmcelhaney/fdl';
 const address = field.label('Shipping address')
     .visible(whenShipping)
@@ -22,7 +24,9 @@ const address = field.label('Shipping address')
     for (const name of ['label', 'visible', 'required', 'validator']) {
         const link = container.querySelector(`a[href="#${name}"]`)!;
         expect(link.getAttribute('title')).toBe(modifierDescriptions[name]);
-        expect(link.getAttribute('aria-label')).toBe(`${name} modifier. ${modifierDescriptions[name]}`);
+        expect(link.getAttribute('aria-label')).toBe(
+            `${name} modifier. ${modifierDescriptions[name]}`
+        );
         expect(link.getAttribute('title')).not.toContain('Shipping address');
     }
 });
@@ -37,7 +41,10 @@ const unrelated = object.constructor();`;
     const container = document.createElement('div');
     render(highlightSourceCode(code), container);
     expect(container.textContent).toBe(code);
-    expect([...container.querySelectorAll('a')].map(link => link.getAttribute('href'))).toEqual(['#label', '#required']);
+    expect([...container.querySelectorAll('a')].map(link => link.getAttribute('href'))).toEqual([
+        '#label',
+        '#required',
+    ]);
     expect(container.querySelector('img')).toBeNull();
 });
 

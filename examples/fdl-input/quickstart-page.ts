@@ -67,11 +67,11 @@ export function renderQuickstart() {
         >
         <h2>Use FDL in an existing application</h2>
         <p
-            >The package is <code>@pmcelhaney/fdl</code>. These instructions use the
-            source layout in this checkout and a TypeScript-capable bundler. For
-            local evaluation, install this checkout by absolute path; published
-            versions may expose a different API. Lit is needed only for this
-            example adapter.</p
+            >The package is <code>@pmcelhaney/fdl</code>. These instructions use
+            the source layout in this checkout and a TypeScript-capable bundler.
+            For local evaluation, install this checkout by absolute path;
+            published versions may expose a different API. Lit is needed only
+            for this example adapter.</p
         >
         <pre class="code"><code>npm install /absolute/path/to/FDL lit
 npm install --save-dev vite typescript</code></pre>
