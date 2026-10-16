@@ -1,4 +1,5 @@
 import './fdl-example';
+import './fdl-column-widths';
 import { renderValidatorContract } from './change-rule-page';
 import { field } from '../../index';
 import { modifierPage } from './modifier-page-groups';
@@ -528,6 +529,33 @@ export class FdlModifierExplorer extends LitElement {
             >
         </section>`;
     }
+    private renderColumnWidths() {
+        return html`${[
+                'minColumnWidth',
+                'targetColumnWidth',
+                'maxColumnWidth',
+            ].map(
+                name =>
+                    html`<section
+                        class="modifier-section"
+                        id=${name}
+                        data-modifier=${name}
+                    >
+                        <h2 class="modifier-signature" tabindex="-1"
+                            ><code>${modifierSignatures[name]}</code></h2
+                        >
+                        <p
+                            >${recipes.find(recipe => recipe.name === name)!.note}</p
+                        >
+                    </section>`
+            )}
+            <p class="setting-contract"
+                >Use fixed pixel widths or a callback with no arguments. Width
+                callbacks have no owning row or cell. CSS controls wrapping and
+                overflow.</p
+            >
+            <fdl-column-widths></fdl-column-widths>`;
+    }
     render() {
         const recipe = recipes[this.selected];
         const group = modifierPage(recipe.name);
@@ -883,7 +911,7 @@ export class FdlModifierExplorer extends LitElement {
                                             >`
                                           : ''
                                   }
-                                  ${group.names.map(name => keyed(name, this.renderModifierSection(recipes.find(entry => entry.name === name)!)))}
+                                  ${group.title === 'Column widths' ? this.renderColumnWidths() : group.names.map(name => keyed(name, this.renderModifierSection(recipes.find(entry => entry.name === name)!)))}
                                   <footer
                                       ><button
                                           class="pager"

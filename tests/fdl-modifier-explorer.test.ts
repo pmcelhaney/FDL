@@ -227,6 +227,11 @@ describe('complete explorer', () => {
                 recipe.category
             );
 
+            if (modifierPage(name).title === 'Column widths') {
+                expect(page.shadowRoot!.querySelector('fdl-column-widths')).toBeTruthy();
+                page.remove();
+                return;
+            }
             const frame = section.querySelector('fdl-example') as FdlExample;
             await frame.updateComplete;
             expect(frame.sources[exampleSource(name).modelFile]).toBe(
@@ -540,6 +545,10 @@ it('defines valid, reciprocal related links for every modifier', () => {
 });
 it.each(explorerRecipes.map(recipe => recipe.name))('lists related modifiers on %s', async name => {
     const page = await openPage(`#${name}`);
+    if (modifierPage(name).title === 'Column widths') {
+        expect(page.shadowRoot!.querySelectorAll('.page-sections a')).toHaveLength(3);
+        return;
+    }
     const section = page.shadowRoot!.getElementById(name)!.querySelector('.related-modifiers')!;
     const links = Array.from(section.querySelectorAll('a'));
     expect(section.querySelector('h3')!.textContent).toBe('Related modifiers');
@@ -716,7 +725,9 @@ it('previews every declared input type and keeps the source and record panel in 
         const input = preview.shadowRoot.querySelector('input') as HTMLInputElement;
         expect(input.type).toBe(inputType);
         expect(preview.record.fieldTypeForField('inputValue').type()).toBe(inputType);
-        expect(root.querySelector('fdl-example')!.shadowRoot!.textContent).toContain(`.type('${inputType}')`);
+        expect(root.querySelector('fdl-example')!.shadowRoot!.textContent).toContain(
+            `.type('${inputType}')`
+        );
         expect(await stateText(catalog)).toContain('Example: ' + inputType);
         if (inputType === 'checkbox' || inputType === 'radio') {
             input.click();
@@ -831,9 +842,10 @@ it.each(['minColumnWidth', 'maxColumnWidth', 'targetColumnWidth', 'sortable'])(
         expect(signature).not.toContain('context:');
         expect(signature).not.toContain('record:');
         expect(signature).not.toContain('value:');
-        expect(section.querySelector('.setting-contract')!.textContent).toContain(
-            'callback with no arguments'
-        );
+        expect(
+            (section.querySelector('.setting-contract') ??
+                page.shadowRoot!.querySelector('.setting-contract'))!.textContent
+        ).toContain('callback with no arguments');
     }
 );
 
@@ -843,7 +855,10 @@ it('documents default factories with only their owning record', async () => {
     expect(section.querySelector('.modifier-signature')!.textContent).toContain(
         'factory: (record: Record<any>) => T | null'
     );
-    expect(section.querySelector('.setting-contract')!.textContent).toContain('(record)');
+    expect(
+        (section.querySelector('.setting-contract') ??
+            page.shadowRoot!.querySelector('.setting-contract'))!.textContent
+    ).toContain('(record)');
 });
 
 it.each([
@@ -903,6 +918,15 @@ it.each([
     'targetColumnWidth',
 ])('inspects the live recordset on the %s modifier page', async name => {
     const page = await openPage(`#${name}`);
+    if (modifierPage(name).title === 'Column widths') {
+        const demo = page.shadowRoot!.querySelector('fdl-column-widths') as any;
+        await demo.updateComplete;
+        expect(demo.shadowRoot.querySelectorAll('fdl-table')).toHaveLength(1);
+        expect(
+            demo.shadowRoot.querySelector('fdl-table').hasAttribute('show-width-diagnostics')
+        ).toBe(true);
+        return;
+    }
     const catalog = page
         .shadowRoot!.getElementById(name)!
         .querySelector('fdl-modifier-catalog') as FdlModifierCatalog;
