@@ -23,16 +23,6 @@ export class FdlExample extends LitElement {
         if (!this.filenames.includes(this.activeTab)) this.activeTab = '';
     }
 
-    /** Reveal the working example without recreating its slotted content. */
-    async showInteractive() {
-        this.expanded = true;
-        this.activeTab = '';
-        await this.updateComplete;
-        // A native disclosure toggle may differ from the initial expanded property.
-        const details = this.shadowRoot?.querySelector('details');
-        if (details) details.open = true;
-    }
-
     private selectTab(filename: string) {
         this.activeTab = filename;
     }
@@ -81,7 +71,6 @@ export class FdlExample extends LitElement {
                             >`
                     )}
                 </div>
-                ${this.activeTab ? html`<p class="source-help"><a href="#quickstart">Running this example</a> · Source uses the repository’s example adapters and dependencies. Model snippets show the current rules with starting values; teaching controls are separate.</p><slot name="source-note"></slot>` : ''}
                 <div
                     id="example-panel-0"
                     class="tab-panel"

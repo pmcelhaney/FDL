@@ -1435,19 +1435,18 @@ export class FdlModifierExplorer extends LitElement {
         .site-page {
             min-width: 0;
         }
-        .home-actions {
-            display: flex;
-            flex-wrap: wrap;
+        .home-cta {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #cbd5e1;
+        }
+        .site-page .home-cta a {
+            display: inline-flex;
             align-items: center;
-            gap: 16px 24px;
-            margin: 24px 0;
-        }
-        #delivery-example {
-            scroll-margin-top: 24px;
-        }
-        #delivery-example:focus-visible {
-            outline: 3px solid var(--accent);
-            outline-offset: 4px;
+            gap: 12px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
         }
         .site-page h1 {
             font-family: Arial, Helvetica, sans-serif;

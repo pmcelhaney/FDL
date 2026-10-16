@@ -11,7 +11,6 @@ import { renderCategoryOverview } from './category-overview';
 import type { ExplorerRecipe } from './modifier-explorer-recipes';
 import { html } from 'lit';
 import './fdl-delivery-experiment';
-import type { FdlDeliveryExperiment } from './fdl-delivery-experiment';
 import './fdl-specialization-experiment';
 import './fdl-learning-path';
 import type { LearningState } from './fdl-learning-path';
@@ -66,14 +65,6 @@ function renderModelDiagram(part: 'field' | 'record' | 'recordset') {
     </figure>`;
 }
 
-async function focusDeliveryExample(event: Event) {
-    const root = (event.currentTarget as HTMLElement).getRootNode() as ShadowRoot;
-    const example = root.querySelector<FdlDeliveryExperiment>('#delivery-example');
-    await example?.showInteractive();
-    example?.focus({ preventScroll: true });
-    example?.scrollIntoView({ block: 'start' });
-}
-
 export function renderSitePage(
     page: SitePage,
     learningState?: LearningState,
@@ -119,14 +110,7 @@ export function renderSitePage(
                 applying those definitions to individual records and collections
                 of records.</p
             >
-            <div class="home-actions">
-                <button class="primary" @click=${focusDeliveryExample}>
-                    Try the delivery example
-                </button>
-                <a href="#quickstart">Build your first form</a>
-            </div>
-            <fdl-delivery-experiment id="delivery-example" tabindex="-1"
-                aria-label="Delivery example"></fdl-delivery-experiment>
+            <fdl-delivery-experiment></fdl-delivery-experiment>
             <p
                 >A field definition describes how to turn input into a stored
                 value, format it for display, check whether it is valid, and
@@ -222,11 +206,14 @@ export function renderSitePage(
             >
             <p
                 >Continue with <a href="#learn">Learn by exploring</a>, read
-                <a href="#how-it-works">How it Works</a>, build
-                <a href="#quickstart">your first form</a>, or read
+                <a href="#how-it-works">How it Works</a>, or read
                 <a href="#integration">the adapter contract</a> for component
                 responsibilities.</p
             >
+            <div class="home-cta">
+                <a class="primary" href="#quickstart">Build your first form
+                    <span aria-hidden="true">→</span></a>
+            </div>
         </article>`;
     if (page === 'how-it-works')
         return html` <article class="site-page">
