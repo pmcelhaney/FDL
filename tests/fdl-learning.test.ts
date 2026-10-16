@@ -238,7 +238,7 @@ it('reveals the actual source files alongside the slotted delivery form', async 
     const frame = demo.shadowRoot!.querySelector('fdl-example') as FdlExample;
     await frame.updateComplete;
     const root = frame.shadowRoot!;
-    expect(root.querySelector('details')!.open).toBe(false);
+    expect(root.querySelector('details')!.open).toBe(true);
     expect(root.querySelector('h2')!.textContent).toBe('See FDL in Action');
     const form = frame.querySelector('delivery-form') as DeliveryForm;
     await form.updateComplete;

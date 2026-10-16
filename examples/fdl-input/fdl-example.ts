@@ -6,12 +6,14 @@ import { exampleTheme } from './example-theme';
 export class FdlExample extends LitElement {
     static properties = {
         heading: { type: String },
+        expanded: { type: Boolean },
         filenames: { attribute: false },
         sources: { attribute: false },
         activeTab: { state: true },
         modifier: { type: String },
     };
     heading = 'Example';
+    expanded = true;
     modifier = '';
     filenames: readonly string[] = [];
     sources: Readonly<Record<string, string>> = {};
@@ -27,7 +29,7 @@ export class FdlExample extends LitElement {
 
     render() {
         const tabs = ['', ...this.filenames];
-        return html`<details>
+        return html`<details ?open=${this.expanded}>
             <summary>
                 <span class="example-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">
