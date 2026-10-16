@@ -385,7 +385,7 @@ export class FdlCompositionExperiment extends LitElement {
             ${this.collectedCases()}
             <section class="definition"
                 ><h3>The resulting definition</h3
-                >><pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre
+                ><pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre
                 ><p
                     >This is the address definition used by every case and by
                     the live form.</p

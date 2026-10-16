@@ -252,7 +252,7 @@ export class FdlLearningPath extends LitElement {
                     ></details
                 >
                 <h3>The current definition</h3
-                >><pre><code>${highlightJavaScript(this.code())}</code></pre>
+                ><pre><code>${highlightJavaScript(this.code())}</code></pre>
                 <p
                     ><a href=${`#${lesson.reference}`}
                         >Explore ${lesson.reference} in the modifier
