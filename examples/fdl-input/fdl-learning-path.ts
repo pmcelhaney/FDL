@@ -228,28 +228,7 @@ export class FdlLearningPath extends LitElement {
                 >
                 ${
                     this.step >= 4
-                        ? html`<section class="review-view"
-                                  ><h3>Review the same record</h3
-                                  ><p
-                                      >Delivery:
-                                      <strong
-                                          >${this.record.getField('method')}</strong
-                                      >
-                                      · Stored charge:
-                                      <code
-                                          >${JSON.stringify(this.record.getField('charge'))}</code
-                                      ></p
-                                  ><p
-                                      >Printed charge:
-                                      <strong
-                                          >${this.record.getFormattedField('charge', 'print')}</strong
-                                      >
-                                      · Model-only validation:
-                                      <strong
-                                          >${this.record.isValid() ? 'Valid' : 'Invalid'}</strong
-                                      ></p
-                                  ></section
-                              ><h3
+                        ? html`<h3
                                   >Current delivery, another shipment, and a
                                   pickup</h3
                               ><p
@@ -261,7 +240,9 @@ export class FdlLearningPath extends LitElement {
                                   ><fdl-column field="method"></fdl-column
                                   ><fdl-column field="charge"></fdl-column
                               ></fdl-table>
-                              <fdl-recordset-inspector .recordset=${this.table}></fdl-recordset-inspector>`
+                              <fdl-recordset-inspector
+                                  .recordset=${this.table}
+                              ></fdl-recordset-inspector>`
                         : ''
                 }
                 <details open
