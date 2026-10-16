@@ -1,5 +1,4 @@
 import { field } from '../../index';
-import './fdl-field-builder';
 import './fdl-prediction';
 import { learningContinuation } from './learning-continuation';
 import { LitElement, css, html } from 'lit';
@@ -392,11 +391,6 @@ export class FdlCompositionExperiment extends LitElement {
                     the live form.</p
                 ></section
             >
-            <details class="field-builder"
-                ><summary
-                    >Build and export a field of your own (optional)</summary
-                ><fdl-field-builder></fdl-field-builder
-            ></details>
             <details class="questions"
                 ><summary>Questions to investigate</summary
                 ><ul
