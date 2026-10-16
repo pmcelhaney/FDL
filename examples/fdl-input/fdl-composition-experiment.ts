@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { field } from '../../src/index';
 import './fdl-prediction';
 import { learningContinuation } from './learning-continuation';
@@ -385,8 +386,8 @@ export class FdlCompositionExperiment extends LitElement {
             ${this.collectedCases()}
             <section class="definition"
                 ><h3>The resulting definition</h3
-                >><pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre
-                ><p
+                >><fdl-code-snippet><pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre
+                ></fdl-code-snippet><p
                     >This is the address definition used by every case and by
                     the live form.</p
                 ></section

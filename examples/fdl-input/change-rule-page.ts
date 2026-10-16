@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import './fdl-example';
 import viewSource from './change-rule-page.ts?raw';
 import { LitElement, html } from 'lit';
@@ -78,10 +79,10 @@ export const account = createAccount();`;
 export function renderValidatorContract(includeExample = true) {
     return html`<section
         ><h3>Validator callback contract</h3>
-        <pre
+        <fdl-code-snippet><pre
             class="code"
         ><code>validate(modelValue, viewValue, record, options, field)
-  =&gt; boolean | Promise&lt;boolean&gt;</code></pre>
+  =&gt; boolean | Promise&lt;boolean&gt;</code></pre></fdl-code-snippet>
         <p
             >The first argument is the stored model value; the second is the
             consumer-supplied view value (Record validation passes null); the
@@ -191,7 +192,7 @@ export function renderChangeRule() {
             </tbody></table
         >
         <h2>Test behavior without a browser</h2>
-        <pre
+        <fdl-code-snippet><pre
             class="code"
         ><code>${highlightJavaScript(`import { createAccount } from '../examples/fdl-input/conditional-validation-model';
 it.each([
@@ -209,7 +210,7 @@ it('keeps values when the condition changes', () => {
     account.setField('country', 'US');
     expect(account.isValid()).toBe(true);
     expect(account.getField('taxId')).toBe('invalid');
-});`)}</code></pre>
+});`)}</code></pre></fdl-code-snippet>
         <p
             >Run
             <code

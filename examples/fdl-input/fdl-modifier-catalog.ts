@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { field } from '../../src/index';
 import { validatorExamples } from './validator-examples';
 import {
@@ -1368,8 +1369,8 @@ export class FdlModifierCatalog extends LitElement {
                                             >MODEL EXERCISE</p
                                         >${this.stateSummary(entry.name)}<details
                                             ><summary>Inspect full JSON</summary
-                                            ><pre>
-${JSON.stringify(this.focusedState(entry.name), null, 2)}</pre>
+                                            ><fdl-code-snippet><pre>
+${JSON.stringify(this.focusedState(entry.name), null, 2)}</pre></fdl-code-snippet>
                                         </details></div
                                     >`
                           }`

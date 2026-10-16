@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { LitElement, html, css, type PropertyValues } from 'lit';
 import { highlightSourceCode, highlightModifier } from './highlight-javascript';
 import { exampleTheme } from './example-theme';
@@ -89,9 +90,9 @@ export class FdlExample extends LitElement {
                             aria-labelledby=${`example-tab-${index + 1}`}
                             ?hidden=${this.activeTab !== filename}
                         >
-                            <pre
+                            <fdl-code-snippet><pre
                                 class="code"
-                            ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre>
+                            ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
                         </div>`
                 )}
             </div>

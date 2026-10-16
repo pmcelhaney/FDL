@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import './fdl-example';
 import compositionSource from './fdl-composition-experiment.ts?raw';
 import compositionModelSource from './composition-model.ts?raw';
@@ -150,10 +151,10 @@ export function renderSitePage(
                         every record. For example, a name may be required and
                         displayed as text.</p
                     >
-                    <pre><code>${highlightJavaScript(`const fields = {
+                    <fdl-code-snippet><pre><code>${highlightJavaScript(`const fields = {
     name: field.label('Name').required(),
     city: field.label('City'),
-};`)}</code></pre>
+};`)}</code></pre></fdl-code-snippet>
                 </section>
                 <section class="model-concept" aria-labelledby="model-record">
                     <h3 id="model-record">Record</h3>
@@ -168,10 +169,10 @@ export function renderSitePage(
                         >One record binds <strong>Name</strong> to “Ada” and
                         <strong>City</strong> to “London”.</p
                     >
-                    <pre><code>${highlightJavaScript(`const person = new Record(fields, {
+                    <fdl-code-snippet><pre><code>${highlightJavaScript(`const person = new Record(fields, {
     name: 'Ada',
     city: 'London',
-});`)}</code></pre>
+});`)}</code></pre></fdl-code-snippet>
                 </section>
                 <section
                     class="model-concept"
@@ -191,10 +192,10 @@ export function renderSitePage(
                         <strong>Name</strong> and
                         <strong>City</strong> fields.</p
                     >
-                    <pre><code>${highlightJavaScript(`const people = new Recordset(fields, [
+                    <fdl-code-snippet><pre><code>${highlightJavaScript(`const people = new Recordset(fields, [
     { name: 'Ada', city: 'London' },
     { name: 'Grace', city: 'New York' },
-]);`)}</code></pre>
+]);`)}</code></pre></fdl-code-snippet>
                 </section>
             </div>
             <h2>From model to interface</h2>
@@ -242,9 +243,9 @@ export function renderSitePage(
                 input into model values. Formatting produces display values.
                 Validation checks the model against the declared rules.</p
             >
-            <pre
+            <fdl-code-snippet><pre
                 class="code markup"
-            ><code>${highlightJavaScript(definition)}</code></pre>
+            ><code>${highlightJavaScript(definition)}</code></pre></fdl-code-snippet>
             <p
                 >The record enforces requiredness without rendering a UI. A
                 component reads the same rule to expose required state and its
@@ -262,9 +263,9 @@ export function renderSitePage(
                 and accessible field state. A view binds the record object using
                 Lit’s property syntax:</p
             >
-            <pre
+            <fdl-code-snippet><pre
                 class="code markup"
-            ><code>${highlightMarkup('<fdl-field .record=${person} field="name"></fdl-field>')}</code></pre>
+            ><code>${highlightMarkup('<fdl-field .record=${person} field="name"></fdl-field>')}</code></pre></fdl-code-snippet>
             <p
                 >The component is the integration layer. FDL does not choose
                 your page layout or visual theme. Other adapters can interpret
@@ -339,16 +340,16 @@ export function renderSitePage(
             until a push is requested.</p
         >
         <h2>Install and run locally</h2>
-        <pre class="code markup"><code>npm install
-npm run docs:dev</code></pre>
+        <fdl-code-snippet><pre class="code markup"><code>npm install
+npm run docs:dev</code></pre></fdl-code-snippet>
         <p
             >Open the root URL printed by the local server to view this site.
             Changes to the example source update the preview.</p
         >
         <h2>Verify your changes</h2>
-        <pre class="code markup"><code>npm test
+        <fdl-code-snippet><pre class="code markup"><code>npm test
 npm run typecheck
-npm run docs:build</code></pre>
+npm run docs:build</code></pre></fdl-code-snippet>
         <p
             >Follow
             <a href="#change-a-rule"

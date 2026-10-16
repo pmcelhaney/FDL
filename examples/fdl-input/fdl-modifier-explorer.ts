@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import './fdl-example';
 import './fdl-column-widths';
 import './fdl-text-length';
@@ -446,7 +447,7 @@ export class FdlModifierExplorer extends LitElement {
                           aria-label="Adapter contract"
                       >
                           <h3>Adapter contract</h3><p>${recipe.limitation}</p>
-                          <pre><code>${highlightJavaScript(source.definition)}</code></pre>
+                          <fdl-code-snippet><pre><code>${highlightJavaScript(source.definition)}</code></pre></fdl-code-snippet>
                           <p
                               ><a href="#integration"
                                   >Read the adapter responsibilities</a
@@ -965,8 +966,8 @@ export class FdlModifierExplorer extends LitElement {
                           @mouseenter=${() => clearTimeout(this.tooltipTimer)}
                           @mouseleave=${this.deferHideTooltip}
                       >
-                          <pre><code>${modifierSignatures[this.tooltip.recipe.name]}</code></pre
-                          ><p>${this.tooltip.recipe.title}</p></div
+                          <fdl-code-snippet><pre><code>${modifierSignatures[this.tooltip.recipe.name]}</code></pre
+                          ></fdl-code-snippet><p>${this.tooltip.recipe.title}</p></div
                       >`
                     : ''
             }`;

@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import './fdl-example';
 import modelSource from './editable-recordset-model.ts?raw';
 import viewSource from './fdl-editable-recordset.ts?raw';
@@ -18,7 +19,7 @@ export function renderEditableRecordset() {
             ><fdl-editable-recordset></fdl-editable-recordset
         ></fdl-example>
         <h2>Load once, edit the loaded Records</h2>
-        <pre
+        <fdl-code-snippet><pre
             class="code"
         ><code>${highlightJavaScript(`import { field, Recordset } from '@pmcelhaney/fdl';
 const shipmentFields = {
@@ -65,7 +66,7 @@ selected.parseAndSetField('quantity', '3');
 shipments.filter = row => row.getField('status') === 'ready';
 await shipments.sort({ field: 'quantity', sort: 'ascending' });
 await shipments.requestUpdate();
-// selected still references the same edited Record.`)}</code></pre>
+// selected still references the same edited Record.`)}</code></pre></fdl-code-snippet>
         <h2>Choose the update policy and aggregate scope</h2>
         <p
             >This example stages sort/filter controls until Apply view. Record
@@ -83,7 +84,7 @@ await shipments.requestUpdate();
             has three rows on one page, so “visible” means the current page, not
             all matching pages.</p
         >
-        <pre class="code"><code>${highlightJavaScript(`const total = rows =>
+        <fdl-code-snippet><pre class="code"><code>${highlightJavaScript(`const total = rows =>
     rows.reduce(
         (sum, row) =>
             sum + row.getField('quantity') * row.getField('unitPrice'),
@@ -98,7 +99,7 @@ const sumType = new Recordset(
 ).getFieldType('amount');
 const visibleUnits = sumType.aggregate(
     shipments.currentPage.map(row => row.getField('quantity'))
-);`)}</code></pre>
+);`)}</code></pre></fdl-code-snippet>
         <p
             >FDL supplies row state and view operations. The example component
             owns native table markup, cell editors, focus, and Tab interaction.

@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
@@ -142,10 +143,10 @@ export class FdlTransferChallenge extends LitElement {
                 ></details
             ><details
                 ><summary>Inspect a solution</summary
-                >><pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre>
+                >><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre></fdl-code-snippet>
             </details>
             <h3>Your current definition</h3
-            >><pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre>`;
+            >><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre></fdl-code-snippet>`;
     }
     static styles = css`
         :host {

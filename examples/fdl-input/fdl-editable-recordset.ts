@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { LitElement, html, css } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
@@ -130,12 +131,12 @@ export class FdlEditableRecordset extends LitElement {
             ></fdl-recordset-inspector>
             <details
                 ><summary>All records, including filtered-out edits</summary
-                ><pre>
+                ><fdl-code-snippet><pre>
 ${JSON.stringify(
                         this.shipments.allRecords.map(row => row.values),
                         null,
                         2
-                    )}</pre>
+                    )}</pre></fdl-code-snippet>
             </details>`;
     }
     static styles = css`

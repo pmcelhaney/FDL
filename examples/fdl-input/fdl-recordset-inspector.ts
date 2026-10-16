@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { LitElement, css, html, type PropertyValues } from 'lit';
 import type Recordset from '../../src/recordset.js';
 import type Record from '../../src/record.js';
@@ -209,7 +210,7 @@ export class FdlRecordsetInspector extends LitElement {
                               >
                               <details
                                   ><summary>Inspect full JSON</summary
-                                  ><pre>
+                                  ><fdl-code-snippet><pre>
 ${JSON.stringify(
                                           {
                                               visibleRows:
@@ -229,7 +230,7 @@ ${JSON.stringify(
                                           },
                                           null,
                                           2
-                                      )}</pre>
+                                      )}</pre></fdl-code-snippet>
                               </details>
                           `
                         : html`<p>No recordset selected.</p>`

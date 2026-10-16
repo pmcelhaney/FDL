@@ -1,3 +1,4 @@
+import './fdl-code-snippet';
 import { html } from 'lit';
 import { highlightJavaScript } from './highlight-javascript';
 
@@ -72,7 +73,7 @@ export function renderQuickstart() {
         <p>Start with a fresh checkout so the package and this example use the
             same API. Build an installable package, then create a separate
             application beside the checkout. Lit supplies the example adapter.</p>
-        <pre class="code"><code>git clone https://github.com/pmcelhaney/FDL.git
+        <fdl-code-snippet><pre class="code"><code>git clone https://github.com/pmcelhaney/FDL.git
 cd FDL
 npm install
 npm pack
@@ -81,7 +82,7 @@ mkdir fdl-first-form
 cd fdl-first-form
 npm init -y
 npm install ../FDL/pmcelhaney-fdl-0.0.1.tgz lit
-npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
+npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre></fdl-code-snippet>
         <p><code>npm pack</code> builds the JavaScript and type declarations.
             The archive name above matches this checkout’s package version,
             <code>0.0.1</code>. If that version changes, use the archive name
@@ -91,13 +92,13 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
             the <code>tsconfig.json</code> below, then run <code>npx vite</code>
             and open the local URL it prints. The installed package contains
             compiled JavaScript; your application’s TypeScript is handled by Vite.</p>
-        <pre class="code"><code>&lt;div id="app"&gt;&lt;/div&gt;
-&lt;script type="module" src="/main.ts"&gt;&lt;/script&gt;</code></pre>
-        <pre
+        <fdl-code-snippet><pre class="code"><code>&lt;div id="app"&gt;&lt;/div&gt;
+&lt;script type="module" src="/main.ts"&gt;&lt;/script&gt;</code></pre></fdl-code-snippet>
+        <fdl-code-snippet><pre
             class="code"
-        ><code>${highlightJavaScript(firstFormSource)}</code></pre>
+        ><code>${highlightJavaScript(firstFormSource)}</code></pre></fdl-code-snippet>
         <h3>tsconfig.json</h3>
-        <pre class="code"><code>{
+        <fdl-code-snippet><pre class="code"><code>{
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
@@ -108,7 +109,7 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
     "noEmit": true
   },
   "include": ["main.ts"]
-}</code></pre>
+}</code></pre></fdl-code-snippet>
         <p
             >Run <code>npx tsc --noEmit</code> to type-check this consumer
             independently of the documentation site.</p
