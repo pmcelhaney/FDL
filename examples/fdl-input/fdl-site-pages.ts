@@ -326,12 +326,13 @@ export function renderSitePage(
             >
             before changing modifiers, components, or presentation.</p
         >
-        <h2>Work in an isolated checkout</h2>
+        <h2>Work in the root checkout</h2>
         <p
-            >The root checkout is reserved for integration. Check its status and
-            existing worktrees before starting, preserve other tasks’ changes,
-            and develop on a linked worktree and its own branch. The contributor
-            guide describes the full workflow.</p
+            >Check Git status before starting and preserve other tasks’ changes.
+            Work directly on main in the repository root. Verify and commit each
+            coherent batch, staging only its files. Create a branch or linked
+            worktree only when explicitly requested, and keep commits local
+            until a push is requested.</p
         >
         <h2>Install and run locally</h2>
         <pre class="code markup"><code>npm install
