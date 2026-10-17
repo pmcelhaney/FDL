@@ -43,9 +43,9 @@ leave the original alternating return types in place.
 
 This is a breaking API change. Definition authors remove aliases and use
 `field` rather than a constructor for custom definitions. Pass chains directly
-to records and recordsets. Obtain runtime behavior through
-`Record#fieldTypeForField()` or `Recordset#getFieldType()`; consumers do not need
-to know the builder class or call `valueOf()`.
+to records and recordsets. Obtain runtime behavior through `Record#field()` or
+`Recordset#column()`; consumers do not need to know the builder class or call
+`valueOf()`.
 
 Keep reusable definitions as builders. Keep a finalized type when repeatedly
 loading options so its runtime cache remains useful. A recordset finalizes its

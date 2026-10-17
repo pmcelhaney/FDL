@@ -991,7 +991,7 @@ describe('FieldType', () => {
         });
         it('uses onValueChange to react to field changes', () => {
             record.setField('user', { name: 'Aaron', id: 999, company: 'Test' });
-            record.fieldTypeForField('id').onValueChange(record);
+            record.field('id').onValueChange();
             expect(record.getField('id')).toEqual(999);
         });
     });

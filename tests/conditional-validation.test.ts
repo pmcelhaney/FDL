@@ -9,10 +9,10 @@ it.each([
     ['CA', 'CA123456', true],
 ] as const)('validates %s / %s independently of rendering', (country, taxId, valid) => {
     const account = createAccount(country, taxId);
-    const type = account.fieldTypeForField('taxId');
+    const field = account.field('taxId');
     expect(account.isValid()).toBe(valid);
-    expect(type.visible(undefined, account)).toBe(country !== 'US');
-    expect(type.required(undefined, account)).toBe(country !== 'US');
+    expect(field.visible).toBe(country !== 'US');
+    expect(field.required).toBe(country !== 'US');
     expect(account.getField('taxId')).toBe(taxId);
 });
 it('revalidates retained data in both directions when country changes', () => {

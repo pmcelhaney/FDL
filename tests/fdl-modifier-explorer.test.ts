@@ -763,7 +763,7 @@ it('previews every declared input type and keeps the source and record panel in 
         await preview.updateComplete;
         const input = preview.shadowRoot.querySelector('input') as HTMLInputElement;
         expect(input.type).toBe(inputType);
-        expect(preview.record.fieldTypeForField('inputValue').type()).toBe(inputType);
+        expect(preview.record.field('inputValue').type).toBe(inputType);
         expect(root.querySelector('fdl-example')!.shadowRoot!.textContent).toContain(
             `.type('${inputType}')`
         );
@@ -992,7 +992,7 @@ it('initializes the catalog minimum selector to the enforced rule', async () => 
     const select = demo.shadowRoot!.querySelector<HTMLSelectElement>('.minimum-rule')!;
     expect(select.value).toBe('4');
     const control = demo.shadowRoot!.querySelector('fdl-field') as FdlField;
-    expect(control.record!.fieldTypeForField('longCode').minLength()).toBe(4);
+    expect(control.record!.field('longCode').minLength).toBe(4);
 });
 
 it('uses the inputMask inspector collapse control while keeping live values current', async () => {

@@ -87,7 +87,7 @@ export class FdlTransferChallenge extends LitElement {
                         .record=${this.record}
                         field="status"
                     ></fdl-field
-                    >${keyed(this.record.fieldTypeForField('reason'), html`<fdl-field .record=${this.record} field="reason" .showValidationErrors=${true}></fdl-field>`)}<p
+                    >${keyed(this.record.field('reason'), html`<fdl-field .record=${this.record} field="reason" .showValidationErrors=${true}></fdl-field>`)}<p
                         >Stored reason:
                         <code
                             >${JSON.stringify(this.record.getField('reason'))}</code
@@ -143,10 +143,14 @@ export class FdlTransferChallenge extends LitElement {
                 ></details
             ><details
                 ><summary>Inspect a solution</summary
-                ><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre></fdl-code-snippet>
+                ><fdl-code-snippet>
+                    <pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre>
+                </fdl-code-snippet>
             </details>
             <h3>Your current definition</h3
-            ><fdl-code-snippet><pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre></fdl-code-snippet>`;
+            ><fdl-code-snippet>
+                <pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre>
+            </fdl-code-snippet>`;
     }
     static styles = css`
         :host {

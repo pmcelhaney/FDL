@@ -695,12 +695,7 @@ export default class Recordset extends EventTarget {
 
     setColumnValue(field, value) {
         this._.records
-            .filter(
-                record =>
-                    !record
-                        .fieldTypeForField(field)
-                        .isDisabled(record.getField(field), record, 'model')
-            )
+            .filter(record => !record.field(field).disabled)
             .forEach(record => record.setField(field, value));
 
         this.dispatchEvent(new CustomEvent(RecordsetEvent.Changed)); // deprecated
@@ -738,20 +733,19 @@ export default class Recordset extends EventTarget {
     }
 
     /**
-     * @returns { FieldType }
-     */
-    getFieldType(field) {
-        return this._.fieldTypes[field] ?? new FieldType();
-    }
-
-    /**
      * Return the table-facing facade for a field.
      *
      * @param {string} field
      * @returns {Column}
      */
     column(field) {
-        if (!this.cachedColumns[field]) this.cachedColumns[field] = new Column(this, field);
+        if (!this.cachedColumns[field]) {
+            this.cachedColumns[field] = new Column(
+                this,
+                field,
+                this._.fieldTypes[field] ?? new FieldType()
+            );
+        }
         return this.cachedColumns[field];
     }
 

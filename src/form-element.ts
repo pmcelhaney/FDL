@@ -2,7 +2,6 @@
 import { LitElement, PropertyValues, html, css, nothing } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { property, state, customElement } from 'lit/decorators.js';
-import FieldType from './field-type.js';
 import Record from './record.js';
 import { ListeningElementMixin } from './utilities/listening-element';
 import { Events } from './types/events.types';
@@ -43,15 +42,11 @@ class FormElement extends ListeningElement {
     private readonly errorId = `${this.controlId}-error`;
 
     @state()
-    private fieldType?: FieldType;
-
-    @state()
     private element?: any;
 
     async firstUpdated() {
         if (!this.record) throw new Error('OmegaFormElement: record is required');
         if (!this.field) throw new Error('OmegaFormElement: field is required');
-        this.fieldType = this.record.fieldTypeForField(this.field);
         const field = this.record.field(this.field);
         const controlTag = field.hasOptions ? 'select' : field.hasRowCount ? 'textarea' : 'input';
         this.element = document.createElement(controlTag);
@@ -344,7 +339,7 @@ class FormElement extends ListeningElement {
         this.element.parseDynamicRange = boundField?.parseDynamicRange;
         this.element.dateDisabledFunction =
             boundField?.selectionDisabledFunctions?.dateDisabledFunction;
-        this.element.hideSelectAll = this.fieldType?.properties.options?.hideSelectAll;
+        this.element.hideSelectAll = boundField?.hideSelectAll;
         this.element.maxValueCount = boundField?.maxValueCount();
 
         if (boundField?.hasOptions && boundField.disabled) {
@@ -443,7 +438,7 @@ class FormElement extends ListeningElement {
     }
 
     private visibleValidationErrors() {
-        if (!this.showValidationErrors || !this.record || !this.fieldType) return [];
+        if (!this.showValidationErrors || !this.record) return [];
         if (!this.record.field(this.field).visible) return [];
         return this.record.field(this.field).readableErrors();
     }
@@ -468,7 +463,7 @@ class FormElement extends ListeningElement {
     }
 
     renderRequired() {
-        if (!this.fieldType || !this.record) return nothing;
+        if (!this.record) return nothing;
         if (!this.record.field(this.field).required) return nothing;
         if (this.record.field(this.field).readOnly) return nothing;
         return html`<span class="required">&nbsp;*</span>`;

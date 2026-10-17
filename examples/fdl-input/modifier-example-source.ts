@@ -293,7 +293,7 @@ function modelFor(name: string, settings: ExampleSettings): Model {
     },
     {}
 );
-const hashType = employees.fieldTypeForField('employee');`,
+const hashField = employees.field('employee');`,
             fields: {
                 firstId: type("label('First employee ID')"),
                 secondId: type("label('Second employee ID')"),
@@ -309,7 +309,7 @@ const hashType = employees.fieldTypeForField('employee');`,
         },
         reducer: {
             name: 'probes',
-            prefix: `${currency}\n\nconst totals = new Record({ amount: field.reducer('sum') }, {});\nconst reducerType = totals.fieldTypeForField('amount');`,
+            prefix: `${currency}\nimport { Recordset } from '@pmcelhaney/fdl';\n\nconst totals = new Recordset({ amount: field.reducer('sum') }, []);\nconst reducerColumn = totals.column('amount');`,
             fields: Object.fromEntries(
                 ['first', 'second', 'third'].map((word, index) => [
                     `${word}Amount`,
@@ -486,8 +486,8 @@ export function exampleSource(name: string, settings: ExampleSettings = {}) {
     const model = modelFor(name, settings);
     const kind = model.kind ?? 'Record';
     const helpers: { [key: string]: string[] } = {
-        hashFunction: ['hashType'],
-        reducer: ['currency', 'reducerType'],
+        hashFunction: ['hashField'],
+        reducer: ['currency', 'reducerColumn'],
     };
     const exports = [model.name, ...(helpers[name] ?? [])];
     const modelFile = `${name}-model.js`;
@@ -556,9 +556,9 @@ export function exampleSource(name: string, settings: ExampleSettings = {}) {
     if (name === 'parser')
         markup += `\n\n<p>Stored number: \${record.getField('money')}</p>`;
     if (name === 'hashFunction')
-        markup += `\n\n<p role="status">\n  \${hashType.hashFunction()({ id: probes.getField('firstId') }) ===\n    hashType.hashFunction()({ id: probes.getField('secondId') })\n    ? 'Same identity' : 'Different identities'}\n</p>`;
+        markup += `\n\n<p role="status">\n  \${hashField.hashFunction({ id: probes.getField('firstId') }) ===\n    hashField.hashFunction({ id: probes.getField('secondId') })\n    ? 'Same identity' : 'Different identities'}\n</p>`;
     if (name === 'reducer')
-        markup += `\n\n<p role="status">\n  Sum: \${currency.format(reducerType.aggregate([\n    probes.getField('firstAmount'),\n    probes.getField('secondAmount'),\n    probes.getField('thirdAmount'),\n  ]))}\n</p>`;
+        markup += `\n\n<p role="status">\n  Sum: \${currency.format(reducerColumn.aggregate([\n    probes.getField('firstAmount'),\n    probes.getField('secondAmount'),\n    probes.getField('thirdAmount'),\n  ]))}\n</p>`;
     const contract = !markup;
     if (contract)
         markup = `<p>This adapter does not implement .${name}().</p>\n<p>Stored value: \${JSON.stringify(record.getField('value'))}</p>`;

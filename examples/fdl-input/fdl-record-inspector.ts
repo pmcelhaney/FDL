@@ -37,13 +37,12 @@ export function storedValue(value: unknown): string {
 }
 
 export function fieldStatus(record: Record<any>, name: string) {
-    const type = record.fieldTypeForField(name);
-    const value = record.getField(name);
+    const field = record.field(name);
     return html`<span class="field-status">
-        ${!type.visible(value, record) ? statusIcon('Hidden') : ''}
-        ${type.isDisabled(value, record) ? statusIcon('Disabled') : ''}
-        ${type.readonly(value, record) ? statusIcon('Read-only') : ''}
-        ${type.required(value, record) ? statusIcon('Required') : ''}
+        ${!field.visible ? statusIcon('Hidden') : ''}
+        ${field.disabled ? statusIcon('Disabled') : ''}
+        ${field.readOnly ? statusIcon('Read-only') : ''}
+        ${field.required ? statusIcon('Required') : ''}
         ${!record.isValid(name) ? statusIcon('Invalid') : ''}
     </span>`;
 }
@@ -169,12 +168,7 @@ export class FdlRecordInspector extends LitElement {
                                       >
                                       <tbody
                                           >${fields.map(name => {
-                                              const type =
-                                                  record.fieldTypeForField(
-                                                      name
-                                                  );
-                                              const value =
-                                                  record.getField(name);
+                                              const field = record.field(name);
                                               return html`<tr
                                                   data-field=${name}
                                               >
@@ -187,10 +181,10 @@ export class FdlRecordInspector extends LitElement {
                                                       >${name}</th
                                                   >
                                                   <td class="field-label"
-                                                      >${type.label(value, record)}</td
+                                                      >${field.label}</td
                                                   >
                                                   <td class="stored-value"
-                                                      >${storedValue(value)}</td
+                                                      >${storedValue(field.rawValue)}</td
                                                   >
                                               </tr>`;
                                           })}</tbody

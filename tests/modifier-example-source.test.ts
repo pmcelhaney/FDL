@@ -56,7 +56,7 @@ it.each(explorerRecipes.map(recipe => recipe.name))(
         ).toBeGreaterThan(0);
         for (const field of container.querySelectorAll('fdl-field')) {
             expect((field as any).record).toBe(model);
-            expect(model.fieldTypeForField(field.getAttribute('field'))).toBeInstanceOf(FieldType);
+            expect(model.field(field.getAttribute('field'))).toBeDefined();
         }
         const table = container.querySelector('fdl-table');
         if (table) expect((table as any).recordset).toBe(model);
@@ -78,9 +78,7 @@ it('includes changed rules in complete working definitions', () => {
     const { model } = runExample('minLength', { minimum: 2 });
     model.setField('longCode', 'ab');
     expect(model.isValid()).toBe(true);
-    expect(
-        runExample('rowCount', { rows: 10 }).model.fieldTypeForField('comments').rowCount()
-    ).toBe(10);
+    expect(runExample('rowCount', { rows: 10 }).model.field('comments').rowCount).toBe(10);
     expect(exampleSource('filter', { filterMode: 'contains' }).definition).toContain('.includes(');
 });
 
@@ -106,8 +104,10 @@ it('exports the same weekday expenses, dollar formatting, and strict threshold',
     expect(
         model.createRecord({ day: 'Monday', amount: 85.5 }).getFormattedField('amount', 'print')
     ).toBe('$85.50');
-    expect(model.getFieldType('amount').cellClasses(125.25)).toEqual(['amount-cell']);
-    expect(model.getFieldType('amount').cellClasses(142.75)).toEqual([
+    expect(model.column('amount').cellClasses(125.25, model.allRecords[0])).toEqual([
+        'amount-cell',
+    ]);
+    expect(model.column('amount').cellClasses(142.75, model.allRecords[0])).toEqual([
         'amount-cell',
         'high-value',
         'over-limit',
@@ -116,7 +116,7 @@ it('exports the same weekday expenses, dollar formatting, and strict threshold',
 
 it('exports a named size comparator and sorts sizes in domain order rather than alphabetically', async () => {
     const { model, container } = runExample('compareFunction');
-    const size = model.getFieldType('shirtSize');
+    const size = model.column('shirtSize');
     expect(['XL', 'S', 'XXL', 'L', 'XS', 'M'].sort((a, b) => size.compare(a, b))).toEqual([
         'XS',
         'S',
@@ -159,8 +159,8 @@ it('shows how the same empty value affects required and optional field validatio
             expect(model.getField(field)).toBe(value);
         }
     }
-    expect(model.fieldTypeForField('emptyCode').required(model)).toBe(true);
-    expect(model.fieldTypeForField('optionalEmptyCode').required(model)).toBe(false);
+    expect(model.field('emptyCode').required).toBe(true);
+    expect(model.field('optionalEmptyCode').required).toBe(false);
 });
 
 it('exports working function and async options with a shared value that stays selected', async () => {
@@ -168,7 +168,7 @@ it('exports working function and async options with a shared value that stays se
     for (const department of ['engineering', 'finance']) {
         model.setField('department', department);
         for (const field of ['assignee', 'asyncAssignee']) {
-            const choices = await model.fieldTypeForField(field).options(model);
+            const choices = await model.field(field).options();
             expect(choices).toContainEqual({ text: 'Margaret Hamilton', value: 'margaret' });
             expect(choices.map((choice: any) => choice.value)).toContain(
                 department === 'engineering' ? 'grace' : 'katherine'
@@ -183,8 +183,8 @@ it('exports a T-shirt order table with sorting disabled for sizes', async () => 
     const { model, container } = runExample('sortable');
     await model.requestImmediateUpdate();
     expect(model.getData()).toHaveLength(6);
-    expect(model.getFieldType('shirtSize').sortable()).toBe(false);
-    expect(model.getFieldType('firstName').sortable()).toBe(true);
+    expect(model.column('shirtSize').sortable()).toBe(false);
+    expect(model.column('firstName').sortable()).toBe(true);
     expect(
         [...container.querySelectorAll('fdl-column')].map(column => column.getAttribute('field'))
     ).toEqual(['firstName', 'lastName', 'shirtSize']);
@@ -212,7 +212,7 @@ it('renders conditional invoice balances without changing the stored number', as
 
 it.each(inputTypes)('exports a working definition and Lit binding for input type %s', inputType => {
     const { model, container } = runExample('type', { inputType: inputType as inputType });
-    expect(model.fieldTypeForField('inputValue').type()).toBe(inputType);
+    expect(model.field('inputValue').type).toBe(inputType);
     expect((container.querySelector('fdl-field') as any).record).toBe(model);
     if (['number', 'range'].includes(inputType)) {
         model.parseAndSetField('inputValue', '63');
@@ -269,7 +269,7 @@ it('demonstrates simple email validation and accumulated quantity and username r
 it('exports rowClass declarations with fixed and returned array classes', async () => {
     const { model } = runExample('rowClass');
     await model.requestImmediateUpdate();
-    const status = model.getFieldType('status');
+    const status = model.column('status');
     expect(status.rowClasses(model.allRecords[0])).toEqual([
         'invoice-row',
         'disputed-row',
@@ -292,10 +292,10 @@ it('shows both required forms and validates conditional notes in the runnable UI
 
 it('exports unconditional and conditional disabled rules together', () => {
     const { model } = runExample('disabled');
-    expect(model.fieldTypeForField('lockedId').isDisabled(undefined, model)).toBe(true);
-    expect(model.fieldTypeForField('budget').isDisabled(undefined, model)).toBe(false);
+    expect(model.field('lockedId').disabled).toBe(true);
+    expect(model.field('budget').disabled).toBe(false);
     model.setField('approvalStatus', 'approved');
-    expect(model.fieldTypeForField('budget').isDisabled(undefined, model)).toBe(true);
+    expect(model.field('budget').disabled).toBe(true);
     expect(model.getField('budget')).toBe(5000);
 });
 

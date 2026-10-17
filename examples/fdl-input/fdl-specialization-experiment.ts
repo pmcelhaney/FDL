@@ -76,7 +76,7 @@ export class FdlSpecializationExperiment extends LitElement {
                             <code
                                 >${key === 'base' ? "field.label('Name')" : key === 'required' ? (this.enabled ? 'baseName.required()' : 'baseName') : 'baseName.minLength(2)'}</code
                             >
-                            ${keyed(this.record.fieldTypeForField(key), html`<fdl-field .record=${this.record} field=${key} .showValidationErrors=${true}></fdl-field>`)}
+                            ${keyed(this.record.field(key), html`<fdl-field .record=${this.record} field=${key} .showValidationErrors=${true}></fdl-field>`)}
                             <p class="variant-state"
                                 >${this.record.field(key).required ? 'Required' : 'Optional'}
                                 ·

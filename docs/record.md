@@ -5,7 +5,7 @@ object of values. Start definitions with `field` or a primitive and chain
 modifiers, then pass them directly to the constructor. The record connects their
 rules to values and is the model passed to FDL form controls.
 Use `field(name)` to access the complete field-scoped facade, including its
-runtime `fieldType`, value, parsing, formatting, options, and validation.
+value, parsing, formatting, options, and validation.
 
 ```js
 import { Record, string } from '@pmcelhaney/fdl';
@@ -23,8 +23,8 @@ const account = new Record(
 ```
 
 `addField(name, definition, value)` uses the same conversion. The input map is
-not changed. `record.field(name).fieldType` returns the finalized `FieldType`, so
-runtime methods such as `required()` evaluate state rather than add modifiers.
+not changed. Runtime methods such as `field.required` evaluate state rather than
+add modifiers.
 
 ## Working with fields
 
@@ -137,9 +137,6 @@ For example, `field.isEmpty()`, `field.match(searchText)`,
 the field's raw value and owning record automatically. Each method also accepts
 an explicit value when a renderer or validation flow is evaluating a candidate
 value.
-
-`record.field(name).fieldType` returns the `FieldType` definition for integrations
-that need it directly.
 
 `field.format(value, context)` runs the formatter pipeline without applying a
 template. Its default context is `"model"`. The `Field` facade exposes

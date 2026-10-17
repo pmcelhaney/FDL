@@ -20,7 +20,7 @@ it('checks transfer rules against four cases and preserves a hidden reason', () 
         { status: 'cancelled', reason: 'Changed plans' }
     );
     record.setField('status', 'active');
-    expect(record.fieldTypeForField('reason').visible(undefined, record)).toBe(false);
+    expect(record.field('reason').visible).toBe(false);
     expect(record.getField('reason')).toBe('Changed plans');
     record.setField('status', 'cancelled');
     expect(record.getField('reason')).toBe('Changed plans');

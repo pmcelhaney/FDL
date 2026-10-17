@@ -24,17 +24,15 @@ it.each(combinations)('keeps rules independent for %j', rules => {
     for (const method of ['ship', 'pickup'])
         for (const sample of addressCases) {
             const record = compositionRecord(rules, method, sample.value);
-            const type = record.fieldTypeForField('address');
+            const field = record.field('address');
             const required =
                 rules.requiredness === 'always' ||
                 (rules.requiredness === 'shipping' && method === 'ship');
             const invalid =
                 (required && sample.id === 'empty') ||
                 (rules.validation === 'on' && sample.id === 'unnumbered');
-            expect(type.visible(undefined, record)).toBe(
-                rules.visibility === 'all' || method === 'ship'
-            );
-            expect(type.required(undefined, record)).toBe(required);
+            expect(field.visible).toBe(rules.visibility === 'all' || method === 'ship');
+            expect(field.required).toBe(required);
             expect(record.isValid()).toBe(!invalid);
             expect(record.getField('address')).toBe(sample.value);
         }

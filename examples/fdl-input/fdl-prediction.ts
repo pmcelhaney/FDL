@@ -86,10 +86,10 @@ export class FdlPrediction extends LitElement {
                 this.guesses.getField('method'),
                 sample.value
             ),
-            type = record.fieldTypeForField('address');
+            field = record.field('address');
         this.result = {
-            visible: type.visible(undefined, record),
-            required: type.required(undefined, record),
+            visible: field.visible,
+            required: field.required,
             valid: record.isValid(),
         };
         this.requestUpdate();

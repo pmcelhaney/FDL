@@ -887,9 +887,7 @@ export class FdlModifierCatalog extends LitElement {
         this.optionsDepartment = department;
         this.optionsLoading = true;
         this.requestUpdate();
-        const choices = (await this.record
-            .fieldTypeForField('assignee')
-            .options(this.record)) as {
+        const choices = (await this.record.field('assignee').options()) as {
             text: string;
             value: string;
         }[];
@@ -944,7 +942,7 @@ export class FdlModifierCatalog extends LitElement {
         showValidationErrors = false
     ) {
         return keyed(
-            record.fieldTypeForField(field),
+            record.field(field),
             html`<fdl-field
                 field=${field}
                 .record=${record}

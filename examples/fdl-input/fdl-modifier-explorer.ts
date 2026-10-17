@@ -320,7 +320,7 @@ export class FdlModifierExplorer extends LitElement {
     }
     private field(record: Record<any>, field: string) {
         return keyed(
-            record.fieldTypeForField(field),
+            record.field(field),
             html`<fdl-field
                 .record=${record}
                 field=${field}

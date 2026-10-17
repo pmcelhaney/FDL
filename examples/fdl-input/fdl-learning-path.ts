@@ -222,7 +222,7 @@ export class FdlLearningPath extends LitElement {
                 ><p>${lesson.explanation}</p>
                 <div class="lesson-grid"
                     ><div class="lesson-controls"
-                        >${this.step >= 3 ? html`<fdl-field .record=${this.record} field="method"></fdl-field>` : ''}${keyed(this.record.fieldTypeForField('charge'), html`<fdl-field .record=${this.record} field="charge" .showValidationErrors=${true}></fdl-field>`)}</div
+                        >${this.step >= 3 ? html`<fdl-field .record=${this.record} field="method"></fdl-field>` : ''}${keyed(this.record.field('charge'), html`<fdl-field .record=${this.record} field="charge" .showValidationErrors=${true}></fdl-field>`)}</div
                     ><div class="lesson-state" role="status"
                         >${recordSummary(this.record, this.step >= 3 ? ['method', 'charge'] : ['charge'])}</div
                     ></div
@@ -253,7 +253,9 @@ export class FdlLearningPath extends LitElement {
                     ></details
                 >
                 <h3>The current definition</h3
-                ><fdl-code-snippet><pre><code>${highlightJavaScript(this.code())}</code></pre></fdl-code-snippet>
+                ><fdl-code-snippet>
+                    <pre><code>${highlightJavaScript(this.code())}</code></pre>
+                </fdl-code-snippet>
                 <p
                     ><a href=${`#${lesson.reference}`}
                         >Explore ${lesson.reference} in the modifier

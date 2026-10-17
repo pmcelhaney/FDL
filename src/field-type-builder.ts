@@ -15,6 +15,7 @@ import {
     resolveRecordSetting,
     resolveValueSetting,
 } from './field-setting';
+import { resolveRecordFieldType } from './internal-field-type.js';
 import { inputType } from './types/input-types.types';
 
 function classCallback<Args extends unknown[]>(
@@ -742,9 +743,10 @@ export default class FieldTypeBuilder<T = unknown> {
                     field: any
                 ) =>
                     !resolveRecordSetting(predicate, record) ||
-                    !(record?.fieldTypeForField(field) ?? copy).properties.emptyFunctions.some(
-                        (fn: ValueSetting<T, boolean>) =>
-                            resolveValueSetting(fn, modelValue, record)
+                    !(
+                        record ? resolveRecordFieldType(record, field) : copy
+                    ).properties.emptyFunctions.some((fn: ValueSetting<T, boolean>) =>
+                        resolveValueSetting(fn, modelValue, record)
                     ),
             },
         ];

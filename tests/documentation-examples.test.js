@@ -25,10 +25,10 @@ describe('documentation examples', () => {
         appointment.setFields({ name: 'Ada', date: new Date(2026, 9, 12) }); // Monday
         expect(appointment.isValid()).toBe(true);
         expect(appointment.print('name')).toBe('Ada');
-        const newCustomer = appointment.fieldTypeForField('newCustomer');
-        expect(newCustomer.isDisabled(false, appointment)).toBe(false);
+        const newCustomer = appointment.field('newCustomer');
+        expect(newCustomer.disabled).toBe(false);
         appointment.setField('name', 'Unknown');
-        expect(newCustomer.isDisabled(false, appointment)).toBe(true);
+        expect(newCustomer.disabled).toBe(true);
         appointment.setField('name', 'Ada');
         appointment.setField('newCustomer', true);
         expect(appointment.isValid('date')).toBe(false);

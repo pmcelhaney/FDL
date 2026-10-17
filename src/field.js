@@ -1,3 +1,5 @@
+import { resolveRecordFieldType } from './internal-field-type.js';
+
 // eslint-disable-next-line @treasury/filename-match-export
 export default class Field extends EventTarget {
     constructor(record, fieldName) {
@@ -31,8 +33,8 @@ export default class Field extends EventTarget {
         });
     }
 
-    get fieldType() {
-        return this.record.fieldTypeForField(this.fieldName);
+    #fieldType() {
+        return resolveRecordFieldType(this.record, this.fieldName);
     }
 
     get value() {
@@ -70,107 +72,111 @@ export default class Field extends EventTarget {
     }
 
     get label() {
-        return this.fieldType.label(this.rawValue, this.record, 'form');
+        return this.#fieldType().label(this.rawValue, this.record, 'form');
     }
 
     get placeholder() {
-        return this.fieldType.placeholder(this.rawValue, this.record, 'form');
+        return this.#fieldType().placeholder(this.rawValue, this.record, 'form');
     }
 
     get required() {
-        return this.fieldType.required(this.rawValue, this.record, 'form');
+        return this.#fieldType().required(this.rawValue, this.record, 'form');
     }
 
     get disabled() {
-        return this.fieldType.isDisabled(this.rawValue, this.record, 'form');
+        return this.#fieldType().isDisabled(this.rawValue, this.record, 'form');
     }
 
     get readOnly() {
-        return this.fieldType.readonly(this.rawValue, this.record, 'form');
+        return this.#fieldType().readonly(this.rawValue, this.record, 'form');
     }
 
     get visible() {
-        return this.fieldType.visible(this.rawValue, this.record, 'form');
+        return this.#fieldType().visible(this.rawValue, this.record, 'form');
     }
 
     get accept() {
-        return this.fieldType.accept();
+        return this.#fieldType().accept();
     }
 
     get autocomplete() {
-        return this.fieldType.autocomplete();
+        return this.#fieldType().autocomplete();
     }
 
     get autofocus() {
-        return this.fieldType.autofocus();
+        return this.#fieldType().autofocus();
     }
 
     get list() {
-        return this.fieldType.list();
+        return this.#fieldType().list();
     }
 
     get max() {
-        return this.fieldType.max();
+        return this.#fieldType().max();
     }
 
     get pattern() {
-        return this.fieldType.pattern();
+        return this.#fieldType().pattern();
     }
 
     get step() {
-        return this.fieldType.step();
+        return this.#fieldType().step();
     }
 
     get type() {
-        return this.fieldType.type(this.rawValue, this.record, 'form');
+        return this.#fieldType().type(this.rawValue, this.record, 'form');
     }
 
     get schema() {
-        return this.fieldType.schema();
+        return this.#fieldType().schema();
     }
 
     get hasOptions() {
-        return this.fieldType.hasOptions();
+        return this.#fieldType().hasOptions();
+    }
+
+    get hideSelectAll() {
+        return this.#fieldType().properties.options?.hideSelectAll;
     }
 
     get hasFilter() {
-        return this.fieldType.hasFilter();
+        return this.#fieldType().hasFilter();
     }
 
     get hasMultipleValues() {
-        return this.fieldType.hasMultipleValues();
+        return this.#fieldType().hasMultipleValues();
     }
 
     get hasRange() {
-        return this.fieldType.hasRange();
+        return this.#fieldType().hasRange();
     }
 
     get parseDynamicRange() {
-        return this.fieldType.getParseDynamicRange();
+        return this.#fieldType().getParseDynamicRange();
     }
 
     get minLength() {
-        return this.fieldType.minLength(this.rawValue, this.record, 'form');
+        return this.#fieldType().minLength(this.rawValue, this.record, 'form');
     }
 
     get maxLength() {
-        return this.fieldType.maxLength(this.rawValue, this.record, 'form');
+        return this.#fieldType().maxLength(this.rawValue, this.record, 'form');
     }
 
     get selectionDisabledFunctions() {
-        return this.fieldType.selectionDisabledFunctions();
+        return this.#fieldType().selectionDisabledFunctions();
     }
 
     get readOnlyException() {
-        return this.fieldType.readonlyexception(this.record);
+        return this.#fieldType().readonlyexception(this.record);
     }
 
     get inline() {
-        return this.fieldType.inline(this.record);
+        return this.#fieldType().inline(this.record);
     }
 
     get segmented() {
-        return this.fieldType.segmented(this.record);
+        return this.#fieldType().segmented(this.record);
     }
 
     get empty() {
@@ -178,51 +184,51 @@ export default class Field extends EventTarget {
     }
 
     get rowCount() {
-        return this.fieldType.rowCount();
+        return this.#fieldType().rowCount();
     }
 
     get hasRowCount() {
-        return this.fieldType.hasRowCount();
+        return this.#fieldType().hasRowCount();
     }
 
     get info() {
-        return this.fieldType.info();
+        return this.#fieldType().info();
     }
 
     get formatOnChange() {
-        return this.fieldType.formatOnChange();
+        return this.#fieldType().formatOnChange();
     }
 
     get search() {
-        return this.fieldType.search();
+        return this.#fieldType().search();
     }
 
     get searchConfig() {
-        return this.fieldType.searchConfig();
+        return this.#fieldType().searchConfig();
     }
 
     get hasSearch() {
-        return this.fieldType.hasSearch();
+        return this.#fieldType().hasSearch();
     }
 
     get additionalProperties() {
-        return this.fieldType.additionalProperties();
+        return this.#fieldType().additionalProperties();
     }
 
     get hashFunction() {
-        return this.fieldType.hashFunction();
+        return this.#fieldType().hashFunction();
     }
 
     get hideLabel() {
-        return this.fieldType.hideLabel();
+        return this.#fieldType().hideLabel();
     }
 
     get usesCustomPrint() {
-        return this.fieldType.usesCustomPrint();
+        return this.#fieldType().usesCustomPrint();
     }
 
     isEmpty(value = this.rawValue, context = 'model') {
-        return this.fieldType.isEmpty(value, this.record, context);
+        return this.#fieldType().isEmpty(value, this.record, context);
     }
 
     async isValidAsync(value = this.rawValue) {
@@ -242,37 +248,37 @@ export default class Field extends EventTarget {
     }
 
     errors(value = this.rawValue) {
-        return this.fieldType.validate(this.fieldName, value, null, this.record);
+        return this.#fieldType().validate(this.fieldName, value, null, this.record);
     }
 
     async errorsAsync(value = this.rawValue) {
-        return this.fieldType.validateAsync(this.fieldName, value, null, this.record);
+        return this.#fieldType().validateAsync(this.fieldName, value, null, this.record);
     }
 
     readableErrors(value = this.rawValue) {
         return this.errors(value)
             .map(error => ({
                 ...error,
-                label: this.fieldType.label(value, this.record, 'model'),
+                label: this.#fieldType().label(value, this.record, 'model'),
             }))
             .map(error => `${error.label} ${error.name}`);
     }
 
     parse(inputValue, context = 'model') {
-        return this.fieldType.parse(inputValue, this.record, context);
+        return this.#fieldType().parse(inputValue, this.record, context);
     }
 
     format(value = this.rawValue, context = 'model') {
-        return this.fieldType.format(value, this.record, context);
+        return this.#fieldType().format(value, this.record, context);
     }
 
     print(value = this.rawValue) {
-        return this.fieldType.print(value, this.record);
+        return this.#fieldType().print(value, this.record);
     }
 
     defaultValue(value, context = 'model') {
         const valueToResolve = arguments.length === 0 ? this.rawValue : value;
-        return this.fieldType.defaultValue(valueToResolve, this.record, context);
+        return this.#fieldType().defaultValue(valueToResolve, this.record, context);
     }
 
     options() {
@@ -280,7 +286,7 @@ export default class Field extends EventTarget {
     }
 
     onValueChange() {
-        return this.fieldType.onValueChange(this.record);
+        return this.#fieldType().onValueChange(this.record);
     }
 
     refreshOptions() {
@@ -296,19 +302,19 @@ export default class Field extends EventTarget {
     }
 
     allowInputChar(char) {
-        return this.fieldType.allowInputChar(char);
+        return this.#fieldType().allowInputChar(char);
     }
 
     match(searchText, value = this.rawValue) {
-        return this.fieldType.match(searchText, value);
+        return this.#fieldType().match(searchText, value);
     }
 
     cellClasses(value = this.rawValue) {
-        return this.fieldType.cellClasses(value, this.record);
+        return this.#fieldType().cellClasses(value, this.record);
     }
 
     textAlign(value = this.rawValue, context = 'model') {
-        return this.fieldType.textAlign(value, this.record, context);
+        return this.#fieldType().textAlign(value, this.record, context);
     }
 
     field(nameOrIndex) {
@@ -316,10 +322,10 @@ export default class Field extends EventTarget {
     }
 
     maxValueCount() {
-        return this.fieldType.maxValueCount();
+        return this.#fieldType().maxValueCount();
     }
 
     minValueCount() {
-        return this.fieldType.minValueCount();
+        return this.#fieldType().minValueCount();
     }
 }

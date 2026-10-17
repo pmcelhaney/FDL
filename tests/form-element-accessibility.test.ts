@@ -183,7 +183,7 @@ it('shows a spinner, busy state, and disabled select while options load, and ign
     record.setField('zip', '10001');
     await element.updateComplete;
     resolveSecond([{ text: 'Chelsea store', value: 'chelsea' }]);
-    await record.fieldTypeForField('store').options(record);
+    await record.field('store').options();
     await element.updateComplete;
     expect(select.disabled).toBe(false);
     expect(select.hasAttribute('aria-busy')).toBe(false);

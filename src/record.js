@@ -5,6 +5,7 @@ import clone from './helpers/clone.js';
 import deepEquals from './utilities/deep-equality';
 import FieldType from './field-type.js';
 import Field from './field.js';
+import { resolveRecordFieldType } from './internal-field-type.js';
 
 /**
  * @template [T = unknown]
@@ -50,8 +51,7 @@ export default class Record extends EventTarget {
                 Object.entries(this.fieldTypes)
                     .filter(
                         ([field, fieldType]) =>
-                            fieldType.hasOptions() &&
-                            !this.field(field).disabled
+                            fieldType.hasOptions() && !this.field(field).disabled
                     )
                     .map(async ([field, fieldType]) => {
                         try {
@@ -84,7 +84,7 @@ export default class Record extends EventTarget {
 
     /** Load choices only when the field's declared state permits editing. */
     optionsForField(field) {
-        const fieldType = this.fieldTypeForField(field);
+        const fieldType = resolveRecordFieldType(this, field);
         if (this.field(field).disabled) return Promise.resolve([]);
         return fieldType.options(this);
     }
@@ -161,8 +161,8 @@ export default class Record extends EventTarget {
 
     errors() {
         return Object.keys(this.values).map(key => {
-            if (this.fieldTypeForField(key).hasParts) {
-                return this.fieldTypeForField(key)
+            if (resolveRecordFieldType(this, key).hasParts) {
+                return resolveRecordFieldType(this, key)
                     .parts()
                     .map(part =>
                         part.type.validate(part.key, this.values[key][part.key], null, this)
@@ -175,7 +175,7 @@ export default class Record extends EventTarget {
     async errorsAsync() {
         return Promise.all(
             Object.keys(this.values).map(key => {
-                const fieldType = this.fieldTypeForField(key);
+                const fieldType = resolveRecordFieldType(this, key);
                 if (fieldType.hasParts) {
                     return Promise.all(
                         fieldType
@@ -204,15 +204,21 @@ export default class Record extends EventTarget {
 
     readableRecordErrors() {
         const fieldValidationErrors = Object.keys(this.values).map(key => {
-            if (this.fieldTypeForField(key).hasParts) {
-                return this.fieldTypeForField(key)
+            if (resolveRecordFieldType(this, key).hasParts) {
+                return resolveRecordFieldType(this, key)
                     .parts()
                     .map(part => this.field(`${key}.${part.key}`).errors());
             }
-            return this.field(key).errors().map(v => ({
-                ...v,
-                label: this.field(key).fieldType.label(this.getField(key), this, 'model'),
-            }));
+            return this.field(key)
+                .errors()
+                .map(v => ({
+                    ...v,
+                    label: resolveRecordFieldType(this, key).label(
+                        this.getField(key),
+                        this,
+                        'model'
+                    ),
+                }));
         });
         return fieldValidationErrors
             .map(field => field.map(error => `${error.label}: ${error.name}`))
@@ -272,25 +278,6 @@ export default class Record extends EventTarget {
             }
             return isFieldRequired && valueIsNotZero && isFalsyValue;
         });
-    }
-
-    /**
-     *
-     * @param {string} field
-     * @returns {FieldType} FieldType
-     */
-    fieldTypeForField(field) {
-        if (field.includes('.')) {
-            const [parent, child] = field.split('.');
-
-            const parentFieldType = this.fieldTypes[parent];
-
-            if (parentFieldType.hasParts) {
-                return this.fieldTypes[parent].parts().find(p => p.key === child).type;
-            }
-            return this.fieldTypeForField(parent);
-        }
-        return this.fieldTypes[field] || new FieldType();
     }
 
     /**

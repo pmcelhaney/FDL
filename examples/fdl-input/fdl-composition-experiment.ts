@@ -146,8 +146,7 @@ export class FdlCompositionExperiment extends LitElement {
                                             method,
                                             sample.value
                                         );
-                                        const type =
-                                            record.fieldTypeForField('address');
+                                        const field = record.field('address');
                                         const selected =
                                             this.record.getField(
                                                 'fulfillment'
@@ -156,10 +155,7 @@ export class FdlCompositionExperiment extends LitElement {
                                                 this.record.getField('address')
                                             ) === sample.id;
                                         const hiddenInvalid =
-                                            !type.visible(
-                                                record.getField('address'),
-                                                record
-                                            ) && !record.isValid();
+                                            !field.visible && !record.isValid();
                                         return html`<td
                                             ><button
                                                 class="case"
@@ -171,9 +167,9 @@ export class FdlCompositionExperiment extends LitElement {
                                                 <strong
                                                     >${record.isValid() ? 'Valid record' : 'Invalid record'}</strong
                                                 ><span
-                                                    >${type.visible(record.getField('address'), record) ? 'Visible' : 'Hidden'}
+                                                    >${field.visible ? 'Visible' : 'Hidden'}
                                                     ·
-                                                    ${type.required(record.getField('address'), record) ? 'Required' : 'Optional'}</span
+                                                    ${field.required ? 'Required' : 'Optional'}</span
                                                 >${hiddenInvalid ? html`<em>Hidden, but still invalid</em>` : ''}<span
                                                     class="case-action"
                                                     >${selected ? 'Selected kind of case' : 'Inspect this case →'}</span
@@ -266,17 +262,11 @@ export class FdlCompositionExperiment extends LitElement {
         >`;
     }
     private explanation() {
-        const type = this.record.fieldTypeForField('address');
+        const field = this.record.field('address');
         const method = this.record.getField('fulfillment');
         const value = this.record.getField('address');
-        const visible = type.visible(
-            this.record.getField('address'),
-            this.record
-        );
-        const required = type.required(
-            this.record.getField('address'),
-            this.record
-        );
+        const visible = field.visible;
+        const required = field.required;
         const explanation = compositionExplanation(this.rules, method, value);
         const errors: string[] = this.record.readableFieldErrors('address');
         return html`<div class="state" role="status"
@@ -367,7 +357,7 @@ export class FdlCompositionExperiment extends LitElement {
                             .record=${this.record}
                             field="fulfillment"
                         ></fdl-field>
-                        ${keyed(this.record.fieldTypeForField('address'), html`<fdl-field .record=${this.record} field="address" .showValidationErrors=${true}></fdl-field>`)}
+                        ${keyed(this.record.field('address'), html`<fdl-field .record=${this.record} field="address" .showValidationErrors=${true}></fdl-field>`)}
                         <p
                             >Try your own address. The number check is an
                             illustrative format rule, not proof that an address

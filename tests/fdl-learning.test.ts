@@ -80,14 +80,12 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
     const storeField = root.querySelector('fdl-field[field="store"]') as any;
     const record = storeField.record;
     function storeVisible() {
-        return record.fieldTypeForField('store').visible(record.getField('store'), record);
+        return record.field('store').visible;
     }
     async function expectStoreDisabled(disabled: boolean) {
         await storeField.updateComplete;
         await new Promise(resolve => setTimeout(resolve, 0));
-        expect(record.fieldTypeForField('store').isDisabled(record.getField('store'), record)).toBe(
-            disabled
-        );
+        expect(record.field('store').disabled).toBe(disabled);
         expect(storeField.shadowRoot.querySelector('select').disabled).toBe(disabled);
         const status = (await inspectorRoot(demo)).querySelector(
             'tr[data-field="store"] .field-status'
@@ -163,8 +161,8 @@ it('starts with a complete shipping address and retains it when switching to pic
     await zip.updateComplete;
     expect(state.shadowRoot.querySelector('select')).not.toBeNull();
     expect(zip.shadowRoot.querySelector('input')).not.toBeNull();
-    expect(record.fieldTypeForField('state').visible('', record)).toBe(true);
-    expect(record.fieldTypeForField('zip').visible('', record)).toBe(true);
+    expect(record.field('state').visible).toBe(true);
+    expect(record.field('zip').visible).toBe(true);
     expect(record.values).toMatchObject({
         address: '42 Orchard Street',
         city: 'Charlotte',
@@ -186,9 +184,9 @@ it('starts with a complete shipping address and retains it when switching to pic
     await editField(root, 'zip', '28202');
     await editField(root, 'fulfillment', 'pickup');
     await demo.updateComplete;
-    expect(record.fieldTypeForField('city').visible('Charlotte', record)).toBe(false);
-    expect(record.fieldTypeForField('state').visible('NC', record)).toBe(false);
-    expect(record.fieldTypeForField('zip').visible('28202', record)).toBe(true);
+    expect(record.field('city').visible).toBe(false);
+    expect(record.field('state').visible).toBe(false);
+    expect(record.field('zip').visible).toBe(true);
     expect(record.getField('city')).toBe('Charlotte');
     expect(record.getField('state')).toBe('NC');
     await editField(root, 'store', 'uptown');
@@ -214,7 +212,7 @@ it('simulates two seconds of store lookup latency with a spinner', async () => {
     try {
         store.record.setField('zip', '10001');
         await store.updateComplete;
-        const request = store.record.fieldTypeForField('store').options(store.record);
+        const request = store.record.field('store').options();
         expect(store.shadowRoot.querySelector('.options-spinner')).not.toBeNull();
         expect(store.shadowRoot.querySelector('select').disabled).toBe(true);
         jest.advanceTimersByTime(1999);
@@ -325,7 +323,7 @@ const openExplorer = async (hash: string) => {
 const editField = async (root: ShadowRoot, name: string, value: string) => {
     const field = root.querySelector(`fdl-field[field="${name}"]`) as any;
     if (name === 'store') {
-        await field.record.fieldTypeForField('store').options(field.record);
+        await field.record.field('store').options();
     }
     await field.updateComplete;
     await new Promise(resolve => setTimeout(resolve, 0));
@@ -480,7 +478,7 @@ it('compares prefix and substring matching and updates the executable rule', asy
     await catalog.updateComplete;
     expect(catalog.shadowRoot!.querySelector('.case-comparison')).toBeNull();
     const initialTable = catalog.shadowRoot!.querySelector('fdl-table') as any;
-    expect(initialTable.recordset.getFieldType('name').match('ar', 'Margaret')).toBe(false);
+    expect(initialTable.recordset.column('name').match('ar', 'Margaret')).toBe(false);
     await editField(catalog.shadowRoot!, 'matchRule', 'contains');
     await catalog.updateComplete;
     await page.updateComplete;
@@ -489,7 +487,7 @@ it('compares prefix and substring matching and updates the executable rule', asy
             .textContent
     ).toContain('.includes(');
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
-    expect(table.recordset.getFieldType('name').match('ar', 'Margaret')).toBe(true);
+    expect(table.recordset.column('name').match('ar', 'Margaret')).toBe(true);
 });
 
 it('connects original currency text to parsed, stored, and formatted representations', async () => {
@@ -730,9 +728,7 @@ it('keeps a shared selection in both function and async-function options after t
         ) {
             await editField(catalog.shadowRoot!, 'department', department);
         }
-        await Promise.all(
-            fields.map(field => field.record.fieldTypeForField(field.field).options(field.record))
-        );
+        await Promise.all(fields.map(field => field.record.field(field.field).options()));
         await Promise.all(fields.map(field => field.updateComplete));
         await catalog.updateComplete;
         for (const field of fields) {

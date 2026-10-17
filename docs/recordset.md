@@ -8,8 +8,6 @@ Supply a map of field definitions built from `field` or the primitives. The
 recordset prepares their runtime behavior once and shares it across every row.
 `column(name)` returns the table-facing facade for a field. Use it for sorting,
 aggregation, filtering, column classes, alignment, and width guidance.
-`getFieldType(name)` remains available for low-level integrations that need the
-reusable runtime definition.
 
 Use the same definition map for every row:
 

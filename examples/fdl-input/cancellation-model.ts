@@ -59,10 +59,10 @@ export function checkCancellation(rules: CancellationRules) {
                 status: sample.status,
                 reason: sample.reason,
             }),
-            type = record.fieldTypeForField('reason');
+            field = record.field('reason');
         const actual = {
-            visible: type.visible(record.getField('reason'), record),
-            required: type.required(record.getField('reason'), record),
+            visible: field.visible,
+            required: field.required,
             valid: record.isValid(),
         };
         return {
@@ -87,9 +87,7 @@ export function checkCancellationTransition(rules: CancellationRules) {
     });
     record.setField('status', 'active');
     const activeReason = record.getField('reason');
-    const hidden = !record
-        .fieldTypeForField('reason')
-        .visible(record.getField('reason'), record);
+    const hidden = !record.field('reason').visible;
     record.setField('status', 'cancelled');
     const returnedReason = record.getField('reason');
     return {
@@ -99,9 +97,7 @@ export function checkCancellationTransition(rules: CancellationRules) {
             hidden &&
             activeReason === reason &&
             returnedReason === reason &&
-            record
-                .fieldTypeForField('reason')
-                .visible(record.getField('reason'), record) &&
+            record.field('reason').visible &&
             record.isValid(),
     };
 }

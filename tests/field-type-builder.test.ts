@@ -34,8 +34,8 @@ it('normalizes mixed inputs once without changing the caller map', () => {
     const id = string.readOnly().valueOf();
     const fields = { name: builder, id };
     const record = new Record(fields, { name: '', id: 'ID-1' });
-    expect(record.fieldTypeForField('name')).toBeInstanceOf(FieldType);
-    expect(record.fieldTypeForField('id')).toBe(id);
+    expect(record.fieldTypes.name).toBeInstanceOf(FieldType);
+    expect(record.fieldTypes.id).toBe(id);
     expect(record.isValid('name')).toBe(false);
     record.setField('name', 'Ada');
     expect(record.isValid('name')).toBe(true);
@@ -46,7 +46,7 @@ it('normalizes mixed inputs once without changing the caller map', () => {
 it('finalizes definitions added to a record', () => {
     const record = new Record({ name: string }, { name: '' });
     record.addField('reference', string.required().label('Reference'), '');
-    expect(record.fieldTypeForField('reference')).toBeInstanceOf(FieldType);
+    expect(record.fieldTypes.reference).toBeInstanceOf(FieldType);
     expect(record.isValid('reference')).toBe(false);
     record.field('reference').value = 'REF-1';
     expect(record.isValid('reference')).toBe(true);
@@ -57,16 +57,16 @@ it('normalizes a recordset once and shares runtime types with its rows', async (
     const finalize = jest.spyOn(builder, 'valueOf');
     const table = new Recordset({ amount: builder }, [{ amount: 2 }, { amount: 1 }]);
     await table.requestImmediateUpdate();
-    const type = table.getFieldType('amount');
+    const type = table._.fieldTypes.amount;
     expect(type).toBeInstanceOf(FieldType);
-    for (const record of table.allRecords) expect(record.fieldTypeForField('amount')).toBe(type);
+    for (const record of table.allRecords) expect(record.fieldTypes.amount).toBe(type);
     table.appendRecord();
     expect(table.allRecords[2].getField('amount')).toBe(3);
     expect(finalize).toHaveBeenCalledTimes(1);
     const copy = table.clone();
-    expect(copy.getFieldType('amount')).toBeInstanceOf(FieldType);
-    expect(copy.getFieldType('amount')).not.toBe(type);
-    expect(copy.getFieldType('amount').compare(1, 2)).toBeLessThan(0);
+    expect(copy._.fieldTypes.amount).toBeInstanceOf(FieldType);
+    expect(copy._.fieldTypes.amount).not.toBe(type);
+    expect(copy.column('amount').compare(1, 2)).toBeLessThan(0);
 });
 
 it('isolates option caches and result text across finalizations and specializations', async () => {
@@ -95,9 +95,9 @@ it('keeps builder caches independent when reused across records', async () => {
     const fields = { choice: string.options({ fetch }) };
     const first = new Record(fields, { choice: 'yes' });
     const second = new Record(fields, { choice: 'yes' });
-    await first.fieldTypeForField('choice').options(first);
+    await first.field('choice').options();
     expect(second.print('choice')).toBe('yes');
-    await second.fieldTypeForField('choice').options(second);
+    await second.field('choice').options();
     expect(first.print('choice')).toBe('Yes');
     expect(second.print('choice')).toBe('Yes');
     expect(fetch).toHaveBeenCalledTimes(2);
@@ -160,14 +160,14 @@ it('exports a reusable field instance without exposing the builder constructor',
     expect(person.isValid('plain')).toBe(true);
     expect(person.isValid('name')).toBe(false);
     expect(person.isValid('nickname')).toBe(true);
-    expect(person.fieldTypeForField('name').label()).toBe('Name');
-    expect(person.fieldTypeForField('nickname').label()).toBe('Nickname');
+    expect(person.field('name').label).toBe('Name');
+    expect(person.field('nickname').label).toBe('Nickname');
     person.setField('name', 'Ada');
     expect(person.isValid()).toBe(true);
 
     const other = new Record({ name, plain: field }, { name: '', plain: '' });
     expect(other.isValid()).toBe(true);
-    expect(other.fieldTypeForField('plain').label()).toBe('');
+    expect(other.field('plain').label).toBe('');
 });
 
 it('uses custom field chains directly in recordsets and added fields', async () => {
@@ -182,5 +182,5 @@ it('uses custom field chains directly in recordsets and added fields', async () 
     const record = new Record({}, {});
     record.addField('amount', amount, 3);
     expect(record.isValid()).toBe(true);
-    expect(record.fieldTypeForField('amount').parse('4')).toBe(4);
+    expect(record.field('amount').parse('4')).toBe(4);
 });

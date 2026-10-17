@@ -55,7 +55,7 @@ it('applies numeric width selections to the table and displayed source', async (
     maximum.record.parseAndSetField('maximum', '320');
     await demo.updateComplete;
     const table = demo.shadowRoot.querySelector('fdl-table') as any;
-    expect(table.recordset.getFieldType('constrained').maxColumnWidth()).toBe(320);
+    expect(table.recordset.column('constrained').maxColumnWidth()).toBe(320);
     const frame = demo.shadowRoot.querySelector('fdl-example') as any;
     await frame.updateComplete;
     expect(frame.sources['column-widths-model.js']).toContain('.maxColumnWidth(320)');

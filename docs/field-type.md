@@ -33,7 +33,7 @@ is not exposed by `Field`.
 | `Record`    | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()`                                |
 | `Field`     | One field's component-facing value, state, validation, options, and input helpers     | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid`       |
 | `Column`    | One recordset field's table-facing sorting, filtering, and presentation behavior      | `recordset.column(name)`                                                        |
-| `FieldType` | A field's finalized reusable behavior for advanced integrations                       | `field.fieldType`                                                               |
+| `FieldType` | A field's finalized reusable behavior for builders and low-level integrations         | `field.valueOf()`                                                               |
 | `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation       | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
 The sections below describe these APIs first. The integration guidance after
@@ -50,7 +50,7 @@ from it after every model change.
 | Property        | Component use                                                                                                                      |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `values`        | The backing values object. Read it for serialization or debugging; prefer `field(name)` for a field and do not mutate it directly. |
-| `fieldTypes`    | The finalized field types. Prefer `record.field(name).fieldType` from a component.                                                 |
+| `fieldTypes`    | The finalized field types used internally by the record. Components should use `field(name)` instead.                              |
 | `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state.                                      |
 | `hasChanged`    | Whether current values differ from the initial values. Useful for dirty-state indicators.                                          |
 | `isExpanded`    | A public view-model flag used by table/detail-row consumers.                                                                       |
@@ -188,12 +188,12 @@ component needs whole-record status.
 
 ## Advanced: `FieldType` behavior
 
-`record.field(name).fieldType` returns the finalized `FieldType`. Components
-should start with `Field`; use `FieldType` directly only for definition-level
-behavior, advanced integrations, custom renderers, or table-wide metadata that
-is not part of a bound field. The value-taking methods remain on `FieldType` as
-the lower-level implementation and compatibility surface, but they require the
-caller to provide the value and owning record explicitly.
+`FieldType` is the finalized runtime behavior produced by `FieldTypeBuilder`.
+Components should start with `Field` or `Column`; use `FieldType` directly only
+for definition-level behavior, advanced integrations, or custom renderers. The
+value-taking methods remain on `FieldType` as the lower-level implementation
+surface, but they require the caller to provide the value and owning record
+explicitly.
 
 ### Value and state behavior
 
@@ -320,7 +320,6 @@ rows from the recordset and use the `Record`/`Field` APIs for each cell.
 | `copyFrom(recordset, fields)`                       | Copy collection data.                                                                                  |
 | `getRecordAtIndex(index)`                           | Read a loaded row by index.                                                                            |
 | `column(name)`                                      | Read the table-facing facade for a column.                                                             |
-| `getFieldType(name)`                                | Read the finalized reusable field behavior for low-level integrations.                                 |
 | `getData()` / `setData(data)`                       | Serialize or replace collection data.                                                                  |
 | `isValid()` / `errors()`                            | Validate the collection and read collection errors.                                                    |
 
