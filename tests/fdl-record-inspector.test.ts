@@ -151,3 +151,44 @@ it('validates only the displayed fields when inspecting part of a record', async
     await inspector.updateComplete;
     expect(inspector.shadowRoot!.querySelector('.validation strong')!.textContent).toBe('Invalid');
 });
+
+it('inspects nested records and nested recordsets', async () => {
+    const record = new Record(
+        {
+            address: field.record({
+                street: field.required(),
+                city: field,
+            }),
+            contacts: field.recordset({
+                name: field.required(),
+                email: field,
+            }),
+        },
+        {
+            address: { street: '1 Main Street', city: 'New York' },
+            contacts: [
+                { name: 'Ada', email: 'ada@example.com' },
+                { name: 'Grace', email: 'grace@example.com' },
+            ],
+        }
+    );
+    const inspector = await inspect(record);
+    const root = inspector.shadowRoot!;
+
+    expect(root.querySelector('[data-field="address"] .nested-value summary')!.textContent).toBe(
+        'Inspect nested record'
+    );
+    expect(root.querySelector('[data-field="contacts"] .nested-value summary')!.textContent).toContain(
+        'Inspect nested recordset (2 rows)'
+    );
+
+    const details = [...root.querySelectorAll<HTMLDetailsElement>('.nested-value')];
+    details.forEach(detail => {
+        detail.open = true;
+    });
+    await inspector.updateComplete;
+    expect(root.textContent).toContain('1 Main Street');
+    expect(root.textContent).toContain('Inspect row 1');
+    expect(root.textContent).toContain('Ada');
+    expect(root.textContent).toContain('Grace');
+});

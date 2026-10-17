@@ -935,9 +935,11 @@ it.each([
     expect(fields.some(field => inspector.record === field.record)).toBe(true);
     const names = inspector.fields ?? Object.keys(inspector.record!.fieldTypes);
     expect(
-        [...inspector.shadowRoot!.querySelectorAll('tbody tr')].map(row =>
-            row.getAttribute('data-field')
-        )
+        [
+            ...inspector.shadowRoot!.querySelector(
+                'table[aria-label="Field state"] tbody'
+            )!.children,
+        ].map(row => row.getAttribute('data-field'))
     ).toEqual(names);
     expect(names).toEqual(
         expect.arrayContaining(

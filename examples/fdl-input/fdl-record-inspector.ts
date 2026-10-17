@@ -56,6 +56,18 @@ export function statusLegend() {
     </div>`;
 }
 
+function nestedRecord(
+    definitions: Record<any>['fieldTypes'],
+    value: unknown
+): Record<any> {
+    return value instanceof Record
+        ? value
+        : new Record(
+              definitions,
+              (value as { [key: string]: unknown }) ?? {}
+          );
+}
+
 /** Read-only inspection of an FDL record, independent of its form or page. */
 export class FdlRecordInspector extends LitElement {
     static properties = {
@@ -99,6 +111,74 @@ export class FdlRecordInspector extends LitElement {
 
     private toggle() {
         this.collapsed = !this.collapsed;
+    }
+
+    private renderNestedRecord(record: Record<any>, label: string): unknown {
+        const fields = Object.keys(record.fieldTypes);
+        return html`<details class="nested-value">
+            <summary>${label}</summary>
+            <div class="nested-table-scroll" role="region" aria-label=${label} tabindex="0">
+                <table aria-label=${label}>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="status-column"></th>
+                            <th scope="col">Field</th>
+                            <th scope="col">Label</th>
+                            <th scope="col">Stored value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${fields.map(name => {
+                            const field = record.field(name);
+                            return html`<tr data-nested-field=${name}>
+                                <td class="status-column">${fieldStatus(record, name)}</td>
+                                <th scope="row" class="field-name">${name}</th>
+                                <td class="field-label">${field.label}</td>
+                                <td class="stored-value">
+                                    ${storedValue(field.rawValue)}
+                                    ${this.renderNestedValue(field, field.rawValue)}
+                                </td>
+                            </tr>`;
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            <p class="nested-validation" role="status">
+                ${record.isValid() ? 'Valid' : 'Invalid'} nested record
+            </p>
+        </details>`;
+    }
+
+    private renderNestedValue(
+        field: ReturnType<Record<any>['field']>,
+        value: unknown
+    ): unknown {
+        if (field.recordDefinition) {
+            return this.renderNestedRecord(
+                nestedRecord(field.recordDefinition, value),
+                'Inspect nested record'
+            );
+        }
+        if (field.recordsetDefinition) {
+            const values = Array.isArray(value) ? value : [];
+            return html`<details class="nested-value">
+                <summary>Inspect nested recordset (${values.length} rows)</summary>
+                ${values.length
+                    ? values.map((row, index) =>
+                          this.renderNestedRecord(
+                              nestedRecord(field.recordsetDefinition!, row),
+                              `Inspect row ${index + 1}`
+                          )
+                      )
+                    : html`<p class="nested-empty">No nested rows.</p>`}
+                <p class="nested-validation" role="status">
+                    ${values.every(row => nestedRecord(field.recordsetDefinition!, row).isValid())
+                        ? 'Valid'
+                        : 'Invalid'} nested recordset
+                </p>
+            </details>`;
+        }
+        return '';
     }
 
     render() {
@@ -184,7 +264,7 @@ export class FdlRecordInspector extends LitElement {
                                                       >${field.label}</td
                                                   >
                                                   <td class="stored-value"
-                                                      >${storedValue(field.rawValue)}</td
+                                                      >${storedValue(field.rawValue)}${this.renderNestedValue(field, field.rawValue)}</td
                                                   >
                                               </tr>`;
                                           })}</tbody
@@ -315,6 +395,33 @@ export class FdlRecordInspector extends LitElement {
         }
         .table-scroll {
             overflow-x: auto;
+        }
+        .nested-table-scroll {
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+        .nested-value {
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px solid var(--example-border);
+            border-radius: 6px;
+            background: #fafafa;
+            font-family: inherit;
+        }
+        .nested-value summary {
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .nested-value table {
+            min-width: 420px;
+            margin-top: 8px;
+        }
+        .nested-validation,
+        .nested-empty {
+            margin: 8px 0 0;
+            font-size: 0.8125rem;
         }
         .table-scroll:focus-visible {
             outline: 3px solid #525252;
