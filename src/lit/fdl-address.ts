@@ -98,11 +98,13 @@ export class FdlAddress extends LitElement {
             return;
         }
         const values = parentField.rawValue ?? {};
-        this.childRecord = new Record(definitions, { ...values });
+        if (this.childRecord?.values === values) return;
+        this.childRecord = new Record(definitions, values);
+        this.requestUpdate();
         this.childRecord.addEventListener('change', () => {
             if (!this.record || !this.childRecord) return;
             this.syncingParent = true;
-            this.record.setField(this.field, { ...this.childRecord.values });
+            this.record.setField(this.field, this.childRecord.values);
             this.syncingParent = false;
         });
     }
