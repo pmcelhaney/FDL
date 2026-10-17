@@ -31,5 +31,10 @@ export const recordset = new Recordset(
                     : []
             ),
     },
-    weeklyExpenses.map(expense => ({ ...expense }))
+    Array.from({ length: 5 }, (_, week) =>
+        weeklyExpenses.map(expense => ({
+            ...expense,
+            day: `Week ${week + 1}, ${expense.day}`,
+        }))
+    ).flat()
 );
