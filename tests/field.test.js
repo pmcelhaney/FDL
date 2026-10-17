@@ -100,6 +100,23 @@ describe('Field', () => {
         expect(field.isValidValue('x4x')).toEqual(false);
     });
 
+    it('exposes field-scoped parsing, formatting, printing, and errors', async () => {
+        const fieldType = greaterThanFive
+            .parser(value => Number(value))
+            .formatter(value => `$${value}`)
+            .label('Amount');
+        const record = new Record({ amount: fieldType }, { amount: 6 });
+        const field = record.field('amount');
+
+        expect(field.parse('7')).toEqual(7);
+        expect(field.format(7)).toEqual('$7');
+        expect(field.print()).toEqual('$6');
+        expect(field.errors()).toEqual([]);
+        expect(field.readableErrors()).toEqual([]);
+        expect(await field.errorsAsync()).toEqual([]);
+        expect(await field.isValidAsync()).toEqual(true);
+    });
+
     it('announces when the value has changed on the record', () => {
         const record = new Record({ test: greaterThanFive }, { test: 5 });
         const field = record.field('test');

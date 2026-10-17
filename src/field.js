@@ -4,13 +4,12 @@ export default class Field extends EventTarget {
         super();
         this.record = record;
         this.fieldName = fieldName;
+        this.fieldType = this.record.fieldTypeForField(fieldName);
 
         this.previousState = {
             rawValue: this.rawValue,
             valid: this.valid,
         };
-
-        this.fieldType = this.record.fieldTypeForField(fieldName);
 
         // Note: there's no mechanism to clean up this listener when the Field is destroyed.
         // The assumption is the Field object will only be garbage collected after the Record is garbage collected.
@@ -27,13 +26,11 @@ export default class Field extends EventTarget {
     }
 
     get value() {
-        return this.record.print(this.fieldName);
+        return this.print();
     }
 
     set value(inputValue) {
-        if (inputValue !== this.rawValue) {
-            this.record.parseAndSetField(this.fieldName, inputValue);
-        }
+        this.set(inputValue);
         this.previousState.rawValue = this.rawValue;
     }
 
@@ -42,20 +39,19 @@ export default class Field extends EventTarget {
     }
 
     set rawValue(value) {
-        this.record.setField(this.fieldName, value);
-        this.previousState.rawValue = this.rawValue;
+        this.setRaw(value);
     }
 
     get focusedInputValue() {
-        return this.record.getFormattedField(this.fieldName, 'input-focus');
+        return this.format(this.rawValue, 'input-focus');
     }
 
     get blurredInputValue() {
-        return this.record.getFormattedField(this.fieldName, 'input-blur');
+        return this.format(this.rawValue, 'input-blur');
     }
 
     get valid() {
-        return this.record.isValid(this.fieldName, this.rawValue);
+        return this.isValid();
     }
 
     get invalid() {
@@ -63,17 +59,69 @@ export default class Field extends EventTarget {
     }
 
     async isValidAsync() {
-        return this.record.isValidAsync(this.fieldName, this.rawValue);
+        return (await this.errorsAsync()).length === 0;
     }
 
-    isValidValue(inputValue) {
-        const value = this.fieldType.parse(inputValue, this.record, 'model');
-        return this.record.isValid(this.fieldName, value);
+    isValid(value = this.rawValue) {
+        return this.errors(value).length === 0;
     }
 
     async isValidValueAsync(inputValue) {
-        const value = this.fieldType.parse(inputValue, this.record, 'model');
-        return this.record.isValidAsync(this.fieldName, value);
+        return (await this.errorsAsync(this.parse(inputValue))).length === 0;
+    }
+
+    isValidValue(inputValue) {
+        return this.isValid(this.parse(inputValue));
+    }
+
+    errors(value = this.rawValue) {
+        return this.fieldType.validate(this.fieldName, value, null, this.record);
+    }
+
+    async errorsAsync(value = this.rawValue) {
+        return this.fieldType.validateAsync(this.fieldName, value, null, this.record);
+    }
+
+    readableErrors(value = this.rawValue) {
+        return this.errors(value)
+            .map(error => ({
+                ...error,
+                label: this.fieldType.label(value, this.record, 'model'),
+            }))
+            .map(error => `${error.label} ${error.name}`);
+    }
+
+    parse(inputValue, context = 'model') {
+        return this.fieldType.parse(inputValue, this.record, context);
+    }
+
+    format(value = this.rawValue, context = 'model') {
+        return this.fieldType.format(value, this.record, context);
+    }
+
+    print(value = this.rawValue) {
+        return this.fieldType.print(value, this.record);
+    }
+
+    set(inputValue) {
+        if (inputValue !== this.rawValue) this.setRaw(this.parse(inputValue));
+    }
+
+    setRaw(value) {
+        this.record.setField(this.fieldName, value);
+        this.previousState.rawValue = this.rawValue;
+    }
+
+    options() {
+        return this.record.optionsForField(this.fieldName);
+    }
+
+    refreshOptions() {
+        return this.record.refreshOptions();
+    }
+
+    whenOptionsReady() {
+        return this.record.whenOptionsReady();
     }
 
     onChange(fn) {

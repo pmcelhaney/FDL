@@ -121,9 +121,9 @@ removes that error element and the ARIA state. CSS may style
 `.validation-error`, `[aria-invalid="true"]`, or both, but must not decide
 whether the model is valid.
 
-This behavior uses `Record.readableFieldErrors()`, so it covers synchronous FDL
-validators only. The adapter also constructs a `Field` facade, which reads
-synchronous validity immediately. An async validator therefore throws even
+This behavior uses `record.field(name).readableErrors()`, so it covers
+synchronous FDL validators only. The adapter also constructs a `Field` facade,
+which reads synchronous validity immediately. An async validator therefore throws even
 when `showValidationErrors` is false. Applications that use asynchronous
 validators must await the async Record APIs directly and render their result
 through an application-specific adapter. See [Current limits](./adapter-contract.md#current-limits).
@@ -141,7 +141,7 @@ configured, the control adds its own empty choice; the prompt is not added to th
 model's option data. An explicitly supplied empty option is still supported and takes precedence.
 Use `.required()` or `.required(...)` if choosing an option is part of validation.
 
-The adapter loads through `Record.optionsForField(name)` and defers fetching
+The adapter loads through `record.field(name).options()` and defers fetching
 while the field's declared disabled state is true. Disabling during a lookup
 clears the loading indicator and prevents the pending result from updating the
 control. Once enabled, the field loads its current choices.

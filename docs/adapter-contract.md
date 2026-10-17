@@ -33,7 +33,7 @@ After its first update, the adapter:
    `rowCount()` is configured, and an `input` otherwise;
 3. copies the formatted value and supported field state to that element;
 4. creates a stable, per-instance ID and associates the visible label with it;
-5. translates control events into `Record.parseAndSetField()` calls; and
+5. translates control events into `record.field(name).value = input` calls; and
 6. refreshes the control when the Record announces a change.
 
 Native `input`, `select`, and `textarea` elements receive their corresponding
@@ -74,7 +74,7 @@ an unrelated internal input.
 
 ## Current limits
 
-- Validation display uses synchronous `Record.readableFieldErrors()`. The
+- Validation display uses synchronous `record.field(name).readableErrors()`. The
   adapter constructs a `Field` facade that reads validity immediately, so an
   async validator throws even when error display is off. Use the async Record
   APIs with an application-specific adapter for async rules. The built-in
