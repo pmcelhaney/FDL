@@ -54,6 +54,12 @@ example checks presence; a Tax ID format rule would be a separate validator.
 The initial values are explicit: `defaultValue()` applies when clearing a
 record, rather than filling its constructor values.
 
+## Backend validation
+
+Use the same field definitions to validate API requests and background jobs.
+See [Backend validation with FDL](docs/backend-validation.md) for request
+shaping, cross-field rules, safe error responses, and asynchronous validators.
+
 ## Lit elements
 
 The package includes styled Lit elements for fields, nested addresses, and tables:

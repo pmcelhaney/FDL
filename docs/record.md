@@ -114,6 +114,9 @@ caching still applies. `whenOptionsReady()` waits for the latest pass and any
 passes caused by dependent selections clearing. It does not reject on failed
 lookups; the value is retained so a lookup failure does not erase a selection.
 
+For a complete server-side request flow, see
+[Backend validation with FDL](./backend-validation.md).
+
 ## Validation and display
 
 `isValid()` checks the entire record. For field-scoped validation and display,
