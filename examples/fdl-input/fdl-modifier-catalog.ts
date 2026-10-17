@@ -1270,6 +1270,7 @@ export class FdlModifierCatalog extends LitElement {
             options: ['department', 'assignee', 'asyncAssignee'],
             parser: ['money'],
             placeholder: ['projectName'],
+            record: ['address'],
             readOnly: ['fixedOwner', 'phase', 'conditionalOwner'],
             required: ['requiredName', 'followUp', 'followUpNotes'],
             rowCount: ['comments'],

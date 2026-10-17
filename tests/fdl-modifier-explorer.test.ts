@@ -914,6 +914,7 @@ it.each([
     'options',
     'parser',
     'placeholder',
+    'record',
     'readOnly',
     'rowCount',
     'type',
@@ -944,6 +945,22 @@ it.each([
         )
     );
     expect(root.querySelector('.model, .focused-state')).toBeNull();
+});
+
+it('adds a record inspector to the structured record page', async () => {
+    const page = await openPage('#record');
+    const catalog = page.shadowRoot!.querySelector<FdlModifierCatalog>(
+        'fdl-modifier-catalog'
+    )!;
+    await catalog.updateComplete;
+    const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
+    await inspector.updateComplete;
+
+    expect(inspector).toBeTruthy();
+    expect(inspector.fields).toEqual(['address']);
+    expect(inspector.shadowRoot!.querySelector('[data-field="address"]')).toBeTruthy();
+    expect(inspector.shadowRoot!.textContent).toContain('Shipping address');
+    expect(inspector.shadowRoot!.textContent).toContain('1 Main Street');
 });
 
 it.each([
