@@ -93,6 +93,134 @@ export default class Field extends EventTarget {
         return this.fieldType.visible(this.rawValue, this.record, 'form');
     }
 
+    get accept() {
+        return this.fieldType.accept();
+    }
+
+    get autocomplete() {
+        return this.fieldType.autocomplete();
+    }
+
+    get autofocus() {
+        return this.fieldType.autofocus();
+    }
+
+    get list() {
+        return this.fieldType.list();
+    }
+
+    get max() {
+        return this.fieldType.max();
+    }
+
+    get pattern() {
+        return this.fieldType.pattern();
+    }
+
+    get step() {
+        return this.fieldType.step();
+    }
+
+    get type() {
+        return this.fieldType.type(this.rawValue, this.record, 'form');
+    }
+
+    get schema() {
+        return this.fieldType.schema();
+    }
+
+    get hasOptions() {
+        return this.fieldType.hasOptions();
+    }
+
+    get hasFilter() {
+        return this.fieldType.hasFilter();
+    }
+
+    get hasMultipleValues() {
+        return this.fieldType.hasMultipleValues();
+    }
+
+    get hasRange() {
+        return this.fieldType.hasRange();
+    }
+
+    get parseDynamicRange() {
+        return this.fieldType.getParseDynamicRange();
+    }
+
+    get minLength() {
+        return this.fieldType.minLength(this.rawValue, this.record, 'form');
+    }
+
+    get maxLength() {
+        return this.fieldType.maxLength(this.rawValue, this.record, 'form');
+    }
+
+    get selectionDisabledFunctions() {
+        return this.fieldType.selectionDisabledFunctions();
+    }
+
+    get readOnlyException() {
+        return this.fieldType.readonlyexception(this.record);
+    }
+
+    get inline() {
+        return this.fieldType.inline(this.record);
+    }
+
+    get segmented() {
+        return this.fieldType.segmented(this.record);
+    }
+
+    get empty() {
+        return this.isEmpty();
+    }
+
+    get rowCount() {
+        return this.fieldType.rowCount();
+    }
+
+    get hasRowCount() {
+        return this.fieldType.hasRowCount();
+    }
+
+    get info() {
+        return this.fieldType.info();
+    }
+
+    get formatOnChange() {
+        return this.fieldType.formatOnChange();
+    }
+
+    get search() {
+        return this.fieldType.search();
+    }
+
+    get searchConfig() {
+        return this.fieldType.searchConfig();
+    }
+
+    get hasSearch() {
+        return this.fieldType.hasSearch();
+    }
+
+    get additionalProperties() {
+        return this.fieldType.additionalProperties();
+    }
+
+    get hashFunction() {
+        return this.fieldType.hashFunction();
+    }
+
+    get hideLabel() {
+        return this.fieldType.hideLabel();
+    }
+
+    get usesCustomPrint() {
+        return this.fieldType.usesCustomPrint();
+    }
+
     isEmpty(value = this.rawValue, context = 'model') {
         return this.fieldType.isEmpty(value, this.record, context);
     }
@@ -149,6 +277,10 @@ export default class Field extends EventTarget {
 
     options() {
         return this.record.optionsForField(this.fieldName);
+    }
+
+    onValueChange() {
+        return this.fieldType.onValueChange(this.record);
     }
 
     refreshOptions() {

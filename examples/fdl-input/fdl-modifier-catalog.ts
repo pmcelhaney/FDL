@@ -1044,7 +1044,7 @@ export class FdlModifierCatalog extends LitElement {
                                     role="status"
                                     data-field=${field}
                                 >
-                                    ${this.record.fieldTypeForField(field).empty(this.record, field) ? 'This field is considered empty' : 'This field is not considered empty'}<br />
+                                    ${this.record.field(field).empty ? 'This field is considered empty' : 'This field is not considered empty'}<br />
                                     ${!this.record.isValid(field) ? 'Invalid: Reference is required.' : field === 'optionalEmptyCode' ? 'Valid: this field is optional.' : 'Valid: a reference has been provided.'}
                                 </p>`
                     )}`;
@@ -1337,8 +1337,10 @@ export class FdlModifierCatalog extends LitElement {
                                             >MODEL EXERCISE</p
                                         >${this.stateSummary(entry.name)}<details
                                             ><summary>Inspect full JSON</summary
-                                            ><fdl-code-snippet><pre>
-${JSON.stringify(this.focusedState(entry.name), null, 2)}</pre></fdl-code-snippet>
+                                            ><fdl-code-snippet>
+                                                <pre>
+${JSON.stringify(this.focusedState(entry.name), null, 2)}</pre>
+                                            </fdl-code-snippet>
                                         </details></div
                                     >`
                           }`

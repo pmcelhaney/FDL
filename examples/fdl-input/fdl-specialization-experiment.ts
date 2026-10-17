@@ -78,7 +78,7 @@ export class FdlSpecializationExperiment extends LitElement {
                             >
                             ${keyed(this.record.fieldTypeForField(key), html`<fdl-field .record=${this.record} field=${key} .showValidationErrors=${true}></fdl-field>`)}
                             <p class="variant-state"
-                                >${this.record.fieldTypeForField(key).required(this.record.getField(key), this.record) ? 'Required' : 'Optional'}
+                                >${this.record.field(key).required ? 'Required' : 'Optional'}
                                 ·
                                 ${this.record.isValid(key) ? 'Valid' : 'Invalid'}</p
                             ></section

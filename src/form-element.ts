@@ -52,11 +52,8 @@ class FormElement extends ListeningElement {
         if (!this.record) throw new Error('OmegaFormElement: record is required');
         if (!this.field) throw new Error('OmegaFormElement: field is required');
         this.fieldType = this.record.fieldTypeForField(this.field);
-        const controlTag = this.fieldType.hasOptions()
-            ? 'select'
-            : this.fieldType.hasRowCount()
-              ? 'textarea'
-              : 'input';
+        const field = this.record.field(this.field);
+        const controlTag = field.hasOptions ? 'select' : field.hasRowCount ? 'textarea' : 'input';
         this.element = document.createElement(controlTag);
         this.syncSelectPrompt();
         this.addListenersToElement();
@@ -78,7 +75,9 @@ class FormElement extends ListeningElement {
     }
 
     private acceptedInput(text: string) {
-        return [...text].filter(character => this.fieldType?.allowInputChar(character)).join('');
+        return [...text]
+            .filter(character => this.record?.field(this.field).allowInputChar(character))
+            .join('');
     }
 
     private filterNativeInput() {
@@ -150,7 +149,7 @@ class FormElement extends ListeningElement {
                 } finally {
                     this.parsingNativeInput = false;
                 }
-                this.fieldType?.onValueChange(this.record);
+                this.record?.field(this.field).onValueChange();
                 this.element.dispatchEvent(new CustomEvent('update', { detail: { value, event } }));
             });
         });
@@ -213,7 +212,7 @@ class FormElement extends ListeningElement {
                 <div class="multiple-menu">
                     <fieldset ?disabled=${select.disabled}>
                         <legend class="visually-hidden"
-                            >${this.fieldType?.label(this.record?.field(this.field).rawValue, this.record, 'form')}</legend
+                            >${this.record?.field(this.field).label}</legend
                         >
                         <p class="multiple-hint">Select any combination.</p>
                         <div class="multiple-options"
@@ -268,7 +267,7 @@ class FormElement extends ListeningElement {
          * used to conform to a components API where the property may not
          * be assignable via a field type modifier
          */
-        const properties = this.fieldType?.additionalProperties() ?? {};
+        const properties = boundField?.additionalProperties ?? {};
         Object.keys(properties).forEach((key: string) => {
             this.element[key] = properties[key];
         });
@@ -276,17 +275,13 @@ class FormElement extends ListeningElement {
          * assign all standard properties we can from the modifiers
          */
         if (this.element instanceof HTMLInputElement) {
-            const type = this.fieldType?.type(
-                boundField?.rawValue,
-                this.record,
-                'form'
-            );
+            const type = boundField?.type;
             if (typeof type === 'string') this.element.type = type;
         }
         // Native selects use option identities, not formatted labels. Keep all
         // selected identities intact between native input and change events.
         if (this.element instanceof HTMLSelectElement) {
-            this.element.multiple = this.fieldType?.hasMultipleValues() ?? false;
+            this.element.multiple = boundField?.hasMultipleValues ?? false;
             this.syncSelectValue();
         } else if (
             this.element instanceof HTMLInputElement &&
@@ -301,66 +296,36 @@ class FormElement extends ListeningElement {
             this.element.value = boundField?.focusedInputValue;
         }
         this.element.id = this.controlId;
-        this.element.required = this.fieldType?.required(
-            boundField?.rawValue,
-            this.record,
-            'model'
-        );
-        this.element.visible = this.fieldType?.visible(
-            boundField?.rawValue,
-            this.record,
-            'model'
-        );
-        this.element.readonly = this.fieldType?.readonly(
-            boundField?.rawValue,
-            this.record,
-            'model'
-        );
-        this.element.label = this.fieldType?.label(
-            boundField?.rawValue,
-            this.record,
-            'form'
-        );
-        this.element.inline = this.fieldType?.inline(this.record);
-        this.element.segmented = this.fieldType?.segmented(this.record);
-        this.element.empty = this.fieldType?.empty(this.record, this.field);
-        this.element.disabled =
-            Boolean(this.element.loading) ||
-            this.fieldType?.isDisabled(this.record?.field(this.field).rawValue, this.record, 'model');
+        this.element.required = boundField?.required;
+        this.element.visible = boundField?.visible;
+        this.element.readonly = boundField?.readOnly;
+        this.element.label = boundField?.label;
+        this.element.inline = boundField?.inline;
+        this.element.segmented = boundField?.segmented;
+        this.element.empty = boundField?.empty;
+        this.element.disabled = Boolean(this.element.loading) || boundField?.disabled;
         this.element.name = this.field;
-        this.element.rows = this.fieldType?.rowCount();
-        this.element.maxLength = this.fieldType?.maxLength(
-            boundField?.rawValue,
-            this.record,
-            'model'
-        );
-        this.element.minLength = this.fieldType?.minLength(
-            boundField?.rawValue,
-            this.record,
-            'model'
-        );
-        this.element.placeholder = this.fieldType?.placeholder(
-            boundField?.rawValue,
-            this.record,
-            'form'
-        );
+        this.element.rows = boundField?.rowCount;
+        this.element.maxLength = boundField?.maxLength;
+        this.element.minLength = boundField?.minLength;
+        this.element.placeholder = boundField?.placeholder;
         if (this.element instanceof HTMLSelectElement) {
-            this.element.toggleAttribute('multiple', this.fieldType?.hasMultipleValues() ?? false);
+            this.element.toggleAttribute('multiple', boundField?.hasMultipleValues ?? false);
         } else {
-            this.element.multiple = this.fieldType?.hasMultipleValues();
+            this.element.multiple = boundField?.hasMultipleValues;
         }
-        this.element.accept = this.fieldType?.accept();
-        this.element.autocomplete = this.fieldType?.autocomplete();
-        this.element.autofocus = this.fieldType?.autofocus();
+        this.element.accept = boundField?.accept;
+        this.element.autocomplete = boundField?.autocomplete;
+        this.element.autofocus = boundField?.autofocus;
         // `list` is an attribute on native inputs; assigning it as a property
         // expects an HTMLDataListElement and silently drops a string id.
-        const list = this.fieldType?.list();
+        const list = boundField?.list;
         if (list) this.element.setAttribute('list', list);
         else this.element.removeAttribute('list');
-        this.element.max = this.fieldType?.max();
-        this.element.pattern = this.fieldType?.pattern();
-        this.element.step = this.fieldType?.step();
-        this.element.hashFunction = this.fieldType?.hashFunction();
+        this.element.max = boundField?.max;
+        this.element.pattern = boundField?.pattern;
+        this.element.step = boundField?.step;
+        this.element.hashFunction = boundField?.hashFunction;
         this.element.record = this.record;
 
         /**
@@ -369,34 +334,27 @@ class FormElement extends ListeningElement {
          */
         this.element.fieldModel = this.record?.field(this.field);
         this.element.field = this.record?.field(this.field); // weird name here, we need to deprecate this and fieldModel
-        this.element.formatOnChange = this.fieldType?.formatOnChange();
-        this.element.searchConfig = this.fieldType?.searchConfig();
-        this.element.hasSearch = this.fieldType?.hasSearch();
-        this.element.hasFilter = this.fieldType?.hasFilter();
-        this.element.readonlyexception = this.fieldType?.readonlyexception(this.record);
-        this.element.readOnly = this.fieldType?.readonly(
-            this.record?.field(this.field).rawValue,
-            this.record,
-            'model'
-        ); // case change only on omega-frequency - should update there and remove this
-        this.element.readOnlyException = this.fieldType?.readonlyexception(this.record); // case change only on omega-frequency - should update there and remove this
-        this.element.parseDynamicRange = this.fieldType?.getParseDynamicRange();
+        this.element.formatOnChange = boundField?.formatOnChange;
+        this.element.searchConfig = boundField?.searchConfig;
+        this.element.hasSearch = boundField?.hasSearch;
+        this.element.hasFilter = boundField?.hasFilter;
+        this.element.readonlyexception = boundField?.readOnlyException;
+        this.element.readOnly = boundField?.readOnly; // case change only on omega-frequency - should update there and remove this
+        this.element.readOnlyException = boundField?.readOnlyException; // case change only on omega-frequency - should update there and remove this
+        this.element.parseDynamicRange = boundField?.parseDynamicRange;
         this.element.dateDisabledFunction =
-            this.fieldType?.selectionDisabledFunctions().dateDisabledFunction;
+            boundField?.selectionDisabledFunctions?.dateDisabledFunction;
         this.element.hideSelectAll = this.fieldType?.properties.options?.hideSelectAll;
-        this.element.maxValueCount = this.fieldType?.maxValueCount();
+        this.element.maxValueCount = boundField?.maxValueCount();
 
-        if (
-            this.fieldType?.hasOptions() &&
-            this.fieldType.isDisabled(this.record?.field(this.field).rawValue, this.record)
-        ) {
+        if (boundField?.hasOptions && boundField.disabled) {
             // Invalidate pending UI work without fetching or erasing its options.
             this.optionsRequestVersion++;
             this.optionsRequest = undefined;
             this.element.loading = false;
             this.element.removeAttribute('aria-busy');
             this.element.disabled = true;
-        } else if (this.fieldType?.hasOptions()) {
+        } else if (boundField?.hasOptions) {
             const request = boundField!.options();
             if (request !== this.optionsRequest) {
                 this.optionsRequest = request;
@@ -428,11 +386,7 @@ class FormElement extends ListeningElement {
                 } finally {
                     if (version === this.optionsRequestVersion) {
                         this.element.loading = false;
-                        this.element.disabled = this.fieldType.isDisabled(
-                            boundField?.rawValue,
-                            this.record,
-                            'model'
-                        );
+                        this.element.disabled = boundField.disabled;
                         this.element.removeAttribute('aria-busy');
                         this.requestUpdate();
                     }
@@ -444,7 +398,10 @@ class FormElement extends ListeningElement {
     }
 
     private syncSelectPrompt() {
-        if (!(this.element instanceof HTMLSelectElement) || this.fieldType?.hasMultipleValues())
+        if (
+            !(this.element instanceof HTMLSelectElement) ||
+            this.record?.field(this.field).hasMultipleValues
+        )
             return;
         let prompt = this.element.querySelector(
             'option[data-select-prompt]'
@@ -487,8 +444,7 @@ class FormElement extends ListeningElement {
 
     private visibleValidationErrors() {
         if (!this.showValidationErrors || !this.record || !this.fieldType) return [];
-        if (!this.fieldType.visible(this.record?.field(this.field).rawValue, this.record, 'model'))
-            return [];
+        if (!this.record.field(this.field).visible) return [];
         return this.record.field(this.field).readableErrors();
     }
 
@@ -512,28 +468,23 @@ class FormElement extends ListeningElement {
     }
 
     renderRequired() {
-        if (!this.fieldType) return nothing;
-        if (!this.fieldType?.required(this.record?.field(this.field).rawValue, this.record, 'model'))
-            return nothing;
-        if (this.fieldType?.readonly(this.record?.field(this.field).rawValue, this.record, 'model'))
-            return nothing;
+        if (!this.fieldType || !this.record) return nothing;
+        if (!this.record.field(this.field).required) return nothing;
+        if (this.record.field(this.field).readOnly) return nothing;
         return html`<span class="required">&nbsp;*</span>`;
     }
 
     renderLabel() {
         if (!this.record) return nothing;
-        if (!this.fieldType?.label(this.record?.field(this.field).rawValue, this.record, 'form'))
-            return nothing;
-        if (this.fieldType?.hideLabel()) return nothing;
-        if (!this.fieldType?.visible(this.record?.field(this.field).rawValue, this.record, 'model'))
-            return nothing;
+        const field = this.record.field(this.field);
+        if (!field.label) return nothing;
+        if (field.hideLabel) return nothing;
+        if (!field.visible) return nothing;
         return html`<label
             id=${this.labelId}
             for=${this.controlId}
             @click=${() => this.shadowRoot?.querySelector<HTMLElement>('.multiple-values summary')?.focus()}
-            >${this.fieldType?.label(this.record?.field(this.field).rawValue, this.record, 'form')}${this.renderRequired()}<slot
-                name="label"
-            ></slot
+            >${field.label}${this.renderRequired()}<slot name="label"></slot
         ></label>`;
     }
 
@@ -547,9 +498,9 @@ class FormElement extends ListeningElement {
     renderElement() {
         if (!this.record) return nothing;
         if (!this.element) return nothing;
-        if (!this.fieldType?.visible(this.record?.field(this.field).rawValue, this.record, 'model'))
-            return nothing;
-        if (this.element.readonly && !this.fieldType?.usesCustomPrint()) {
+        const field = this.record.field(this.field);
+        if (!field.visible) return nothing;
+        if (this.element.readonly && !field.usesCustomPrint) {
             const hasVisibleErrors = this.visibleValidationErrors().length > 0;
             return html`<div class="control">
                 <output

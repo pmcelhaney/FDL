@@ -166,7 +166,7 @@ export class FdlTable extends LitElement {
                 'updated',
                 this.onRecordsetChange
             );
-        void this.observedRecordset?.requestImmediateUpdate();
+            void this.observedRecordset?.requestImmediateUpdate();
         }
         if (this.filters) {
             const next = Object.entries(this.filters).filter(([, value]) =>
@@ -400,20 +400,26 @@ export class FdlTable extends LitElement {
         if (!this.columnWidths) return 'Waiting for browser measurements.';
         const width = this.columnWidths[index];
         const limits = this.columnLimits(column);
-        const preferred = this.recordset?.getFieldType(column.field).targetColumnWidth();
+        const preferred = this.recordset
+            ?.getFieldType(column.field)
+            .targetColumnWidth();
         const explanation: string[] = [];
         if (preferred !== undefined) {
             const difference = Math.round(width - preferred);
-            explanation.push(difference === 0
-                ? 'Matches the preferred width'
-                : `${Math.abs(difference)}px ${difference > 0 ? 'above' : 'below'} the preferred width`);
+            explanation.push(
+                difference === 0
+                    ? 'Matches the preferred width'
+                    : `${Math.abs(difference)}px ${difference > 0 ? 'above' : 'below'} the preferred width`
+            );
         }
         if (width <= limits.min) explanation.push('at the minimum');
         else if (limits.max !== undefined && width >= limits.max)
             explanation.push('at the maximum');
         else explanation.push('within the width limits');
         const otherWidth = this.columnWidths.reduce(
-            (total, value, otherIndex) => total + (otherIndex === index ? 0 : value), 0
+            (total, value, otherIndex) =>
+                total + (otherIndex === index ? 0 : value),
+            0
         );
         return `${explanation.join('; ')}. Other columns use ${Math.round(otherWidth)}px.`;
     }
@@ -802,10 +808,10 @@ export class FdlTable extends LitElement {
         classes: string
     ) {
         const value = record.getField(column.field);
-        const fieldType = record.fieldTypeForField(column.field);
+        const field = record.field(column.field);
         return html`<td
-            class=${[classes, ...fieldType.cellClasses(value, record)].filter(Boolean).join(' ')}
-            style=${`text-align:${fieldType.textAlign(value, record, 'table')}`}
+            class=${[classes, ...field.cellClasses(value)].filter(Boolean).join(' ')}
+            style=${`text-align:${field.textAlign(value, 'table')}`}
         >
             ${record.print(column.field)}
         </td>`;
@@ -904,15 +910,24 @@ export class FdlTable extends LitElement {
                           class="width-diagnostics"
                           aria-label="Column width measurements"
                           ><h3>Live column widths</h3>
-                          <p>The browser lays out the initial columns using their
-                              content and available space, then the example
-                              applies the minimum and maximum limits. Preferred
-                              width is a fallback when measurements are unavailable;
-                              changing it may leave the measured layout unchanged.</p>
-                          ${this.columnWidths ? html`<p class="width-allocation">
-                              Current column space: ${Math.round(this.columnWidths.reduce((total, width) => total + width, 0))}px.
-                              Resizing transfers space between columns while keeping this total unchanged.
-                          </p>` : nothing}
+                          <p
+                              >The browser lays out the initial columns using
+                              their content and available space, then the
+                              example applies the minimum and maximum limits.
+                              Preferred width is a fallback when measurements
+                              are unavailable; changing it may leave the
+                              measured layout unchanged.</p
+                          >
+                          ${
+                              this.columnWidths
+                                  ? html`<p class="width-allocation">
+                                        Current column space:
+                                        ${Math.round(this.columnWidths.reduce((total, width) => total + width, 0))}px.
+                                        Resizing transfers space between columns
+                                        while keeping this total unchanged.
+                                    </p>`
+                                  : nothing
+                          }
                           <ul
                               >${columns.map((column, index) => {
                                   const fieldType =
@@ -924,7 +939,9 @@ export class FdlTable extends LitElement {
                                       ${this.columnWidths ? `${Math.round(this.columnWidths[index])}px` : 'Measuring…'}
                                       · min
                                       ${this.columnLimits(column).min}px${fieldType?.targetColumnWidth() ? ` · preferred ${fieldType.targetColumnWidth()}px` : ''}${fieldType?.maxColumnWidth() ? ` · max ${fieldType.maxColumnWidth()}px` : ''}
-                                      <p class="width-explanation">${this.explainColumnWidth(column, index)}</p></li
+                                      <p class="width-explanation"
+                                          >${this.explainColumnWidth(column, index)}</p
+                                      ></li
                                   >`;
                               })}</ul
                           ><p role="status"

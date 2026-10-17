@@ -28,12 +28,12 @@ Most form components use `record.field(name)`. Most table components use
 each row. Use `FieldType` when the component needs a setting or behavior that
 is not exposed by `Field`.
 
-| Object | Represents | Start here |
-| --- | --- | --- |
-| `Record` | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()` |
-| `Field` | One field's component-facing value, state, validation, options, and input helpers | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid` |
-| `FieldType` | A field's finalized behavior for advanced integrations and table rendering | `field.fieldType` |
-| `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
+| Object      | Represents                                                                            | Start here                                                                      |
+| ----------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `Record`    | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()`                                |
+| `Field`     | One field's component-facing value, state, validation, options, and input helpers     | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid`       |
+| `FieldType` | A field's finalized behavior for advanced integrations and table rendering            | `field.fieldType`                                                               |
+| `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation       | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
 The sections below describe these APIs first. The integration guidance after
 them shows how to combine them into a component.
@@ -46,20 +46,20 @@ from it after every model change.
 
 ### Properties
 
-| Property | Component use |
-| --- | --- |
-| `values` | The backing values object. Read it for serialization or debugging; prefer `field(name)` for a field and do not mutate it directly. |
-| `fieldTypes` | The finalized field types. Prefer `record.field(name).fieldType` from a component. |
-| `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state. |
-| `hasChanged` | Whether current values differ from the initial values. Useful for dirty-state indicators. |
-| `isExpanded` | A public view-model flag used by table/detail-row consumers. |
+| Property        | Component use                                                                                                                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `values`        | The backing values object. Read it for serialization or debugging; prefer `field(name)` for a field and do not mutate it directly. |
+| `fieldTypes`    | The finalized field types. Prefer `record.field(name).fieldType` from a component.                                                 |
+| `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state.                                      |
+| `hasChanged`    | Whether current values differ from the initial values. Useful for dirty-state indicators.                                          |
+| `isExpanded`    | A public view-model flag used by table/detail-row consumers.                                                                       |
 
 ### Field access and updates
 
-| Method | Purpose |
-| --- | --- |
-| `field(name)` | Return a `Field` facade for component binding. |
-| `hasField(name)` | Test whether the record declares a field. |
+| Method                              | Purpose                                        |
+| ----------------------------------- | ---------------------------------------------- |
+| `field(name)`                       | Return a `Field` facade for component binding. |
+| `hasField(name)`                    | Test whether the record declares a field.      |
 | `addField(name, definition, value)` | Add a field and its initial value to a record. |
 
 Editable controls should use `record.field(name).value = input`; that path parses
@@ -67,14 +67,14 @@ the input and stores the model value through the field facade.
 
 ### Options and lifecycle
 
-| Method | Purpose |
-| --- | --- |
-| `refreshOptions()` | Request option loading and selection reconciliation. |
-| `whenOptionsReady()` | Wait for the current option pass and any dependent passes to settle. |
-| `announceChange(name)` | Announce a programmatic model change after a direct mutation or custom update. |
-| `announceBlur(name)` | Announce that a field's editing interaction ended. |
-| `addEventListener('change', fn)` | Observe model changes; `event.detail.field` contains the changed field name. |
-| `addEventListener('blur', fn)` | Observe the field blur event emitted by the model. |
+| Method                           | Purpose                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| `refreshOptions()`               | Request option loading and selection reconciliation.                           |
+| `whenOptionsReady()`             | Wait for the current option pass and any dependent passes to settle.           |
+| `announceChange(name)`           | Announce a programmatic model change after a direct mutation or custom update. |
+| `announceBlur(name)`             | Announce that a field's editing interaction ended.                             |
+| `addEventListener('change', fn)` | Observe model changes; `event.detail.field` contains the changed field name.   |
+| `addEventListener('blur', fn)`   | Observe the field blur event emitted by the model.                             |
 
 The record automatically refreshes options when a field changes. A component
 should render loading state and re-read options after that work rather than
@@ -82,19 +82,19 @@ implementing a second dependency graph.
 
 ### Validation, reset, and cloning
 
-| Method or property | Purpose |
-| --- | --- |
-| `isValid()` | Synchronously validate the whole record. |
-| `isValidAsync()` | Validate the whole record when rules may return promises. |
-| `errors()` / `errorsAsync()` | Get synchronous or asynchronous validation results. |
-| `errorCount()` / `hasErrors()` | Summarize current errors. |
-| `readableRecordErrors()` | Get errors prepared for record-level display. |
-| `invalidValues` | Get the values that currently fail validation. |
-| `hasRequiredValues()` | Check whether required values are present. |
-| `reset()` | Restore the values captured at construction. |
-| `clear()` | Replace values with the field definitions' defaults. |
-| `clone(fields)` | Create a related record, optionally limited to selected fields. |
-| `hashOfFields(fields)` | Create a stable hash for selected field values. |
+| Method or property             | Purpose                                                         |
+| ------------------------------ | --------------------------------------------------------------- |
+| `isValid()`                    | Synchronously validate the whole record.                        |
+| `isValidAsync()`               | Validate the whole record when rules may return promises.       |
+| `errors()` / `errorsAsync()`   | Get synchronous or asynchronous validation results.             |
+| `errorCount()` / `hasErrors()` | Summarize current errors.                                       |
+| `readableRecordErrors()`       | Get errors prepared for record-level display.                   |
+| `invalidValues`                | Get the values that currently fail validation.                  |
+| `hasRequiredValues()`          | Check whether required values are present.                      |
+| `reset()`                      | Restore the values captured at construction.                    |
+| `clear()`                      | Replace values with the field definitions' defaults.            |
+| `clone(fields)`                | Create a related record, optionally limited to selected fields. |
+| `hashOfFields(fields)`         | Create a stable hash for selected field values.                 |
 
 Synchronous validation throws when it encounters a promise-returning validator.
 Use the async methods in an adapter that supports asynchronous validation and
@@ -107,53 +107,71 @@ keeps the binding convenient without creating a second source of truth.
 
 ### Identity and value properties
 
-| Property | Meaning |
-| --- | --- |
-| `record` | The owning `Record`. |
-| `fieldName` | The bound field name. |
-| `fieldType` | The finalized `FieldType` for the bound field. |
-| `value` | The formatted/printed value used for display. Assigning parses and stores input. |
-| `rawValue` | The stored model value. Assigning writes directly without parsing. |
-| `focusedInputValue` | The formatted value for an active editable control. |
-| `blurredInputValue` | The formatted value for a blurred editable control. |
-| `valid` / `invalid` | The current synchronous validity of the stored value. |
-| `label` | The field label resolved for a form component. |
-| `placeholder` | The placeholder resolved for a form component. |
-| `required` | Whether the field is required in the form context. |
-| `disabled` | Whether the field is disabled in the form context. |
-| `readOnly` | Whether the field is read-only in the form context. |
-| `visible` | Whether the field is visible in the form context. |
+| Property            | Meaning                                                                          |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `record`            | The owning `Record`.                                                             |
+| `fieldName`         | The bound field name.                                                            |
+| `fieldType`         | The finalized `FieldType` for the bound field.                                   |
+| `value`             | The formatted/printed value used for display. Assigning parses and stores input. |
+| `rawValue`          | The stored model value. Assigning writes directly without parsing.               |
+| `focusedInputValue` | The formatted value for an active editable control.                              |
+| `blurredInputValue` | The formatted value for a blurred editable control.                              |
+| `valid` / `invalid` | The current synchronous validity of the stored value.                            |
+| `label`             | The field label resolved for a form component.                                   |
+| `placeholder`       | The placeholder resolved for a form component.                                   |
+| `required`          | Whether the field is required in the form context.                               |
+| `disabled`          | Whether the field is disabled in the form context.                               |
+| `readOnly`          | Whether the field is read-only in the form context.                              |
+| `visible`           | Whether the field is visible in the form context.                                |
 
 For an editable control, use `field.value = input` so the field's parsers run.
 Keep the control's in-progress text locally until the next model synchronization;
 this preserves intermediate input such as `12.`. Use `field.rawValue` when the
 component is intentionally handling an already parsed value.
 
+### Bound field metadata
+
+Use the bound `Field` for metadata needed while rendering one record. These
+properties supply the field's value and owning record to record-dependent
+settings automatically.
+
+| Property or method                                                                                        | Purpose                                                                                                                               |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`, `schema`                                                                                          | Resolved input type and schema metadata.                                                                                              |
+| `accept`, `autocomplete`, `autofocus`, `list`, `max`, `pattern`, `step`                                   | Renderer input metadata. Deprecated browser-specific settings remain available for compatibility.                                     |
+| `hasOptions`, `hasMultipleValues`, `minValueCount()`, `maxValueCount()`                                   | Selection metadata. Use `options()` to load choices.                                                                                  |
+| `hasFilter`, `search`, `searchConfig`, `hasSearch`, `match(searchText, value)`                            | Search and filter behavior.                                                                                                           |
+| `hasRange`, `parseDynamicRange`, `minLength`, `maxLength`                                                 | Range and input-length metadata.                                                                                                      |
+| `inline`, `segmented`, `rowCount`, `hasRowCount`                                                          | Legacy control-presentation metadata. Prefer renderer configuration for new code.                                                     |
+| `readOnlyException`, `selectionDisabledFunctions`                                                         | Adapter compatibility metadata.                                                                                                       |
+| `empty`, `info`, `formatOnChange`, `additionalProperties`, `hashFunction`, `hideLabel`, `usesCustomPrint` | Field-specific rendering and integration metadata. Deprecated entries remain for compatibility where noted by the modifier reference. |
+| `onValueChange()`                                                                                         | Run legacy callbacks after this field's value changes. Prefer record/model behavior for new code.                                     |
+
 ### Methods
 
-| Method | Purpose |
-| --- | --- |
-| `isValid()` / `isValid(value)` | Validate the current or supplied model value synchronously. |
-| `isValidAsync()` / `isValidAsync(value)` | Validate the current or supplied model value asynchronously. |
-| `errors()` / `errorsAsync()` | Read the current or supplied validation errors. |
-| `readableErrors()` | Read field errors prepared for display. |
-| `isValidValue(input)` | Parse and synchronously validate a proposed input without storing it. |
-| `isValidValueAsync(input)` | Async version of proposed-value validation. |
-| `parse(input, context)` | Parse input into a model value without storing it. |
-| `format(value, context)` | Format a model value for a renderer context. |
-| `print(value)` | Format a value and apply its print template. |
-| `options()` | Load this field's choices through the record's disabled-state gate. |
-| `refreshOptions()` | Request record-wide option loading and reconciliation. |
-| `whenOptionsReady()` | Wait for record-wide option loading and dependent reconciliation. |
-| `onChange(fn)` | Listen for a change to this field's value or validity. |
-| `allowInputChar(char)` | Apply the field's input-character rule. |
-| `isEmpty(value)` | Resolve whether the current or supplied value is empty. |
-| `defaultValue(value)` | Resolve a default through the bound field definition. |
-| `match(searchText, value)` | Apply the field's filter behavior to the current or supplied value. |
-| `cellClasses(value)` | Resolve classes for the current or supplied value. |
-| `textAlign(value, context)` | Resolve alignment for the current or supplied value. |
-| `field(nameOrIndex)` | Address a nested field or part. |
-| `minValueCount()` / `maxValueCount()` | Read multiple-value count metadata. |
+| Method                                   | Purpose                                                               |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| `isValid()` / `isValid(value)`           | Validate the current or supplied model value synchronously.           |
+| `isValidAsync()` / `isValidAsync(value)` | Validate the current or supplied model value asynchronously.          |
+| `errors()` / `errorsAsync()`             | Read the current or supplied validation errors.                       |
+| `readableErrors()`                       | Read field errors prepared for display.                               |
+| `isValidValue(input)`                    | Parse and synchronously validate a proposed input without storing it. |
+| `isValidValueAsync(input)`               | Async version of proposed-value validation.                           |
+| `parse(input, context)`                  | Parse input into a model value without storing it.                    |
+| `format(value, context)`                 | Format a model value for a renderer context.                          |
+| `print(value)`                           | Format a value and apply its print template.                          |
+| `options()`                              | Load this field's choices through the record's disabled-state gate.   |
+| `refreshOptions()`                       | Request record-wide option loading and reconciliation.                |
+| `whenOptionsReady()`                     | Wait for record-wide option loading and dependent reconciliation.     |
+| `onChange(fn)`                           | Listen for a change to this field's value or validity.                |
+| `allowInputChar(char)`                   | Apply the field's input-character rule.                               |
+| `isEmpty(value)`                         | Resolve whether the current or supplied value is empty.               |
+| `defaultValue(value)`                    | Resolve a default through the bound field definition.                 |
+| `match(searchText, value)`               | Apply the field's filter behavior to the current or supplied value.   |
+| `cellClasses(value)`                     | Resolve classes for the current or supplied value.                    |
+| `textAlign(value, context)`              | Resolve alignment for the current or supplied value.                  |
+| `field(nameOrIndex)`                     | Address a nested field or part.                                       |
+| `minValueCount()` / `maxValueCount()`    | Read multiple-value count metadata.                                   |
 
 The facade reports a field change when the record changes its raw value or
 validity. It does not replace the record's broader `change` event, which remains
@@ -178,23 +196,23 @@ caller to provide the value and owning record explicitly.
 
 ### Value and state behavior
 
-| Method | Component use |
-| --- | --- |
-| `format(value, record, context)` | Format a value for a renderer context. |
-| `print(value, record)` | Format and apply a print template. |
-| `parse(input, record, context)` | Parse renderer input into a model value. |
-| `validate(field, modelValue, viewValue, record, options)` | Run synchronous field validators. |
-| `validateAsync(...)` | Run validators that may be asynchronous. |
-| `isEmpty(value, record, context)` / `empty(record, name)` | Resolve emptiness rules. |
-| `schema()` | Read the legacy schema identifier. Deprecated; use application metadata outside `FieldType`. |
-| `type(value, record, context)` | Resolve the native input type for a renderer. |
-| `required(value, record, context)` | Resolve requiredness. |
-| `visible(value, record, context)` | Resolve visibility. |
-| `isDisabled(value, record, context)` | Resolve disabled state. |
-| `readonly(value, record, context)` | Resolve read-only state. |
-| `label(value, record, context)` | Resolve a label. |
-| `placeholder(value, record, context)` | Resolve a placeholder. |
-| `defaultValue(value, record, context)` | Resolve a default for record operations. |
+| Method                                                    | Component use                                                                                |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `format(value, record, context)`                          | Format a value for a renderer context.                                                       |
+| `print(value, record)`                                    | Format and apply a print template.                                                           |
+| `parse(input, record, context)`                           | Parse renderer input into a model value.                                                     |
+| `validate(field, modelValue, viewValue, record, options)` | Run synchronous field validators.                                                            |
+| `validateAsync(...)`                                      | Run validators that may be asynchronous.                                                     |
+| `isEmpty(value, record, context)` / `empty(record, name)` | Resolve emptiness rules.                                                                     |
+| `schema()`                                                | Read the legacy schema identifier. Deprecated; use application metadata outside `FieldType`. |
+| `type(value, record, context)`                            | Resolve the native input type for a renderer.                                                |
+| `required(value, record, context)`                        | Resolve requiredness.                                                                        |
+| `visible(value, record, context)`                         | Resolve visibility.                                                                          |
+| `isDisabled(value, record, context)`                      | Resolve disabled state.                                                                      |
+| `readonly(value, record, context)`                        | Resolve read-only state.                                                                     |
+| `label(value, record, context)`                           | Resolve a label.                                                                             |
+| `placeholder(value, record, context)`                     | Resolve a placeholder.                                                                       |
+| `defaultValue(value, record, context)`                    | Resolve a default for record operations.                                                     |
 
 Other renderer metadata includes `accept()`, `autocomplete()`,
 `autofocus()`, `pattern()`, `step()`, `info()`, and
@@ -205,20 +223,20 @@ not model validation.
 
 ### Options and table behavior
 
-| Method | Component use |
-| --- | --- |
-| `hasOptions()` / `options(record)` | Detect and load choices. Prefer `field.options()` for a control. |
-| `hasFilter()` / `match(searchText, value)` | Detect and apply a table/filter predicate. |
-| `hasMultipleValues()` | Choose a multiple-selection interaction. |
-| `minValueCount()` / `maxValueCount()` | Read selection-count metadata. |
-| `cellClasses(value, record)` | Resolve classes for one table cell. |
-| `rowClasses(record)` | Resolve classes for one table row. |
-| `columnClasses()` | Resolve classes that apply to a whole column. |
-| `textAlign(value, record, context)` | Resolve alignment intent. |
-| `sortable()` | Determine whether the column is sortable. |
-| `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance. |
-| `aggregate(values)` | Calculate a column or group aggregate. |
-| `compare(a, b)` | Compare two values for sorting. |
+| Method                                                          | Component use                                                    |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `hasOptions()` / `options(record)`                              | Detect and load choices. Prefer `field.options()` for a control. |
+| `hasFilter()` / `match(searchText, value)`                      | Detect and apply a table/filter predicate.                       |
+| `hasMultipleValues()`                                           | Choose a multiple-selection interaction.                         |
+| `minValueCount()` / `maxValueCount()`                           | Read selection-count metadata.                                   |
+| `cellClasses(value, record)`                                    | Resolve classes for one table cell.                              |
+| `rowClasses(record)`                                            | Resolve classes for one table row.                               |
+| `columnClasses()`                                               | Resolve classes that apply to a whole column.                    |
+| `textAlign(value, record, context)`                             | Resolve alignment intent.                                        |
+| `sortable()`                                                    | Determine whether the column is sortable.                        |
+| `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance.                                  |
+| `aggregate(values)`                                             | Calculate a column or group aggregate.                           |
+| `compare(a, b)`                                                 | Compare two values for sorting.                                  |
 
 The option-pipeline helpers used by `options(record)` are implementation
 details. They are intentionally private and are not part of the `FieldType`
@@ -230,21 +248,21 @@ These methods are also part of the exported `FieldType` runtime surface. The
 methods marked deprecated remain only because the adapter or existing model
 behavior still uses them; new definitions should not depend on them.
 
-| Method | Purpose |
-| --- | --- |
-| `list()` | Read the legacy browser datalist identifier. Deprecated; configure this in the renderer. |
-| `search()` / `searchConfig()` / `hasSearch()` | Read search configuration. `hasSearch()` is deprecated; use `search(config)`. |
-| `max()` | Read the legacy browser maximum constraint. Deprecated; use model validation or renderer configuration. |
-| `hasRange()` / `getParseDynamicRange()` | Read range metadata. `getParseDynamicRange()` is deprecated; use a parser. |
-| `minLength(value, record, context)` / `maxLength(value, record, context)` | Resolve input length guidance. |
-| `selectionDisabledFunctions()` | Read legacy per-option disabling configuration. Deprecated; configure this in the renderer or adapter. |
-| `onValueChange(record)` | Run legacy imperative value-change callbacks. Deprecated; use record/model behavior. |
-| `readonlyexception(record)` | Read the legacy composite-control read-only exception state. Deprecated; keep this only for adapter compatibility. |
-| `inline(record)` / `segmented(record)` | Read legacy layout/control-presentation state. Deprecated; configure the view or renderer. |
-| `rowCount()` / `hasRowCount()` | Read legacy textarea sizing metadata. Deprecated; configure `fdl-field`. |
-| `formatOnChange()` | Read legacy input-event formatting policy. Deprecated; configure the renderer/value pipeline. |
-| `hashFunction()` | Read the equality/hash function used by option reconciliation. |
-| `hideLabel()` | Read legacy label-visibility configuration. Deprecated; configure the renderer. |
+| Method                                                                    | Purpose                                                                                                            |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `list()`                                                                  | Read the legacy browser datalist identifier. Deprecated; configure this in the renderer.                           |
+| `search()` / `searchConfig()` / `hasSearch()`                             | Read search configuration. `hasSearch()` is deprecated; use `search(config)`.                                      |
+| `max()`                                                                   | Read the legacy browser maximum constraint. Deprecated; use model validation or renderer configuration.            |
+| `hasRange()` / `getParseDynamicRange()`                                   | Read range metadata. `getParseDynamicRange()` is deprecated; use a parser.                                         |
+| `minLength(value, record, context)` / `maxLength(value, record, context)` | Resolve input length guidance.                                                                                     |
+| `selectionDisabledFunctions()`                                            | Read legacy per-option disabling configuration. Deprecated; configure this in the renderer or adapter.             |
+| `onValueChange(record)`                                                   | Run legacy imperative value-change callbacks. Deprecated; use record/model behavior.                               |
+| `readonlyexception(record)`                                               | Read the legacy composite-control read-only exception state. Deprecated; keep this only for adapter compatibility. |
+| `inline(record)` / `segmented(record)`                                    | Read legacy layout/control-presentation state. Deprecated; configure the view or renderer.                         |
+| `rowCount()` / `hasRowCount()`                                            | Read legacy textarea sizing metadata. Deprecated; configure `fdl-field`.                                           |
+| `formatOnChange()`                                                        | Read legacy input-event formatting policy. Deprecated; configure the renderer/value pipeline.                      |
+| `hashFunction()`                                                          | Read the equality/hash function used by option reconciliation.                                                     |
+| `hideLabel()`                                                             | Read legacy label-visibility configuration. Deprecated; configure the renderer.                                    |
 
 Use a context such as `"model"`, `"input-focus"`, `"input-blur"`, `"table"`,
 or `"print"` consistently within your renderer. The component chooses which
@@ -258,45 +276,45 @@ rows from the recordset and use the `Record`/`Field` APIs for each cell.
 
 ### Row, paging, and fetch properties
 
-| Property | Component use |
-| --- | --- |
-| `allRecords` | All loaded `Record` instances. |
-| `currentPage` | Records currently visible after filtering, sorting, and paging. |
-| `cursor` | A small paging/visibility interface for table controls. |
-| `isLoading` | Whether a fetch or update is in progress. |
-| `updating` | A promise for the most recent update. |
-| `pageIndex` / `pageNumber` | Zero-based and one-based page controls. |
-| `pageSize` | Number of rows per page. |
-| `firstRecordNumberOnPage` / `lastRecordNumberOnPage` | Display ranges for pagination UI. |
-| `totalCount` / `filteredCount` | Server or client counts for pagination and summaries. |
-| `isClientSide` / `isServerSide` | Which pagination/filtering mode the current data uses. |
-| `fieldNames` | Declared column names. |
-| `summary` | Fetch-provided collection summary. |
-| `parameters` | Fetch parameters. Assigning queues an update. |
-| `sortColumns` | Sort descriptors. Assigning queues an update. |
-| `filter` | A predicate for client-side record filtering. |
-| `hasChanged` | Whether any loaded record has changed. |
+| Property                                             | Component use                                                   |
+| ---------------------------------------------------- | --------------------------------------------------------------- |
+| `allRecords`                                         | All loaded `Record` instances.                                  |
+| `currentPage`                                        | Records currently visible after filtering, sorting, and paging. |
+| `cursor`                                             | A small paging/visibility interface for table controls.         |
+| `isLoading`                                          | Whether a fetch or update is in progress.                       |
+| `updating`                                           | A promise for the most recent update.                           |
+| `pageIndex` / `pageNumber`                           | Zero-based and one-based page controls.                         |
+| `pageSize`                                           | Number of rows per page.                                        |
+| `firstRecordNumberOnPage` / `lastRecordNumberOnPage` | Display ranges for pagination UI.                               |
+| `totalCount` / `filteredCount`                       | Server or client counts for pagination and summaries.           |
+| `isClientSide` / `isServerSide`                      | Which pagination/filtering mode the current data uses.          |
+| `fieldNames`                                         | Declared column names.                                          |
+| `summary`                                            | Fetch-provided collection summary.                              |
+| `parameters`                                         | Fetch parameters. Assigning queues an update.                   |
+| `sortColumns`                                        | Sort descriptors. Assigning queues an update.                   |
+| `filter`                                             | A predicate for client-side record filtering.                   |
+| `hasChanged`                                         | Whether any loaded record has changed.                          |
 
 ### Collection methods
 
-| Method | Purpose |
-| --- | --- |
-| `requestRefresh()` | Fetch and rebuild the current view. Use for the initial load or a forced refresh. |
-| `requestViewUpdate()` | Recompute the current view from loaded data without fetching. |
-| `requestImmediateUpdate()` | Immediately run the pending update if one is not already in progress. Does not itself request a fetch. |
-| `sort(column)` | Sort using a column descriptor. |
-| `reset(hardReset?)` | Restore the recordset's original data and view state. |
-| `createRecord(values)` | Create a record using the recordset's field types. |
-| `appendRecord()` / `addRecord()` | Add a row. |
-| `insertRecord(record, index)` | Insert a row at an index. |
-| `updateRecord(record)` | Notify the set that a row changed. |
-| `deleteRecord(record)` | Remove a row. |
-| `clone()` / `cloneRecord(record, rowIndex, fields)` | Create related collection or row data. |
-| `copyFrom(recordset, fields)` | Copy collection data. |
-| `getRecordAtIndex(index)` | Read a loaded row by index. |
-| `getFieldType(name)` | Read the finalized field behavior for a column. |
-| `getData()` / `setData(data)` | Serialize or replace collection data. |
-| `isValid()` / `errors()` | Validate the collection and read collection errors. |
+| Method                                              | Purpose                                                                                                |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `requestRefresh()`                                  | Fetch and rebuild the current view. Use for the initial load or a forced refresh.                      |
+| `requestViewUpdate()`                               | Recompute the current view from loaded data without fetching.                                          |
+| `requestImmediateUpdate()`                          | Immediately run the pending update if one is not already in progress. Does not itself request a fetch. |
+| `sort(column)`                                      | Sort using a column descriptor.                                                                        |
+| `reset(hardReset?)`                                 | Restore the recordset's original data and view state.                                                  |
+| `createRecord(values)`                              | Create a record using the recordset's field types.                                                     |
+| `appendRecord()` / `addRecord()`                    | Add a row.                                                                                             |
+| `insertRecord(record, index)`                       | Insert a row at an index.                                                                              |
+| `updateRecord(record)`                              | Notify the set that a row changed.                                                                     |
+| `deleteRecord(record)`                              | Remove a row.                                                                                          |
+| `clone()` / `cloneRecord(record, rowIndex, fields)` | Create related collection or row data.                                                                 |
+| `copyFrom(recordset, fields)`                       | Copy collection data.                                                                                  |
+| `getRecordAtIndex(index)`                           | Read a loaded row by index.                                                                            |
+| `getFieldType(name)`                                | Read the finalized field behavior for a column.                                                        |
+| `getData()` / `setData(data)`                       | Serialize or replace collection data.                                                                  |
+| `isValid()` / `errors()`                            | Validate the collection and read collection errors.                                                    |
 
 For collection-level rules, `addValidator()` and `addValidators()` register
 recordset validators. For component subscriptions, use `addEventListener()` or
@@ -434,14 +452,11 @@ and render each row through the field facade:
 ```js
 import { field, Recordset } from '@pmcelhaney/fdl';
 
-const people = new Recordset(
-    { name: field.label('Name'), city: field.label('City') },
-    [
-        { name: 'Zulu', city: 'Oslo' },
-        { name: 'Alpha', city: 'Lima' },
-        { name: 'Mike', city: 'Paris' },
-    ]
-);
+const people = new Recordset({ name: field.label('Name'), city: field.label('City') }, [
+    { name: 'Zulu', city: 'Oslo' },
+    { name: 'Alpha', city: 'Lima' },
+    { name: 'Mike', city: 'Paris' },
+]);
 
 people.sortColumns = [{ field: 'name', sort: 'ascending' }];
 await people.requestImmediateUpdate();
@@ -449,13 +464,13 @@ await people.requestImmediateUpdate();
 
 Resolve table presentation at its natural scope:
 
-| Scope | API | Attach to |
-| --- | --- | --- |
-| Column-wide classes | `fieldType.columnClasses()` | `<col>`, header, and data cells |
-| One row | `fieldType.rowClasses(record)` | The row |
-| One value | `fieldType.cellClasses(value, record)` | The data cell |
-| Alignment | `fieldType.textAlign(value, record, 'table')` | Header and cells as appropriate |
-| Sizing | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout |
+| Scope               | API                                                           | Attach to                       |
+| ------------------- | ------------------------------------------------------------- | ------------------------------- |
+| Column-wide classes | `fieldType.columnClasses()`                                   | `<col>`, header, and data cells |
+| One row             | `fieldType.rowClasses(record)`                                | The row                         |
+| One value           | `fieldType.cellClasses(value, record)`                        | The data cell                   |
+| Alignment           | `fieldType.textAlign(value, record, 'table')`                 | Header and cells as appropriate |
+| Sizing              | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout                   |
 
 Column callbacks have no record or value because a column can exist when there
 are no rows. Resolve them once per column on each render. Combine column-wide

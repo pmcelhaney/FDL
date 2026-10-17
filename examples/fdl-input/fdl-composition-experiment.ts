@@ -216,7 +216,7 @@ export class FdlCompositionExperiment extends LitElement {
                             const describe = (
                                 record: ReturnType<typeof compositionRecord>
                             ) =>
-                                `${record.fieldTypeForField('address').visible(record.getField('address'), record) ? 'Visible' : 'Hidden'} · ${record.fieldTypeForField('address').required(record.getField('address'), record) ? 'Required' : 'Optional'} · ${record.isValid() ? 'Valid' : 'Invalid'}`;
+                                `${record.field('address').visible ? 'Visible' : 'Hidden'} · ${record.field('address').required ? 'Required' : 'Optional'} · ${record.isValid() ? 'Valid' : 'Invalid'}`;
                             return html`<tr
                                 ><th scope="row"
                                     >${sample.method}<small
@@ -386,8 +386,9 @@ export class FdlCompositionExperiment extends LitElement {
             ${this.collectedCases()}
             <section class="definition"
                 ><h3>The resulting definition</h3
-                ><fdl-code-snippet><pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre
-                ></fdl-code-snippet><p
+                ><fdl-code-snippet>
+                    <pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre></fdl-code-snippet
+                ><p
                     >This is the address definition used by every case and by
                     the live form.</p
                 ></section

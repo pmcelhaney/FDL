@@ -107,6 +107,27 @@ describe('Field', () => {
         expect(field.visible).toEqual(true);
     });
 
+    it('exposes record-bound renderer metadata through Field', () => {
+        const definition = new FieldTypeBuilder()
+            .type('number')
+            .autocomplete('off')
+            .minLength(2)
+            .maxLength(8)
+            .multipleValues()
+            .rowCount(3)
+            .filter(() => true);
+        const field = new Record({ amount: definition }, { amount: [1, 2] }).field('amount');
+
+        expect(field.type).toEqual('number');
+        expect(field.hasMultipleValues).toEqual(true);
+        expect(field.minLength).toEqual(2);
+        expect(field.maxLength).toEqual(8);
+        expect(field.hasRowCount).toEqual(true);
+        expect(field.rowCount).toEqual(3);
+        expect(field.hasFilter).toEqual(true);
+        expect(field.autocomplete).toEqual('off');
+    });
+
     it('can check whether a given input value would be valid', () => {
         const record = new Record(
             { test: greaterThanFive.parser(s => s.replace(/[^0-9]/g, '')) },
