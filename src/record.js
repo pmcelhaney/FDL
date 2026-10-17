@@ -351,7 +351,7 @@ export default class Record extends EventTarget {
      * @param {*} formattedValue
      */
     parseAndSetField(fieldName, formattedValue) {
-        this.field(fieldName).set(formattedValue);
+        this.field(fieldName).value = formattedValue;
     }
 
     /**

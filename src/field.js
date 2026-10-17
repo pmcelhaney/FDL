@@ -40,7 +40,7 @@ export default class Field extends EventTarget {
     }
 
     set value(inputValue) {
-        this.set(inputValue);
+        if (inputValue !== this.rawValue) this.rawValue = this.parse(inputValue);
         this.previousState.rawValue = this.rawValue;
     }
 
@@ -49,7 +49,8 @@ export default class Field extends EventTarget {
     }
 
     set rawValue(value) {
-        this.setRaw(value);
+        this.record.setField(this.fieldName, value);
+        this.previousState.rawValue = this.rawValue;
     }
 
     get focusedInputValue() {
@@ -135,15 +136,6 @@ export default class Field extends EventTarget {
 
     print(value = this.rawValue) {
         return this.fieldType.print(value, this.record);
-    }
-
-    set(inputValue) {
-        if (inputValue !== this.rawValue) this.setRaw(this.parse(inputValue));
-    }
-
-    setRaw(value) {
-        this.record.setField(this.fieldName, value);
-        this.previousState.rawValue = this.rawValue;
     }
 
     options() {

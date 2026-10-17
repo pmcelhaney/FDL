@@ -145,8 +145,8 @@ class FormElement extends ListeningElement {
                 // An input echo must not replace an unfinished decimal, cleared text, or the caret.
                 this.parsingNativeInput = e === 'input' && Boolean(this.nativeTextControl);
                 try {
-                    // @ts-ignore
-                    this.record?.field(this.field).set(value);
+                    const boundField = this.record?.field(this.field);
+                    if (boundField) boundField.value = value;
                 } finally {
                     this.parsingNativeInput = false;
                 }

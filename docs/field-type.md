@@ -142,8 +142,6 @@ component is intentionally handling an already parsed value.
 | `parse(input, context)` | Parse input into a model value without storing it. |
 | `format(value, context)` | Format a model value for a renderer context. |
 | `print(value)` | Format a value and apply its print template. |
-| `set(input)` | Parse and store component input. |
-| `setRaw(value)` | Store an already parsed model value. |
 | `options()` | Load this field's choices through the record's disabled-state gate. |
 | `refreshOptions()` | Request record-wide option loading and reconciliation. |
 | `whenOptionsReady()` | Wait for record-wide option loading and dependent reconciliation. |
