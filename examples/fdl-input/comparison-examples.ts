@@ -1,6 +1,5 @@
-import { field } from '../../src/index';
+import { field, Recordset } from '@pmcelhaney/fdl';
 import { html } from 'lit';
-import Recordset from '../../src/recordset.js';
 
 export const prefixFilter = field.filter((text, value) =>
     value.toLowerCase().startsWith(text.toLowerCase())

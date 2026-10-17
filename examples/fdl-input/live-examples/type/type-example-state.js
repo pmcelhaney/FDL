@@ -1,12 +1,11 @@
 import { createModel, inputTypeField } from './type-model.js';
 // Tutorial state for the .type() example.
 import { ExampleController } from '../../example-controller';
-import { field } from '../../../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import {
     inputTypeChoices,
     inputTypeInitialValue,
 } from '../../input-type-example';
-import Record from '../../../../src/record.js';
 
 export class ExampleModel extends ExampleController {
     modifier = 'type';

@@ -1,8 +1,7 @@
 import { createModel } from './filter-model.js';
 // Tutorial state for the .filter() example.
 import { ExampleController } from '../../example-controller';
-import { field } from '../../../../src/index';
-import Record from '../../../../src/record.js';
+import { field, Record } from '@pmcelhaney/fdl';
 
 export class ExampleModel extends ExampleController {
     modifier = 'filter';

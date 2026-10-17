@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { field } from '../../../../src/index';
+import { field } from '@pmcelhaney/fdl';
 import { ExampleController } from '../../example-controller';
 import { explainDependency } from '../../dependency-explanation';
 import { createPerson } from './required-model.js';

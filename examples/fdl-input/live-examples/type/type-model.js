@@ -1,6 +1,5 @@
-import { field } from '../../../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import { inputTypeInitialValue } from '../../input-type-example';
-import Record from '../../../../src/record.js';
 export function inputTypeField(type) {
     const definition = field.label(`Example: ${type}`).type(type);
     return type === 'number' || type === 'range'

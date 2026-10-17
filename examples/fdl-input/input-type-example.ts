@@ -1,5 +1,5 @@
-import { field } from '../../src/index';
-import { inputTypes, type inputType } from '../../src/types/input-types.types';
+import { field } from '@pmcelhaney/fdl';
+import { inputTypes, type inputType } from '@pmcelhaney/fdl/types/input-types.types';
 
 export const inputTypeChoices = inputTypes.map(value => ({
     text: value,

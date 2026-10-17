@@ -1,6 +1,6 @@
 import { cancellationFields, type CancellationRules } from './cancellation-rules';
 export { cancellationFields, type CancellationRules } from './cancellation-rules';
-import Record from '../../src/record.js';
+import { Record } from '@pmcelhaney/fdl';
 export const cancellationCases = [
     {
         status: 'active',

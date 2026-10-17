@@ -1,6 +1,5 @@
 // Defines delivery fields, conditional rules, ZIP validation, and store lookup.
-import { field } from '../../src/index';
-import Record from '../../src/record.js';
+import { field, Record } from '@pmcelhaney/fdl';
 import {
     deliveryMethodOptions,
     shippingStateOptions,

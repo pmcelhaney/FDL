@@ -3,10 +3,24 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const documentation = createRequire(import.meta.url)('../../scripts/documentation-pages.cjs');
+const documentation = createRequire(import.meta.url)(
+    '../../scripts/documentation-pages.cjs'
+);
 const directory = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
+    resolve: {
+        alias: [
+            {
+                find: /^@pmcelhaney\/fdl$/,
+                replacement: resolve(directory, '../../src/index.js'),
+            },
+            {
+                find: '@pmcelhaney/fdl',
+                replacement: resolve(directory, '../../src'),
+            },
+        ],
+    },
     plugins: [
         {
             name: 'fdl-documentation',

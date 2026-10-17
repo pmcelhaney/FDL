@@ -1,4 +1,4 @@
-import { field, Recordset } from '../../../../src/index';
+import { field, Recordset } from '@pmcelhaney/fdl';
 export function createModel({
     minimum = 110,
     preferred = 160,

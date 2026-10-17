@@ -1,10 +1,9 @@
 import { createSpecializations } from './specialization-model';
 import { specializationView } from './specialization-view';
-import { field } from '../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../src/record.js';
 import './fdl-field';
 
 export class FdlSpecializationExperiment extends LitElement {

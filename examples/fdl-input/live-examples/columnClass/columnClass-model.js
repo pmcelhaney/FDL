@@ -1,5 +1,4 @@
-import { field } from '../../../../src/index';
-import Recordset from '../../../../src/recordset.js';
+import { field, Recordset } from '@pmcelhaney/fdl';
 export function createModel() {
     return new Recordset(
         {

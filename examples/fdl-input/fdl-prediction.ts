@@ -1,6 +1,5 @@
-import { field } from '../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import { LitElement, css, html } from 'lit';
-import Record from '../../src/record.js';
 import {
     addressCases,
     compositionExplanation,

@@ -9,6 +9,11 @@
         "**/coverage"
     ],
     "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@pmcelhaney/fdl": ["src/index"],
+            "@pmcelhaney/fdl/*": ["src/*"]
+        },
         "target": "es2020",
         "module": "commonjs",
         "moduleResolution": "node",

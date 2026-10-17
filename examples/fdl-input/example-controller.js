@@ -1,6 +1,5 @@
 import { LitElement } from 'lit';
-import Record from '../../src/record.js';
-import Recordset from '../../src/recordset.js';
+import { Record, Recordset } from '@pmcelhaney/fdl';
 
 // Shared lifecycle for the small live examples. Rules and rendering stay in
 // each example's model and view files.

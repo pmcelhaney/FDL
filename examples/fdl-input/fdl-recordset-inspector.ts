@@ -1,7 +1,7 @@
 import './fdl-code-snippet';
 import { LitElement, css, html, type PropertyValues } from 'lit';
-import type Recordset from '../../src/recordset.js';
-import type Record from '../../src/record.js';
+import type { Recordset } from '@pmcelhaney/fdl';
+import type { Record } from '@pmcelhaney/fdl';
 import {
     FdlRecordInspector,
     storedValue,

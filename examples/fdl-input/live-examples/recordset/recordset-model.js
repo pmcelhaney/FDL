@@ -1,4 +1,4 @@
-import { field, Record } from '../../../../src/index.js';
+import { field, Record } from '@pmcelhaney/fdl';
 
 const record = new Record(
     {

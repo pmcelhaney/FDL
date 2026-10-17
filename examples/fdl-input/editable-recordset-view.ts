@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import type Record from '../../src/record';
+import type { Record } from '@pmcelhaney/fdl';
 import { createShipments, shipmentCharge } from './editable-recordset-model';
 import './fdl-field';
 export function editableRecordsetView(

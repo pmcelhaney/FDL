@@ -1,6 +1,5 @@
-import { field } from '../../../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import { assigneeDirectory, optionsDelay } from '../../assignee-options';
-import Record from '../../../../src/record.js';
 export function createModel() {
     return new Record(
         {

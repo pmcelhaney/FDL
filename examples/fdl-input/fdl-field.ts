@@ -1,7 +1,7 @@
 import { css, html } from 'lit';
 import { disabledFieldStyles } from './field-example-styles';
 import { exampleTheme } from './example-theme';
-import FormElement from '../../src/form-element';
+import FormElement from '@pmcelhaney/fdl/form-element';
 import './fdl-address';
 
 /**

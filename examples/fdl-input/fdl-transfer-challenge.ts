@@ -2,10 +2,9 @@ import modelSource from './cancellation-rules.ts?raw';
 import viewSource from './cancellation-view.ts?raw';
 import { cancellationView } from './cancellation-view';
 import './fdl-code-snippet';
-import { field } from '../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../src/record.js';
 import {
     cancellationFields,
     checkCancellation,

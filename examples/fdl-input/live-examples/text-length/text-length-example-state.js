@@ -1,7 +1,6 @@
 import { codeType, createModel } from './text-length-model.js';
 import { LitElement } from 'lit';
-import { field } from '../../../../src/index';
-import Record from '../../../../src/record.js';
+import { field, Record } from '@pmcelhaney/fdl';
 import '../../fdl-example';
 import '../../fdl-field';
 import '../../fdl-record-inspector';

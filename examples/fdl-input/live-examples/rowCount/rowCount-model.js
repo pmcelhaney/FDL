@@ -1,4 +1,4 @@
-import { field, Record } from '../../../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 
 export function commentType(rows = 4) {
     return field.label('Comments').rowCount(rows);

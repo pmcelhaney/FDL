@@ -1,5 +1,4 @@
-import { field, Recordset } from '../../src/index';
-import Record from '../../src/record';
+import { field, Recordset, Record } from '@pmcelhaney/fdl';
 
 export const shipmentFields = {
     id: field.label('Shipment').readOnly(),

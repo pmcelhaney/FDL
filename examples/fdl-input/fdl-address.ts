@@ -1,6 +1,6 @@
 import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
-import Record from '../../src/record.js';
+import { Record } from '@pmcelhaney/fdl';
 
 /**
  * A focused composite adapter for the documentation site's address example.

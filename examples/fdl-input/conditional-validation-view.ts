@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import type Record from '../../src/record';
+import type { Record } from '@pmcelhaney/fdl';
 import './fdl-field';
 
 export function conditionalValidationView(

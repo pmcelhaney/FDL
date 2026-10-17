@@ -1,6 +1,5 @@
-import { field } from '../../../../src/index';
+import { field, Recordset } from '@pmcelhaney/fdl';
 
-import Recordset from '../../../../src/recordset.js';
 import { prefixFilter, substringFilter } from '../../comparison-examples';
 export function createModel(getMatchingRule = () => 'prefix') {
     return new Recordset(

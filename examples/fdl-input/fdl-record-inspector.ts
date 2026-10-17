@@ -1,5 +1,5 @@
 import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
-import Record from '../../src/record.js';
+import { Record } from '@pmcelhaney/fdl';
 import { exampleTheme } from './example-theme';
 
 const statusPaths = {

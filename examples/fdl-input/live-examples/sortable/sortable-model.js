@@ -1,6 +1,5 @@
-import { field } from '../../../../src/index';
+import { field, Recordset } from '@pmcelhaney/fdl';
 import { shirtOrders } from '../../shirt-size-example';
-import Recordset from '../../../../src/recordset.js';
 export function createModel() {
     return new Recordset(
         {

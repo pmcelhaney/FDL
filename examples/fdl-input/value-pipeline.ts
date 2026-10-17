@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import Record from '../../src/record.js';
+import { Record } from '@pmcelhaney/fdl';
 import { describeValue } from './model-summary';
 
 /** Native input events are composed; read the editing text before formatting can replace it. */

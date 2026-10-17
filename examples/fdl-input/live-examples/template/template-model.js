@@ -1,6 +1,5 @@
-import { field } from '../../../../src/index';
+import { field, Recordset } from '@pmcelhaney/fdl';
 import { html } from 'lit';
-import Recordset from '../../../../src/recordset.js';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

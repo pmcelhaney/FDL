@@ -1,6 +1,6 @@
 import { html } from 'lit';
-import type Record from '../../src/record';
-import type Recordset from '../../src/recordset';
+import type { Record } from '@pmcelhaney/fdl';
+import type { Recordset } from '@pmcelhaney/fdl';
 import './fdl-field';
 import './fdl-table';
 export function learningView(

@@ -1,5 +1,4 @@
-import { field } from '../../../../src/index';
-import Record from '../../../../src/record.js';
+import { field, Record } from '@pmcelhaney/fdl';
 export function createReducerType() {
     return field.reducer('sum');
 }

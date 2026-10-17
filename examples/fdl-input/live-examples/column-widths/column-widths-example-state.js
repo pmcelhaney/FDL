@@ -1,8 +1,6 @@
 import { createModel } from './column-widths-model.js';
 import { LitElement } from 'lit';
-import { field } from '../../../../src/index';
-import Record from '../../../../src/record.js';
-import Recordset from '../../../../src/recordset.js';
+import { field, Record, Recordset } from '@pmcelhaney/fdl';
 import '../../fdl-example';
 import '../../fdl-field';
 import '../../fdl-table';

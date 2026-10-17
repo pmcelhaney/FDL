@@ -1,12 +1,11 @@
 import { createModel } from './cellClass-model.js';
 // Tutorial state for the .cellClass() example.
 import { ExampleController } from '../../example-controller';
-import { field } from '../../../../src/index';
+import { field, Record } from '@pmcelhaney/fdl';
 import {
     weeklyExpenses,
     expenseHighlightThreshold,
 } from '../../weekly-expenses';
-import Record from '../../../../src/record.js';
 
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',

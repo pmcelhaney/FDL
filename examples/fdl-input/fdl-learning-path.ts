@@ -1,14 +1,12 @@
 import { learningFields, createLearningRecord, createLearningTable } from './learning-model';
 import { learningView, learningTableView } from './learning-view';
 import './fdl-code-snippet';
-import { field } from '../../src/index';
+import { field, Record, Recordset } from '@pmcelhaney/fdl';
 import './fdl-transfer-challenge';
 import { compositionLink } from './learning-continuation';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../src/record.js';
-import Recordset from '../../src/recordset.js';
 import { recordSummary } from './model-summary';
 import { highlightJavaScript } from './highlight-javascript';
 import './fdl-field';
