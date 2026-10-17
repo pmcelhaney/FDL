@@ -34,6 +34,7 @@ it('packs the declared runtime and type entry points, including documented adapt
         expect(files.has(manifest.exports['.'].types.replace(/^\.\//, ''))).toBe(true);
         for (const module of [
             'prisma',
+            'openapi',
             'form-element',
             'example-recordset',
             'lit/index',
@@ -55,7 +56,7 @@ it('packs the declared runtime and type entry points, including documented adapt
             '-C',
             packageRoot,
         ]);
-        for (const dependency of ['lit', 'lit-html', 'lit-element', '@lit', '@loancrate']) {
+        for (const dependency of ['lit', 'lit-html', 'lit-element', '@lit', '@loancrate', 'yaml']) {
             symlinkSync(
                 resolve('node_modules', dependency),
                 join(destination, 'node_modules', dependency)
@@ -67,6 +68,7 @@ it('packs the declared runtime and type entry points, including documented adapt
             `
 import { field, Record, Recordset } from '@pmcelhaney/fdl';
 import { fieldsFromPrisma } from '@pmcelhaney/fdl/prisma';
+import { fieldsFromOpenAPI } from '@pmcelhaney/fdl/openapi';
 import { FdlField, FdlAddress, FdlTable, FdlColumn, FormElement } from '@pmcelhaney/fdl/lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '@pmcelhaney/fdl/lit/fdl-address';
@@ -76,13 +78,19 @@ const prismaFields = fieldsFromPrisma('model Product {\\n stock Int\\n}', {
     model: 'Product', fields: ['stock'],
 });
 const prismaRecord = new Record(prismaFields, { stock: 12 });
+const openapiFields = fieldsFromOpenAPI(JSON.stringify({
+    openapi: '3.1.0', components: { schemas: { Product: {
+        type: 'object', required: ['stock'], properties: { stock: { type: 'integer', minimum: 0 } },
+    } } },
+}), { schema: 'Product', fields: ['stock'] });
+const openapiRecord = new Record(openapiFields, { stock: 12 });
 const fields = { name: field.label('Name') };
 const control = new FdlField();
 control.record = new Record(fields, { name: '' });
 control.field = 'name';
 const table = new FdlTable();
 table.recordset = new Recordset(fields, [{ name: 'Ada' }]);
-export { control, table, prismaRecord, FdlAddress, FdlColumn, FormElement, BaseField };
+export { control, table, prismaRecord, openapiRecord, FdlAddress, FdlColumn, FormElement, BaseField };
 `
         );
         execFileSync(
@@ -115,6 +123,9 @@ export { control, table, prismaRecord, FdlAddress, FdlColumn, FormElement, BaseF
                 file.includes('prisma-schema-parser')
             )
         ).toBe(false);
+        expect(
+            Object.keys(coreBundle.metafile.inputs).some(file => /(?:yaml|openapi)/.test(file))
+        ).toBe(false);
         const bundle = esbuild.buildSync({
             entryPoints: [consumer],
             bundle: true,
@@ -136,7 +147,9 @@ export { control, table, prismaRecord, FdlAddress, FdlColumn, FormElement, BaseF
             for (const tag of ['fdl-field', 'fdl-address', 'fdl-table', 'fdl-column']) {
                 expect(dom.window.customElements.get(tag)).toBeDefined();
             }
-            const { control, table, prismaRecord } = dom.window.FdlConsumer;
+            const { control, table, prismaRecord, openapiRecord } = dom.window.FdlConsumer;
+            expect(openapiRecord.isValid()).toBe(true);
+            expect(openapiRecord.isValid('stock', -1)).toBe(false);
             expect(prismaRecord.isValid()).toBe(true);
             expect(prismaRecord.isValid('stock', 1.5)).toBe(false);
             dom.window.document.body.append(control, table);

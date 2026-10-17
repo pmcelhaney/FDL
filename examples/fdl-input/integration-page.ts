@@ -110,6 +110,12 @@ export function renderIntegration() {
                 >Translate Prisma fields into FDL definitions</a
             >, then add application behavior with ordinary modifiers.</p
         >
+        <p
+            >Starting from an API schema?
+            <a href="#reference/docs/openapi"
+                >Translate OpenAPI properties into FDL definitions</a
+            >, including validation constraints and enum choices.</p
+        >
         <section
             class="integration-note"
             aria-labelledby="legacy-configuration"
