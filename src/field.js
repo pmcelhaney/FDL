@@ -4,7 +4,6 @@ export default class Field extends EventTarget {
         super();
         this.record = record;
         this.fieldName = fieldName;
-        this.fieldType = this.record.fieldTypeForField(fieldName);
 
         this.previousState = {
             rawValue: this.rawValue,
@@ -23,6 +22,10 @@ export default class Field extends EventTarget {
             this.previousState.rawValue = this.rawValue;
             this.previousState.valid = this.valid;
         });
+    }
+
+    get fieldType() {
+        return this.record.fieldTypeForField(this.fieldName);
     }
 
     get value() {

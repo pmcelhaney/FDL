@@ -30,7 +30,7 @@ is not exposed by `Field`.
 
 | Object | Represents | Start here |
 | --- | --- | --- |
-| `Record` | Values, field behavior, validation, options, and model events for one object | `field(name)`, `getField(name)`, `setField(name, value)`, `parseAndSetField(name, input)` |
+| `Record` | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()` |
 | `Field` | One field's formatted value, raw value, validity, and input helpers | `value`, `rawValue`, `valid`, `isValidValue(input)`, `onChange(fn)` |
 | `FieldType` | A field's finalized format, parse, validation, state, option, and table behavior | `format`, `parse`, `required`, `visible`, `isDisabled`, `readonly`, `options` |
 | `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
@@ -49,7 +49,7 @@ from it after every model change.
 | Property | Component use |
 | --- | --- |
 | `values` | The backing values object. Read it for serialization or debugging; prefer `getField()` for a field and do not mutate it directly. |
-| `fieldTypes` | The finalized field types. Prefer `fieldTypeForField()` so nested fields and missing fields follow the record's lookup behavior. |
+| `fieldTypes` | The finalized field types. Prefer `record.field(name).fieldType` from a component. |
 | `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state. |
 | `hasChanged` | Whether current values differ from the initial values. Useful for dirty-state indicators. |
 | `isExpanded` | A public view-model flag used by table/detail-row consumers. |
@@ -59,27 +59,18 @@ from it after every model change.
 | Method | Purpose |
 | --- | --- |
 | `field(name)` | Return a `Field` facade for component binding. |
-| `fieldTypeForField(name)` | Return the finalized `FieldType` for direct behavior inspection. |
+| `field(name)` | Return the `Field` facade for all operations scoped to one field. |
 | `hasField(name)` | Test whether the record declares a field. |
-| `getField(name)` | Read a stored value, including a dot-separated nested path. |
-| `setField(name, value)` | Store an already parsed value and announce a model change. |
-| `setFields(values)` | Store several already parsed values. |
-| `parse(name, input)` | Parse input without storing it. |
-| `parseAndSetField(name, input)` | Parse component input and store the result. |
 | `addField(name, definition, value)` | Add a field and its initial value to a record. |
-| `getFormattedField(name, context)` | Run the formatter pipeline for a display context. |
-| `print(name, index)` | Format and template a value for printed/read-only output. |
-| `allowInputChar(name, char)` | Ask whether an input character is permitted by the field definition. |
 
-`setField()` deliberately does not parse or validate its argument. Editable
-controls should normally call `record.parseAndSetField(name, input)` or assign
-through `record.field(name).value` instead.
+Editable controls should use `record.field(name).value = input`; that path parses
+the input and stores the model value through the field facade.
 
 ### Options and lifecycle
 
 | Method | Purpose |
 | --- | --- |
-| `optionsForField(name)` | Load options through the record's disabled-state gate. |
+| `field(name).options()` | Load options through the record's disabled-state gate. |
 | `refreshOptions()` | Request option loading and selection reconciliation. |
 | `whenOptionsReady()` | Wait for the current option pass and any dependent passes to settle. |
 | `announceChange(name)` | Announce a programmatic model change after a direct mutation or custom update. |
@@ -100,7 +91,7 @@ implementing a second dependency graph.
 | `errors()` / `errorsAsync()` | Get synchronous or asynchronous validation results. |
 | `errorCount()` / `hasErrors()` | Summarize current errors. |
 | `readableRecordErrors()` | Get errors prepared for record-level display. |
-| `readableFieldErrors(name)` | Get errors prepared for one field's display. |
+| `field(name).readableErrors()` | Get errors prepared for one field's display. |
 | `invalidValues` | Get the values that currently fail validation. |
 | `hasRequiredValues()` | Check whether required values are present. |
 | `reset()` | Restore the values captured at construction. |
@@ -151,9 +142,24 @@ The facade reports a field change when the record changes its raw value or
 validity. It does not replace the record's broader `change` event, which remains
 useful when a component depends on other fields.
 
+## Value transforms and validation
+
+Formatting and parsing are field operations. A component can inspect either
+operation through its `Field` facade without asking the `Record` to resolve a
+field name:
+
+```js
+const field = record.field('amount');
+const modelValue = field.parse(inputValue);
+const displayValue = field.format(modelValue, 'input-focus');
+```
+
+Use `field.isValid()` and `field.errors()` for one field, and use the record's
+aggregate validation methods when the component needs whole-record status.
+
 ## `FieldType`: behavior for a field
 
-`record.fieldTypeForField(name)` returns the finalized `FieldType`. Components
+`record.field(name).fieldType` returns the finalized `FieldType`. Components
 usually need it after they have read the `Field` value, because it supplies
 metadata and behavior that is not part of the facade.
 
@@ -184,7 +190,7 @@ request to copy arbitrary properties onto a DOM element.
 
 | Method | Component use |
 | --- | --- |
-| `hasOptions()` / `options(record)` | Detect and load choices. Prefer `record.optionsForField()` for a control. |
+| `hasOptions()` / `options(record)` | Detect and load choices. Prefer `field.options()` for a control. |
 | `hasMultipleValues()` | Choose a multiple-selection interaction. |
 | `minValueCount()` / `maxValueCount()` | Read selection-count metadata. |
 | `match(searchText, value)` | Apply a field's filter behavior. |
@@ -308,7 +314,7 @@ persist them or make application logic depend on their format.
 
 ## Options and selection
 
-Use `record.optionsForField(name)` when loading choices. It applies the
+Use `record.field(name).options()` when loading choices. It applies the
 record's disabled-state gate and participates in dependency and selection
 reconciliation:
 
@@ -346,7 +352,7 @@ submit attempt.
 
 When showing a synchronous field error:
 
-1. Read `record.readableFieldErrors(name)`.
+1. Read `record.field(name).readableErrors()`.
 2. Render a concise, readable error message adjacent to the control.
 3. Set `aria-invalid="true"` on the editable control or read-only output.
 4. Add the error element's ID to `aria-describedby` without discarding other
@@ -374,6 +380,25 @@ for (const record of rows) {
     const field = record.field(columnName);
     renderCell(field.value, field.valid);
 }
+```
+
+For example, a table component can construct a recordset, load its first page,
+and render each row through the field facade:
+
+```js
+import { field, Recordset } from '@pmcelhaney/fdl';
+
+const people = new Recordset(
+    { name: field.label('Name'), city: field.label('City') },
+    [
+        { name: 'Zulu', city: 'Oslo' },
+        { name: 'Alpha', city: 'Lima' },
+        { name: 'Mike', city: 'Paris' },
+    ]
+);
+
+people.sortColumns = [{ field: 'name', sort: 'ascending' }];
+await people.requestUpdate();
 ```
 
 Resolve table presentation at its natural scope:

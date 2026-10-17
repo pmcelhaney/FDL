@@ -41,7 +41,7 @@ All notable changes to FDL will be documented in this file. The format follows
   Start custom definitions with the exported `field` instance or specialize a
   primitive. Records and recordsets prepare runtime behavior automatically.
   Remove sentence-style aliases and replace builder construction with `field`;
-  see the [migration guide](./docs/field-type.md#migrating-direct-chains).
+  see the [field binding guide](./docs/field-type.md#value-transforms-and-validation).
 
 - The repository landing page now leads with the product problem FDL solves and
   includes a reproducible first-run path.

@@ -98,7 +98,7 @@ export function renderIntegration() {
         <p class="integration-types"
             >Working in TypeScript? The
             <a
-                href="#reference/docs/field-type?section=fixed-and-calculated-settings"
+                href="#reference/docs/field-type?section=value-transforms-and-validation"
                 >setting type reference</a
             >
             explains callback inputs and exported types. Browse the
