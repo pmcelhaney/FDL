@@ -1001,10 +1001,11 @@ export class FdlModifierExplorer extends LitElement {
         aside {
             position: sticky;
             top: 0;
-            height: calc(100vh - 88px);
-            height: calc(100dvh - 88px);
-            overflow: hidden;
-            padding: 28px 24px 24px 0;
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: auto;
+            scrollbar-gutter: stable;
+            padding: 0 24px 24px 0;
             display: flex;
             flex-direction: column;
             align-self: start;
@@ -1246,6 +1247,7 @@ export class FdlModifierExplorer extends LitElement {
             min-height: 0;
             overflow: visible;
             margin-bottom: 24px;
+            padding-top: 28px;
             padding-bottom: 20px;
             border-bottom: 1px solid #cbd5e1;
             gap: 4px;
@@ -1257,25 +1259,27 @@ export class FdlModifierExplorer extends LitElement {
             padding: 8px 10px;
         }
         .modifier-navigation {
-            flex: 1 1 auto;
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
             min-height: 0;
         }
         .modifier-navigation > .modifier-tools {
-            flex: 0 1 auto;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 12px 0;
+            background: white;
+            flex: 0 0 auto;
             min-height: 0;
             overflow: visible;
             margin-bottom: 12px;
         }
         .modifier-list {
             align-content: start;
-            flex: 1 1 0;
-            min-height: 120px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-gutter: stable;
-            overscroll-behavior: contain;
+            flex: none;
+            min-height: 0;
+            overflow: visible;
         }
         .site-page {
             min-width: 0;
@@ -2035,10 +2039,10 @@ export class FdlModifierExplorer extends LitElement {
         }
         @media (max-height: 750px) and (min-width: 801px) {
             aside {
-                padding-top: 16px;
                 padding-bottom: 16px;
             }
             .site-nav {
+                padding-top: 16px;
                 margin-bottom: 12px;
                 padding-bottom: 12px;
             }
@@ -2111,7 +2115,7 @@ export class FdlModifierExplorer extends LitElement {
             }
             .modifier-list {
                 flex: none;
-                max-height: 320px;
+                max-height: none;
                 min-height: 0;
             }
             .modifier-navigation > .modifier-tools {
@@ -2119,6 +2123,7 @@ export class FdlModifierExplorer extends LitElement {
                 overflow: visible;
             }
             .site-nav {
+                padding-top: 0;
                 max-height: none;
             }
             main {
