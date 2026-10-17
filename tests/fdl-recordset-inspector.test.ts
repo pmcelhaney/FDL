@@ -159,7 +159,7 @@ it('distinguishes server totals from loaded rows', async () => {
     expect(state.loadedRecords).toBe(1);
 });
 
-it('uses the record inspector icons and legend for field and row states', async () => {
+it('uses tooltips on field and row state icons without an icon legend', async () => {
     const recordset = new Recordset<any>(
         {
             name: field
@@ -178,11 +178,9 @@ it('uses the record inspector icons and legend for field and row states', async 
         )
     ).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
     expect(root.querySelector('tbody .row-status [aria-label="Invalid"]')).toBeTruthy();
-    expect(
-        [...root.querySelectorAll('.legend [role="img"]')].map(icon =>
-            icon.getAttribute('aria-label')
-        )
-    ).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
+    expect(root.querySelector('.legend')).toBeNull();
+    for (const icon of root.querySelectorAll('.status-icon'))
+        expect(icon.getAttribute('title')).toBe(icon.getAttribute('aria-label'));
     recordset.allRecords[0].setField('name', 'Ada');
     await inspector.updateComplete;
     expect(root.querySelector('[data-field="name"] [aria-label="Invalid"]')).toBeNull();
@@ -239,10 +237,7 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     expect(root.querySelector('.class-number')).toBeNull();
     toggle.click();
     await inspector.updateComplete;
-    const entries = [...root.querySelectorAll('.class-entry')];
-    expect(entries.map(entry => entry.querySelector('code')!.textContent)).toEqual([
-        'shared', 'heading', 'row', 'cell', 'high',
-    ]);
+    expect(root.querySelector('.class-legend')).toBeNull();
     function numbers(selector: string) {
         return [...root.querySelectorAll(`${selector} .class-number`)].map(marker => marker.textContent!.trim());
     }
@@ -252,7 +247,7 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
     expect(numbers('tbody tr:last-child [data-field="amount"]')).toEqual(['1', '4']);
     expect(numbers('[data-field="name"]')).toEqual([]);
-    expect(root.querySelector('[data-field="amount"] [title="high"]')!.getAttribute('aria-label')).toBe('CSS class 5: high');
+    expect(root.querySelector('[data-field="amount"] [title="CSS class 5: high"]')!.getAttribute('aria-label')).toBe('CSS class 5: high');
     expect(root.querySelector('[data-field="amount"] .stored-cell > span:nth-child(2)')!.textContent).toBe('12');
     toggle.click();
     await inspector.updateComplete;
@@ -263,13 +258,13 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
     recordset.allRecords[0].setField('amount', 2);
     await inspector.updateComplete;
-    expect(root.querySelector('.class-legend')!.textContent).not.toContain('high');
+    expect(root.querySelector('[title="CSS class 5: high"]')).toBeNull();
     recordset.allRecords[0].setField('amount', 20);
     await inspector.updateComplete;
     expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
     inspector.fields = ['amount'];
     await inspector.updateComplete;
-    expect(root.querySelector('.class-legend')!.textContent).not.toContain('heading');
+    expect(root.querySelector('[title="CSS class 2: heading"]')).toBeNull();
     expect(numbers('tbody tr:first-child .row-status')).toEqual([]);
     expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
     inspector.fields = undefined;
@@ -277,7 +272,7 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     await replacement.requestImmediateUpdate();
     inspector.recordset = replacement;
     await inspector.updateComplete;
-    expect(root.querySelector('.class-entry')!.textContent).toBe('1replacement');
+    expect(root.querySelector('.class-number')!.getAttribute('title')).toBe('CSS class 1: replacement');
 });
 
 it('omits the CSS legend and markers when no classes apply', async () => {

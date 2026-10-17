@@ -7,7 +7,6 @@ import {
     storedValue,
     fieldStatus,
     statusIcon,
-    statusLegend,
 } from './fdl-record-inspector';
 
 const events = [
@@ -96,7 +95,7 @@ export class FdlRecordsetInspector extends LitElement {
         return this.showClasses && classes.length
             ? html`<span class="class-markers">${classes.map(name => html`<span
                   class="class-number"
-                  title=${name}
+                  title=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
                   aria-label=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
               >${this.classNumbers.get(name)}</span>`)}</span>`
             : '';
@@ -244,10 +243,6 @@ export class FdlRecordsetInspector extends LitElement {
                                       }}
                                   />Show CSS classes
                               </label>` : ''}
-                              ${this.showClasses && activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
-                                  ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number">${number}</span><code>${name}</code></span>`)}
-                              </div>` : ''}
-                              ${statusLegend()}
                               <p class="note"
                                   >Values are stored values before formatting.
                                   Icons on the left indicate applicable states;
@@ -332,27 +327,17 @@ ${JSON.stringify(
                 align-items: flex-start;
                 gap: 6px;
             }
-            .class-markers,
-            .class-legend,
-            .class-entry {
+            .class-markers {
                 display: inline-flex;
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 4px;
-            }
-            .class-markers {
                 margin-inline-start: 6px;
                 vertical-align: middle;
             }
             .row-status .class-markers {
                 flex-wrap: nowrap;
                 margin-inline-start: 0;
-            }
-            .class-legend {
-                display: flex;
-                gap: 8px 16px;
-                margin-top: 16px;
-                font-size: 0.8125rem;
             }
             .class-toggle {
                 display: flex;
@@ -365,9 +350,6 @@ ${JSON.stringify(
             }
             .class-toggle input {
                 margin: 0;
-            }
-            .class-entry code {
-                overflow-wrap: anywhere;
             }
             .class-number {
                 display: inline-flex;
