@@ -300,7 +300,7 @@ export class FdlRecordInspector extends LitElement {
               (this.fields
                   ? fields.every(name => record.isValid(name))
                   : record.isValid());
-        const validityLabel = `${valid ? 'Valid' : 'Invalid'} ${currentView?.kind === 'recordset' ? 'recordset' : this.fields && !currentView ? 'displayed fields' : 'record'}`;
+        const validityLabel = `Invalid ${currentView?.kind === 'recordset' ? 'recordset' : this.fields && !currentView ? 'displayed fields' : 'record'}`;
         return html`<section aria-label="Record Inspector">
             <header>
                 ${
@@ -329,7 +329,7 @@ export class FdlRecordInspector extends LitElement {
                     <p>See each field’s stored value and current state.</p>
                 </div>
                 ${
-                    record
+                    record && !valid
                         ? html`<span
                               class="record-validity"
                               role="img"
@@ -337,15 +337,7 @@ export class FdlRecordInspector extends LitElement {
                               title=${validityLabel}
                               ?hidden=${this.collapsed}
                           >
-                              <svg
-                                  viewBox="0 0 24 24"
-                                  aria-hidden="true"
-                                  focusable="false"
-                              >
-                                  <path
-                                      d=${valid ? 'm5 12 4 4L19 6' : 'm6 6 12 12 M18 6 6 18'}
-                                  ></path>
-                              </svg>
+                              ${statusIcon('Invalid')}
                           </span>`
                         : nothing
                 }

@@ -62,5 +62,5 @@ it('preserves the nested record and value while edits update an open inspector',
     expect(root.querySelector('[data-nested-field="state"] .stored-value')!.textContent).toContain(
         'NC'
     );
-    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    expect(root.querySelector('.record-validity')).toBeNull();
 });

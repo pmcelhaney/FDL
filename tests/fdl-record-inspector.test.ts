@@ -75,10 +75,16 @@ it('reflects dependent field state and record validity without a parent rerender
     expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe(
         'Invalid record'
     );
+    expect(root.querySelector('.record-validity .status-icon')!.getAttribute('aria-label')).toBe(
+        'Invalid'
+    );
+    expect(root.querySelector('.record-validity path')!.getAttribute('d')).toBe(
+        root.querySelector('tbody [aria-label="Invalid"] path')!.getAttribute('d')
+    );
     record.setField('name', 'Ada');
     await inspector.updateComplete;
     expect(root.querySelector('tbody .stored-value')!.textContent).toBe('Ada');
-    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    expect(root.querySelector('.record-validity')).toBeNull();
 });
 
 it('collapses to an accessible icon and reopens with the latest record values', async () => {
@@ -145,9 +151,7 @@ it('validates only the displayed fields when inspecting part of a record', async
     inspector.fields = ['shown'];
     await inspector.updateComplete;
     expect(record.isValid()).toBe(false);
-    expect(
-        inspector.shadowRoot!.querySelector('.record-validity')!.getAttribute('aria-label')
-    ).toBe('Valid displayed fields');
+    expect(inspector.shadowRoot!.querySelector('.record-validity')).toBeNull();
     record.setField('shown', '');
     await inspector.updateComplete;
     expect(
@@ -204,7 +208,7 @@ it('inspects nested records and nested recordsets', async () => {
     expect(legend.open).toBe(false);
     legend.open = true;
     expect(root.querySelectorAll('.legend li')).toHaveLength(5);
-    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    expect(root.querySelector('.record-validity')).toBeNull();
     expect(root.querySelector('.nested-validation')).toBeNull();
     expect(root.textContent).toContain('1 Main Street');
 
@@ -237,7 +241,7 @@ it('shows the validity of the current nested record and restores parent validity
     );
     root.querySelector<HTMLButtonElement>('.nested-inspect')!.click();
     await inspector.updateComplete;
-    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    expect(root.querySelector('.record-validity')).toBeNull();
     root.querySelector<HTMLButtonElement>('.back-button')!.click();
     await inspector.updateComplete;
     expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe(
