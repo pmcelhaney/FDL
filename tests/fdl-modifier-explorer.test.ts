@@ -199,7 +199,6 @@ describe('complete explorer', () => {
             'parseDynamicRange',
             'pattern',
             'readOnlyExceptionWhen',
-            'schema',
             'segmented',
             'selectionDisabledFunctions',
             'step',

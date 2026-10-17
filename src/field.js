@@ -127,8 +127,16 @@ export default class Field extends EventTarget {
         return this.#fieldType().type(this.rawValue, this.record, 'form');
     }
 
-    get schema() {
-        return this.#fieldType().schema();
+    get semanticType() {
+        return this.#fieldType().semanticType();
+    }
+
+    get recordDefinition() {
+        return this.#fieldType().record();
+    }
+
+    get recordsetDefinition() {
+        return this.#fieldType().recordset();
     }
 
     get hasOptions() {
@@ -145,10 +153,6 @@ export default class Field extends EventTarget {
 
     get hasMultipleValues() {
         return this.#fieldType().hasMultipleValues();
-    }
-
-    get hasRange() {
-        return this.#fieldType().hasRange();
     }
 
     get parseDynamicRange() {

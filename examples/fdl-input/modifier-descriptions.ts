@@ -32,13 +32,15 @@ export const modifierDescriptions: Readonly<Record<string, string>> = {
     parser: 'Converts input into the value stored in the record.',
     placeholder:
         'Supplies a fixed or record-dependent hint for an empty control.',
-    range: 'Declares a range field for adapters that support range controls.',
+    record: 'Defines a structured value whose child fields are ordinary FDL fields.',
+    recordset: 'Defines a repeated structured value whose rows use ordinary FDL fields.',
     readOnly:
         'Determines whether a field is read-only, optionally based on the record.',
     reducer: 'Combines field values across records into an aggregate result.',
     rowClass: 'Adds fixed or record-dependent styling classes to table rows.',
     rowCount: 'Requests a number of visible rows in a supporting text control.',
     search: 'Configures search-based selection for adapters that support it.',
+    semanticType: 'Declares the domain meaning of a field independently of its renderer.',
     sortable: 'Determines whether a table column can be sorted.',
     targetColumnWidth: 'Sets the preferred width of a table column.',
     template:

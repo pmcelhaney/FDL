@@ -90,14 +90,14 @@ const relationships = {
             amounts above a limit.</p
         >`,
     'Adapter contracts': html`<p
-            >${modifier('range')} declares range metadata and
+            ${modifier('record')} describes a structured value and
             ${modifier('search')} describes a search-capable selection
             interface. Both need a compatible adapter to supply the interaction;
             the site's native example adapter does not implement these
             contracts.</p
         ><p
-            >These declarations do not themselves provide range validation or a
-            search service. Use ${modifier('validator')} for model-enforced
+            >These declarations do not themselves provide a specialized composite
+            adapter or a search service. Use ${modifier('validator')} for model-enforced
             constraints, and ${modifier('options')} for the available choices.
             See each modifier page for its integration limits.</p
         >`,

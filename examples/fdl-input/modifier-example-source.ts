@@ -463,8 +463,10 @@ const hashField = employees.field('employee');`,
         };
     }
     const contracts: { [key: string]: string } = {
-        range: 'range()',
+        record: "record({ street: field.label('Street'), city: field.label('City') })",
+        recordset: "recordset({ item: field.label('Item'), quantity: field.type('number') })",
         search: "search({ title: 'Find a person', columns: [{ label: 'Name', field: 'name' }] })",
+        semanticType: "semanticType('address')",
     };
     if (contracts[name])
         return {

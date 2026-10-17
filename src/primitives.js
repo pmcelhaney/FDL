@@ -8,7 +8,7 @@ const stringBase = /** @type {FieldTypeBuilder<string>} */ (new FieldTypeBuilder
 export const string = stringBase.defaultValue('');
 
 const booleanBase = /** @type {FieldTypeBuilder<boolean>} */ (new FieldTypeBuilder());
-export const boolean = booleanBase.schema('boolean').defaultValue(false);
+export const boolean = booleanBase.semanticType('boolean').defaultValue(false);
 
 const numberBase = /** @type {FieldTypeBuilder<number>} */ (new FieldTypeBuilder());
 export const number = numberBase

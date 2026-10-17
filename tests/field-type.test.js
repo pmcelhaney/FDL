@@ -406,16 +406,6 @@ describe('FieldType', () => {
         });
     });
 
-    describe('schema(name)', () => {
-        it('defaults to "simple"', () => {
-            expect(new FieldTypeBuilder().valueOf().schema()).toEqual('simple');
-        });
-        it('can be set to a string value', () => {
-            const address = new FieldTypeBuilder().schema('address');
-            expect(address.valueOf().schema()).toEqual('address');
-        });
-    });
-
     describe('options(config)', () => {
         it('hasOptions', () => {
             const a = new FieldTypeBuilder();
@@ -954,11 +944,6 @@ describe('FieldType', () => {
     it('stores a placeholder', () => {
         const withPlaceholder = new FieldTypeBuilder().placeholder('Select an option');
         expect(withPlaceholder.valueOf().placeholder()).toEqual('Select an option');
-    });
-
-    it('stores a range property', () => {
-        const withRange = new FieldTypeBuilder().range();
-        expect(withRange.valueOf().hasRange()).toEqual(true);
     });
 
     it('takes a hashFunction to determine option matches', () => {

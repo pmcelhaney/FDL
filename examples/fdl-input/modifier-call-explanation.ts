@@ -122,8 +122,6 @@ export function explainModifierCall(
             return `Gives the ${target} column a preferred width of ${argument} pixels.`;
         case 'rowCount':
             return `Requests ${argument} visible text rows for ${target} in the legacy textarea adapter.`;
-        case 'range':
-            return `Marks ${target} as a range; this adapter does not provide a range control.`;
         case 'search':
             return `Configures a search picker for ${target}; this adapter does not provide that picker.`;
         default:

@@ -170,9 +170,6 @@ export default class FieldType {
         if (this.hasMultipleValues()) {
             return configured ?? 'all';
         }
-        if (this.schema() === 'range') {
-            return configured ?? ['range', 0, 0];
-        }
         if (value !== null && value !== undefined) {
             return value;
         }
@@ -184,8 +181,16 @@ export default class FieldType {
         return this.properties.list;
     }
 
-    schema() {
-        return this.properties.schema;
+    semanticType() {
+        return this.properties.semanticType;
+    }
+
+    record() {
+        return this.properties.record;
+    }
+
+    recordset() {
+        return this.properties.recordset;
     }
 
     type(value, record, context = 'model') {
@@ -246,9 +251,6 @@ export default class FieldType {
             }
 
             results = p.then(data => {
-                if (this.properties.schema === 'datepicker') {
-                    return data;
-                }
                 return this.#filterOptions(this.#sortOptions(this.#mapOptions(data)), record);
             });
             options.cache = {
@@ -316,10 +318,6 @@ export default class FieldType {
         return this.properties.disableFunctions.some(setting =>
             resolveRecordSetting(setting, record)
         );
-    }
-
-    hasRange() {
-        return this.properties.range;
     }
 
     getParseDynamicRange() {

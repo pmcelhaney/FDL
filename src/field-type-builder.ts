@@ -17,6 +17,7 @@ import {
 } from './field-setting';
 import { resolveRecordFieldType } from './internal-field-type.js';
 import { inputType } from './types/input-types.types';
+import type { FieldDefinitions } from './types/field-definition.types';
 
 function classCallback<Args extends unknown[]>(
     classes: string | string[] | ((...args: Args) => string | string[])
@@ -158,15 +159,16 @@ export interface Properties<T = unknown> {
     parsers: Array<Function>;
     pattern?: RegExp;
     placeholder: RecordSetting<string>;
-    range: boolean;
     readonly: boolean;
     readonlyexception: boolean;
     readonlyexceptionFunctions: Array<BooleanPredicate>;
     readonlyFunctions: Array<RecordSetting<boolean>>;
     required: boolean;
     requiredFunctions: Array<RecordSetting<boolean>>;
+    record?: FieldDefinitions;
+    recordset?: FieldDefinitions;
     rowClassFunctions: Array<(record: Record<any>) => string | string[]>;
-    schema: string;
+    semanticType?: string;
     search: boolean;
     searchConfig?: SearchConfig<T>;
     segmented: boolean;
@@ -174,7 +176,6 @@ export interface Properties<T = unknown> {
     selectionDisabledFunctions: FunctionCollection;
     x?: boolean;
     sortable?: ColumnSetting<boolean>;
-    specificDate?: boolean;
     step?: number;
     targetColumnWidth?: ColumnSetting<number>;
     template: Function;
@@ -223,7 +224,6 @@ export const defaultProperties: Properties = {
     parseDynamicRange: false,
     parsers: [],
     placeholder: '',
-    range: false,
     readonly: false,
     readonlyexception: false,
     readonlyexceptionFunctions: [() => false],
@@ -231,7 +231,6 @@ export const defaultProperties: Properties = {
     required: false,
     requiredFunctions: [() => false],
     rowClassFunctions: [],
-    schema: 'simple',
     search: false,
     segmented: false,
     segmentedFunctions: [() => false],
@@ -531,14 +530,27 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /**
-     * @deprecated
-     * @param name
-     */
-    schema(name: string) {
+    /** Declare the semantic meaning of the field independently of its renderer. */
+    semanticType(name: string) {
         const copy = this.copy();
-        copy.properties.schema = name;
-        copy.properties.descriptions = [...copy.properties.descriptions, `schema: ${name}`];
+        copy.properties.semanticType = name;
+        copy.properties.descriptions = [...copy.properties.descriptions, `semantic type: ${name}`];
+        return copy;
+    }
+
+    /** Define a structured value whose child fields are ordinary FDL fields. */
+    record(fields: FieldDefinitions) {
+        const copy = this.copy();
+        copy.properties.record = { ...fields };
+        copy.properties.recordset = undefined;
+        return copy;
+    }
+
+    /** Define a repeated structured value whose rows use ordinary FDL fields. */
+    recordset(fields: FieldDefinitions) {
+        const copy = this.copy();
+        copy.properties.recordset = { ...fields };
+        copy.properties.record = undefined;
         return copy;
     }
 
@@ -638,14 +650,6 @@ export default class FieldTypeBuilder<T = unknown> {
             ...copy.properties.descriptions,
             predicate === true ? 'disabled' : `disabled when ${printFunction(predicate)}`,
         ];
-        return copy;
-    }
-
-    range() {
-        const copy = this.copy();
-        copy.properties.range = true;
-        copy.properties.specificDate = false;
-        copy.properties.descriptions = [...copy.properties.descriptions, `range`];
         return copy;
     }
 

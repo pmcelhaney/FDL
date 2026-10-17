@@ -28,6 +28,21 @@ it('specializes reusable builders without changing the baseline or siblings', ()
     expect(string.valueOf().maxLength()).toBe(524288);
 });
 
+it('declares semantic and composite field metadata immutably', () => {
+    const addressFields = { street: string, city: string };
+    const base = field.label('Address');
+    const address = base.semanticType('address').record(addressFields);
+    const entries = base.recordset({ line: string });
+
+    expect(base.valueOf().semanticType()).toBeUndefined();
+    expect(base.valueOf().record()).toBeUndefined();
+    expect(address.valueOf().semanticType()).toBe('address');
+    expect(address.valueOf().record()).toEqual(addressFields);
+    expect(address.valueOf().recordset()).toBeUndefined();
+    expect(entries.valueOf().record()).toBeUndefined();
+    expect(entries.valueOf().recordset()).toEqual({ line: string });
+});
+
 it('normalizes mixed inputs once without changing the caller map', () => {
     const builder = string.required();
     const finalize = jest.spyOn(builder, 'valueOf');

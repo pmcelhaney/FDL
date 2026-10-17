@@ -224,9 +224,14 @@ field
         `.placeholder('For example, Apollo migration')`
     ),
     placeholder(
-        'range',
-        'Marks a field as representing a start/end range rather than one value.',
-        'FieldType stores the flag, but FormElement neither chooses nor implements a range control. The intended value and event contract are not clear in this native example.'
+        'record',
+        'Defines a structured field value with named child fields.',
+        'The model records the child definitions, but the native adapter does not yet render nested records as a composite control.'
+    ),
+    placeholder(
+        'recordset',
+        'Defines a repeated structured field value with record-shaped rows.',
+        'The model records the row definitions, but the native adapter does not yet render nested recordsets as an editor or table.'
     ),
     live(
         'readOnly',
@@ -262,6 +267,11 @@ field
         'search',
         'Enables a rich option-search dialog and describes its result columns.',
         customControlGap
+    ),
+    placeholder(
+        'semanticType',
+        'Declares domain meaning independently of the renderer.',
+        'The native adapter does not select a semantic component from this hint yet; specialized adapters can use it alongside record() or recordset().'
     ),
     live(
         'sortable',

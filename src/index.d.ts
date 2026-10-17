@@ -18,6 +18,6 @@ export type {
 } from './field-setting';
 
 export { field } from './primitives.js';
-export type { FieldDefinition } from './types/field-definition.types';
+export type { FieldDefinition, FieldDefinitions } from './types/field-definition.types';
 
 export * from './field-definitions.js';
