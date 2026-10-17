@@ -161,11 +161,6 @@ a field value, or an owning record. Call `fieldType.sortable()`,
 `fieldType.minColumnWidth()`, `fieldType.maxColumnWidth()`, and
 `fieldType.targetColumnWidth()` directly.
 
-Callbacks are resolved on each read and can close over application state.
-To migrate, replace `context => result` with `() => result`, remove context
-arguments from getter calls, and use separate field definitions for distinct
-consumer policies.
-
 ```ts
 const amount = field.minColumnWidth(() => 100).sortable(true);
 ```
@@ -183,33 +178,7 @@ array of field values (or use the built-in `'sum'`). Validators retain
 Options providers retain their configuration/async loading and caching
 contract. Search configuration, input masks, multiple-value bounds, and range
 mode are structural or operational configuration rather than per-field result
-settings. Deprecated renderer modifiers retain their existing contracts; this
-change does not expand those APIs.
-
-### Migrating callbacks
-
-Replace the former uniform `(value, record, context)` signature with the
-contract in the table above. For example:
-
-```ts
-// Before
-.rowClass((value, record) => value === 'Disputed' ? 'disputed' : [])
-.required((_value, record) => record.getField('submitted'))
-.defaultValue((record, context) => record.getField('prefix'))
-.emptyWhen((value, record, context) => value === 'N/A')
-
-// After
-.rowClass(record => record.getField('status') === 'Disputed' ? 'disputed' : [])
-.required(record => record.getField('submitted'))
-.defaultValue(record => record.getField('prefix'))
-.emptyWhen(value => value === 'N/A')
-```
-
-Call `fieldType.rowClasses(record)` instead of
-`fieldType.rowClasses(value, record, context)`. Move any context-specific label,
-placeholder, input-type, or model-rule policy into the consumer or separate field
-specializations. Labels compute a complete result from the record; the last
-label declaration wins. Callback meaning is never inferred from its arity.
+settings.
 
 ## Value transforms and validation
 
@@ -381,13 +350,6 @@ it. Keep cross-field orchestration in the record or application model.
 Custom Lit field controls should extend [`FormElement`](./form-element.md),
 which applies a field type's form-related modifiers to its child control.
 
-## Removed sample-data modifier
-
-`exampleValue()` was removed on 2026-10-15. Keep fixtures and sample-data
-factories in application or test code, separate from field definitions.
-For generated demo rows, pass a row factory to
-[`ExampleRecordset`](./recordset.md#examplerecordset).
-
 ## Input character masks
 
 `inputMask(regex)` accepts only input characters matching the regular expression;
@@ -398,27 +360,6 @@ For example, `inputMask(/[0-9.]/)` accepts digits and periods.
 A character mask is not whole-value validation: multiple periods still match
 that mask. Use `validator(...)` for complete-value rules. Programmatic record
 assignments bypass input filtering.
-
-## Removed focus-selection modifier
-
-`selectOnFocus()` was removed on 2026-10-15. Text selection on focus belongs to
-components and form adapters. Remove `.selectOnFocus()` from field definitions
-and, where needed, handle focus and select the input's text in the component.
-There is no replacement FDL modifier.
-
-## Removed toggle-presentation modifier
-
-`toggle()` was removed on 2026-10-15. Remove `.toggle()` from field definitions
-and choose checkbox or switch presentation in the component or form adapter.
-The component owns labeling, keyboard interaction, and accessible checked state.
-There is no replacement FDL modifier.
-
-## Deprecated textarea sizing modifier
-
-`rowCount(rows)` is deprecated. Textarea sizing is a presentation concern and
-row-count configuration needs to move into `fdl-field`, separate from the field
-model. The existing modifier and adapter behavior remain available for
-compatibility while that component configuration is introduced.
 
 ## Cell, column, and row classes
 
@@ -477,11 +418,6 @@ the table explicitly assigns them to each element. CSS still determines which
 properties apply to each element. Column callbacks are re-evaluated on render;
 a change in closed-over application state needs a consumer update.
 
-Migrate a context-dependent `cellClass((value, record, context) => ...)` to
-`columnClass(...)` for the shared classes and `cellClass((value, record) => ...)`
-for the per-cell rule. The cell callback and `cellClasses` getter no longer
-receive a context argument.
-
 The value type `T` comes from the field type. The callback can read other
 fields through `record.getField(name)`, for example:
 
@@ -495,18 +431,6 @@ const amount = field
     );
 ```
 
-The old two-argument predicate form is no longer supported. Replace
-`cellClass(predicate, classes)` with
-`cellClass((value, record) => predicate(value) ? classes : [])`.
-
-`rowClasses(fn)` was renamed to `rowClass(fn)` on 2026-10-15. Rename modifier
-calls to the singular form; callbacks can continue returning arrays. Consumer
-methods `fieldType.cellClasses(value, record)` and
-`fieldType.rowClasses(record)` still return the accumulated arrays.
-
-`conditionalCellClass(predicate, className)` was removed on 2026-10-15. Rename
-those calls to `cellClass(value => predicate(value) ? className : [])`.
-
 ## Consolidated required and disabled rules
 
 `required()` always requires a non-empty value; `required(predicate)` requires
@@ -515,8 +439,5 @@ a field; `disabled(predicate)` disables it only while the predicate is true.
 Multiple declarations accumulate: any true predicate enables that state.
 Calling either modifier without a predicate adds an unconditional rule.
 
-`requiredWhen(predicate)` and `disabledWhen(predicate)` were removed on
-2026-10-15. Rename those calls to `required(predicate)` and
-`disabled(predicate)` respectively, and migrate record-first callbacks to
-`record => ...` as described above. Conditional requiredness continues to affect model validation
-as well as the control's required state. Disabled fields retain their values.
+Conditional requiredness continues to affect model validation as well as the
+control's required state. Disabled fields retain their values.
