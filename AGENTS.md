@@ -34,6 +34,11 @@ rendering. The npm package is `@pmcelhaney/fdl`.
   Home, How it Works, Contributing, and one page per modifier.
 - Run `npm run docs:dev` from the repository root and open the printed root URL.
   Use `npm run docs:build` for production-build checks.
+- All public documentation must be available within this website, including
+  API guides, architecture decisions, and repository guides. Keep Markdown
+  sources in `docs/` or the repository root, or add new documentation locations
+  to `scripts/documentation-pages.cjs`. Link every bundled document from the
+  Documentation library and keep documentation links within the site.
 - Keep the site local unless the user explicitly requests deployment.
 
 ## Architecture and design principles

@@ -2,8 +2,7 @@
 import '../examples/fdl-input/fdl-modifier-explorer';
 import type { FdlModifierExplorer } from '../examples/fdl-input/fdl-modifier-explorer';
 import { documentationPages } from '../examples/fdl-input/reference-pages';
-import { readdirSync } from 'fs';
-import { join } from 'path';
+import { execFileSync } from 'child_process';
 
 beforeAll(() => {
     HTMLElement.prototype.scrollIntoView = jest.fn();
@@ -22,20 +21,32 @@ async function openRoute(route: string) {
     return page;
 }
 
-it('includes every document under docs, including architecture decisions', () => {
-    function files(directory: string): string[] {
-        return readdirSync(directory, { withFileTypes: true }).flatMap(function (entry): string[] {
-            const file = join(directory, entry.name);
-            return entry.isDirectory() ? files(file) : file.endsWith('.md') ? [file] : [];
-        });
-    }
-    const sourceFiles = files('docs').sort();
+it('bundles every public repository document, including guides outside docs', () => {
+    // Internal agent skills are tooling instructions, not public documentation.
+    // Include untracked files too, so new guides are checked before they are staged.
+    const sourceFiles = execFileSync(
+        'git',
+        ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+        { encoding: 'utf8' }
+    )
+        .split('\0')
+        .filter(file => file.endsWith('.md') && !file.startsWith('.'))
+        .sort();
     expect(
         documentationPages
-            .filter(page => page.file.startsWith('docs/'))
             .map(page => page.file)
+            .filter(file => file.endsWith('.md'))
             .sort()
     ).toEqual(sourceFiles);
+    expect(documentationPages.some(page => page.file === 'LICENSE')).toBe(true);
+});
+
+it('links every bundled document from the Documentation library', async () => {
+    const page = await openRoute('reference');
+    const links = Array.from(
+        page.shadowRoot!.querySelectorAll<HTMLAnchorElement>('.reference-page section a')
+    ).map(link => link.getAttribute('href'));
+    expect(links.sort()).toEqual(documentationPages.map(page => `#${page.id}`).sort());
 });
 
 it('resolves every reference link and section to a bundled page and heading', () => {
