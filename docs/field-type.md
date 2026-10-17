@@ -1,443 +1,229 @@
-# Field types
+# Binding components to FDL fields
 
-Start a custom field definition with the exported `field` instance and chain
-modifiers directly. Each modifier returns a new definition without changing its
-source. The exported `string`, `number`, `boolean`, and `date` primitives are
-reusable starting points with type-specific defaults.
+This page is for authors of form controls, table renderers, filters, and other
+components that consume FDL. It describes the boundary between an FDL model and
+your renderer.
+
+FDL owns field meaning and model state. Your component owns semantic HTML,
+accessible relationships, interaction policy, focus, events, layout, and visual
+styling. The integration flow is:
+
+```text
+Field definition -> Record/Recordset -> component state -> accessible UI
+                                      <- parsed user input
+```
+
+Do not make the component the source of business rules. Read the current state
+from the `Record` and `FieldType`, and send user input back through the record's
+parsing API.
+
+## The renderer contract
+
+A component that renders one field needs two inputs:
+
+- `record`: the model containing values and finalized field behavior;
+- `field`: the field name to render.
+
+Resolve the field once the component has both inputs:
 
 ```js
-import { field } from '@pmcelhaney/fdl';
-
-const number = field
-    .validator({
-        name: 'numeric',
-        validate: value => Number.isFinite(Number(value)),
-    })
-    .cellClass('numeric')
-    .cellClass(value => (value < 0 ? 'negative' : []));
-
-const money = number
-    .formatter(formatUsd)
-    .parser(parseUsd)
-    .minColumnWidth(50)
-    .targetColumnWidth(80)
-    .maxColumnWidth(200);
+const field = record.field(fieldName);
+const fieldType = record.fieldTypeForField(fieldName);
 ```
 
-## Definitions and runtime behavior
+Use the `Field` facade when the component needs the common value and validity
+surface:
 
-Pass definitions directly to `Record`, `Recordset`, and `Record#addField()`.
-They prepare runtime behavior automatically. The exported `FieldDefinition<T>`
-type describes an accepted field definition.
+| Need | Read or write |
+| --- | --- |
+| Formatted value for display | `field.value` |
+| Stored value | `field.rawValue` |
+| Accept editable input | `field.value = input` |
+| Formatted input value | `field.focusedInputValue` or `field.blurredInputValue` |
+| Current validity | `field.valid` or `field.invalid` |
+| Validate a proposed input | `field.isValidValue(input)` |
 
-```ts
-import { field, Record } from '@pmcelhaney/fdl';
+`field.value = input` parses the input and stores the parsed result. Use
+`field.rawValue` only when the component is intentionally writing an already
+parsed model value. For model or service code, the equivalent explicit APIs are
+`record.parseAndSetField(name, input)`, `record.getField(name)`, and
+`record.setField(name, value)`.
 
-const name = field.maxLength(100);
-const requiredName = name.required(); // name stays optional
-const person = new Record({ name: requiredName }, { name: '' });
-person.isValid(); // false
-
-// Inspect behavior through the record.
-const nameType = person.fieldTypeForField('name');
-nameType.required(); // true
-nameType.format('Ada', person); // 'Ada'
-
-// Specialize the reusable definition for another use.
-const displayName = name.label('Display name');
-```
-
-A record keeps its runtime field types, including option caches and display
-results. A recordset shares its runtime field types with its rows. Use
-`record.fieldTypeForField(name)` or `recordset.getFieldType(name)` when you need
-to inspect or invoke that behavior directly.
-
-## Fixed and calculated settings
-
-Settings accept a fixed result or a pure, synchronous callback. A callback's
-inputs follow the scope of the setting:
-
-| Modifiers                                                                                                           | Callback                             | Exported setting type                         |
-| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | --------------------------------------------- |
-| `rowClass`, `label`, `placeholder`, `type`, `required`, `disabled`, `readOnly`, `visible`, `minLength`, `maxLength` | `(record) => result`                 | `RecordSetting<Result, R>`                    |
-| `defaultValue`                                                                                                      | `(record) => value`                  | `DefaultSetting<T, R>`                        |
-| `emptyWhen`, `cellClass`                                                                                            | `(value, record) => result`          | `ValueSetting<T, Result, R>`                  |
-| `columnClass`                                                                                                       | `() => string or string[]`           | Fixed classes or a callback with no arguments |
-| `textAlign`                                                                                                         | `(value, record, context) => result` | `FieldSetting<T, Result, R>`                  |
-| `sortable`, `minColumnWidth`, `maxColumnWidth`, `targetColumnWidth`                                                 | `() => result`                       | `ColumnSetting<Result>`                       |
-
-`T` is the stored field type and `R` is the record's backing-data type. Import
-these types from `@pmcelhaney/fdl`. Record settings describe the record's state or
-metadata. They can read a particular field with `record.getField(name)`.
-`emptyWhen` needs the candidate value because validation can check a value
-before storing it. Cell classes use their value and owning record. Alignment callbacks can also
-use consumer context. A row has no single field value; its callback receives only
-the record, even when the modifier is attached to a particular field.
-
-```ts
-const amount = field
-    .label(record => `Amount for ${record.getField('customer')}`)
-    .placeholder('Enter an amount')
-    .required(record => record.getField('submitted'))
-    .cellClass((value, record) =>
-        value > record.getField('limit') ? ['numeric', 'over-limit'] : 'numeric'
-    )
-    .rowClass(record => (record.getField('overdue') ? 'overdue' : []));
-```
-
-Callbacks resolve on every read, so changes to dependencies appear on the next
-read. They must not mutate the record or render UI. State and length callbacks
-have no rendering context; model validation uses the same record rules as the
-form. Emptiness checks additionally receive the candidate being validated.
-
-The table passes `"table"` for cell alignment and `"table-header"`
-for heading alignment. For a calculated heading label or alignment, a non-empty
-table uses its first visible record. On an empty table, it uses an explicit
-column label or the last fixed field label (then the field name), and fixed
-alignment or left alignment; per-record callbacks are not invoked.
-
-Most existing field-binding getters retain `(value, record, context?)`, for example
-`fieldType.label(record.getField('amount'), record, 'form')` and
-`fieldType.required(record.getField('amount'), record)`. Record-setting getters
-forward only the record to their callbacks. `fieldType.rowClasses(record)`
-takes only the record. `fieldType.cellClasses(value, record)` takes no context,
-and `fieldType.columnClasses()` takes no arguments. `empty(record, field)` delegates to
-`isEmpty(value, record, context?)`, whose callback receives only value and record.
-
-`required()`, `disabled()`, and `readOnly()` mean `true`. Repeated state settings
-keep their composition rules: required, disabled, read-only, and empty rules use
-any-true semantics; visibility uses all-true semantics. A later `false` does not
-cancel an earlier unconditional `true`. Cell, column, and row classes accumulate in
-order. Labels and other scalar settings use the last declaration. Length
-validators accumulate, so every declared length constraint remains enforced.
-Specialization never changes the source field definition.
-
-### Primitive defaults and conversion
-
-Primitives provide starting metadata, not automatic JavaScript type conversion.
-`string` supplies an empty-string default, `boolean` supplies `false`, `number`
-supplies `0` and a numeric character mask, and `date` supplies a `Date` captured
-when the primitives module loads. For a fresh date whenever defaults are
-resolved, specialize it with `date.defaultValue(() => new Date())`.
-
-None of these primitives adds a parser or a type validator. Add `parser(...)`
-and `validator(...)` for the stored values your application requires. A native
-input's `type(...)` changes the control but does not add model conversion or
-validation; for example, use `boolean.type('checkbox')` for a checkbox.
-
-### Default factories
-
-`defaultValue` accepts a fixed value or `DefaultSetting<T, R>`:
-
-```ts
-defaultValue(value: T | null)
-defaultValue(factory: (record: Record<R>) => T | null)
-```
-
-A factory receives only the owning record. Existing non-null values are preserved without invoking it.
-The `Record` constructor keeps the
-supplied backing values as they are, including `null`, `undefined`, and omitted
-fields; it does not fill them from defaults. Defaults are resolved by
-`Record#clear()`, `Recordset#appendRecord()`, and partial cloning for omitted
-values. Supply an initial value for every declared field when constructing a
-record. For example:
-
-```ts
-const reference = field.defaultValue(record => `${record.getField('prefix')}-draft`);
-```
-
-Clearing a record evaluates all defaults against the same pre-clear record,
-then replaces its values. Appending creates a record with undefined fields
-before resolving its defaults. Factories should not depend on another default
-having already run. Partial clones resolve defaults for omitted fields against
-the source record before constructing the clone.
-
-### Column settings
-
-`sortable`, `minColumnWidth`, `maxColumnWidth`, and `targetColumnWidth` accept a
-fixed result or `ColumnSetting<Result>`, a callback with no arguments returning
-that result. Neither callbacks nor the corresponding getters receive context,
-a field value, or an owning record. Call `fieldType.sortable()`,
-`fieldType.minColumnWidth()`, `fieldType.maxColumnWidth()`, and
-`fieldType.targetColumnWidth()` directly.
-
-```ts
-const amount = field.minColumnWidth(() => 100).sortable(true);
-```
-
-### Operations and structural configuration
-
-Operations keep the inputs needed to do their work. Formatters receive their
-current pipeline value, record, and context; parsers receive incoming input,
-record, and context; templates receive formatted output, record, and `"print"`.
-Comparators receive two values and return a negative number, zero, or a positive
-number. Filters receive search text and a field value. Reducers receive an
-array of field values (or use the built-in `'sum'`). Validators retain
-`(modelValue, viewValue, record, options, field)` and may return a promise.
-
-Options providers retain their configuration/async loading and caching
-contract. Search configuration, input masks, multiple-value bounds, and range
-mode are structural or operational configuration rather than per-field result
-settings.
-
-## Value transforms and validation
-
-`formatter(fn)` transforms values for display. Formatters run in the order they
-are added. `parser(fn)` transforms input before it is stored; parsers also run
-in order. When a field accepts formatted input, pair its formatter with an
-appropriate parser.
+The `Field` facade is a convenient component surface, not a second model. The
+`Record` remains the source of truth. Subscribe to the record's `change` event
+or the field facade's `change` event and re-read state when the model changes.
 
 ```js
-const currency = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+const field = record.field(fieldName);
+
+field.onChange(() => {
+    render(field.value, field.valid);
 });
 
-function formatUsd(value) {
-    return currency.format(value);
-}
-
-function parseUsd(value) {
-    return Number(value.replace(/[$,]/g, ''));
-}
-```
-
-`validator()` accepts an object with a `name` and `validate` function. The
-function receives `(modelValue, viewValue, record, options, field)` and returns
-either `true`/`false` or a promise of `true`/`false`.
-
-```js
-const positiveNumber = number.validator({
-    name: 'positive',
-    validate: value => value > 0,
+record.addEventListener('change', event => {
+    if (event.detail.field === fieldName) render(field.value, field.valid);
 });
 ```
 
-Synchronous validation is available through `FieldType.validate()` and
-`Record#isValid()`. Both throw if a validator returns a promise; they do not
-skip it or treat pending validation as success. For asynchronous validators,
-use `FieldType.validateAsync()`, `Record#isValidAsync()`, or
-`Record#errorsAsync()`. Rejections propagate to the caller.
+## Resolve semantics; choose presentation
 
-The current `Field` facade reads synchronous validity during construction and
-on record changes, and `FormElement` uses that facade. A field with async
-validators therefore needs an application-specific integration using the
-async `Record` APIs directly.
+`FieldType` exposes the reusable behavior a component needs. Resolve each value
+against the current record rather than copying field-definition properties into
+component state.
 
-`minLength(n)`, `maxLength(n)`, `required(predicate?)`, and
-`emptyWhen(predicate)` add common validation behavior. Requiredness and length callbacks receive the owning `Record`. Emptiness
-predicates receive the candidate field value and owning `Record`.
+| Component question | `FieldType` API |
+| --- | --- |
+| What should be shown? | `fieldType.format(value, record, context)` or `record.print(name)` |
+| How should input be stored? | `fieldType.parse(input, record, context)` or `record.parseAndSetField(name, input)` |
+| Is it required? | `fieldType.required(value, record, context)` |
+| Is it disabled? | `fieldType.isDisabled(value, record, context)` |
+| Is it read-only? | `fieldType.readonly(value, record, context)` |
+| Should it be visible? | `fieldType.visible(value, record, context)` |
+| What label or placeholder applies? | `fieldType.label(value, record, context)` and `fieldType.placeholder(value, record, context)` |
+| What input metadata applies? | `fieldType.type()`, `accept()`, `autocomplete()`, `pattern()`, and `step()` |
+| What classes apply to this value? | `fieldType.cellClasses(value, record)` |
 
-## Form behavior
+The exact context is a renderer decision. Use a stable context such as
+`"model"`, `"input-focus"`, or `"print"` when a formatter, parser, or setting
+needs to distinguish consumers. Do not invent context-specific business rules
+in the component; the component chooses which existing representation it needs.
 
-FDL describes reusable field behavior; it does not guarantee accessible markup
-or choose a component system. The current Lit/native example interprets some
-legacy renderer-oriented metadata for compatibility. See the
-[adapter contract](./adapter-contract.md) before mapping these values into a
-design system or another framework.
+For a read-only display, prefer `record.print(name)` or `field.value`. For an
+editable control, use the parsed value setter and keep the in-progress display
+value in the control until the next model synchronization. This matters for
+inputs such as numeric fields where `12.` may be a valid intermediate string.
 
-The current adapter interprets the following metadata. `autocomplete` and
-`autofocus` are deprecated compatibility APIs; their configuration belongs
-in the renderer (see [ADR-0001](./adr/0001-retire-post-jack-henry-modifiers.md)).
+## Build one field component
 
-| Modifier                                                           | Purpose                                                                                                                                  |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `type(name)`                                                       | Choose the native input type for input controls.                                                                                         |
-| `label(value)`                                                     | Set a string label or compute one from the record.                                                                                       |
-| `placeholder(value)`, `autocomplete(value)`, `autofocus()`         | Configure common input attributes.                                                                                                       |
-| `defaultValue(valueOrFactory)`                                     | Provide defaults for clearing a record, appending a row, and omitted values in a partial clone; constructor values are kept as supplied. |
-| `disabled(predicate)`, `readOnly(predicate)`, `visible(predicate)` | Set conditional state. Use `disabled()` or `readOnly()` for an unconditional state.                                                      |
-| `multipleValues(min, max)`                                         | Declare multiple-value metadata. The native select adapter stores arrays; the declared count bounds do not add validators.               |
-| `options(config)`                                                  | Provide options for a select-like control.                                                                                               |
+The component should select an appropriate semantic control from field metadata,
+not require a different public component for every native element. The built-in
+Lit adapter follows this policy:
 
-For the built-in adapter, providing options creates a native dropdown. Option
-objects use `text` and `value` properties:
+- fields with options use a select-like control;
+- fields configured for multiple values use a multi-selection control;
+- other fields use an input-like control;
+- read-only fields can use a semantic `output`.
+
+A custom renderer can choose a different semantic interaction—such as a radio
+group, autocomplete, or command palette—while keeping the same model contract.
+The choice of element belongs to the renderer, not to `FieldType`.
+
+Every editable control should establish its own accessible structure:
+
+1. Generate a stable, opaque control ID for the component instance.
+2. Resolve the field label and associate it with that ID.
+3. Apply required, disabled, read-only, and visible state semantically.
+4. Connect descriptions and validation messages with `aria-describedby`.
+5. Use `aria-invalid` when the application has decided to show a model error.
+6. Translate control events into parsed record updates.
+
+Generated IDs are component details. They are not field names or domain IDs and
+must not be persisted or parsed by application code.
+
+## Options and selection
+
+Use `record.optionsForField(name)` when loading options for a control. It
+applies FDL's disabled-state gate and participates in the record's dependency
+and selection reconciliation. Await `record.whenOptionsReady()` before treating
+a changed selection and its dependent fields as settled.
 
 ```js
-const contactMethod = field.label('Preferred contact method').options([
-    { text: 'Choose a method', value: '' },
-    { text: 'Email', value: 'email' },
-    { text: 'Phone', value: 'phone' },
-]);
-```
+const options = await record.optionsForField(fieldName);
+renderOptions(options);
 
-`options()` can also receive a regular function or an async function. Both
-receive the current record:
-
-```js
-const localAssignee = field.options(record => directory[record.getField('department')]);
-
-const remoteAssignee = field.options(async record => {
-    const response = await fetch(
-        `/assignees?department=${encodeURIComponent(record.getField('department'))}`
-    );
-    return response.json();
+control.addEventListener('change', event => {
+    field.value = readControlValue(event.target);
 });
 ```
 
-If the selected value exists in both the old and new option lists, it remains
-selected. `Record` clears an unavailable single selection to `undefined` after
-the latest choices resolve; multiple selections retain only available items.
-Pending or failed lookups retain the current value. Disabled fields defer
-record-managed loading and reconciliation until enabled. Use
-`await record.whenOptionsReady()` before validating or submitting after changes.
-See [selection reconciliation](./record.md#selections-and-changing-options).
+Option objects normally expose `text` and `value`. The renderer decides whether
+to use a native select, a custom listbox, a radio group, or another interaction.
+The control must preserve the option value identity expected by the model; a
+native adapter may need to serialize values for the DOM and map them back.
 
-`options()` also accepts `{ data, text, value, compareFunction, filter, fields
-}` or `{ fetch, ... }`. `fetch` receives the current record and may return an
-array or a promise. `fields` limits cache invalidation to the listed record
-fields.
+When an option field depends on another field, the record owns refresh and
+reconciliation. The component should show loading state, re-read the options,
+and render the current record value after the update. Do not independently
+clear selections or implement a second dependency graph in the component.
 
-```js
-const users = field.options({
-    fetch: record => userService.fetchUsers(record.getField('companyId')),
-    fields: ['companyId'],
-    text: user => user.name,
-    value: user => user.id,
-});
-```
+`multipleValues(min, max)` exposes selection-count metadata. It does not itself
+validate the count. If the model requires a particular number of selections,
+the field definition must also provide a validator; the component should report
+the resulting model error rather than enforce a new rule locally.
 
-## Table behavior
+## Validation and error display
 
-For tables, use `compareFunction(fn)` to define how a column's values are
-ordered. The table uses that comparator when its sort state includes the
-column:
+FDL determines validity. The application or adapter decides when validation
+becomes visible—for example, after blur, after a field is touched, or after a
+submit attempt.
 
-```js
-import { field, Recordset } from '@pmcelhaney/fdl';
+When showing a synchronous field error:
 
-const fields = {
-    name: field.compareFunction((a, b) => a.localeCompare(b)),
-};
+1. Read the current errors from the `Record`.
+2. Render a concise, readable error message adjacent to the control.
+3. Set `aria-invalid="true"` on the editable control or read-only output.
+4. Add the error element's ID to `aria-describedby` without discarding other
+   description IDs.
+5. Remove only the adapter-owned error reference when the error is hidden or
+   resolved.
 
-const people = new Recordset(fields, [{ name: 'Zulu' }, { name: 'Alpha' }, { name: 'Mike' }]);
+Do not infer validity from CSS, a browser constraint, or an asterisk. Native
+constraint validation can support interaction, but `Record.isValid()` is the
+model authority.
 
-await people.requestHardUpdate();
-people.sortColumns = [{ field: 'name', sort: 'ascending' }];
-await people.updating;
-// A table bound to people renders: Alpha, Mike, Zulu
-```
+Synchronous validation throws if it encounters a promise-returning validator.
+For async rules, await `record.isValidAsync(name)` or
+`record.errorsAsync()`, then define the pending, server-error, and submission
+display policy in the application-specific adapter. The built-in `Field` facade
+and form adapter are synchronous surfaces.
 
-Use `columnClass(classes)` for shared column classes, `cellClass(classes)` for
-value-specific cell classes, and `rowClass(classes)` for
-classes on the containing row. Both accept a string, an array, or a function
-returning either. The column-width modifiers shown in the first example
-provide sizing guidance.
-`template(fn)` customizes the printed representation; it can return a Lit
-template for rich cell content.
+## Table and repeated-record components
 
-Use `filter()` to make a table column filterable with case-insensitive text
-matching. Pass a matcher when the field needs different behavior; it receives
-the entered text and each candidate value. The table combines active column
-filters with AND semantics and preserves any predicate already assigned to the
-`Recordset`.
+For a table, use a `Recordset` as the row model. The recordset shares finalized
+field behavior across its rows:
 
 ```js
-const fields = {
-    name: field.filter(),
-    accountCode: field.filter((text, value) => value.toLowerCase().startsWith(text.toLowerCase())),
-};
+const fieldType = recordset.getFieldType(columnName);
+const records = recordset.currentPage;
 ```
 
-## Other modifiers
+Resolve table-wide and row-specific presentation at their natural scopes:
 
-Additional modifiers include `hashFunction(fn)` for matching object-valued
-options and `search(config)` for search-capable option controls. `schema(name)` and
-`onValueChange(fn)` are deprecated compatibility APIs. The current adapter
-invokes `onValueChange` after control edits; `Record#setField()` does not invoke
-it. Keep cross-field orchestration in the record or application model.
+| Scope | API | Attach to |
+| --- | --- | --- |
+| Column-wide classes | `fieldType.columnClasses()` | `<col>`, header, and data cells |
+| One row | `fieldType.rowClasses(record)` | The row |
+| One value | `fieldType.cellClasses(value, record)` | The data cell |
+| Column alignment | `fieldType.textAlign(value, record, 'table')` | Header and cells as appropriate |
+| Column sizing | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout |
 
-Custom Lit field controls should extend [`FormElement`](./form-element.md),
-which applies a field type's form-related modifiers to its child control.
+Column callbacks have no record or value because a column can exist when the
+table has no rows. Resolve them once per column on each render. Combine
+column-wide classes with the current cell's classes; do not expect HTML column
+styles to propagate to individual cells automatically.
 
-## Input character masks
+The table owns sorting, filtering, pagination, and loading presentation. FDL
+owns field values, formatters, parsers, validators, options, and declared
+dependencies. Keep those responsibilities separate so the same field definition
+can serve a form, table, printed view, or export.
 
-`inputMask(regex)` accepts only input characters matching the regular expression;
-other characters are ignored. The native form adapter applies the mask to typing,
-pasted text, and completed text composition before parsing and storing the value.
-For example, `inputMask(/[0-9.]/)` accepts digits and periods.
+## Keep the boundary intact
 
-A character mask is not whole-value validation: multiple periods still match
-that mask. Use `validator(...)` for complete-value rules. Programmatic record
-assignments bypass input filtering.
+FDL owns:
 
-## Cell, column, and row classes
+- stored values, parsing, formatting, and templates;
+- validation, emptiness, requiredness, visibility, disabled, and read-only state;
+- options, selection reconciliation, and field dependencies; and
+- renderer-independent table intent such as alignment and column-width hints.
 
-`cellClass(classes)`, `columnClass(classes)`, and `rowClass(classes)` add classes, one declaration
-at a time. Supply a class name, an array of class names, or a function returning
-either. Cell callbacks receive `(value, record)`. Column callbacks take no
-arguments; row callbacks receive only the record.
-Return `[]` when no classes apply. Repeated calls accumulate in declaration
-order without changing the source definition.
+The component or adapter owns:
 
-```ts
-const status = field
-    .columnClass('status-column')
-    .cellClass('status-cell')
-    .cellClass(value => (value === 'Disputed' ? ['warning', 'needs-review'] : []))
-    .rowClass('invoice-row')
-    .rowClass(record => (record.getField('status') === 'Disputed' ? 'disputed-row' : []));
-```
+- semantic elements, labels, IDs, focus, keyboard behavior, and events;
+- when validation is shown and how pending or server errors are presented;
+- control-specific value serialization and interaction; and
+- layout, styling, design-system integration, and visual treatment.
 
-The supported cell and row class signatures are:
-
-```ts
-cellClass(className: string)
-cellClass(classNames: string[])
-cellClass(classes: (value: T, record: Record<any>) => string | string[])
-
-columnClass(className: string)
-columnClass(classNames: string[])
-columnClass(classes: () => string | string[])
-
-rowClass(className: string)
-rowClass(classNames: string[])
-rowClass(classes: (record: Record<any>) => string | string[])
-```
-
-The table resolves column classes once per column on each render and applies
-them to its `<col>`, `<th>`, and every `<td>`. Each data cell combines column
-classes with its own `cellClass` results. Neither a value nor an owning record
-exists for a whole column, so a column callback takes no arguments. Column
-classes apply to `<col>` and `<th>` even on an empty table. The spanning
-empty-state cell has no individual column and keeps its own classes.
-
-Use column classes for shared presentation and cell classes for value-specific
-exceptions:
-
-```ts
-const amount = field
-    .textAlign('right')
-    .columnClass('amount-column')
-    .columnClass(['numeric', 'currency'])
-    .cellClass((value, record) => (value > record.getField('limit') ? 'over-limit' : []));
-```
-
-Column classes do not propagate to individual cells through HTML automatically;
-the table explicitly assigns them to each element. CSS still determines which
-properties apply to each element. Column callbacks are re-evaluated on render;
-a change in closed-over application state needs a consumer update.
-
-The value type `T` comes from the field type. The callback can read other
-fields through `record.getField(name)`, for example:
-
-```ts
-const amount = field
-    .cellClass((value, record) =>
-        value > record.getField('limit') ? ['warning', 'over-limit'] : []
-    )
-    .rowClass(record =>
-        record.getField('amount') > record.getField('limit') ? 'over-limit-row' : []
-    );
-```
-
-## Consolidated required and disabled rules
-
-`required()` always requires a non-empty value; `required(predicate)` requires
-one only when the field setting resolves to true. `disabled()` always disables
-a field; `disabled(predicate)` disables it only while the predicate is true.
-Multiple declarations accumulate: any true predicate enables that state.
-Calling either modifier without a predicate adds an unconditional rule.
-
-Conditional requiredness continues to affect model validation as well as the
-control's required state. Disabled fields retain their values.
+If a proposed component feature adds a business rule, put the rule in the field
+definition or record. If it chooses markup, interaction, or appearance, keep it
+in the component or adapter. This separation lets multiple consumers interpret
+the same FDL model without coupling the model to one UI framework.
