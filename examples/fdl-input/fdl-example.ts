@@ -32,19 +32,7 @@ export class FdlExample extends LitElement {
         const tabs = ['', ...this.filenames];
         return html`<details ?open=${this.expanded}>
             <summary>
-                <span class="example-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="m9 5-7 7 7 7m6-14 7 7-7 7" />
-                    </svg>
-                </span>
-                <span class="summary-copy">
-                    <span class="eyebrow">Live example</span>
-                    <h2>${this.heading}</h2>
-                    <span class="summary-hint"
-                        >Try it
-                        out${this.filenames.length ? ' · Explore the source' : ''}</span
-                    >
-                </span>
+                <h2>${this.heading}</h2>
                 <span class="expand-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">
                         <path d="m6 9 6 6 6-6" />
@@ -134,49 +122,37 @@ export class FdlExample extends LitElement {
         }
         details {
             border: 1px solid #bfcee8;
-            border-left: 4px solid #2563eb;
             border-radius: 12px;
             background: #fff;
-            box-shadow: 0 2px 6px #0f172a08;
         }
         summary {
             display: flex;
             align-items: center;
-            gap: 18px;
-            padding: 24px;
+            gap: 12px;
+            min-height: 48px;
+            padding: 12px 16px;
             border-radius: 8px;
-            background: linear-gradient(110deg, #eff6ff, #f8fafc);
+            background: #f8fafc;
             color: #172554;
             cursor: pointer;
             list-style: none;
-            transition:
-                background-color 160ms,
-                box-shadow 160ms;
+            transition: background-color 160ms;
         }
         summary::-webkit-details-marker {
             display: none;
         }
         summary:hover {
-            background: #e8f0ff;
-            box-shadow: inset 0 0 0 1px #bfdbfe;
+            background: #f1f5f9;
         }
         summary:focus-visible {
             outline: 3px solid #2563eb;
             outline-offset: 4px;
         }
-        .example-icon,
         .expand-icon {
             display: grid;
             place-items: center;
             flex-shrink: 0;
-            color: #1d4ed8;
-        }
-        .example-icon {
-            width: 48px;
-            height: 48px;
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            background: #fff;
+            color: #475569;
         }
         svg {
             width: 24px;
@@ -186,38 +162,18 @@ export class FdlExample extends LitElement {
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        .summary-copy {
+        h2 {
             flex: 1;
             min-width: 0;
-        }
-        .eyebrow {
-            display: block;
-            margin-bottom: 6px;
-            color: #1d4ed8;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        h2 {
             margin: 0;
-            font-size: 1.375rem;
-            line-height: 1.35;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.5;
             overflow-wrap: anywhere;
         }
-        .summary-hint {
-            display: block;
-            margin-top: 6px;
-            color: #475569;
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
         .expand-icon {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #bfcee8;
-            border-radius: 50%;
-            background: #fff;
+            width: 24px;
+            height: 24px;
             transition: transform 160ms;
         }
         details[open] > summary {
@@ -313,17 +269,6 @@ export class FdlExample extends LitElement {
             line-height: 1.6;
         }
         @media (max-width: 480px) {
-            summary {
-                gap: 12px;
-                padding: 20px 16px;
-            }
-            .example-icon {
-                width: 40px;
-                height: 40px;
-            }
-            h2 {
-                font-size: 1.125rem;
-            }
             .example-content {
                 padding: 4px 16px 16px;
             }
@@ -337,7 +282,6 @@ export class FdlExample extends LitElement {
         @media (forced-colors: active) {
             details,
             details[open] > summary,
-            .example-icon,
             .expand-icon {
                 border-color: CanvasText;
             }

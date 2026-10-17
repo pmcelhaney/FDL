@@ -237,7 +237,7 @@ it('reveals the actual source files alongside the slotted delivery form', async 
     await frame.updateComplete;
     const root = frame.shadowRoot!;
     expect(root.querySelector('details')!.open).toBe(true);
-    expect(root.querySelector('h2')!.textContent).toBe('See FDL in Action');
+    expect(root.querySelector('h2')!.textContent).toBe('Live example');
     const form = frame.querySelector('delivery-form') as DeliveryForm;
     await form.updateComplete;
     expect(form.shadowRoot!.querySelector('fdl-record-inspector')).not.toBeNull();

@@ -8,7 +8,7 @@ import dataSource from './delivery-data.ts?raw';
 export class FdlDeliveryExperiment extends LitElement {
     render() {
         return html`<fdl-example
-            heading="See FDL in Action"
+            heading="Live example"
             .filenames=${['delivery-model.ts', 'delivery-view.ts', 'delivery-data.ts']}
             .sources=${{
                 'delivery-model.ts': modelSource,
