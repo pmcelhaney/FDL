@@ -1,29 +1,15 @@
 import { labelView as renderExample } from './label-view.js';
 import { ExampleModel } from './label-example-state.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample(record, [field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
         return html`<p class="try"
                 >Change the expense type and watch the amount label.</p
-            >${this.renderField('expenseType')}${this.renderField('dynamicAmount')}`;
+            >${renderExample(this.record)}`;
     }
     render() {
         return html`<div class="focused" data-modifier="label"
