@@ -31,8 +31,17 @@ or evidence of market fit.
 Create a separate subagent for every persona currently defined in the document.
 Run in waves if concurrency is limited; wait for each wave to finish before
 starting the next. Do not replace independent persona reviews with a single
-agent switching roles. If the runtime cannot create enough distinct agents,
-disclose the limitation and which requested reviews remain incomplete.
+agent switching roles.
+
+If creating a reviewer returns an agent-limit error, wait for a running
+reviewer to complete, collect its result, and then retry creating a separate
+reviewer for the next unassigned persona. Use the agent completion/wait tools;
+do not repeatedly retry creation without a completion or other capacity change.
+Continue in waves until every persona has a completed review. An agent-limit
+error alone is not a reason to end the review early. If creation still fails
+after the existing reviewers have completed and no further capacity can be
+released with the available tools, disclose that persistent runtime limitation
+and identify the reviews that remain incomplete.
 
 Give each reviewer the following bounded brief:
 
