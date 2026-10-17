@@ -57,7 +57,7 @@ export function statusLegend() {
     </details>`;
 }
 
-function inspectIcon() {
+export function inspectIcon() {
     return html`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle cx="10" cy="10" r="6"></circle>
         <path d="m15 15 6 6"></path>

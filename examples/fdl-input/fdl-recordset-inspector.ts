@@ -1,5 +1,5 @@
 import './fdl-code-snippet';
-import { LitElement, css, html, type PropertyValues } from 'lit';
+import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
 import type { Recordset } from '@pmcelhaney/fdl';
 import type { Record } from '@pmcelhaney/fdl';
 import {
@@ -7,6 +7,7 @@ import {
     storedValue,
     fieldStatus,
     statusIcon,
+    inspectIcon,
 } from './fdl-record-inspector';
 
 const events = [
@@ -159,40 +160,33 @@ export class FdlRecordsetInspector extends LitElement {
             : 'Collapse recordset inspector';
         return html`<section aria-label="Recordset Inspector">
             <header>
-                <span
-                    class="inspector-icon"
-                    aria-hidden="true"
-                    ?hidden=${this.collapsed}
-                >
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <circle cx="10" cy="10" r="6"></circle>
-                        <path d="m15 15 6 6"></path>
-                    </svg>
-                </span>
-                <div class="inspector-heading" ?hidden=${this.collapsed}>
-                    <h3>Recordset Inspector</h3>
-                    <p>Stored values · Live model state</p>
-                </div>
                 <button
                     type="button"
+                    class="inspector-icon"
                     aria-label=${action}
                     title=${action}
                     aria-expanded=${!this.collapsed}
                     aria-controls="recordset-details"
                     @click=${this.toggle}
+                    >${inspectIcon()}</button
                 >
-                    <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        focusable="false"
-                    >
-                        <g ?hidden=${!this.collapsed}>
-                            <circle cx="10" cy="10" r="6"></circle>
-                            <path d="m15 15 6 6"></path>
-                        </g>
-                        <path ?hidden=${this.collapsed} d="m6 9 6 6 6-6"></path>
-                    </svg>
-                </button>
+                <div class="inspector-heading" ?hidden=${this.collapsed}>
+                    <h3>Recordset Inspector</h3>
+                    <p>See each record’s stored values and current state.</p>
+                </div>
+                ${
+                    recordset && recordset.allRecords.some(record => !record.isValid())
+                        ? html`<span
+                              class="record-validity"
+                              role="img"
+                              aria-label="Invalid recordset"
+                              title="Invalid recordset"
+                              ?hidden=${this.collapsed}
+                          >
+                              ${statusIcon('Invalid')}
+                          </span>`
+                        : nothing
+                }
             </header>
             <div id="recordset-details" ?hidden=${this.collapsed}>
                 ${
@@ -371,26 +365,6 @@ ${JSON.stringify(
     static styles = [
         FdlRecordInspector.styles,
         css`
-            section {
-                --example-border: #dbe2ea;
-                border-color: var(--example-border);
-                box-shadow: none;
-                color: #1e293b;
-            }
-            header {
-                padding: 16px 20px;
-                background: #f8fafc;
-                border-color: var(--example-border);
-            }
-            header .inspector-icon {
-                background: #eef2ff;
-                border-color: #c7d2fe;
-                color: #4338ca;
-            }
-            header button {
-                border-radius: 8px;
-                border-color: var(--example-border);
-            }
             #recordset-details {
                 padding-top: 16px;
             }

@@ -90,6 +90,11 @@ it('collapses accessibly and reopens with current data', async () => {
     const recordset = data();
     const inspector = await inspect(recordset);
     const button = inspector.shadowRoot!.querySelector('button')!;
+    expect(inspector.shadowRoot!.querySelectorAll('header button')).toHaveLength(1);
+    expect(button.classList.contains('inspector-icon')).toBe(true);
+    expect(button.querySelector('svg circle')).toBeTruthy();
+    expect(button.getAttribute('aria-controls')).toBe('recordset-details');
+    expect(button.getAttribute('aria-label')).toBe('Collapse recordset inspector');
     button.click();
     await inspector.updateComplete;
     expect(inspector.hasAttribute('collapsed')).toBe(true);
@@ -102,13 +107,39 @@ it('collapses accessibly and reopens with current data', async () => {
     expect(button.getAttribute('aria-expanded')).toBe('false');
     expect(button.getAttribute('aria-label')).toBe('Inspect recordset');
     expect(inspector.shadowRoot!.getElementById('recordset-details')!.hidden).toBe(true);
+    expect(inspector.shadowRoot!.querySelector('.record-validity')!.hasAttribute('hidden')).toBe(true);
+    expect(button.hasAttribute('hidden')).toBe(false);
     recordset.allRecords[0].setField('name', 'Updated');
     button.click();
     await inspector.updateComplete;
     expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(button.querySelector('svg circle')).toBeTruthy();
+    expect(inspector.shadowRoot!.querySelector('.record-validity')!.hasAttribute('hidden')).toBe(false);
     expect(inspector.shadowRoot!.querySelector('[data-field="name"]')!.textContent!.trim()).toBe(
         'Updated'
     );
+});
+
+it('shows header invalidity for all loaded records, including hidden rows and fields', async () => {
+    const recordset = data();
+    recordset.filter = function enabledOnly(record) {
+        return record.getField('enabled') === true;
+    };
+    const inspector = await inspect(recordset);
+    inspector.fields = ['amount'];
+    await inspector.updateComplete;
+    const root = inspector.shadowRoot!;
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(1);
+    const marker = root.querySelector('header .record-validity')!;
+    expect(marker.getAttribute('aria-label')).toBe('Invalid recordset');
+    expect(marker.getAttribute('title')).toBe('Invalid recordset');
+    expect(marker.querySelector('[aria-label="Invalid"]')).toBeTruthy();
+    recordset.allRecords[2].setField('name', 'Valid now');
+    await inspector.updateComplete;
+    expect(root.querySelector('header .record-validity')).toBeNull();
+    recordset.allRecords[0].setField('name', '');
+    await inspector.updateComplete;
+    expect(root.querySelector('header .record-validity')).toBeTruthy();
 });
 
 it('releases subscriptions on replacement and disconnect, and reconnects', async () => {
@@ -134,11 +165,13 @@ it('releases subscriptions on replacement and disconnect, and reconnects', async
 it('supports an unbound inspector and an empty recordset assigned later', async () => {
     const inspector = await inspect();
     expect(inspector.shadowRoot!.textContent).toContain('No recordset selected.');
+    expect(inspector.shadowRoot!.querySelector('header .record-validity')).toBeNull();
     const empty = new Recordset<any>({ name: field }, []);
     await empty.requestImmediateUpdate();
     inspector.recordset = empty;
     await inspector.updateComplete;
     expect(inspector.shadowRoot!.textContent).toContain('No records on this page.');
+    expect(inspector.shadowRoot!.querySelector('header .record-validity')).toBeNull();
     expect(inspector.shadowRoot!.textContent!.replace(/\s+/g, ' ')).toContain(
         '0 of 0 records match'
     );
