@@ -134,6 +134,24 @@ describe('Field', () => {
         expect(await field.isValidAsync()).toEqual(true);
     });
 
+    it('binds value-dependent type behavior to the field facade', () => {
+        const fieldType = new FieldTypeBuilder()
+            .emptyWhen(value => value === '')
+            .filter((searchText, value) => String(value).includes(searchText))
+            .cellClass(value => (value > 5 ? 'large' : 'small'))
+            .textAlign(value => (value > 5 ? 'right' : 'left'))
+            .defaultValue(12);
+        const field = new Record({ amount: fieldType }, { amount: 8 }).field('amount');
+
+        expect(field.isEmpty()).toEqual(false);
+        expect(field.match('8')).toEqual(true);
+        expect(field.cellClasses()).toEqual(['large']);
+        expect(field.textAlign()).toEqual('right');
+        expect(field.defaultValue()).toEqual(8);
+        expect(field.defaultValue(undefined)).toEqual(12);
+        expect(field.cellClasses(2)).toEqual(['small']);
+    });
+
     it('announces when the value has changed on the record', () => {
         const record = new Record({ test: greaterThanFive }, { test: 5 });
         const field = record.field('test');

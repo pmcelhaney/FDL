@@ -14,16 +14,16 @@ export function recordSummary(
 ) {
     return html`<dl class="state-summary"
         >${fields.map(field => {
-            const type = record.fieldTypeForField(field);
+            const fieldView = record.field(field);
             return html`<dt
-                    >${type.label(record.getField(field), record) || field}</dt
+                    >${fieldView.label || field}</dt
                 ><dd
                     >${describeValue(record.getField(field))}<small
-                        >${type.visible(record.getField(field), record) ? 'Visible' : 'Hidden'}
+                        >${fieldView.visible ? 'Visible' : 'Hidden'}
                         ·
-                        ${type.required(record.getField(field), record) ? 'Required' : 'Optional'}
+                        ${fieldView.required ? 'Required' : 'Optional'}
                         ·
-                        ${type.isDisabled(record.getField(field), record) ? 'Disabled' : type.readonly(record.getField(field), record) ? 'Read-only' : 'Editable'}
+                        ${fieldView.disabled ? 'Disabled' : fieldView.readOnly ? 'Read-only' : 'Editable'}
                         · ${record.isValid(field) ? 'Valid' : 'Invalid'}</small
                     ></dd
                 >`;

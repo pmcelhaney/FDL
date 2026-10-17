@@ -51,7 +51,7 @@ export default class Record extends EventTarget {
                     .filter(
                         ([field, fieldType]) =>
                             fieldType.hasOptions() &&
-                            !fieldType.isDisabled(this.getField(field), this)
+                            !this.field(field).disabled
                     )
                     .map(async ([field, fieldType]) => {
                         try {
@@ -85,7 +85,7 @@ export default class Record extends EventTarget {
     /** Load choices only when the field's declared state permits editing. */
     optionsForField(field) {
         const fieldType = this.fieldTypeForField(field);
-        if (fieldType.isDisabled(this.getField(field), this)) return Promise.resolve([]);
+        if (this.field(field).disabled) return Promise.resolve([]);
         return fieldType.options(this);
     }
 
@@ -168,7 +168,7 @@ export default class Record extends EventTarget {
                         part.type.validate(part.key, this.values[key][part.key], null, this)
                     );
             }
-            return this.fieldTypeForField(key).validate(key, this.values[key], null, this);
+            return this.field(key).errors();
         });
     }
 
@@ -180,17 +180,10 @@ export default class Record extends EventTarget {
                     return Promise.all(
                         fieldType
                             .parts()
-                            .map(part =>
-                                part.type.validateAsync(
-                                    part.key,
-                                    this.values[key][part.key],
-                                    null,
-                                    this
-                                )
-                            )
+                            .map(part => this.field(`${key}.${part.key}`).errorsAsync())
                     );
                 }
-                return fieldType.validateAsync(key, this.values[key], null, this);
+                return this.field(key).errorsAsync();
             })
         );
     }
@@ -214,16 +207,12 @@ export default class Record extends EventTarget {
             if (this.fieldTypeForField(key).hasParts) {
                 return this.fieldTypeForField(key)
                     .parts()
-                    .map(part =>
-                        part.type.validate(part.key, this.values[key][part.key], null, this)
-                    );
+                    .map(part => this.field(`${key}.${part.key}`).errors());
             }
-            return this.fieldTypeForField(key)
-                .validate(key, this.values[key], null, this)
-                .map(v => ({
-                    ...v,
-                    label: this.fieldTypeForField(key).label(this.getField(key), this, 'model'),
-                }));
+            return this.field(key).errors().map(v => ({
+                ...v,
+                label: this.field(key).fieldType.label(this.getField(key), this, 'model'),
+            }));
         });
         return fieldValidationErrors
             .map(field => field.map(error => `${error.label}: ${error.name}`))
@@ -275,8 +264,7 @@ export default class Record extends EventTarget {
 
     hasRequiredValues() {
         return !Object.keys(this.fieldTypes).some(field => {
-            const fieldTypeForField = this.fieldTypes[field];
-            const isFieldRequired = fieldTypeForField.required(this.getField(field), this, 'model');
+            const isFieldRequired = this.field(field).required;
             const valueIsNotZero = this.values[field] !== 0;
             const isFalsyValue = !this.values[field];
             if (isFieldRequired && !this.values[field]) {
@@ -389,8 +377,8 @@ export default class Record extends EventTarget {
 
     clear() {
         const defaultValues = {};
-        for (const [key, value] of Object.entries(this.fieldTypes)) {
-            defaultValues[key] = value.defaultValue(undefined, this, 'model');
+        for (const key of Object.keys(this.fieldTypes)) {
+            defaultValues[key] = this.field(key).defaultValue(undefined, 'model');
         }
         this.values = defaultValues;
         Object.keys(this.values).forEach(field => this.announceChange(field));
@@ -426,11 +414,7 @@ export default class Record extends EventTarget {
             const fieldsToClone = fields ?? Object.keys(this.fieldTypes);
             const entries = Object.entries(this.values).map(([fieldName, value]) => {
                 if (!fieldsToClone.includes(fieldName)) {
-                    value = this.fieldTypeForField(fieldName).defaultValue(
-                        undefined,
-                        this,
-                        'model'
-                    );
+                    value = this.field(fieldName).defaultValue(undefined, 'model');
                 }
 
                 return [fieldName, value];

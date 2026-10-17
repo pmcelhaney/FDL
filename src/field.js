@@ -93,6 +93,10 @@ export default class Field extends EventTarget {
         return this.fieldType.visible(this.rawValue, this.record, 'form');
     }
 
+    isEmpty(value = this.rawValue, context = 'model') {
+        return this.fieldType.isEmpty(value, this.record, context);
+    }
+
     async isValidAsync(value = this.rawValue) {
         return (await this.errorsAsync(value)).length === 0;
     }
@@ -138,6 +142,11 @@ export default class Field extends EventTarget {
         return this.fieldType.print(value, this.record);
     }
 
+    defaultValue(value, context = 'model') {
+        const valueToResolve = arguments.length === 0 ? this.rawValue : value;
+        return this.fieldType.defaultValue(valueToResolve, this.record, context);
+    }
+
     options() {
         return this.record.optionsForField(this.fieldName);
     }
@@ -156,6 +165,18 @@ export default class Field extends EventTarget {
 
     allowInputChar(char) {
         return this.fieldType.allowInputChar(char);
+    }
+
+    match(searchText, value = this.rawValue) {
+        return this.fieldType.match(searchText, value);
+    }
+
+    cellClasses(value = this.rawValue) {
+        return this.fieldType.cellClasses(value, this.record);
+    }
+
+    textAlign(value = this.rawValue, context = 'model') {
+        return this.fieldType.textAlign(value, this.record, context);
     }
 
     field(nameOrIndex) {

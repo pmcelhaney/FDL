@@ -147,6 +147,11 @@ component is intentionally handling an already parsed value.
 | `whenOptionsReady()` | Wait for record-wide option loading and dependent reconciliation. |
 | `onChange(fn)` | Listen for a change to this field's value or validity. |
 | `allowInputChar(char)` | Apply the field's input-character rule. |
+| `isEmpty(value)` | Resolve whether the current or supplied value is empty. |
+| `defaultValue(value)` | Resolve a default through the bound field definition. |
+| `match(searchText, value)` | Apply the field's filter behavior to the current or supplied value. |
+| `cellClasses(value)` | Resolve classes for the current or supplied value. |
+| `textAlign(value, context)` | Resolve alignment for the current or supplied value. |
 | `field(nameOrIndex)` | Address a nested field or part. |
 | `minValueCount()` / `maxValueCount()` | Read multiple-value count metadata. |
 
@@ -157,15 +162,19 @@ useful when a component depends on other fields.
 ## Field operations
 
 Formatting, parsing, validation, setting, options, and field state all live on
-the `Field` facade. This keeps a component from repeatedly resolving a field
-name against the record. Use the record's aggregate methods only when the
+the `Field` facade. Value-dependent behavior should use that facade as well:
+it supplies the bound value and record without making a component repeatedly
+resolve a field name. Use the record's aggregate methods only when the
 component needs whole-record status.
 
 ## Advanced: `FieldType` behavior
 
 `record.field(name).fieldType` returns the finalized `FieldType`. Components
-should start with `Field`; use `FieldType` directly only for advanced behavior,
-custom renderers, or table-wide metadata that is not part of a bound field.
+should start with `Field`; use `FieldType` directly only for definition-level
+behavior, advanced integrations, custom renderers, or table-wide metadata that
+is not part of a bound field. The value-taking methods remain on `FieldType` as
+the lower-level implementation and compatibility surface, but they require the
+caller to provide the value and owning record explicitly.
 
 ### Value and state behavior
 

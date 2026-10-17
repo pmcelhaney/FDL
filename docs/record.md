@@ -131,6 +131,13 @@ if (!account.isValid()) {
 account.field('name').print();
 ```
 
+Value-dependent behavior should use the bound `Field` when one is available.
+For example, `field.isEmpty()`, `field.match(searchText)`,
+`field.cellClasses()`, `field.textAlign()`, and `field.defaultValue()` supply
+the field's raw value and owning record automatically. Each method also accepts
+an explicit value when a renderer or validation flow is evaluating a candidate
+value.
+
 `record.field(name).fieldType` returns the `FieldType` definition for integrations
 that need it directly.
 
