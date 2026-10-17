@@ -89,12 +89,6 @@ export interface SearchConfig<T = unknown> {
     filters?: { (record: Record): boolean };
 }
 
-interface FormElement<T> {
-    name: string;
-    // eslint-disable-next-line no-use-before-define
-    properties: Partial<Properties<T>>;
-}
-
 type AutoComplete =
     | 'off'
     | 'on'
@@ -134,16 +128,13 @@ export interface Properties<T = unknown> {
     descriptions: Array<string>;
     disableFunctions: Array<RecordSetting<boolean>>;
     emptyFunctions: Array<ValueSetting<any, boolean>>;
-    field?: string;
     filter: (searchText: string, value: any) => boolean;
     filtering?: boolean;
     formatOnChange: boolean;
     formatters: Array<Function>;
-    formElement: FormElement<T> | null;
     hashFunction: (a: any) => any;
     hasMultipleValues: boolean;
     hideLabel: boolean;
-    iconMessage: string | null;
     inline: boolean;
     inlineFunctions: Array<BooleanPredicate>;
     labelFunctions: Array<RecordSetting<string>>;
@@ -210,11 +201,9 @@ export const defaultProperties: Properties = {
     filter: (_searchText: string, _value: any) => true,
     formatters: [],
     formatOnChange: false,
-    formElement: null,
     hashFunction: (a: any) => a,
     hasMultipleValues: false,
     hideLabel: false,
-    iconMessage: null,
     inline: false,
     inlineFunctions: [() => false],
     labelFunctions: [],
@@ -394,16 +383,6 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /**
-     * @deprecated Use renderer-specific integration instead.
-     */
-    formElement(name: string, properties = {}) {
-        const copy = this.copy();
-        copy.properties.formElement = { name, properties };
-        copy.properties.descriptions = [...copy.properties.descriptions, `form element: ${name}}`];
-        return copy;
-    }
-
     parser(fn: (value: any, record: Record<any>, context: string) => T) {
         const copy = this.copy();
         copy.properties.parsers = [fn, ...copy.properties.parsers];
@@ -580,29 +559,11 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /**
-     * @deprecated Tooltip presentation belongs to the renderer.
-     * Supply a message to be used with an information icon tooltip for fields displayed in Omega forms.
-     */
-    iconMessage(message: string) {
-        const copy = this.copy();
-        copy.properties.iconMessage = message;
-        return copy;
-    }
-
     /** @deprecated Browser autocomplete behavior belongs to the renderer. */
     autocomplete(string: AutoComplete) {
         const copy = this.copy();
         copy.properties.autocomplete = string;
         copy.properties.descriptions = [...copy.properties.descriptions, `autocomplete`];
-        return copy;
-    }
-
-    /** @deprecated Option-control filtering belongs to the renderer or integration layer. */
-    filtering() {
-        const copy = this.copy();
-        copy.properties.filtering = true;
-        copy.properties.descriptions = [...copy.properties.descriptions, `filtering`];
         return copy;
     }
 
@@ -705,11 +666,6 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /** @deprecated Use visible(predicate) instead. */
-    visibleWhen(predicate: RecordSetting<boolean>) {
-        return this.visible(predicate);
-    }
-
     emptyWhen(predicate: ValueSetting<T, boolean>) {
         const copy = this.copy();
         copy.properties.emptyFunctions = [...copy.properties.emptyFunctions, predicate];
@@ -737,21 +693,6 @@ export default class FieldTypeBuilder<T = unknown> {
         const copy = this.copy();
         copy.properties.inlineFunctions = [...copy.properties.inlineFunctions, defaultTrueFunction];
         copy.properties.descriptions = [...copy.properties.descriptions, `inline`];
-        return copy;
-    }
-
-    /**
-     * Sets a field to inline based on a conditional expression
-     * @param {{(record:Record) : boolean}} predicate - Conditional expression that should return true when a field should be inline
-     * @deprecated Inline layout is no longer part of the cookbook's supported modifier surface.
-     */
-    inlineWhen(predicate: (record: Record<any>) => boolean) {
-        const copy = this.copy();
-        copy.properties.inlineFunctions = [...copy.properties.inlineFunctions, predicate];
-        copy.properties.descriptions = [
-            ...copy.properties.descriptions,
-            `inline when ${printFunction(predicate)}}`,
-        ];
         return copy;
     }
 
@@ -961,17 +902,6 @@ export default class FieldTypeBuilder<T = unknown> {
         const copy = this.copy();
         copy.properties.descriptions = [...copy.properties.descriptions, 'on value change'];
         copy.properties.onValueChange = [...copy.properties.onValueChange, fn];
-        return copy;
-    }
-
-    /**
-     * @deprecated Field definitions should be bound by the record/renderer, not by an alias.
-     * The field used on this field type's record / recordset
-     */
-    field(field: string) {
-        const copy = this.copy();
-        copy.properties.field = field;
-        copy.properties.descriptions = [...copy.properties.descriptions, `field = ${field}`];
         return copy;
     }
 

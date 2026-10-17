@@ -188,19 +188,14 @@ describe('complete explorer', () => {
             'additionalProperties',
             'autofocus',
             'autocomplete',
-            'field',
-            'formElement',
-            'filtering',
             'formatOnChange',
             'hideLabel',
-            'iconMessage',
             'list',
             'max',
             'onValueChange',
             'description',
             'hasSearch',
             'inline',
-            'inlineWhen',
             'parseDynamicRange',
             'pattern',
             'readOnlyExceptionWhen',
@@ -209,7 +204,6 @@ describe('complete explorer', () => {
             'selectionDisabledFunctions',
             'step',
             'usesCustomPrint',
-            'visibleWhen',
         ]);
         const expected = Object.getOwnPropertyNames(Object.getPrototypeOf(builder))
             .filter(

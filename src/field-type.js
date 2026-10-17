@@ -199,10 +199,6 @@ export default class FieldType {
         return resolveRecordSetting(settings[settings.length - 1] ?? '', record);
     }
 
-    iconMessage() {
-        return this.properties.iconMessage;
-    }
-
     search() {
         return !!this.properties.search;
     }
@@ -225,10 +221,10 @@ export default class FieldType {
 
     options(record) {
         if (!this.hasOptions()) return Promise.resolve([]);
-        return this.fetchOptions(record);
+        return this.#fetchOptions(record);
     }
 
-    fetchOptions(record) {
+    #fetchOptions(record) {
         const { options } = this.properties;
         const { cache, noCache } = options;
         const hash = record?.hashOfFields(this.properties.options.fields);
@@ -253,7 +249,7 @@ export default class FieldType {
                 if (this.properties.schema === 'datepicker') {
                     return data;
                 }
-                return this.filterOptions(this.sortOptions(this.mapOptions(data)), record);
+                return this.#filterOptions(this.#sortOptions(this.#mapOptions(data)), record);
             });
             options.cache = {
                 hash,
@@ -275,43 +271,29 @@ export default class FieldType {
         return results;
     }
 
-    filterOptions(options, record) {
+    #filterOptions(options, record) {
         return options.filter((value, index) =>
             this.properties.options.filter(value, index, record)
         );
     }
 
-    sortOptions(options) {
+    #sortOptions(options) {
         return options.sort(this.properties.options.compareFunction);
     }
 
-    mapOptions(options) {
+    #mapOptions(options) {
         if (!Array.isArray(options)) return [];
         return options.map(
-            this.mapTextValue(this.properties.options.text, this.properties.options.value)
+            this.#mapTextValue(this.properties.options.text, this.properties.options.value)
         );
     }
 
-    // eslint-disable-next-line class-methods-use-this
-    mapTextValue(textKey, valueKey) {
+    #mapTextValue(textKey, valueKey) {
         return item => ({
             ...item,
             text: textKey instanceof Function ? textKey(item) : item[textKey],
             value: valueKey instanceof Function ? valueKey(item) : item[valueKey],
         });
-    }
-
-    filteredOptions(record) {
-        if (Array.isArray(this.properties.options))
-            return this.properties.options.filter(option => this.optionMatches(record, option));
-        return null;
-    }
-
-    optionMatches(record, option) {
-        if (!this.properties.optionsFilter) return true;
-        const recordKey = record.values[this.properties.optionsFilter.recordKey].toString();
-        const optionsKey = option[this.properties.optionsFilter.optionsKey].toString();
-        return recordKey.includes(optionsKey);
     }
 
     hasMultipleValues() {
@@ -425,10 +407,6 @@ export default class FieldType {
         return this.properties.pattern;
     }
 
-    formElement(elementName) {
-        return this.properties.formElement(elementName);
-    }
-
     info() {
         return this.properties.descriptions;
     }
@@ -455,10 +433,6 @@ export default class FieldType {
 
     targetColumnWidth() {
         return resolveColumnSetting(this.properties.targetColumnWidth);
-    }
-
-    field() {
-        return this.properties.field;
     }
 
     additionalProperties() {

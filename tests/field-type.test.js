@@ -921,18 +921,6 @@ describe('FieldType', () => {
         expect(type.valueOf().properties).not.toHaveProperty('selectOnFocus');
     });
 
-    describe('form element', () => {
-        it('adds a form element', () => {
-            const fieldType = new FieldTypeBuilder().formElement('input', {
-                minLength: 1,
-                maxLength: 10,
-                placeholder: 'Name...',
-            });
-            expect(fieldType.valueOf().properties.formElement.name).toEqual('input');
-            expect(fieldType.valueOf().properties.formElement.properties).toBeTruthy();
-        });
-    });
-
     it('keeps toggle presentation outside the field type API', () => {
         const type = new FieldTypeBuilder();
         expect(type.toggle).toBeUndefined();
@@ -986,24 +974,6 @@ describe('FieldType', () => {
         ).toEqual(0);
     });
 
-    describe('iconMessage', () => {
-        it('iconMessage as string', () => {
-            const a = new FieldTypeBuilder();
-            const b = a.iconMessage('some message');
-            expect(b.valueOf().properties.iconMessage).toEqual('some message');
-        });
-
-        it('iconMessage as object', () => {
-            const messageSettings = {
-                message: 'some message',
-                direction: 'bottom',
-                light: true,
-            };
-            const a = new FieldTypeBuilder();
-            const b = a.iconMessage(messageSettings);
-            expect(b.valueOf().properties.iconMessage).toEqual(messageSettings);
-        });
-    });
     describe('onValueChange', () => {
         let user;
         let record;

@@ -186,6 +186,8 @@ caller to provide the value and owning record explicitly.
 | `validate(field, modelValue, viewValue, record, options)` | Run synchronous field validators. |
 | `validateAsync(...)` | Run validators that may be asynchronous. |
 | `isEmpty(value, record, context)` / `empty(record, name)` | Resolve emptiness rules. |
+| `schema()` | Read the legacy schema identifier. Deprecated; use application metadata outside `FieldType`. |
+| `type(value, record, context)` | Resolve the native input type for a renderer. |
 | `required(value, record, context)` | Resolve requiredness. |
 | `visible(value, record, context)` | Resolve visibility. |
 | `isDisabled(value, record, context)` | Resolve disabled state. |
@@ -194,19 +196,21 @@ caller to provide the value and owning record explicitly.
 | `placeholder(value, record, context)` | Resolve a placeholder. |
 | `defaultValue(value, record, context)` | Resolve a default for record operations. |
 
-Other renderer metadata includes `type()`, `accept()`, `autocomplete()`,
-`autofocus()`, `pattern()`, `step()`, `info()`, `formElement()`, and
+Other renderer metadata includes `accept()`, `autocomplete()`,
+`autofocus()`, `pattern()`, `step()`, `info()`, and
 `additionalProperties()`. Treat these as inputs to your renderer, not as a
-request to copy arbitrary properties onto a DOM element.
+request to copy arbitrary properties onto a DOM element. `pattern()` remains
+available for compatibility but is deprecated because browser constraints are
+not model validation.
 
 ### Options and table behavior
 
 | Method | Component use |
 | --- | --- |
 | `hasOptions()` / `options(record)` | Detect and load choices. Prefer `field.options()` for a control. |
+| `hasFilter()` / `match(searchText, value)` | Detect and apply a table/filter predicate. |
 | `hasMultipleValues()` | Choose a multiple-selection interaction. |
 | `minValueCount()` / `maxValueCount()` | Read selection-count metadata. |
-| `match(searchText, value)` | Apply a field's filter behavior. |
 | `cellClasses(value, record)` | Resolve classes for one table cell. |
 | `rowClasses(record)` | Resolve classes for one table row. |
 | `columnClasses()` | Resolve classes that apply to a whole column. |
@@ -215,6 +219,32 @@ request to copy arbitrary properties onto a DOM element.
 | `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance. |
 | `aggregate(values)` | Calculate a column or group aggregate. |
 | `compare(a, b)` | Compare two values for sorting. |
+
+The option-pipeline helpers used by `options(record)` are implementation
+details. They are intentionally private and are not part of the `FieldType`
+API. Call `options(record)` or, for a bound field, `field.options()` instead.
+
+### Additional runtime methods
+
+These methods are also part of the exported `FieldType` runtime surface. The
+methods marked deprecated remain only because the adapter or existing model
+behavior still uses them; new definitions should not depend on them.
+
+| Method | Purpose |
+| --- | --- |
+| `list()` | Read the legacy browser datalist identifier. Deprecated; configure this in the renderer. |
+| `search()` / `searchConfig()` / `hasSearch()` | Read search configuration. `hasSearch()` is deprecated; use `search(config)`. |
+| `max()` | Read the legacy browser maximum constraint. Deprecated; use model validation or renderer configuration. |
+| `hasRange()` / `getParseDynamicRange()` | Read range metadata. `getParseDynamicRange()` is deprecated; use a parser. |
+| `minLength(value, record, context)` / `maxLength(value, record, context)` | Resolve input length guidance. |
+| `selectionDisabledFunctions()` | Read legacy per-option disabling configuration. Deprecated; configure this in the renderer or adapter. |
+| `onValueChange(record)` | Run legacy imperative value-change callbacks. Deprecated; use record/model behavior. |
+| `readonlyexception(record)` | Read the legacy composite-control read-only exception state. Deprecated; keep this only for adapter compatibility. |
+| `inline(record)` / `segmented(record)` | Read legacy layout/control-presentation state. Deprecated; configure the view or renderer. |
+| `rowCount()` / `hasRowCount()` | Read legacy textarea sizing metadata. Deprecated; configure `fdl-field`. |
+| `formatOnChange()` | Read legacy input-event formatting policy. Deprecated; configure the renderer/value pipeline. |
+| `hashFunction()` | Read the equality/hash function used by option reconciliation. |
+| `hideLabel()` | Read legacy label-visibility configuration. Deprecated; configure the renderer. |
 
 Use a context such as `"model"`, `"input-focus"`, `"input-blur"`, `"table"`,
 or `"print"` consistently within your renderer. The component chooses which
