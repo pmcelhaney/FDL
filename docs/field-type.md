@@ -1,147 +1,316 @@
-# Binding components to FDL fields
+# Binding components to FDL
 
 This page assumes that you have used FDL to define fields and work with
 `Record` or `Recordset`, but have not yet built a component that binds to that
-model. It is for authors of form controls, table renderers, filters, and other
-FDL consumers.
+model. It is a guide to the public surfaces your component consumes and the
+direction of data flow across the model/UI boundary.
 
-You already know the first half of the story: field definitions describe
-reusable behavior, and a `Record` supplies values and evaluates that behavior.
-The component is the second half. It reads the current model state, translates
-that state into accessible UI, and sends user input back through the model.
-
-The important boundary is:
+The short version is:
 
 ```text
-FDL model: meaning and state  ->  component: semantics and interaction
-FDL model: parsed user input  <-  component: user events
+Record or Recordset -> component state -> accessible UI
+Record or Recordset <- parsed user input
 ```
 
 FDL owns field meaning and model state. Your component owns semantic HTML,
 accessible relationships, interaction policy, focus, events, layout, and visual
-styling.
+styling. Start by learning the four public objects involved in that boundary:
 
-```text
-Field definition -> Record/Recordset -> component state -> accessible UI
-                                      <- parsed user input
-```
+- `Record` is the model for one object of values.
+- `Field` is the component-friendly view of one field in a record.
+- `FieldType` is the finalized behavior for that field.
+- `Recordset` is the model for a collection of records and its table state.
 
-Do not make the component the source of business rules. The rest of this page
-answers three practical questions:
+## The public surfaces at a glance
 
-1. What should the component read from a `Record` and its `FieldType`?
-2. How should it turn that state into a control, table, or other accessible UI?
-3. How should user input and model changes flow across the boundary?
+Most form components use `record.field(name)`. Most table components use
+`recordset.currentPage`, then use the same `Record` and `Field` surfaces for
+each row. Use `FieldType` when the component needs a setting or behavior that
+is not exposed by `Field`.
 
-## The renderer contract
+| Object | Represents | Start here |
+| --- | --- | --- |
+| `Record` | Values, field behavior, validation, options, and model events for one object | `field(name)`, `getField(name)`, `setField(name, value)`, `parseAndSetField(name, input)` |
+| `Field` | One field's formatted value, raw value, validity, and input helpers | `value`, `rawValue`, `valid`, `isValidValue(input)`, `onChange(fn)` |
+| `FieldType` | A field's finalized format, parse, validation, state, option, and table behavior | `format`, `parse`, `required`, `visible`, `isDisabled`, `readonly`, `options` |
+| `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
-A component that renders one field needs two inputs:
+The sections below describe these APIs first. The integration guidance after
+them shows how to combine them into a component.
 
-- `record`: the model containing values and finalized field behavior;
-- `field`: the field name to render.
+## `Record`: one model object
 
-Resolve the field once the component has both inputs:
+A `Record` owns one values object and the finalized `FieldType` for each declared
+field. A component should treat the record as the source of truth and re-read
+from it after every model change.
+
+### Properties
+
+| Property | Component use |
+| --- | --- |
+| `values` | The backing values object. Read it for serialization or debugging; prefer `getField()` for a field and do not mutate it directly. |
+| `fieldTypes` | The finalized field types. Prefer `fieldTypeForField()` so nested fields and missing fields follow the record's lookup behavior. |
+| `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state. |
+| `hasChanged` | Whether current values differ from the initial values. Useful for dirty-state indicators. |
+| `isExpanded` | A public view-model flag used by table/detail-row consumers. |
+
+### Field access and updates
+
+| Method | Purpose |
+| --- | --- |
+| `field(name)` | Return a `Field` facade for component binding. |
+| `fieldTypeForField(name)` | Return the finalized `FieldType` for direct behavior inspection. |
+| `hasField(name)` | Test whether the record declares a field. |
+| `getField(name)` | Read a stored value, including a dot-separated nested path. |
+| `setField(name, value)` | Store an already parsed value and announce a model change. |
+| `setFields(values)` | Store several already parsed values. |
+| `parse(name, input)` | Parse input without storing it. |
+| `parseAndSetField(name, input)` | Parse component input and store the result. |
+| `addField(name, definition, value)` | Add a field and its initial value to a record. |
+| `getFormattedField(name, context)` | Run the formatter pipeline for a display context. |
+| `print(name, index)` | Format and template a value for printed/read-only output. |
+| `allowInputChar(name, char)` | Ask whether an input character is permitted by the field definition. |
+
+`setField()` deliberately does not parse or validate its argument. Editable
+controls should normally call `record.parseAndSetField(name, input)` or assign
+through `record.field(name).value` instead.
+
+### Options and lifecycle
+
+| Method | Purpose |
+| --- | --- |
+| `optionsForField(name)` | Load options through the record's disabled-state gate. |
+| `refreshOptions()` | Request option loading and selection reconciliation. |
+| `whenOptionsReady()` | Wait for the current option pass and any dependent passes to settle. |
+| `announceChange(name)` | Announce a programmatic model change after a direct mutation or custom update. |
+| `announceBlur(name)` | Announce that a field's editing interaction ended. |
+| `addEventListener('change', fn)` | Observe model changes; `event.detail.field` contains the changed field name. |
+| `addEventListener('blur', fn)` | Observe the field blur event emitted by the model. |
+
+The record automatically refreshes options when a field changes. A component
+should render loading state and re-read options after that work rather than
+implementing a second dependency graph.
+
+### Validation, reset, and cloning
+
+| Method or property | Purpose |
+| --- | --- |
+| `isValid(name?, value?)` | Synchronously validate the whole record or one field/value. |
+| `isValidAsync(name?, value?)` | Validate when rules may return promises. |
+| `errors()` / `errorsAsync()` | Get synchronous or asynchronous validation results. |
+| `errorCount()` / `hasErrors()` | Summarize current errors. |
+| `readableRecordErrors()` | Get errors prepared for record-level display. |
+| `readableFieldErrors(name)` | Get errors prepared for one field's display. |
+| `invalidValues` | Get the values that currently fail validation. |
+| `hasRequiredValues()` | Check whether required values are present. |
+| `reset()` | Restore the values captured at construction. |
+| `clear()` | Replace values with the field definitions' defaults. |
+| `clone(fields)` | Create a related record, optionally limited to selected fields. |
+| `hashOfFields(fields)` | Create a stable hash for selected field values. |
+
+Synchronous validation throws when it encounters a promise-returning validator.
+Use the async methods in an adapter that supports asynchronous validation and
+defines its own pending/error-display policy.
+
+## `Field`: the component-facing field view
+
+`record.field(name)` creates a `Field` bound to one record and field name. It
+keeps the binding convenient without creating a second source of truth.
+
+### Identity and value properties
+
+| Property | Meaning |
+| --- | --- |
+| `record` | The owning `Record`. |
+| `fieldName` | The bound field name. |
+| `fieldType` | The finalized `FieldType` for the bound field. |
+| `value` | The formatted/printed value used for display. Assigning parses and stores input. |
+| `rawValue` | The stored model value. Assigning writes directly without parsing. |
+| `focusedInputValue` | The formatted value for an active editable control. |
+| `blurredInputValue` | The formatted value for a blurred editable control. |
+| `valid` / `invalid` | The current synchronous validity of the stored value. |
+
+For an editable control, use `field.value = input` so the field's parsers run.
+Keep the control's in-progress text locally until the next model synchronization;
+this preserves intermediate input such as `12.`. Use `field.rawValue` when the
+component is intentionally handling an already parsed value.
+
+### Methods
+
+| Method | Purpose |
+| --- | --- |
+| `isValidValue(input)` | Parse and synchronously validate a proposed input without storing it. |
+| `isValidValueAsync(input)` | Async version of proposed-value validation. |
+| `isValidAsync()` | Async validation of the current field value. |
+| `onChange(fn)` | Listen for a change to this field's value or validity. |
+| `allowInputChar(char)` | Apply the field's input-character rule. |
+| `field(nameOrIndex)` | Address a nested field or part. |
+| `minValueCount()` / `maxValueCount()` | Read multiple-value count metadata. |
+
+The facade reports a field change when the record changes its raw value or
+validity. It does not replace the record's broader `change` event, which remains
+useful when a component depends on other fields.
+
+## `FieldType`: behavior for a field
+
+`record.fieldTypeForField(name)` returns the finalized `FieldType`. Components
+usually need it after they have read the `Field` value, because it supplies
+metadata and behavior that is not part of the facade.
+
+### Value and state behavior
+
+| Method | Component use |
+| --- | --- |
+| `format(value, record, context)` | Format a value for a renderer context. |
+| `print(value, record)` | Format and apply a print template. |
+| `parse(input, record, context)` | Parse renderer input into a model value. |
+| `validate(field, modelValue, viewValue, record, options)` | Run synchronous field validators. |
+| `validateAsync(...)` | Run validators that may be asynchronous. |
+| `isEmpty(value, record, context)` / `empty(record, name)` | Resolve emptiness rules. |
+| `required(value, record, context)` | Resolve requiredness. |
+| `visible(value, record, context)` | Resolve visibility. |
+| `isDisabled(value, record, context)` | Resolve disabled state. |
+| `readonly(value, record, context)` | Resolve read-only state. |
+| `label(value, record, context)` | Resolve a label. |
+| `placeholder(value, record, context)` | Resolve a placeholder. |
+| `defaultValue(value, record, context)` | Resolve a default for record operations. |
+
+Other renderer metadata includes `type()`, `accept()`, `autocomplete()`,
+`autofocus()`, `pattern()`, `step()`, `info()`, `formElement()`, and
+`additionalProperties()`. Treat these as inputs to your renderer, not as a
+request to copy arbitrary properties onto a DOM element.
+
+### Options and table behavior
+
+| Method | Component use |
+| --- | --- |
+| `hasOptions()` / `options(record)` | Detect and load choices. Prefer `record.optionsForField()` for a control. |
+| `hasMultipleValues()` | Choose a multiple-selection interaction. |
+| `minValueCount()` / `maxValueCount()` | Read selection-count metadata. |
+| `match(searchText, value)` | Apply a field's filter behavior. |
+| `cellClasses(value, record)` | Resolve classes for one table cell. |
+| `rowClasses(record)` | Resolve classes for one table row. |
+| `columnClasses()` | Resolve classes that apply to a whole column. |
+| `textAlign(value, record, context)` | Resolve alignment intent. |
+| `sortable()` | Determine whether the column is sortable. |
+| `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance. |
+| `aggregate(values)` | Calculate a column or group aggregate. |
+| `compare(a, b)` | Compare two values for sorting. |
+
+Use a context such as `"model"`, `"input-focus"`, `"input-blur"`, `"table"`,
+or `"print"` consistently within your renderer. The component chooses which
+representation it needs; the field definition remains renderer-independent.
+
+## `Recordset`: rows and table state
+
+Use a `Recordset` when the component renders a collection. It finalizes the
+field definitions once and creates a `Record` for each row. A table should read
+rows from the recordset and use the `Record`/`Field` APIs for each cell.
+
+### Row, paging, and fetch properties
+
+| Property | Component use |
+| --- | --- |
+| `allRecords` | All loaded `Record` instances. |
+| `currentPage` | Records currently visible after filtering, sorting, and paging. |
+| `cursor` | A small paging/visibility interface for table controls. |
+| `isLoading` | Whether a fetch or update is in progress. |
+| `updating` | A promise for the most recent update. |
+| `pageIndex` / `pageNumber` | Zero-based and one-based page controls. |
+| `pageSize` | Number of rows per page. |
+| `firstRecordNumberOnPage` / `lastRecordNumberOnPage` | Display ranges for pagination UI. |
+| `totalCount` / `filteredCount` | Server or client counts for pagination and summaries. |
+| `isClientSide` / `isServerSide` | Which pagination/filtering mode the current data uses. |
+| `fieldNames` | Declared column names. |
+| `summary` | Fetch-provided collection summary. |
+| `parameters` | Fetch parameters. Assigning queues an update. |
+| `sortColumns` | Sort descriptors. Assigning queues an update. |
+| `filter` | A predicate for client-side record filtering. |
+| `hasChanged` | Whether any loaded record has changed. |
+
+### Collection methods
+
+| Method | Purpose |
+| --- | --- |
+| `requestHardUpdate()` | Fetch and rebuild the current view. Use for the initial load or a forced refresh. |
+| `requestSoftUpdate()` / `requestUpdate()` | Request the corresponding queued update behavior. |
+| `sort(column)` | Sort using a column descriptor. |
+| `reset(hardReset?)` | Restore the recordset's original data and view state. |
+| `createRecord(values)` | Create a record using the recordset's field types. |
+| `appendRecord()` / `addRecord()` | Add a row. |
+| `insertRecord(record, index)` | Insert a row at an index. |
+| `updateRecord(record)` | Notify the set that a row changed. |
+| `deleteRecord(record)` | Remove a row. |
+| `clone()` / `cloneRecord(record, rowIndex, fields)` | Create related collection or row data. |
+| `copyFrom(recordset, fields)` | Copy collection data. |
+| `getRecordAtIndex(index)` | Read a loaded row by index. |
+| `getFieldType(name)` | Read the finalized field behavior for a column. |
+| `getData()` / `setData(data)` | Serialize or replace collection data. |
+| `isValid()` / `errors()` | Validate the collection and read collection errors. |
+
+For collection-level rules, `addValidator()` and `addValidators()` register
+recordset validators. For component subscriptions, use `addEventListener()` or
+`onChange(fn)` and await `updating` after changing filters, parameters, sorting,
+or paging.
+
+## Binding a form control
+
+Once the public surfaces are clear, a field component has a small loop:
+
+1. Receive a `Record` and field name.
+2. Resolve `const field = record.field(name)`.
+3. Render `field.value` or `field.focusedInputValue`.
+4. Resolve semantics such as `required`, `disabled`, `readonly`, `visible`, and
+   `label` from `field.fieldType`.
+5. On user input, assign `field.value = input`.
+6. Listen for model changes and re-read the field.
 
 ```js
-const field = record.field(fieldName);
-const fieldType = record.fieldTypeForField(fieldName);
+class FieldController {
+    constructor(record, name) {
+        this.record = record;
+        this.field = record.field(name);
+        this.fieldType = this.field.fieldType;
+        this.record.addEventListener('change', event => {
+            if (event.detail.field === name) this.render();
+        });
+    }
+
+    input(value) {
+        this.field.value = value;
+        this.render();
+    }
+
+    render() {
+        const { field, fieldType, record } = this;
+        return {
+            value: field.focusedInputValue,
+            label: fieldType.label(field.rawValue, record, 'form'),
+            required: fieldType.required(field.rawValue, record, 'form'),
+            disabled: fieldType.isDisabled(field.rawValue, record, 'form'),
+            readOnly: fieldType.readonly(field.rawValue, record, 'form'),
+            valid: field.valid,
+        };
+    }
+}
 ```
 
-Use the `Field` facade when the component needs the common value and validity
-surface:
+The real component must add the accessible structure around this state:
 
-| Need | Read or write |
-| --- | --- |
-| Formatted value for display | `field.value` |
-| Stored value | `field.rawValue` |
-| Accept editable input | `field.value = input` |
-| Formatted input value | `field.focusedInputValue` or `field.blurredInputValue` |
-| Current validity | `field.valid` or `field.invalid` |
-| Validate a proposed input | `field.isValidValue(input)` |
+- generate a stable, opaque control ID;
+- associate the visible label with that ID;
+- express required, disabled, read-only, and visibility semantically;
+- connect descriptions and validation messages with `aria-describedby`; and
+- use `aria-invalid` when the application has decided to show a model error.
 
-`field.value = input` parses the input and stores the parsed result. Use
-`field.rawValue` only when the component is intentionally writing an already
-parsed model value. For model or service code, the equivalent explicit APIs are
-`record.parseAndSetField(name, input)`, `record.getField(name)`, and
-`record.setField(name, value)`.
-
-The `Field` facade is a convenient component surface, not a second model. The
-`Record` remains the source of truth. Subscribe to the record's `change` event
-or the field facade's `change` event and re-read state when the model changes.
-
-```js
-const field = record.field(fieldName);
-
-field.onChange(() => {
-    render(field.value, field.valid);
-});
-
-record.addEventListener('change', event => {
-    if (event.detail.field === fieldName) render(field.value, field.valid);
-});
-```
-
-## Resolve semantics; choose presentation
-
-`FieldType` exposes the reusable behavior a component needs. Resolve each value
-against the current record rather than copying field-definition properties into
-component state.
-
-| Component question | `FieldType` API |
-| --- | --- |
-| What should be shown? | `fieldType.format(value, record, context)` or `record.print(name)` |
-| How should input be stored? | `fieldType.parse(input, record, context)` or `record.parseAndSetField(name, input)` |
-| Is it required? | `fieldType.required(value, record, context)` |
-| Is it disabled? | `fieldType.isDisabled(value, record, context)` |
-| Is it read-only? | `fieldType.readonly(value, record, context)` |
-| Should it be visible? | `fieldType.visible(value, record, context)` |
-| What label or placeholder applies? | `fieldType.label(value, record, context)` and `fieldType.placeholder(value, record, context)` |
-| What input metadata applies? | `fieldType.type()`, `accept()`, `autocomplete()`, `pattern()`, and `step()` |
-| What classes apply to this value? | `fieldType.cellClasses(value, record)` |
-
-The exact context is a renderer decision. Use a stable context such as
-`"model"`, `"input-focus"`, or `"print"` when a formatter, parser, or setting
-needs to distinguish consumers. Do not invent context-specific business rules
-in the component; the component chooses which existing representation it needs.
-
-For a read-only display, prefer `record.print(name)` or `field.value`. For an
-editable control, use the parsed value setter and keep the in-progress display
-value in the control until the next model synchronization. This matters for
-inputs such as numeric fields where `12.` may be a valid intermediate string.
-
-## Build one field component
-
-The component should select an appropriate semantic control from field metadata,
-not require a different public component for every native element. The built-in
-Lit adapter follows this policy:
-
-- fields with options use a select-like control;
-- fields configured for multiple values use a multi-selection control;
-- other fields use an input-like control;
-- read-only fields can use a semantic `output`.
-
-A custom renderer can choose a different semantic interaction—such as a radio
-group, autocomplete, or command palette—while keeping the same model contract.
-The choice of element belongs to the renderer, not to `FieldType`.
-
-Every editable control should establish its own accessible structure:
-
-1. Generate a stable, opaque control ID for the component instance.
-2. Resolve the field label and associate it with that ID.
-3. Apply required, disabled, read-only, and visible state semantically.
-4. Connect descriptions and validation messages with `aria-describedby`.
-5. Use `aria-invalid` when the application has decided to show a model error.
-6. Translate control events into parsed record updates.
-
-Generated IDs are component details. They are not field names or domain IDs and
-must not be persisted or parsed by application code.
+Generated IDs are component details, not field names or domain IDs. Do not
+persist them or make application logic depend on their format.
 
 ## Options and selection
 
-Use `record.optionsForField(name)` when loading options for a control. It
-applies FDL's disabled-state gate and participates in the record's dependency
-and selection reconciliation. Await `record.whenOptionsReady()` before treating
-a changed selection and its dependent fields as settled.
+Use `record.optionsForField(name)` when loading choices. It applies the
+record's disabled-state gate and participates in dependency and selection
+reconciliation:
 
 ```js
 const options = await record.optionsForField(fieldName);
@@ -150,22 +319,24 @@ renderOptions(options);
 control.addEventListener('change', event => {
     field.value = readControlValue(event.target);
 });
+
+await record.whenOptionsReady();
 ```
 
 Option objects normally expose `text` and `value`. The renderer decides whether
-to use a native select, a custom listbox, a radio group, or another interaction.
-The control must preserve the option value identity expected by the model; a
-native adapter may need to serialize values for the DOM and map them back.
+to use a native select, listbox, radio group, autocomplete, or another
+interaction. Preserve the option value identity expected by the model; a native
+adapter may serialize values for the DOM and map them back.
 
-When an option field depends on another field, the record owns refresh and
-reconciliation. The component should show loading state, re-read the options,
-and render the current record value after the update. Do not independently
-clear selections or implement a second dependency graph in the component.
+When options depend on another field, the record owns refresh and reconciliation.
+The component shows loading state, re-reads options, and renders the current
+record value after the update. It should not clear selections or implement a
+second dependency graph.
 
-`multipleValues(min, max)` exposes selection-count metadata. It does not itself
+`multipleValues(min, max)` exposes selection-count metadata; it does not itself
 validate the count. If the model requires a particular number of selections,
-the field definition must also provide a validator; the component should report
-the resulting model error rather than enforce a new rule locally.
+the field definition must provide a validator and the component should display
+that model error.
 
 ## Validation and error display
 
@@ -175,7 +346,7 @@ submit attempt.
 
 When showing a synchronous field error:
 
-1. Read the current errors from the `Record`.
+1. Read `record.readableFieldErrors(name)`.
 2. Render a concise, readable error message adjacent to the control.
 3. Set `aria-invalid="true"` on the editable control or read-only output.
 4. Add the error element's ID to `aria-describedby` without discarding other
@@ -185,43 +356,40 @@ When showing a synchronous field error:
 
 Do not infer validity from CSS, a browser constraint, or an asterisk. Native
 constraint validation can support interaction, but `Record.isValid()` is the
-model authority.
+model authority. For async validators, await `record.isValidAsync(name)` or
+`record.errorsAsync()` and define pending and server-error display in the
+application-specific adapter.
 
-Synchronous validation throws if it encounters a promise-returning validator.
-For async rules, await `record.isValidAsync(name)` or
-`record.errorsAsync()`, then define the pending, server-error, and submission
-display policy in the application-specific adapter. The built-in `Field` facade
-and form adapter are synchronous surfaces.
+## Binding a table
 
-## Table and repeated-record components
-
-For a table, use a `Recordset` as the row model. The recordset shares finalized
-field behavior across its rows:
+Read rows from `recordset.currentPage` and subscribe to the recordset's update
+events. The table owns loading, sorting, filtering, pagination, and empty-state
+presentation; FDL owns the values and field behavior.
 
 ```js
 const fieldType = recordset.getFieldType(columnName);
-const records = recordset.currentPage;
+const rows = recordset.currentPage;
+
+for (const record of rows) {
+    const field = record.field(columnName);
+    renderCell(field.value, field.valid);
+}
 ```
 
-Resolve table-wide and row-specific presentation at their natural scopes:
+Resolve table presentation at its natural scope:
 
 | Scope | API | Attach to |
 | --- | --- | --- |
 | Column-wide classes | `fieldType.columnClasses()` | `<col>`, header, and data cells |
 | One row | `fieldType.rowClasses(record)` | The row |
 | One value | `fieldType.cellClasses(value, record)` | The data cell |
-| Column alignment | `fieldType.textAlign(value, record, 'table')` | Header and cells as appropriate |
-| Column sizing | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout |
+| Alignment | `fieldType.textAlign(value, record, 'table')` | Header and cells as appropriate |
+| Sizing | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout |
 
-Column callbacks have no record or value because a column can exist when the
-table has no rows. Resolve them once per column on each render. Combine
-column-wide classes with the current cell's classes; do not expect HTML column
-styles to propagate to individual cells automatically.
-
-The table owns sorting, filtering, pagination, and loading presentation. FDL
-owns field values, formatters, parsers, validators, options, and declared
-dependencies. Keep those responsibilities separate so the same field definition
-can serve a form, table, printed view, or export.
+Column callbacks have no record or value because a column can exist when there
+are no rows. Resolve them once per column on each render. Combine column-wide
+classes with each cell's classes; do not expect HTML column styles to propagate
+to individual cells automatically.
 
 ## Keep the boundary intact
 
