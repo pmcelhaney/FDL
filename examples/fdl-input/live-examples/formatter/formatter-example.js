@@ -3,7 +3,6 @@ import { formatterView as renderExample } from './formatter-view.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './formatter-example-state.js';
-import { valuePipeline } from '../../value-pipeline';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
@@ -23,13 +22,8 @@ export class ExampleView extends ExampleModel {
         );
     }
     demo() {
-        return html` <div @input=${this.captureAmountInput}
-                >${this.field(this.money, 'amount')}</div
-            >
-            ${formattedAmountView()}
-            <p class="result"
-                >The formatter leaves the stored number unchanged.</p
-            >${valuePipeline(this.money, 'amount', this.amountInput)}`;
+        return html`${this.field(this.money, 'amount')}
+            ${formattedAmountView()}`;
     }
     render() {
         return html`<div class="demo-grid"

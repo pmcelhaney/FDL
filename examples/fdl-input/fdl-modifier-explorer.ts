@@ -50,7 +50,7 @@ export const explorerRecipes: ExplorerRecipe[] = [
         title: 'Format a stored value for display.',
         description:
             'Apply a display transformation without changing the stored value. This example formats a number as US dollars.',
-        prompt: 'Change the amount. Compare the raw number in the model with its formatted output.',
+        prompt: 'Change the amount. Compare its formatted output with the number in the record inspector.',
         steps: [
             'Store a number in the record.',
             'The formatter transforms it when a consumer requests a display value.',
