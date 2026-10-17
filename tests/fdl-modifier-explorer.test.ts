@@ -538,7 +538,7 @@ describe('FDL site pages', () => {
         const page = await openPage('');
         const root = page.shadowRoot!;
         expect(root.querySelector('h1')!.textContent).toBe(
-            'Finally, a framework for business rules.'
+            'Finally, a design system for business rules'
         );
         expect(root.querySelector('.site-page')!.textContent).toContain('Recordset');
         expect(root.querySelector('.site-nav a[href="#quickstart"]')?.textContent).toContain(
@@ -567,7 +567,7 @@ describe('FDL site pages', () => {
         window.dispatchEvent(new Event('hashchange'));
         await settle(page);
         expect(root.querySelector('h1')!.textContent).toBe(
-            'Finally, a framework for business rules.'
+            'Finally, a design system for business rules'
         );
         expect(document.title).toBe('Home — FDL');
     });

@@ -35,7 +35,7 @@ it('focuses the destination heading after ordinary hash navigation and browser h
         expect(root.activeElement).toBe(root.querySelector('h1'));
         expect(root.querySelector('h1')!.textContent).toBe(
             route === 'home'
-                ? 'Finally, a framework for business rules.'
+                ? 'Finally, a design system for business rules'
                 : route === 'quickstart'
                   ? 'Your first form'
                   : 'How it Works'

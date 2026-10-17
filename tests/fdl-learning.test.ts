@@ -72,6 +72,7 @@ it('explores delivery visibility and requiredness without discarding the address
     );
 });
 
+// Three sequential store lookups each simulate two seconds of latency.
 it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable selections', async () => {
     const demo = document.createElement('delivery-form') as DeliveryForm;
     document.body.append(demo);
@@ -147,7 +148,7 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
     expect(record.isValid()).toBe(true);
     expect(record.getField('address')).toBe('42 Orchard Street');
     expect(record.getField('store')).toBeUndefined();
-}, 10000);
+}, 20000);
 
 it('starts with a complete shipping address and retains it when switching to pickup', async () => {
     const demo = document.createElement('delivery-form') as DeliveryForm;
@@ -422,7 +423,11 @@ it('explains actual sort precedence without requiring a JSON read', async () => 
         .textContent!.replace(/\s+/g, ' ');
     expect(counts).toContain('Sorted by lastName ↑');
     expect(counts).toContain('6 of 6');
-    expect(inspector.shadowRoot!.querySelector('details')!.hasAttribute('open')).toBe(false);
+    const jsonDisclosure = Array.from(inspector.shadowRoot!.querySelectorAll('details')).find(
+        details => details.querySelector('summary')?.textContent === 'Inspect full JSON'
+    )!;
+    expect(jsonDisclosure).toBeDefined();
+    expect(jsonDisclosure.open).toBe(false);
 });
 
 it('automatically clears an assignee removed from the available choices', async () => {
