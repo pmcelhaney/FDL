@@ -1,9 +1,10 @@
 import { field, Recordset, Record } from '@pmcelhaney/fdl';
 
 export const shipmentFields = {
-    id: field.label('Shipment').readOnly(),
+    id: field.label('Shipment').readOnly().sortable(false),
     quantity: field
         .label('Quantity')
+        .sortable(false)
         .type('number')
         .parser(Number)
         .required()
@@ -15,6 +16,7 @@ export const shipmentFields = {
         }),
     unitPrice: field
         .label('Unit price')
+        .sortable(false)
         .type('number')
         .parser(Number)
         .textAlign('right')
@@ -22,9 +24,10 @@ export const shipmentFields = {
             name: 'must be a non-negative number',
             validate: value => Number.isFinite(value) && value >= 0,
         }),
-    status: field.label('Status'),
+    status: field.label('Status').sortable(false),
     reason: field
         .label('Hold reason')
+        .sortable(false)
         .required(record => record.getField('status') === 'hold'),
 };
 export const shipmentRows = [

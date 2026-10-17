@@ -95,6 +95,34 @@ Both client-side and server-side recordsets use these controls. For server-side
 paging, the fetch function must honor `page`, `startIndex`, and `pageSize` and
 return `{ data, totalCount }`; see [Recordset](./recordset.md).
 
+## Custom table cells
+
+By default, `fdl-column` displays `record.print(field)`. Set its `renderCell`
+property to a function receiving the actual row `Record` to return Lit content,
+such as an editor, selection button, or calculated value:
+
+```ts
+import '@pmcelhaney/fdl/lit/fdl-field';
+
+const view = html`<fdl-table .recordset=${orders}>
+    <fdl-column
+        field="name"
+        .renderCell=${record => html`<fdl-field .record=${record} field="name"></fdl-field>`}
+    ></fdl-column>
+</fdl-table>`;
+```
+
+The column's `field` must name a model field; it supplies default labels,
+alignment, classes, and sort/filter behavior. An explicit `label` overrides the
+heading. The renderer replaces only the cell content. It owns any controls and
+their accessible labels; the table owns table structure, sizing, and pagination.
+Rows retain their DOM identity when sorting moves the same Records, and record
+updates rerender custom cells. Assigning a new renderer updates the table;
+external state used by a renderer must trigger a table update or supply a new
+renderer. Omit the callback to restore formatted text. See
+[Edit a recordset](../examples/fdl-input/#editable-recordset) for shared table
+and detail editors, calculated charges, and validation messages.
+
 ## Custom field elements
 
 `FormElement` is the Lit base class for FDL field controls. Extend it when you

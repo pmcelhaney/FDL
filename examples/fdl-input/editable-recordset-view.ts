@@ -1,65 +1,54 @@
 import { html } from 'lit';
-import { repeat } from 'lit/directives/repeat.js';
 import type { Record } from '@pmcelhaney/fdl';
 import { createShipments, shipmentCharge } from './editable-recordset-model';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '@pmcelhaney/fdl/lit/fdl-record';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export function editableRecordsetView(
     shipments: ReturnType<typeof createShipments>,
     selected: Record<any> | undefined,
     onSelect: (row: Record<any>) => void
 ) {
-    return html`<table
-        ><caption>Editable shipments — use Tab to move between controls</caption
-        ><thead
-            ><tr
-                ><th>Shipment</th><th>Quantity</th><th>Unit price</th
-                ><th>Status</th><th>Hold reason</th><th>Charge</th
-                ><th>Validation</th></tr
-            ></thead
-        ><tbody>
-            ${repeat(
-                shipments.currentPage,
-                row => row,
-                row =>
-                    html`<tr
-                        ><th
-                            ><button
-                                @click=${() => onSelect(row)}
-                                aria-pressed=${selected === row}
-                                >${row.getField('id')}</button
-                            ></th
-                        >
-                        <td
-                            ><fdl-field
-                                .record=${row}
-                                field="quantity"
-                            ></fdl-field></td
-                        ><td
-                            ><fdl-field
-                                .record=${row}
-                                field="unitPrice"
-                            ></fdl-field></td
-                        ><td
-                            ><fdl-field
-                                .record=${row}
-                                field="status"
-                            ></fdl-field></td
-                        ><td
-                            ><fdl-field
-                                .record=${row}
-                                field="reason"
-                            ></fdl-field
-                        ></td>
-                        <td class="numeric"
-                            >${shipmentCharge(row).toFixed(2)}</td
-                        ><td
-                            >${row.isValid() ? 'Valid' : row.readableRecordErrors().join('. ')}</td
-                        ></tr
-                    >`
-            )}
-        </tbody></table
-    >`;
+    return html`<fdl-table
+        .recordset=${shipments}
+        aria-label="Editable shipments"
+        ><fdl-column
+            field="id"
+            .renderCell=${(row: Record<any>) =>
+                html`<button
+                    type="button"
+                    @click=${() => onSelect(row)}
+                    aria-pressed=${selected === row}
+                    >${row.getField('id')}</button
+                >`}
+        ></fdl-column
+        ><fdl-column
+            field="quantity"
+            .renderCell=${(row: Record<any>) => html`<fdl-field .record=${row} field="quantity" style="min-width: 140px; --field-control-width: 100%;"></fdl-field>`}
+        ></fdl-column
+        ><fdl-column
+            field="unitPrice"
+            .renderCell=${(row: Record<any>) => html`<fdl-field .record=${row} field="unitPrice" style="min-width: 140px; --field-control-width: 100%;"></fdl-field>`}
+        ></fdl-column
+        ><fdl-column
+            field="status"
+            .renderCell=${(row: Record<any>) => html`<fdl-field .record=${row} field="status" style="min-width: 140px; --field-control-width: 100%;"></fdl-field>`}
+        ></fdl-column
+        ><fdl-column
+            field="reason"
+            .renderCell=${(row: Record<any>) => html`<fdl-field .record=${row} field="reason" style="min-width: 140px; --field-control-width: 100%;"></fdl-field>`}
+        ></fdl-column
+        ><fdl-column
+            field="quantity"
+            label="Charge"
+            .renderCell=${(row: Record<any>) => shipmentCharge(row).toFixed(2)}
+        ></fdl-column
+        ><fdl-column
+            field="id"
+            label="Validation"
+            .renderCell=${(row: Record<any>) => (row.isValid() ? 'Valid' : row.readableRecordErrors().join('. '))}
+        ></fdl-column
+    ></fdl-table>`;
 }
 export function shipmentDetailView(record: Record<any>) {
     return html`<fdl-record .record=${record}

@@ -1,12 +1,13 @@
-import { editableRecordsetView, shipmentDetailView } from './editable-recordset-view';
+import {
+    editableRecordsetView,
+    shipmentDetailView,
+} from './editable-recordset-view';
 import './fdl-code-snippet';
 import { LitElement, html, css } from 'lit';
-import { repeat } from 'lit/directives/repeat.js';
 import { keyed } from 'lit/directives/keyed.js';
 import {
     createShipments,
     applyShipmentView,
-    shipmentCharge,
     shipmentTotals,
 } from './editable-recordset-model';
 import type { Record } from '@pmcelhaney/fdl';
@@ -82,7 +83,10 @@ export class FdlEditableRecordset extends LitElement {
                 detail editor.</p
             >
             <div class="table-scroll"
-                >${editableRecordsetView(this.shipments, this.selected, row => {this.selected=row;this.requestUpdate();})}</div
+                >${editableRecordsetView(this.shipments, this.selected, row => {
+                    this.selected = row;
+                    this.requestUpdate();
+                })}</div
             >
             <p role="status"
                 >All records: ${all.quantity} units / $${all.charge.toFixed(2)}.
@@ -96,12 +100,14 @@ export class FdlEditableRecordset extends LitElement {
             ></fdl-recordset-inspector>
             <details
                 ><summary>All records, including filtered-out edits</summary
-                ><fdl-code-snippet><pre>
+                ><fdl-code-snippet>
+                    <pre>
 ${JSON.stringify(
-                        this.shipments.allRecords.map(row => row.values),
-                        null,
-                        2
-                    )}</pre></fdl-code-snippet>
+                            this.shipments.allRecords.map(row => row.values),
+                            null,
+                            2
+                        )}</pre>
+                </fdl-code-snippet>
             </details>`;
     }
     static styles = css`
@@ -111,24 +117,8 @@ ${JSON.stringify(
         .table-scroll {
             overflow: auto;
         }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        caption {
-            text-align: left;
-            padding: 12px 0;
-        }
-        th,
-        td {
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            vertical-align: top;
-            text-align: left;
-        }
-        .numeric {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
+        fdl-table {
+            min-width: 1400px;
         }
         fdl-field {
             min-width: 140px;

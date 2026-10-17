@@ -1,4 +1,5 @@
 import { LitElement, css, html, nothing } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
 import type { Record } from '../index';
 import { Recordset } from '../index';
 
@@ -54,6 +55,19 @@ export function resizeColumnWidths(
 }
 
 export class FdlColumn extends HTMLElement {
+    private cellRenderer?: (record: Record<any>) => unknown;
+
+    /** Optional Lit cell content; the table still owns cell semantics and styling. */
+    get renderCell() {
+        return this.cellRenderer;
+    }
+
+    set renderCell(renderer: ((record: Record<any>) => unknown) | undefined) {
+        if (this.cellRenderer === renderer) return;
+        this.cellRenderer = renderer;
+        this.closest<FdlTable>('fdl-table')?.requestUpdate();
+    }
+
     get field() {
         return this.getAttribute('field') ?? '';
     }
@@ -701,7 +715,7 @@ export class FdlTable extends LitElement {
             class=${[classes, ...field.cellClasses(value)].filter(Boolean).join(' ')}
             style=${`text-align:${field.textAlign(value, 'table')}`}
         >
-            ${record.print(column.field)}
+            ${column.renderCell ? column.renderCell(record) : record.print(column.field)}
         </td>`;
     }
 
@@ -825,7 +839,9 @@ export class FdlTable extends LitElement {
                     <tbody>
                         ${
                             records.length
-                                ? records.map(
+                                ? repeat(
+                                      records,
+                                      record => record,
                                       record =>
                                           html`<tr class=${this.rowClasses(record)}>
                                               ${columns.map((column, index) => this.renderCell(record, column, columnClasses[index]))}

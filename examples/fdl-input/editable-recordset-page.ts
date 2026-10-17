@@ -105,10 +105,13 @@ const visibleUnits = sumColumn.aggregate(
 );`)}</code></pre>
         </fdl-code-snippet>
         <p
-            >FDL supplies row state and view operations. The example component
-            owns native table markup, cell editors, focus, and Tab interaction.
-            It supplies no spreadsheet arrow-key navigation, persistence,
-            permissions, or conflict resolution.</p
+            >FDL supplies row state and view operations. The shared
+            <code>fdl-table</code> owns table markup, column sizing, and
+            pagination; <code>fdl-column</code> cell renderers supply selection
+            buttons, <code>fdl-field</code> editors, calculated charges, and
+            validation. Use Tab to move between controls. It supplies no
+            spreadsheet arrow-key navigation, persistence, permissions, or
+            conflict resolution.</p
         >
         <p
             >Complete implementation:
