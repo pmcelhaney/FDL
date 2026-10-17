@@ -76,7 +76,7 @@ whether the current values differ from those initial values.
 The constructor uses the supplied values without parsing or applying defaults.
 Include an initial value for every declared field: whole-record validation
 iterates keys in the values object, so an omitted field is not checked by
-`isValid()` (it can still be checked with `isValid(fieldName)`).
+`isValid()`; use `record.field(fieldName).isValid()` for an explicit field check.
 
 ## Selections and changing options
 
@@ -117,17 +117,18 @@ lookups; the value is retained so a lookup failure does not erase a selection.
 
 ## Validation and display
 
-`isValid()` checks the entire record; `isValid(fieldName)` checks one field.
-Use `errors()`, `errorCount()`, or `hasErrors()` when the individual validation
-errors are needed. `print(fieldName)` formats a value for display, and
-`parse(fieldName, value)` applies that field's parsers.
+`isValid()` checks the entire record. For field-scoped validation and display,
+use the `Field` facade. Its `isValid()`, `errors()`, `readableErrors()`,
+`format()`, `print()`, and `parse()` methods all operate on the bound field.
+Use `errors()`, `errorCount()`, or `hasErrors()` when whole-record errors are
+needed.
 
 ```js
 if (!account.isValid()) {
     console.log(account.readableRecordErrors());
 }
 
-account.print('name');
+account.field('name').print();
 ```
 
 `record.field(name).fieldType` returns the `FieldType` definition for integrations
@@ -142,6 +143,7 @@ string. `field.value` uses that printed representation, and `field.parse(input)`
 returns the parsed value without storing it.
 
 Synchronous validation throws when it encounters a promise-returning validator.
-Use `await record.isValidAsync(fieldName?)` or `await record.errorsAsync()` for
-asynchronous rules. The `Field` facade and the built-in form adapter currently
-require synchronous validators; see [validation limits](./field-type.md#value-transforms-and-validation).
+Use `await record.field(fieldName).isValidAsync()` for one field or
+`await record.isValidAsync()` for the whole record. The `Field` facade and the
+built-in form adapter currently require synchronous validators; see the
+validation guidance in [Binding components to FDL](./field-type.md#validation-and-error-display).

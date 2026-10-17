@@ -80,7 +80,7 @@ after changing parameters when the fetch function needs to run again.
 For client-side filtering, assign a predicate that receives each `Record`:
 
 ```js
-reports.filter = record => record.getField('isFavorite');
+reports.filter = record => record.field('isFavorite').rawValue;
 await reports.updating;
 ```
 

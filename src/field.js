@@ -68,6 +68,30 @@ export default class Field extends EventTarget {
         return !this.valid;
     }
 
+    get label() {
+        return this.fieldType.label(this.rawValue, this.record, 'form');
+    }
+
+    get placeholder() {
+        return this.fieldType.placeholder(this.rawValue, this.record, 'form');
+    }
+
+    get required() {
+        return this.fieldType.required(this.rawValue, this.record, 'form');
+    }
+
+    get disabled() {
+        return this.fieldType.isDisabled(this.rawValue, this.record, 'form');
+    }
+
+    get readOnly() {
+        return this.fieldType.readonly(this.rawValue, this.record, 'form');
+    }
+
+    get visible() {
+        return this.fieldType.visible(this.rawValue, this.record, 'form');
+    }
+
     async isValidAsync(value = this.rawValue) {
         return (await this.errorsAsync(value)).length === 0;
     }

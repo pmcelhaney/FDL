@@ -90,6 +90,23 @@ describe('Field', () => {
         expect(field.invalid).toEqual(false);
     });
 
+    it('exposes field state for component binding', () => {
+        const fieldType = new FieldTypeBuilder()
+            .label('Amount')
+            .placeholder('Enter an amount')
+            .required()
+            .disabled()
+            .readOnly();
+        const field = new Record({ amount: fieldType }, { amount: 6 }).field('amount');
+
+        expect(field.label).toEqual('Amount');
+        expect(field.placeholder).toEqual('Enter an amount');
+        expect(field.required).toEqual(true);
+        expect(field.disabled).toEqual(true);
+        expect(field.readOnly).toEqual(true);
+        expect(field.visible).toEqual(true);
+    });
+
     it('can check whether a given input value would be valid', () => {
         const record = new Record(
             { test: greaterThanFive.parser(s => s.replace(/[^0-9]/g, '')) },

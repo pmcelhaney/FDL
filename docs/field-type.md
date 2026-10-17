@@ -31,8 +31,8 @@ is not exposed by `Field`.
 | Object | Represents | Start here |
 | --- | --- | --- |
 | `Record` | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()` |
-| `Field` | One field's formatted value, raw value, validity, and input helpers | `value`, `rawValue`, `valid`, `isValidValue(input)`, `onChange(fn)` |
-| `FieldType` | A field's finalized format, parse, validation, state, option, and table behavior | `format`, `parse`, `required`, `visible`, `isDisabled`, `readonly`, `options` |
+| `Field` | One field's component-facing value, state, validation, options, and input helpers | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid` |
+| `FieldType` | A field's finalized behavior for advanced integrations and table rendering | `field.fieldType` |
 | `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
 The sections below describe these APIs first. The integration guidance after
@@ -48,7 +48,7 @@ from it after every model change.
 
 | Property | Component use |
 | --- | --- |
-| `values` | The backing values object. Read it for serialization or debugging; prefer `getField()` for a field and do not mutate it directly. |
+| `values` | The backing values object. Read it for serialization or debugging; prefer `field(name)` for a field and do not mutate it directly. |
 | `fieldTypes` | The finalized field types. Prefer `record.field(name).fieldType` from a component. |
 | `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state. |
 | `hasChanged` | Whether current values differ from the initial values. Useful for dirty-state indicators. |
@@ -59,7 +59,6 @@ from it after every model change.
 | Method | Purpose |
 | --- | --- |
 | `field(name)` | Return a `Field` facade for component binding. |
-| `field(name)` | Return the `Field` facade for all operations scoped to one field. |
 | `hasField(name)` | Test whether the record declares a field. |
 | `addField(name, definition, value)` | Add a field and its initial value to a record. |
 
@@ -70,7 +69,6 @@ the input and stores the model value through the field facade.
 
 | Method | Purpose |
 | --- | --- |
-| `field(name).options()` | Load options through the record's disabled-state gate. |
 | `refreshOptions()` | Request option loading and selection reconciliation. |
 | `whenOptionsReady()` | Wait for the current option pass and any dependent passes to settle. |
 | `announceChange(name)` | Announce a programmatic model change after a direct mutation or custom update. |
@@ -86,12 +84,11 @@ implementing a second dependency graph.
 
 | Method or property | Purpose |
 | --- | --- |
-| `isValid(name?, value?)` | Synchronously validate the whole record or one field/value. |
-| `isValidAsync(name?, value?)` | Validate when rules may return promises. |
+| `isValid()` | Synchronously validate the whole record. |
+| `isValidAsync()` | Validate the whole record when rules may return promises. |
 | `errors()` / `errorsAsync()` | Get synchronous or asynchronous validation results. |
 | `errorCount()` / `hasErrors()` | Summarize current errors. |
 | `readableRecordErrors()` | Get errors prepared for record-level display. |
-| `field(name).readableErrors()` | Get errors prepared for one field's display. |
 | `invalidValues` | Get the values that currently fail validation. |
 | `hasRequiredValues()` | Check whether required values are present. |
 | `reset()` | Restore the values captured at construction. |
@@ -120,6 +117,12 @@ keeps the binding convenient without creating a second source of truth.
 | `focusedInputValue` | The formatted value for an active editable control. |
 | `blurredInputValue` | The formatted value for a blurred editable control. |
 | `valid` / `invalid` | The current synchronous validity of the stored value. |
+| `label` | The field label resolved for a form component. |
+| `placeholder` | The placeholder resolved for a form component. |
+| `required` | Whether the field is required in the form context. |
+| `disabled` | Whether the field is disabled in the form context. |
+| `readOnly` | Whether the field is read-only in the form context. |
+| `visible` | Whether the field is visible in the form context. |
 
 For an editable control, use `field.value = input` so the field's parsers run.
 Keep the control's in-progress text locally until the next model synchronization;
@@ -130,9 +133,20 @@ component is intentionally handling an already parsed value.
 
 | Method | Purpose |
 | --- | --- |
+| `isValid()` / `isValid(value)` | Validate the current or supplied model value synchronously. |
+| `isValidAsync()` / `isValidAsync(value)` | Validate the current or supplied model value asynchronously. |
+| `errors()` / `errorsAsync()` | Read the current or supplied validation errors. |
+| `readableErrors()` | Read field errors prepared for display. |
 | `isValidValue(input)` | Parse and synchronously validate a proposed input without storing it. |
 | `isValidValueAsync(input)` | Async version of proposed-value validation. |
-| `isValidAsync()` | Async validation of the current field value. |
+| `parse(input, context)` | Parse input into a model value without storing it. |
+| `format(value, context)` | Format a model value for a renderer context. |
+| `print(value)` | Format a value and apply its print template. |
+| `set(input)` | Parse and store component input. |
+| `setRaw(value)` | Store an already parsed model value. |
+| `options()` | Load this field's choices through the record's disabled-state gate. |
+| `refreshOptions()` | Request record-wide option loading and reconciliation. |
+| `whenOptionsReady()` | Wait for record-wide option loading and dependent reconciliation. |
 | `onChange(fn)` | Listen for a change to this field's value or validity. |
 | `allowInputChar(char)` | Apply the field's input-character rule. |
 | `field(nameOrIndex)` | Address a nested field or part. |
@@ -142,26 +156,18 @@ The facade reports a field change when the record changes its raw value or
 validity. It does not replace the record's broader `change` event, which remains
 useful when a component depends on other fields.
 
-## Value transforms and validation
+## Field operations
 
-Formatting and parsing are field operations. A component can inspect either
-operation through its `Field` facade without asking the `Record` to resolve a
-field name:
+Formatting, parsing, validation, setting, options, and field state all live on
+the `Field` facade. This keeps a component from repeatedly resolving a field
+name against the record. Use the record's aggregate methods only when the
+component needs whole-record status.
 
-```js
-const field = record.field('amount');
-const modelValue = field.parse(inputValue);
-const displayValue = field.format(modelValue, 'input-focus');
-```
-
-Use `field.isValid()` and `field.errors()` for one field, and use the record's
-aggregate validation methods when the component needs whole-record status.
-
-## `FieldType`: behavior for a field
+## Advanced: `FieldType` behavior
 
 `record.field(name).fieldType` returns the finalized `FieldType`. Components
-usually need it after they have read the `Field` value, because it supplies
-metadata and behavior that is not part of the facade.
+should start with `Field`; use `FieldType` directly only for advanced behavior,
+custom renderers, or table-wide metadata that is not part of a bound field.
 
 ### Value and state behavior
 
@@ -266,8 +272,8 @@ Once the public surfaces are clear, a field component has a small loop:
 1. Receive a `Record` and field name.
 2. Resolve `const field = record.field(name)`.
 3. Render `field.value` or `field.focusedInputValue`.
-4. Resolve semantics such as `required`, `disabled`, `readonly`, `visible`, and
-   `label` from `field.fieldType`.
+4. Resolve semantics such as `required`, `disabled`, `readOnly`, `visible`, and
+   `label` from `field`.
 5. On user input, assign `field.value = input`.
 6. Listen for model changes and re-read the field.
 
@@ -276,7 +282,6 @@ class FieldController {
     constructor(record, name) {
         this.record = record;
         this.field = record.field(name);
-        this.fieldType = this.field.fieldType;
         this.record.addEventListener('change', event => {
             if (event.detail.field === name) this.render();
         });
@@ -288,13 +293,14 @@ class FieldController {
     }
 
     render() {
-        const { field, fieldType, record } = this;
+        const { field } = this;
         return {
             value: field.focusedInputValue,
-            label: fieldType.label(field.rawValue, record, 'form'),
-            required: fieldType.required(field.rawValue, record, 'form'),
-            disabled: fieldType.isDisabled(field.rawValue, record, 'form'),
-            readOnly: fieldType.readonly(field.rawValue, record, 'form'),
+            label: field.label,
+            required: field.required,
+            disabled: field.disabled,
+            readOnly: field.readOnly,
+            visible: field.visible,
             valid: field.valid,
         };
     }
@@ -319,14 +325,15 @@ record's disabled-state gate and participates in dependency and selection
 reconciliation:
 
 ```js
-const options = await record.field(fieldName).options();
+const field = record.field(fieldName);
+const options = await field.options();
 renderOptions(options);
 
 control.addEventListener('change', event => {
     field.value = readControlValue(event.target);
 });
 
-await record.whenOptionsReady();
+await field.whenOptionsReady();
 ```
 
 Option objects normally expose `text` and `value`. The renderer decides whether
@@ -362,9 +369,10 @@ When showing a synchronous field error:
 
 Do not infer validity from CSS, a browser constraint, or an asterisk. Native
 constraint validation can support interaction, but `Record.isValid()` is the
-model authority. For async validators, await `record.isValidAsync(name)` or
-`record.errorsAsync()` and define pending and server-error display in the
-application-specific adapter.
+model authority for the whole record. For one field, await
+`field.isValidAsync()` or `field.errorsAsync()`; for the whole record, await
+`record.isValidAsync()` or `record.errorsAsync()`. Define pending and
+server-error display in the application-specific adapter.
 
 ## Binding a table
 
