@@ -33,6 +33,8 @@ export class FdlRecordsetInspector extends LitElement {
     collapsed = false;
     private showClasses = false;
     private showAllRows = false;
+    private selectedRecord?: Record<any>;
+    private selectedRowNumber?: number;
     private classNumbers = new Map<string, number>();
     private observedRecordset?: Recordset<any>;
     private observedRecords = new Set<Record<any>>();
@@ -69,6 +71,8 @@ export class FdlRecordsetInspector extends LitElement {
         if (this.observedRecordset !== this.recordset) {
             this.release();
             this.classNumbers.clear();
+            this.selectedRecord = undefined;
+            this.selectedRowNumber = undefined;
             this.observedRecordset = this.recordset;
             for (const event of events)
                 this.observedRecordset?.addEventListener(
@@ -77,6 +81,10 @@ export class FdlRecordsetInspector extends LitElement {
                 );
         }
         const records = new Set(this.recordset?.allRecords ?? []);
+        if (this.selectedRecord && !records.has(this.selectedRecord)) {
+            this.selectedRecord = undefined;
+            this.selectedRowNumber = undefined;
+        }
         for (const record of this.observedRecords)
             if (!records.has(record))
                 record.removeEventListener('change', this.handleChange);
@@ -92,6 +100,31 @@ export class FdlRecordsetInspector extends LitElement {
 
     private toggle() {
         this.collapsed = !this.collapsed;
+    }
+
+    private async inspectRecord(record: Record<any>, rowNumber: number) {
+        this.selectedRecord = record;
+        this.selectedRowNumber = rowNumber;
+        this.requestUpdate();
+        await this.updateComplete;
+        const inspector = this.renderRoot.querySelector('fdl-record-inspector');
+        await inspector?.updateComplete;
+        inspector?.shadowRoot?.querySelector<HTMLButtonElement>('.back-button')?.focus();
+    }
+
+    private async backToRecordset() {
+        const record = this.selectedRecord;
+        this.selectedRecord = undefined;
+        this.selectedRowNumber = undefined;
+        this.requestUpdate();
+        await this.updateComplete;
+        const records = this.showAllRows
+            ? this.recordset?.allRecords
+            : this.recordset?.currentPage;
+        const index = record ? (records?.indexOf(record) ?? -1) : -1;
+        const buttons = this.renderRoot.querySelectorAll<HTMLButtonElement>('.inspect-row');
+        if (index >= 0) buttons[index]?.focus();
+        else this.renderRoot.querySelector<HTMLButtonElement>('header button')?.focus();
     }
 
     private classMarkers(classes: readonly string[]) {
@@ -112,6 +145,15 @@ export class FdlRecordsetInspector extends LitElement {
     }
 
     render() {
+        if (this.selectedRecord) {
+            return html`<fdl-record-inspector
+                .record=${this.selectedRecord}
+                .heading=${`Record ${this.selectedRowNumber}`}
+                .backLabel=${'Back to recordset'}
+                .collapsed=${this.collapsed}
+                @inspect-back=${this.backToRecordset}
+            ></fdl-record-inspector>`;
+        }
         const recordset = this.recordset;
         const fields = this.fields ?? recordset?.fieldNames ?? [];
         const activeClasses = new Set<string>();
@@ -277,12 +319,19 @@ export class FdlRecordsetInspector extends LitElement {
                                                   { record, classes, cells },
                                                   index
                                               ) =>
-                                                  html` <tr>
+                                                  html` <tr
+                                                      @click=${() => this.inspectRecord(record, (this.showAllRows ? 1 : recordset.firstRecordNumberOnPage) + index)}
+                                                  >
                                                       <td class="row-status"
                                                           >${this.classMarkers(classes)}${!record.isValid() ? statusIcon('Invalid') : ''}</td
                                                       >
                                                       <th scope="row"
-                                                          >${(this.showAllRows ? 1 : recordset.firstRecordNumberOnPage) + index}</th
+                                                          ><button
+                                                              type="button"
+                                                              class="inspect-row"
+                                                              aria-label=${`Inspect record ${(this.showAllRows ? 1 : recordset.firstRecordNumberOnPage) + index}`}
+                                                              title="Inspect record"
+                                                          >${(this.showAllRows ? 1 : recordset.firstRecordNumberOnPage) + index}</button></th
                                                       >
                                                       ${fields.map(
                                                           (name, fieldIndex) =>
@@ -445,6 +494,23 @@ ${JSON.stringify(
             }
             tbody tr:hover {
                 background: #eef2ff;
+            }
+            tbody tr {
+                cursor: pointer;
+            }
+            tbody tr:focus-within {
+                background: #eef2ff;
+            }
+            .inspect-row {
+                min-width: 32px;
+                min-height: 32px;
+                padding: 4px;
+                border: 1px solid var(--example-border);
+                border-radius: 6px;
+                background: white;
+                color: #525252;
+                font: inherit;
+                cursor: pointer;
             }
             .row-status {
                 min-width: 24px;

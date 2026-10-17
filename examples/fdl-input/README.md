@@ -178,6 +178,10 @@ current page. This changes only the inspector, not the recordset's view. With
 server-side data, all rows means all loaded rows, not records still on the server.
 Field-state icons are shared with the record inspector and show their state names
 in hover tooltips. The recordset inspector has no icon legend.
+Click a row or activate its row-number button to inspect that live Record, including
+all its fields and any nested records or recordsets. **Back to recordset** returns
+to the same inspector display settings and restores focus to the row. The detail
+view reuses Record Inspector rather than adding a second inspector panel.
 Applicable field-state icons appear to the left of stored values. A leading status
 column shows the same Invalid icon when a complete record fails validation; valid
 records have no row status icon or Valid label. The JSON disclosure

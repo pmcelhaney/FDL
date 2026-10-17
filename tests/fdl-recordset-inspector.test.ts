@@ -29,6 +29,89 @@ async function inspect(recordset?: Recordset<any>) {
 
 afterEach(() => document.body.replaceChildren());
 
+it('drills into a live record from a cell and returns with display settings and focus intact', async () => {
+    const recordset = data();
+    recordset.filter = function enabledOnly(record) {
+        return record.getField('enabled') === true;
+    };
+    const inspector = await inspect(recordset);
+    const root = inspector.shadowRoot!;
+    root.querySelector<HTMLInputElement>('.row-toggle input')!.click();
+    await inspector.updateComplete;
+    inspector.fields = ['amount'];
+    await inspector.updateComplete;
+    root.querySelector<HTMLElement>('[data-field="amount"]')!.click();
+    await inspector.updateComplete;
+    const detail = root.querySelector('fdl-record-inspector')!;
+    await detail.updateComplete;
+    expect(detail.record).toBe(recordset.allRecords[0]);
+    expect(root.querySelector('section')).toBeNull();
+    expect(detail.shadowRoot!.querySelector('h3')!.textContent).toBe('Record 1');
+    expect(detail.shadowRoot!.querySelector('[data-field="name"]')).toBeTruthy();
+    const back = detail.shadowRoot!.querySelector<HTMLButtonElement>('.back-button')!;
+    expect(back.getAttribute('aria-label')).toBe('Back to recordset');
+    expect(detail.shadowRoot!.activeElement).toBe(back);
+    recordset.allRecords[0].setField('name', 'Live edit');
+    await detail.updateComplete;
+    expect(detail.shadowRoot!.textContent).toContain('Live edit');
+    back.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('fdl-record-inspector')).toBeNull();
+    expect(root.querySelector<HTMLInputElement>('.row-toggle input')!.checked).toBe(true);
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(3);
+    expect(root.activeElement).toBe(root.querySelector('.inspect-row'));
+    expect(recordset.currentPage).toHaveLength(1);
+});
+
+it('uses the displayed row number and supports nested navigation before returning to the set', async () => {
+    const recordset = new Recordset<any>(
+        { name: field, child: field.record({ city: field }) },
+        [{ name: 'First' }, { name: 'Second', child: { city: 'Paris' } }]
+    );
+    recordset.pageSize = 1;
+    recordset.pageNumber = 2;
+    const inspector = await inspect(recordset);
+    const root = inspector.shadowRoot!;
+    const button = root.querySelector<HTMLButtonElement>('.inspect-row')!;
+    expect(button.getAttribute('aria-label')).toBe('Inspect record 2');
+    button.click();
+    await inspector.updateComplete;
+    const detail = root.querySelector('fdl-record-inspector')!;
+    await detail.updateComplete;
+    expect(detail.record).toBe(recordset.allRecords[1]);
+    expect(detail.heading).toBe('Record 2');
+    detail.shadowRoot!.querySelector<HTMLButtonElement>('.nested-inspect')!.click();
+    await detail.updateComplete;
+    expect(detail.shadowRoot!.textContent).toContain('Paris');
+    detail.shadowRoot!.querySelector<HTMLButtonElement>('.back-button')!.click();
+    await detail.updateComplete;
+    expect(detail.shadowRoot!.querySelector('h3')!.textContent).toBe('Record 2');
+    expect(root.querySelector('fdl-record-inspector')).toBe(detail);
+    detail.shadowRoot!.querySelector<HTMLButtonElement>('.back-button')!.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('.inspect-row')!.textContent).toBe('2');
+});
+
+it('leaves record detail when the record is deleted or the recordset is replaced', async () => {
+    const recordset = data();
+    const inspector = await inspect(recordset);
+    const root = inspector.shadowRoot!;
+    root.querySelector<HTMLButtonElement>('.inspect-row')!.click();
+    await inspector.updateComplete;
+    recordset.deleteRecord(recordset.allRecords[0]);
+    await inspector.updateComplete;
+    expect(root.querySelector('fdl-record-inspector')).toBeNull();
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(2);
+    root.querySelector<HTMLButtonElement>('.inspect-row')!.click();
+    await inspector.updateComplete;
+    const replacement = data();
+    await replacement.requestImmediateUpdate();
+    inspector.recordset = replacement;
+    await inspector.updateComplete;
+    expect(root.querySelector('fdl-record-inspector')).toBeNull();
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(3);
+});
+
 it('shows raw values, row validity and counts, with selectable field order', async () => {
     const inspector = await inspect(data());
     const root = inspector.shadowRoot!;

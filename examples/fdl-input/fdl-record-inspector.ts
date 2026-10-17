@@ -87,10 +87,14 @@ export class FdlRecordInspector extends RecordElement {
     static properties = {
         fields: { attribute: false },
         collapsed: { type: Boolean, reflect: true },
+        heading: { type: String },
+        backLabel: { type: String, attribute: false },
     };
 
     fields?: readonly string[];
     collapsed = false;
+    heading = 'Record Inspector';
+    backLabel?: string;
     private navigation: InspectorView[] = [];
     private observedRecord?: Record<any>;
     private readonly handleChange = this.refresh.bind(this);
@@ -148,6 +152,10 @@ export class FdlRecordInspector extends RecordElement {
     }
 
     private goBack() {
+        if (!this.navigation.length) {
+            this.dispatchEvent(new CustomEvent('inspect-back'));
+            return;
+        }
         this.navigation = this.navigation.slice(0, -1);
         this.requestUpdate();
     }
@@ -303,12 +311,12 @@ export class FdlRecordInspector extends RecordElement {
         return html`<section aria-label="Record Inspector">
             <header>
                 ${
-                    currentView && !this.collapsed
+                    (currentView || this.backLabel) && !this.collapsed
                         ? html`<button
                               type="button"
                               class="inspector-icon back-button"
-                              aria-label="Back to parent record"
-                              title="Back to parent record"
+                              aria-label=${currentView ? 'Back to parent record' : this.backLabel!}
+                              title=${currentView ? 'Back to parent record' : this.backLabel!}
                               @click=${this.goBack}
                               >←</button
                           >`
@@ -324,7 +332,7 @@ export class FdlRecordInspector extends RecordElement {
                           >`
                 }
                 <div class="inspector-heading" ?hidden=${this.collapsed}>
-                    <h3>${currentView?.label ?? 'Record Inspector'}</h3>
+                    <h3>${currentView?.label ?? this.heading}</h3>
                     <p>See each field’s stored value and current state.</p>
                 </div>
                 ${
