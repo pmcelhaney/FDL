@@ -14,26 +14,29 @@ Record or Recordset <- parsed user input
 
 FDL owns field meaning and model state. Your component owns semantic HTML,
 accessible relationships, interaction policy, focus, events, layout, and visual
-styling. Start by learning the four public objects involved in that boundary:
+styling. Start by learning the public objects involved in that boundary:
 
 - `Record` is the model for one object of values.
 - `Field` is the component-friendly view of one field in a record.
-- `FieldType` is the finalized behavior for that field.
 - `Recordset` is the model for a collection of records and its table state.
+- `Column` is the component-friendly view of one recordset column.
+
+`FieldType` is the finalized implementation object produced by a field
+definition. It backs the public facades, but components and application code
+should use `Field`, `Column`, `Record`, and `Recordset` instead of resolving or
+calling it directly.
 
 ## The public surfaces at a glance
 
 Most form components use `record.field(name)`. Most table components use
 `recordset.currentPage`, then use the same `Record` and `Field` surfaces for
-each row. Use `FieldType` when the component needs a setting or behavior that
-is not exposed by `Field`.
+each row. Use `recordset.column(name)` for table-wide behavior.
 
 | Object      | Represents                                                                            | Start here                                                                      |
 | ----------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `Record`    | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()`                                |
 | `Field`     | One field's component-facing value, state, validation, options, and input helpers     | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid`       |
 | `Column`    | One recordset field's table-facing sorting, filtering, and presentation behavior      | `recordset.column(name)`                                                        |
-| `FieldType` | A field's finalized reusable behavior for builders and low-level integrations         | `field.valueOf()`                                                               |
 | `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation       | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
 The sections below describe these APIs first. The integration guidance after
@@ -41,7 +44,7 @@ them shows how to combine them into a component.
 
 ## `Record`: one model object
 
-A `Record` owns one values object and the finalized `FieldType` for each declared
+A `Record` owns one values object and the finalized behavior for each declared
 field. A component should treat the record as the source of truth and re-read
 from it after every model change.
 
@@ -50,7 +53,6 @@ from it after every model change.
 | Property        | Component use                                                                                                                      |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `values`        | The backing values object. Read it for serialization or debugging; prefer `field(name)` for a field and do not mutate it directly. |
-| `fieldTypes`    | The finalized field types used internally by the record. Components should use `field(name)` instead.                              |
 | `initialValues` | The values captured for reset and change tracking. Treat as model state, not component state.                                      |
 | `hasChanged`    | Whether current values differ from the initial values. Useful for dirty-state indicators.                                          |
 | `isExpanded`    | A public view-model flag used by table/detail-row consumers.                                                                       |
@@ -112,7 +114,6 @@ keeps the binding convenient without creating a second source of truth.
 | ------------------- | -------------------------------------------------------------------------------- |
 | `record`            | The owning `Record`.                                                             |
 | `fieldName`         | The bound field name.                                                            |
-| `fieldType`         | The finalized `FieldType` for the bound field.                                   |
 | `value`             | The formatted/printed value used for display. Assigning parses and stores input. |
 | `rawValue`          | The stored model value. Assigning writes directly without parsing.               |
 | `focusedInputValue` | The formatted value for an active editable control.                              |
@@ -186,56 +187,16 @@ it supplies the bound value and record without making a component repeatedly
 resolve a field name. Use the record's aggregate methods only when the
 component needs whole-record status.
 
-## Advanced: `FieldType` behavior
+## Implementation boundary
 
-`FieldType` is the finalized runtime behavior produced by `FieldTypeBuilder`.
-Components should start with `Field` or `Column`; use `FieldType` directly only
-for definition-level behavior, advanced integrations, or custom renderers. The
-value-taking methods remain on `FieldType` as the lower-level implementation
-surface, but they require the caller to provide the value and owning record
-explicitly.
-
-### Value and state behavior
-
-| Method                                                    | Component use                                                                                |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `format(value, record, context)`                          | Format a value for a renderer context.                                                       |
-| `print(value, record)`                                    | Format and apply a print template.                                                           |
-| `parse(input, record, context)`                           | Parse renderer input into a model value.                                                     |
-| `validate(field, modelValue, viewValue, record, options)` | Run synchronous field validators.                                                            |
-| `validateAsync(...)`                                      | Run validators that may be asynchronous.                                                     |
-| `isEmpty(value, record, context)` / `empty(record, name)` | Resolve emptiness rules.                                                                     |
-| `schema()`                                                | Read the legacy schema identifier. Deprecated; use application metadata outside `FieldType`. |
-| `type(value, record, context)`                            | Resolve the native input type for a renderer.                                                |
-| `required(value, record, context)`                        | Resolve requiredness.                                                                        |
-| `visible(value, record, context)`                         | Resolve visibility.                                                                          |
-| `isDisabled(value, record, context)`                      | Resolve disabled state.                                                                      |
-| `readonly(value, record, context)`                        | Resolve read-only state.                                                                     |
-| `label(value, record, context)`                           | Resolve a label.                                                                             |
-| `placeholder(value, record, context)`                     | Resolve a placeholder.                                                                       |
-| `defaultValue(value, record, context)`                    | Resolve a default for record operations.                                                     |
-
-Other renderer metadata includes `accept()`, `autocomplete()`,
-`autofocus()`, `pattern()`, `step()`, `info()`, and
-`additionalProperties()`. Treat these as inputs to your renderer, not as a
-request to copy arbitrary properties onto a DOM element. `pattern()` remains
-available for compatibility but is deprecated because browser constraints are
-not model validation.
-
-### Options and table behavior
-
-| Method                                | Component use                              |
-| ------------------------------------- | ------------------------------------------ |
-| `hasOptions()`                        | Detect whether the field declares choices. |
-| `hasMultipleValues()`                 | Choose a multiple-selection interaction.   |
-| `minValueCount()` / `maxValueCount()` | Read selection-count metadata.             |
-
-Load choices through `record.field(name).options()`. The option provider is
-record-dependent, so the public loading API belongs to the bound `Field`; it
-applies the disabled-state gate and supplies the owning record to the provider.
+`FieldType` is the finalized runtime object produced by a field definition. It
+is an implementation detail behind the public `Field` and `Column` facades.
+Components and application code should resolve field behavior through those
+facades so the bound record, value, and rendering context are supplied
+consistently.
 
 Table behavior is exposed through `recordset.column(name)`. `Column` resolves
-the table-oriented methods that are implemented by the reusable `FieldType`:
+the table-oriented methods for one recordset field:
 
 | Method                                                          | Component use                                 |
 | --------------------------------------------------------------- | --------------------------------------------- |
@@ -248,28 +209,6 @@ the table-oriented methods that are implemented by the reusable `FieldType`:
 | `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance.               |
 | `aggregate(values)`                                             | Calculate a column or group aggregate.        |
 | `compare(a, b)`                                                 | Compare two values for sorting.               |
-
-### Additional runtime methods
-
-These methods are also part of the exported `FieldType` runtime surface. The
-methods marked deprecated remain only because the adapter or existing model
-behavior still uses them; new definitions should not depend on them.
-
-| Method                                                                    | Purpose                                                                                                            |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `list()`                                                                  | Read the legacy browser datalist identifier. Deprecated; configure this in the renderer.                           |
-| `search()` / `searchConfig()` / `hasSearch()`                             | Read search configuration. `hasSearch()` is deprecated; use `search(config)`.                                      |
-| `max()`                                                                   | Read the legacy browser maximum constraint. Deprecated; use model validation or renderer configuration.            |
-| `hasRange()` / `getParseDynamicRange()`                                   | Read range metadata. `getParseDynamicRange()` is deprecated; use a parser.                                         |
-| `minLength(value, record, context)` / `maxLength(value, record, context)` | Resolve input length guidance.                                                                                     |
-| `selectionDisabledFunctions()`                                            | Read legacy per-option disabling configuration. Deprecated; configure this in the renderer or adapter.             |
-| `onValueChange(record)`                                                   | Run legacy imperative value-change callbacks. Deprecated; use record/model behavior.                               |
-| `readonlyexception(record)`                                               | Read the legacy composite-control read-only exception state. Deprecated; keep this only for adapter compatibility. |
-| `inline(record)` / `segmented(record)`                                    | Read legacy layout/control-presentation state. Deprecated; configure the view or renderer.                         |
-| `rowCount()` / `hasRowCount()`                                            | Read legacy textarea sizing metadata. Deprecated; configure `fdl-field`.                                           |
-| `formatOnChange()`                                                        | Read legacy input-event formatting policy. Deprecated; configure the renderer/value pipeline.                      |
-| `hashFunction()`                                                          | Read the equality/hash function used by option reconciliation.                                                     |
-| `hideLabel()`                                                             | Read legacy label-visibility configuration. Deprecated; configure the renderer.                                    |
 
 Use a context such as `"model"`, `"input-focus"`, `"input-blur"`, `"table"`,
 or `"print"` consistently within your renderer. The component chooses which

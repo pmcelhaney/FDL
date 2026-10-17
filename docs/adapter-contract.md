@@ -8,7 +8,7 @@ accessible control. The application chooses workflow and presentation.
 
 | Layer                                            | Owns                                                                                                                                                                                                       | Does not own                                                                                                          |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| FDL (`FieldType`, `Record`, and `Recordset`)     | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                         | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling                              |
+| FDL (`Record`, `Field`, `Column`, and `Recordset`) | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                     | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling                              |
 | Form adapter (`FormElement` or another renderer) | Selecting and configuring the control, accessible labels and descriptions, semantic read-only output, translating shown model state to native and ARIA state, and sending edited values back to the Record | New business rules, when the application considers a field touched, submission policy, colors, spacing, or typography |
 | Application and CSS                              | Workflow such as touched/submitted state, when validation is shown, submission and persistence, layout, theme, and visual error treatment                                                                  | Recomputing FDL validity in CSS or treating browser appearance as the business rule                                   |
 
@@ -19,7 +19,7 @@ FDL business state -> adapter semantics -> application presentation
 ```
 
 The adapter may expose a setting that carries an application decision, but it
-must not move that policy into `FieldType`. `FormElement.showValidationErrors`
+must not move that policy into the field model. `FormElement.showValidationErrors`
 is one such setting: FDL supplies errors, the application decides when they are
 shown, and the adapter creates the accessible relationship.
 
@@ -28,7 +28,7 @@ shown, and the adapter creates the accessible relationship.
 For the built-in Lit adapter, `field` and `record` identify the model field.
 After its first update, the adapter:
 
-1. resolves the field's `FieldType`;
+1. resolves `record.field(name)`;
 2. chooses a native `select` when the field provides options, a `textarea` when
    `rowCount()` is configured, and an `input` otherwise;
 3. copies the formatted value and supported field state to that element;
@@ -64,7 +64,7 @@ icon, or color may reinforce the state, but it is not the source of validity.
 The built-in adapter chooses among native controls from stable field metadata:
 options imply a `select`, configured `rowCount()` implies a `textarea`, and
 other fields use an `input`. Custom controls belong in a renderer-specific
-adapter rather than in `FieldType` metadata.
+adapter rather than in the field model.
 
 The outer label's `for` association works directly for native labelable
 elements. A custom element must implement the appropriate form-associated or

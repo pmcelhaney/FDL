@@ -12,7 +12,7 @@ need a custom element that presents one field from a `Record`.
 The base class owns the FDL integration:
 
 - it requires a `record` and `field` property;
-- it resolves the field's `FieldType` after the first update;
+- it resolves the bound `Field` after the first update;
 - it creates a select for fields with options, a textarea when `rowCount()` is
   configured, and an input otherwise;
 - it copies the field value and modifiers (`label`, `required`, `disabled`,

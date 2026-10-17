@@ -30,7 +30,7 @@ add modifiers.
 
 Prefer `record.field(name)` in components and other UI code. It returns a
 `Field` object that owns the field's printed and raw values, parsing, formatting,
-validity, options, and runtime field type. For example, assigning `field.value`
+validity, options, and field behavior. For example, assigning `field.value`
 parses the displayed value before storing it, while `field.rawValue` reads or
 writes the stored value.
 
@@ -107,8 +107,7 @@ record.isValid(); // required fields still require a new selection
 
 Use `record.field(name).options()` to load choices through the same disabled-state
 gate as the native adapter. It returns an empty list without invoking the
-provider when the field is disabled. The lower-level `FieldType.options(record)`
-method remains an explicit provider call and does not apply this gate.
+provider when the field is disabled.
 
 Use `refreshOptions()` to request reconciliation explicitly; option-provider
 caching still applies. `whenOptionsReady()` waits for the latest pass and any

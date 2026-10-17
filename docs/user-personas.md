@@ -30,7 +30,8 @@ component's private props into the application model.
 
 Maya is fluent in TypeScript, React, accessibility basics, and package
 integration. She will skim first and then look closely at the public types,
-the `FieldType` API, and any component example. She expects a clear boundary
+the `Field`, `Column`, `Record`, and `Recordset` APIs, and any component
+example. She expects a clear boundary
 between FDL, a form adapter, and CSS. She is wary of APIs that expose raw HTML
 attributes as supposedly reusable model features, or examples that imply a
 particular UI control is the only way to render a field.
@@ -80,8 +81,8 @@ sorting, filtering, pagination, validation, aggregation, and UI rendering.
   plausible use case without mistaking FDL for a production data-grid library?
 - Can Jordan build a small editable recordset with field definitions,
   initial values, validation, filtering, sorting, and aggregation?
-- Is it clear which operations are performed by `FieldType`, `Record`, and
-  `Recordset`, and what the consuming grid must implement itself?
+- Is it clear which operations are performed by `Field`, `Column`, `Record`,
+  and `Recordset`, and what the consuming grid must implement itself?
 - Do examples cover cross-field rules, calculated or derived values, and the
   behavior of invalid data in a way that applies to dense table editing?
 - Are mutability, identity, updates, and edge cases described well enough to
