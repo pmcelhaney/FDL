@@ -50,6 +50,15 @@ afterEach(() => {
 });
 
 describe('modifier explorer', () => {
+    it('shows the populated address in the semantic-type example source', () => {
+        const source = exampleSource('semanticType').definition;
+
+        expect(source).toContain("address: field");
+        expect(source).toContain(".semanticType('address')");
+        expect(source).toContain('"street": "1 Main Street"');
+        expect(source).not.toContain('value: null');
+    });
+
     it.each([
         [390, false],
         [800, false],

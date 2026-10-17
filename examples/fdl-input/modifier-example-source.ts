@@ -466,8 +466,27 @@ const hashField = employees.field('employee');`,
         record: "record({ street: field.label('Street'), city: field.label('City') })",
         recordset: "recordset({ item: field.label('Item'), quantity: field.type('number') })",
         search: "search({ title: 'Find a person', columns: [{ label: 'Name', field: 'name' }] })",
-        semanticType: "semanticType('address')",
     };
+    if (name === 'semanticType')
+        return {
+            name: 'record',
+            fields: {
+                address: type(`label('Shipping address').semanticType('address').record({
+    street: field.label('Street'),
+    city: field.label('City'),
+    state: field.label('State'),
+    zip: field.label('ZIP code'),
+  })`),
+            },
+            values: {
+                address: {
+                    street: '1 Main Street',
+                    city: 'New York',
+                    state: 'NY',
+                    zip: '10001',
+                },
+            },
+        };
     if (contracts[name])
         return {
             name: 'record',
