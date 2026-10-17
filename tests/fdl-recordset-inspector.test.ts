@@ -284,3 +284,46 @@ it('omits the CSS legend and markers when no classes apply', async () => {
     expect(inspector.shadowRoot!.querySelector('.class-legend')).toBeNull();
     expect(inspector.shadowRoot!.querySelector('.class-number')).toBeNull();
 });
+
+it('defaults to visible rows and toggles all loaded rows without changing the view', async () => {
+    const recordset = data();
+    recordset.filter = function enabledOnly(record) {
+        return record.getField('enabled') === true;
+    };
+    const inspector = await inspect(recordset);
+    const root = inspector.shadowRoot!;
+    const toggle = root.querySelector<HTMLInputElement>('.row-toggle input')!;
+    expect(toggle.checked).toBe(false);
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(1);
+    expect(root.querySelector('[data-field="name"]')!.textContent!.trim()).toBe('Alpha');
+    toggle.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('table')!.getAttribute('aria-label')).toBe('All loaded rows');
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(3);
+    expect([...root.querySelectorAll('tbody th')].map(cell => cell.textContent!.trim())).toEqual(['1', '2', '3']);
+    expect(recordset.currentPage).toHaveLength(1);
+    expect(JSON.parse(root.querySelector('pre')!.textContent!).allRows).toHaveLength(3);
+    recordset.allRecords[0].setField('name', 'Updated hidden row');
+    await inspector.updateComplete;
+    expect(root.querySelector('tbody')!.textContent).toContain('Updated hidden row');
+    toggle.click();
+    await inspector.updateComplete;
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(1);
+    expect(root.querySelector('table')!.getAttribute('aria-label')).toBe('Visible rows');
+    expect(JSON.parse(root.querySelector('pre')!.textContent!).allRows).toBeUndefined();
+
+    recordset.filter = function allRecords() { return true; };
+    recordset.pageSize = 1;
+    recordset.pageNumber = 2;
+    await recordset.requestImmediateUpdate();
+    await inspector.updateComplete;
+    expect(root.querySelector('tbody th')!.textContent!.trim()).toBe('2');
+    toggle.click();
+    await inspector.updateComplete;
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(3);
+    expect(recordset.pageNumber).toBe(2);
+    toggle.click();
+    await inspector.updateComplete;
+    expect(root.querySelectorAll('tbody tr')).toHaveLength(1);
+    expect(root.querySelector('tbody th')!.textContent!.trim()).toBe('2');
+});

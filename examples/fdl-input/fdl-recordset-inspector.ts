@@ -24,12 +24,14 @@ export class FdlRecordsetInspector extends LitElement {
         fields: { attribute: false },
         collapsed: { type: Boolean, reflect: true },
         showClasses: { state: true },
+        showAllRows: { state: true },
     };
 
     recordset?: Recordset<any>;
     fields?: readonly string[];
     collapsed = false;
     private showClasses = false;
+    private showAllRows = false;
     private classNumbers = new Map<string, number>();
     private observedRecordset?: Recordset<any>;
     private observedRecords = new Set<Record<any>>();
@@ -111,7 +113,8 @@ export class FdlRecordsetInspector extends LitElement {
         const columnClasses = fields.map(name =>
             normalize(recordset?.column(name).columnClasses() ?? [])
         );
-        const rows = (recordset?.currentPage ?? []).map(record => ({
+        const displayedRecords = (this.showAllRows ? recordset?.allRecords : recordset?.currentPage) ?? [];
+        const rows = displayedRecords.map(record => ({
             record,
             classes: normalize(fields.flatMap(name => recordset!.column(name).rowClasses(record))),
             cells: fields.map(name => normalize(record.field(name).cellClasses())),
@@ -189,13 +192,22 @@ export class FdlRecordsetInspector extends LitElement {
                                   >
                                   ${recordset.isLoading ? html`<p>Loading records…</p>` : ''}
                               </div>
+                              <label class="row-toggle">
+                                  <input
+                                      type="checkbox"
+                                      .checked=${this.showAllRows}
+                                      @change=${(event: Event) => {
+                                          this.showAllRows = (event.target as HTMLInputElement).checked;
+                                      }}
+                                  />Show all rows
+                              </label>
                               <div
                                   class="table-scroll"
                                   tabindex="0"
                                   role="region"
-                                  aria-label="Current page stored values"
+                                  aria-label=${this.showAllRows ? 'All loaded rows stored values' : 'Visible rows stored values'}
                               >
-                                  <table aria-label="Current page records">
+                                  <table aria-label=${this.showAllRows ? 'All loaded rows' : 'Visible rows'}>
                                       <thead
                                           ><tr>
                                               <th
@@ -214,7 +226,7 @@ export class FdlRecordsetInspector extends LitElement {
                                                           >${this.classMarkers(classes)}${!record.isValid() ? statusIcon('Invalid') : ''}</td
                                                       >
                                                       <th scope="row"
-                                                          >${recordset.firstRecordNumberOnPage + index}</th
+                                                          >${(this.showAllRows ? 1 : recordset.firstRecordNumberOnPage) + index}</th
                                                       >
                                                       ${fields.map(
                                                           (name, fieldIndex) =>
@@ -233,7 +245,7 @@ export class FdlRecordsetInspector extends LitElement {
                                       </tbody>
                                   </table>
                               </div>
-                              ${recordset.currentPage.length ? '' : html`<p>No records on this page.</p>`}
+                              ${rows.length ? '' : html`<p>${this.showAllRows ? 'No records loaded.' : 'No records on this page.'}</p>`}
                               ${activeClasses.size ? html`<label class="class-toggle">
                                   <input
                                       type="checkbox"
@@ -260,6 +272,9 @@ ${JSON.stringify(
                                                   recordset.currentPage.map(
                                                       record => record.values
                                                   ),
+                                              ...(this.showAllRows ? {
+                                                  allRows: displayedRecords.map(record => record.values),
+                                              } : {}),
                                               totalRecords:
                                                   recordset.totalCount,
                                               loadedRecords:
@@ -342,6 +357,7 @@ ${JSON.stringify(
                 flex-wrap: nowrap;
                 margin-inline-start: 0;
             }
+            .row-toggle,
             .class-toggle {
                 display: flex;
                 align-items: center;
@@ -351,6 +367,7 @@ ${JSON.stringify(
                 font-size: 0.8125rem;
                 cursor: pointer;
             }
+            .row-toggle input,
             .class-toggle input {
                 margin: 0;
             }

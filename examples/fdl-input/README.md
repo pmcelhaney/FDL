@@ -172,19 +172,24 @@ html`<fdl-recordset-inspector
 
 The inspector displays matching, total, loaded, and current-page counts, the page
 number and size, sort priorities, and a table of raw stored values on the current
-page. Field-state icons are shared with the record inspector and show their state names
+page by default. Check **Show all rows** to inspect every loaded record, including
+rows excluded by filtering or paging; uncheck it to return to visible rows on the
+current page. This changes only the inspector, not the recordset's view. With
+server-side data, all rows means all loaded rows, not records still on the server.
+Field-state icons are shared with the record inspector and show their state names
 in hover tooltips. The recordset inspector has no icon legend.
 Applicable field-state icons appear to the left of stored values. A leading status
 column shows the same Invalid icon when a complete record fails validation; valid
 records have no row status icon or Valid label. The JSON disclosure
-includes current-page values and view metadata. Server-side totals can exceed
+includes current-page values and view metadata, plus all loaded row values when
+**Show all rows** is checked. Server-side totals can exceed
 the number of loaded records; the inspector reports these separately.
 
 The **Show CSS classes** checkbox is unchecked by default. Checking it reveals
 the class numbers and CSS class legend; unchecking it hides both. CSS class numbers appear
 beside cell values, in column headers, and at the start
 of rows for `cellClass`, `columnClass`, and `rowClass` respectively. Hovering a number reveals its class name in a tooltip.
-Only classes applicable to the displayed fields and current page are shown. Numbers stay stable while inspecting the same recordset, including after
+Only classes applicable to the displayed fields and rows are shown. Numbers stay stable while inspecting the same recordset, including after
 edits, filtering, and paging. Rebinding to another recordset restarts numbering.
 
 Use `.fields=${['name', 'amount']}` to select and order the displayed columns;
