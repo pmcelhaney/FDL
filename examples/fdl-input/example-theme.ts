@@ -21,40 +21,6 @@ export const exampleTheme = css`
         background: var(--example-surface);
         overflow-wrap: anywhere;
     }
-    .dependency-trace,
-    .value-pipeline,
-    .selection-explanation {
-        padding: 16px;
-        margin: 20px 0 0;
-        border: 1px solid var(--example-border);
-        border-left: 3px solid #2563eb;
-        border-radius: var(--example-radius);
-        background: var(--example-surface);
-        overflow-wrap: anywhere;
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-    .dependency-trace p,
-    .value-pipeline p,
-    .selection-explanation p {
-        margin: 12px 0 0;
-    }
-    .value-pipeline h3 {
-        margin: 0 0 12px;
-        font-size: 1.125rem;
-        line-height: 1.4;
-    }
-    .value-pipeline ol {
-        margin: 0;
-        padding-left: 24px;
-    }
-    .value-pipeline li {
-        padding-left: 4px;
-        margin: 0 0 12px;
-    }
-    .value-pipeline li:last-child {
-        margin-bottom: 0;
-    }
     .state-summary {
         margin: 0;
         overflow-wrap: anywhere;
@@ -127,11 +93,6 @@ export const exampleTheme = css`
         select:not([multiple]) {
             appearance: auto;
             background-image: none;
-        }
-        .dependency-trace,
-        .value-pipeline,
-        .selection-explanation {
-            border-color: CanvasText;
         }
     }
 `;

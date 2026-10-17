@@ -11,17 +11,7 @@ export class ExampleView extends ExampleModel {
         return html`<p class="try"
                 >Both fields treat “N/A” as empty. Reference is required;
                 Optional reference can be left empty.</p
-            >${keyed(this.record.field('optionalEmptyCode'), renderExample())}${[
-                'emptyCode',
-                'optionalEmptyCode',
-            ].map(
-                field =>
-                    html` <p class="computed" role="status" data-field=${field}>
-                        <strong>${this.record.field(field).label}</strong><br />
-                        ${this.record.field(field).empty ? 'This field is considered empty' : 'This field is not considered empty'}<br />
-                        ${!this.record.isValid(field) ? 'Invalid: Reference is required.' : field === 'optionalEmptyCode' ? 'Valid: this field is optional.' : 'Valid: a reference has been provided.'}
-                    </p>`
-            )}`;
+            >${keyed(this.record.field('optionalEmptyCode'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="emptyWhen"

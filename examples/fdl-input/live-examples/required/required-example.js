@@ -2,7 +2,6 @@ import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { field } from '@pmcelhaney/fdl';
 import { ExampleController } from '../../example-controller';
-import { explainDependency } from '../../dependency-explanation';
 import { person } from './required-model.js';
 import { requiredView } from './required-view.js';
 import '../../fdl-record-inspector';
@@ -57,7 +56,6 @@ export class RequiredExample extends ExampleController {
                     Require a value
                 </label>
                 ${keyed(this.person.field('name'), requiredView())}
-                ${explainDependency(this.person, 'followUpNotes', 'followUp', "followUp === 'yes'", 'required')}
                 <button class="primary" @click=${() => this.checkRecord()}
                     >Check record</button
                 >

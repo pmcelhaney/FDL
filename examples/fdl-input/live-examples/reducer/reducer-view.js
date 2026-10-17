@@ -8,14 +8,3 @@ export function reducerView() {
         <fdl-field .record=${record} field="thirdAmount"></fdl-field>
     `;
 }
-
-const currency = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-});
-export function aggregateView(reducerType) {
-    return html`<p class="computed" role="status"
-        >Sum:
-        ${currency.format(reducerType.valueOf().aggregate([record.getField('firstAmount'), record.getField('secondAmount'), record.getField('thirdAmount')]))}</p
-    >`;
-}

@@ -4,10 +4,3 @@ import '@pmcelhaney/fdl/lit/fdl-field';
 export function formatterView() {
     return html` <fdl-field .record=${record} field="amount"></fdl-field> `;
 }
-
-export function formattedAmountView() {
-    return html`<div class="formatted"
-        ><span>Formatted output</span
-        ><strong>${record.getFormattedField('amount', 'print')}</strong></div
-    >`;
-}

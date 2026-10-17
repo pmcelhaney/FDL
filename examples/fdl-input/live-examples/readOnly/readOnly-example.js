@@ -2,14 +2,13 @@ import { readOnlyView as renderExample } from './readOnly-view.js';
 import { ExampleModel } from './readOnly-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { explainDependency } from '../../dependency-explanation';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
     renderDemo() {
-        return html`${keyed(this.record.field('conditionalOwner'), renderExample())}${explainDependency(this.record, 'conditionalOwner', 'phase', `phase === 'submitted'`, 'readonly')}`;
+        return html`${keyed(this.record.field('conditionalOwner'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="readOnly"

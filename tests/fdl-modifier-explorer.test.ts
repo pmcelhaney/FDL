@@ -169,7 +169,7 @@ describe('modifier explorer', () => {
         select.dispatchEvent(new Event('input'));
         select.dispatchEvent(new Event('change'));
         await settle(page);
-        expect(root.querySelector('.result')!.textContent).toContain('Shipping address is hidden');
+        expect(root.querySelector('.dependency-trace')).toBeNull();
         expect(select.value).toBe('pickup');
         expect(await stateText(page)).toContain('pickup');
         const address = root.querySelector('fdl-field[field="address"]')!;
@@ -653,13 +653,11 @@ it('updates emptiness and validation for required and optional references as the
             input.value = value;
             input.dispatchEvent(new Event('input'));
             await catalog.updateComplete;
-            const status = demo.querySelector(`[role=status][data-field="${name}"]`)!.textContent!;
-            expect(status).toContain(
-                empty ? 'This field is considered empty' : 'This field is not considered empty'
-            );
-            expect(status).toContain(
-                name === 'emptyCode' && empty ? 'Invalid: Reference is required.' : 'Valid:'
-            );
+            const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
+            await inspector.updateComplete;
+            const status = inspector.shadowRoot!.querySelector(`[data-field="${name}"]`)!;
+            expect(inspector.record!.field(name).empty).toBe(empty);
+            expect(!!status.querySelector('[aria-label="Invalid"]')).toBe(name === 'emptyCode' && empty);
         }
     }
 });

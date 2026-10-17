@@ -17,7 +17,6 @@ export function resetExampleRecord(record) {
 // each example's model and view files.
 export class ExampleController extends LitElement {
     refreshExample = () => {
-        if (this.modifier === 'options') this.loadAssigneeChoices();
         this.requestUpdate();
     };
     connectedCallback() {
@@ -26,7 +25,6 @@ export class ExampleController extends LitElement {
             if (value instanceof Record) resetExampleRecord(value);
         }
         this.listenToModels('addEventListener');
-        if (this.modifier === 'options') this.loadAssigneeChoices();
     }
     disconnectedCallback() {
         this.listenToModels('removeEventListener');

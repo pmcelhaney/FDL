@@ -7,11 +7,3 @@ export function hashFunctionView() {
         <fdl-field .record=${record} field="secondId"></fdl-field>
     `;
 }
-
-export function hashComparisonView(hashType) {
-    return html`<p class="computed" role="status"
-        >Hash comparison:
-        ${hashType.valueOf().hashFunction()({ id: record.getField('firstId') }) === hashType.valueOf().hashFunction()({ id: record.getField('secondId') }) ? 'same identity' : 'different identities'}.
-        Separate objects match when their IDs match.</p
-    >`;
-}

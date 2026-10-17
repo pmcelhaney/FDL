@@ -12,10 +12,8 @@ export class ExampleView extends ExampleModel {
         return html`<p class="try"
                 >The generic <code>&lt;fdl-field&gt;</code> delegates this
                 address value to <code>&lt;fdl-address&gt;</code>. Edit a child
-                field and inspect the parent value below.</p
-            >${keyed(this.record.field('address'), renderExample())}
-            <pre class="composite-value">
-${JSON.stringify(this.record.getField('address'), null, 2)}</pre>`;
+                field and inspect the parent record.</p
+            >${keyed(this.record.field('address'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="semanticType"

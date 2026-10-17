@@ -2,18 +2,13 @@ import { visibleView as renderExample } from './visible-view.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './visible-example-state.js';
-import { explainDependency } from '../../dependency-explanation';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
     demo() {
-        return html`${keyed(this.delivery.field('address'), renderExample())}${explainDependency(this.delivery, 'address', 'fulfillment', `fulfillment === 'ship'`, 'visible')}<p
-                class="result"
-                role="status"
-                >${this.delivery.getField('fulfillment') === 'ship' ? 'Shipping address is visible.' : 'Pickup selected. Shipping address is hidden.'}</p
-            >`;
+        return html`${keyed(this.delivery.field('address'), renderExample())}`;
     }
     render() {
         return html`<div class="demo-grid"

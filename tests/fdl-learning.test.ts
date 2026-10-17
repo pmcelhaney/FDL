@@ -332,33 +332,28 @@ const editField = async (root: ShadowRoot, name: string, value: string) => {
     input.dispatchEvent(new Event('input'));
     input.dispatchEvent(new Event('change'));
 };
-it('explains the actual visibility result and retained value', async () => {
+it('shows retained values and conditional state in the inspector', async () => {
     const page = await openExplorer('#visible');
     await editField(page.shadowRoot!, 'fulfillment', 'pickup');
     await page.updateComplete;
-    const trace = page.shadowRoot!.querySelector('.dependency-trace')!.textContent!;
-    expect(trace).toContain('false');
-    expect(trace).toContain('Hidden');
-    expect(trace).toContain('42 Orchard Street');
+    expect(page.shadowRoot!.querySelector('.dependency-trace')).toBeNull();
+    const inspector = page.shadowRoot!.querySelector('fdl-record-inspector')!;
+    await inspector.updateComplete;
+    const address = inspector.shadowRoot!.querySelector('[data-field="address"]')!;
+    expect(address.textContent).toContain('42 Orchard Street');
+    expect(address.querySelector('[aria-label="Hidden"]')).not.toBeNull();
 });
-it('explains conditional requiredness as the dependency changes', async () => {
+it('shows conditional requiredness in the inspector as the dependency changes', async () => {
     const page = await openExplorer('#required');
-    await editField(page.shadowRoot!, 'followUp', 'yes');
-    await page.updateComplete;
-    expect(
-        page
-            .shadowRoot!.querySelector('.dependency-trace')!
-            .textContent!.replace(/\s+/g, ' ')
-            .trim()
-    ).toContain('true → Required');
-    await editField(page.shadowRoot!, 'followUp', 'no');
-    await page.updateComplete;
-    expect(
-        page
-            .shadowRoot!.querySelector('.dependency-trace')!
-            .textContent!.replace(/\s+/g, ' ')
-            .trim()
-    ).toContain('false → Optional');
+    const inspector = page.shadowRoot!.querySelector('fdl-record-inspector')!;
+    for (const [value, required] of [['yes', true], ['no', false]] as const) {
+        await editField(page.shadowRoot!, 'followUp', value);
+        await page.updateComplete;
+        await inspector.updateComplete;
+        const notes = inspector.shadowRoot!.querySelector('[data-field="followUpNotes"]')!;
+        expect(!!notes.querySelector('[aria-label="Required"]')).toBe(required);
+    }
+    expect(page.shadowRoot!.querySelector('.dependency-trace')).toBeNull();
 });
 
 it('removes requiredness without adding the documentation toggle to the displayed view', async () => {
@@ -440,9 +435,9 @@ it('automatically clears an assignee removed from the available choices', async 
     await assignee.record.whenOptionsReady();
     await new Promise(resolve => setTimeout(resolve, 0));
     await catalog.updateComplete;
-    const explanation = catalog.shadowRoot!.querySelector('.selection-explanation')!;
-    expect(explanation.textContent).toContain('Katherine Johnson');
-    expect(explanation.textContent).toContain('No assignee is selected');
+    expect(catalog.shadowRoot!.querySelector('.selection-explanation')).toBeNull();
+    await assignee.updateComplete;
+    expect(assignee.shadowRoot.textContent).toContain('Katherine Johnson');
     const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
     await inspector.updateComplete;
     expect(inspector.record!.getField('assignee')).toBeUndefined();
@@ -492,7 +487,7 @@ it('compares prefix and substring matching and updates the executable rule', asy
     expect(table.recordset.column('name').match('ar', 'Margaret')).toBe(true);
 });
 
-it('connects original currency text to parsed, stored, and formatted representations', async () => {
+it('shows parsed currency values in the inspector without an explanatory panel', async () => {
     const page = await openExplorer('#parser');
     const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as FdlModifierCatalog;
     await catalog.updateComplete;
@@ -500,25 +495,15 @@ it('connects original currency text to parsed, stored, and formatted representat
     await field.updateComplete;
     await new Promise(resolve => setTimeout(resolve, 0));
     const input = field.shadowRoot.querySelector('input') as HTMLInputElement;
-    input.value = '$2345.670';
-    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    await catalog.updateComplete;
-    const stages = [...catalog.shadowRoot!.querySelectorAll('.value-pipeline li')].map(
-        item => item.textContent
-    );
-    expect(stages[0]).toContain('$2345.670');
-    expect(stages[1]).toContain('2345.67 (number)');
-    expect(stages[2]).toContain('2345.67 (number)');
-    expect(stages[4]).toContain('$2,345.67');
-    input.value = 'bad money';
-    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-    await catalog.updateComplete;
-    expect(catalog.shadowRoot!.querySelector('.value-pipeline')!.textContent).toContain(
-        'NaN (number)'
-    );
-    expect(catalog.shadowRoot!.querySelector('.value-pipeline')!.textContent).toContain(
-        'Parsing alone does not validate'
-    );
+    const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
+    for (const [entered, stored] of [['$2345.670', '2345.67'], ['bad money', 'NaN']]) {
+        input.value = entered;
+        input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+        await catalog.updateComplete;
+        await inspector.updateComplete;
+        expect(inspector.shadowRoot!.querySelector('[data-field="money"]')!.textContent).toContain(stored);
+    }
+    expect(catalog.shadowRoot!.querySelector('.value-pipeline')).toBeNull();
 });
 
 import type { FdlSpecializationExperiment } from '../examples/fdl-input/fdl-specialization-experiment';

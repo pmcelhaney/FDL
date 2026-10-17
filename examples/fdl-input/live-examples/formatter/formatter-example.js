@@ -1,4 +1,3 @@
-import { formattedAmountView } from './formatter-view.js';
 import { formatterView as renderExample } from './formatter-view.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
@@ -10,7 +9,12 @@ export class ExampleView extends ExampleModel {
     }
     demo() {
         return html`${keyed(this.money.field('amount'), renderExample())}
-        ${formattedAmountView()}`;
+            <div class="formatted"
+                ><span>Formatted output</span
+                ><strong
+                    >${this.money.getFormattedField('amount', 'print')}</strong
+                ></div
+            >`;
     }
     render() {
         return html`<div class="demo-grid"
