@@ -30,7 +30,7 @@ it('uses the displayed disabled stylesheet in the live field adapter', () => {
     expect(disabledFieldStyles.cssText).toBe(exampleSource('disabled').styles);
 });
 
-import { ExampleModel as RequiredModel } from '../examples/fdl-input/live-examples/required/required-model.js';
+import { createPerson } from '../examples/fdl-input/live-examples/required/required-model.js';
 import { ExampleModel as ExpenseModel } from '../examples/fdl-input/live-examples/cellClass/cellClass-model.js';
 
 afterEach(() => document.body.replaceChildren());
@@ -38,7 +38,7 @@ it('renders the requiredness view using its imported model instance', async () =
     const demo = document.createElement('fdl-live-required') as any;
     document.body.append(demo);
     await demo.updateComplete;
-    expect(demo).toBeInstanceOf(RequiredModel);
+    expect(demo.person.values).toEqual(createPerson().values);
     const control = demo.querySelector('fdl-field[field="name"]');
     expect(control.record).toBe(demo.person);
 });

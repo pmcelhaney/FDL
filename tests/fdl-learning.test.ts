@@ -361,7 +361,7 @@ it('explains conditional requiredness as the dependency changes', async () => {
     ).toContain('false → Optional');
 });
 
-it('removes requiredness from both model validation and the displayed definition', async () => {
+it('removes requiredness without adding the documentation toggle to the displayed view', async () => {
     const page = await openExplorer('#required');
     const root = page.shadowRoot!;
     root.querySelector<HTMLButtonElement>('.primary')!.click();
@@ -371,7 +371,7 @@ it('removes requiredness from both model validation and the displayed definition
     await page.updateComplete;
     expect(root.querySelector('.result')!.textContent).toContain('record is valid');
     expect((root.querySelector('fdl-example') as FdlExample).sources['required-view.js']).toContain(
-        'this.requiredRule ? base.required() : base'
+        '.record=${person}'
     );
 });
 it('changes length rules while preserving the value and matching the selected minimum', async () => {

@@ -70,7 +70,7 @@ import recordsetView from './live-examples/recordset/recordset-view.js?raw';
 import './live-examples/reducer/reducer-view.js';
 import reducerModel from './live-examples/reducer/reducer-model.js?raw';
 import reducerView from './live-examples/reducer/reducer-view.js?raw';
-import './live-examples/required/required-view.js';
+import './live-examples/required/required-example.js';
 import requiredModel from './live-examples/required/required-model.js?raw';
 import requiredView from './live-examples/required/required-view.js?raw';
 import './live-examples/rowClass/rowClass-view.js';

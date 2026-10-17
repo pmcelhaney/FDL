@@ -70,8 +70,10 @@ relative documentation links to local routes.
   `?raw` imports. Keep each pair focused on that example; the documentation shell
   handles navigation and source tabs, and `example-controller.js` handles shared
   model subscriptions. Change the executable files instead of maintaining
-  illustrative source strings. Rule controls and validation buttons belong in
-  those files when they are part of the example.
+  illustrative source strings. Keep documentation-only controls, dependency
+  explanations, and inspectors in a separate example wrapper, as in
+  `required/required-example.js`. The wrapper calls the displayed view function
+  with the record created by the displayed model.
 - Text-length and column-width pages use the same arrangement, with their
   executable model and view in `live-examples/text-length/` and
   `live-examples/column-widths/`.

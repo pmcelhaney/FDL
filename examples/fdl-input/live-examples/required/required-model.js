@@ -1,9 +1,7 @@
-// Field rules and state for the .required() example.
-import { ExampleController } from '../../example-controller';
-import { field } from '../../../../src/index';
-import Record from '../../../../src/record.js';
-export class ExampleModel extends ExampleController {
-    person = new Record(
+import { field, Record } from '../../../../src/index';
+
+export function createPerson() {
+    return new Record(
         {
             name: field.label('Legal name').required(),
             followUp: field.label('Follow-up needed?').options([
@@ -17,6 +15,4 @@ export class ExampleModel extends ExampleController {
         },
         { name: '', followUp: 'no', followUpNotes: '' }
     );
-    checked = false;
-    requiredRule = true;
 }
