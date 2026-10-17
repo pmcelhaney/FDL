@@ -1,3 +1,4 @@
+import '@pmcelhaney/fdl/lit/fdl-record';
 import { compositionView } from './composition-view';
 import './fdl-code-snippet';
 import { field, Record } from '@pmcelhaney/fdl';
@@ -331,7 +332,9 @@ export class FdlCompositionExperiment extends LitElement {
             <section class="rule-controls" aria-label="Choose the rules"
                 ><h3>1. Choose the rules</h3
                 ><div class="rule-workspace"
-                    >${['visibility', 'requiredness', 'validation'].map(field => html`<fdl-field .record=${this.configuration} field=${field}></fdl-field>`)}</div
+                    ><fdl-record .record=${this.configuration}
+                        >${['visibility', 'requiredness', 'validation'].map(field => html`<fdl-field field=${field}></fdl-field>`)}</fdl-record
+                    ></div
                 ></section
             >
             <details class="prediction"

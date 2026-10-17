@@ -5,6 +5,7 @@ import { highlightJavaScript } from './highlight-javascript';
 export const firstFormSource = `import { html, render } from 'lit';
 import { field, Record } from '@pmcelhaney/fdl';
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 
 const account = new Record(
     {
@@ -21,34 +22,34 @@ const root = document.getElementById('app') || document.body;
 const update = () =>
     render(
         html\`
-            <fdl-field
-                .record=\${account}
-                field="name"
-                .showValidationErrors=\${checked}
-            ></fdl-field>
-            <fdl-field .record=\${account} field="country"></fdl-field>
-            <fdl-field
-                .record=\${account}
-                field="taxId"
-                .showValidationErrors=\${checked}
-            ></fdl-field>
-            <button
-                @click=\${() => {
-                    checked = true;
-                    update();
-                }}
-            >
-                Check account
-            </button>
-            <p role="status">
-                \${
-                    checked
-                        ? account.isValid()
-                            ? 'Valid.'
-                            : account.readableRecordErrors().join('. ')
-                        : 'Not checked yet.'
-                }
-            </p>
+            <fdl-record .record=\${account}>
+                <fdl-field
+                    field="name"
+                    .showValidationErrors=\${checked}
+                ></fdl-field>
+                <fdl-field field="country"></fdl-field>
+                <fdl-field
+                    field="taxId"
+                    .showValidationErrors=\${checked}
+                ></fdl-field>
+                <button
+                    @click=\${() => {
+                        checked = true;
+                        update();
+                    }}
+                >
+                    Check account
+                </button>
+                <p role="status">
+                    \${
+                        checked
+                            ? account.isValid()
+                                ? 'Valid.'
+                                : account.readableRecordErrors().join('. ')
+                            : 'Not checked yet.'
+                    }
+                </p>
+            </fdl-record>
         \`,
         root
     );

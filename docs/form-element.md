@@ -12,6 +12,7 @@ Import a module to register its custom element:
 
 ```ts
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 import '@pmcelhaney/fdl/lit/fdl-table';
 ```
 
@@ -23,13 +24,40 @@ registers both `fdl-table` and its declarative `fdl-column` children.
 import { html } from 'lit';
 import { field, Record } from '@pmcelhaney/fdl';
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 
 const account = new Record({ name: field.label('Name').required() }, { name: '' });
-const view = html`<fdl-field .record=${account} field="name"></fdl-field>`;
+const view = html`<fdl-record .record=${account}>
+    <fdl-field field="name"></fdl-field>
+</fdl-record>`;
 ```
 
-Import `@pmcelhaney/fdl/lit` to register all three elements and access the
-`FdlField`, `FdlAddress`, `FdlTable`, `FdlColumn`, and `FormElement` classes.
+`fdl-record` supplies its `.record` property to descendant `fdl-field` and
+`fdl-address` elements, including through ordinary containers and component
+shadow roots. Bind the JavaScript record with a Lit property binding; it is not
+an HTML attribute. New children receive the current record, and replacing the
+provider's record rebinds its consumers. A provider may start without a record;
+its fields render once a record is supplied.
+
+The nearest `fdl-record` defines the scope. Nested providers isolate their
+children even when their own record is undefined. An explicit `.record` on a
+child overrides inheritance; setting that property to `undefined` restores the
+nearest provider's record. Moving a consumer to another provider rebinds it and
+removing a consumer releases its subscription.
+
+The provider renders a slot and uses `display: contents`, so it adds no visual
+box or form semantics. Keep labels, fieldsets, native forms, layout, and submit
+handling in the view. Keep valid HTML structure: for editable native table rows,
+retain explicit bindings on fields rather than placing a custom element between
+`tbody` and `tr` or between `tr` and `td`.
+
+Custom record consumers can extend `RecordElement`, which exposes the same
+reactive `record` property and inheritance lifecycle. Custom field controls
+already inherit that behavior through `FormElement`.
+
+Import `@pmcelhaney/fdl/lit` to register all packaged elements and access the
+`FdlRecord`, `RecordElement`, `FdlField`, `FdlAddress`, `FdlTable`, `FdlColumn`,
+and `FormElement` classes.
 These modules require a browser DOM. Core model imports remain independent
 of Lit element registration.
 
@@ -44,7 +72,7 @@ need a custom element that presents one field from a `Record`.
 
 The base class owns the FDL integration:
 
-- it requires a `record` and `field` property;
+- it requires a `field` name and a record supplied explicitly or by `fdl-record`;
 - it resolves the bound `Field` after the first update;
 - it creates a select for fields with options, a textarea when `rowCount()` is
   configured, and an input otherwise;
@@ -62,11 +90,11 @@ The complete ownership boundary is documented in the
 
 ## Properties
 
-| Property               | Required | Purpose                                                                                                                                                                                                                                         |
-| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `field`                | Yes      | Names the field in `record` that this instance renders.                                                                                                                                                                                         |
-| `record`               | Yes      | Supplies the field definition, value, and model behavior.                                                                                                                                                                                       |
-| `showValidationErrors` | No       | When `true`, exposes current synchronous FDL errors in the UI and accessibility tree. Defaults to `false`, using automatic blur/submit timing. Set `true` to reveal errors explicitly. The corresponding attribute is `show-validation-errors`. |
+| Property               | Required              | Purpose                                                                                                                                                                                                                                         |
+| ---------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `field`                | Yes                   | Names the field in `record` that this instance renders.                                                                                                                                                                                         |
+| `record`               | Inherited or explicit | Supplies the field definition, value, and model behavior.                                                                                                                                                                                       |
+| `showValidationErrors` | No                    | When `true`, exposes current synchronous FDL errors in the UI and accessibility tree. Defaults to `false`, using automatic blur/submit timing. Set `true` to reveal errors explicitly. The corresponding attribute is `show-validation-errors`. |
 
 ## A unified field component
 
@@ -96,8 +124,8 @@ export class FdlField extends FormElement {
 customElements.define('fdl-field', FdlField);
 ```
 
-Always use that component as the outer form control and pass the record and
-field. Fields with options render as native selects:
+Always use that component as the outer form control and pass the field name.
+Supply its record explicitly or through an enclosing `fdl-record`. Fields with options render as native selects:
 
 ```ts
 import { field, Record } from '@pmcelhaney/fdl';

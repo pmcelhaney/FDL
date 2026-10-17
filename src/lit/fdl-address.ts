@@ -1,14 +1,16 @@
-import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
+import { css, html, nothing, type PropertyValues } from 'lit';
 import './fdl-field';
 import { property } from 'lit/decorators.js';
 import { Record } from '../index';
+import { RecordElement } from './record-context';
+import './fdl-record';
 
 /**
  * A focused composite adapter for nested address records.
  * The parent FDL field owns the value; this element owns the accessible group
  * and delegates each child to the ordinary fdl-field adapter.
  */
-export class FdlAddress extends LitElement {
+export class FdlAddress extends RecordElement {
     static styles = css`
         :host {
             display: block;
@@ -48,9 +50,6 @@ export class FdlAddress extends LitElement {
             }
         }
     `;
-
-    @property({ type: Object })
-    public record?: Record<any>;
 
     @property({ type: String })
     public field = '';
@@ -115,18 +114,19 @@ export class FdlAddress extends LitElement {
         const parentField = this.record.field(this.field);
         if (!parentField.visible) return nothing;
         const childFields = Object.keys(this.childRecord.fieldTypes);
-        return html`<fieldset>
-            <legend>${parentField.label}</legend>
-            ${childFields.map(
-                child =>
-                    html`<fdl-field
-                        class=${child}
-                        .record=${this.childRecord}
-                        field=${child}
-                        .showValidationErrors=${this.showValidationErrors}
-                    ></fdl-field>`
-            )}
-        </fieldset>`;
+        return html`<fdl-record .record=${this.childRecord}
+            ><fieldset>
+                <legend>${parentField.label}</legend>
+                ${childFields.map(
+                    child =>
+                        html`<fdl-field
+                            class=${child}
+                            field=${child}
+                            .showValidationErrors=${this.showValidationErrors}
+                        ></fdl-field>`
+                )}
+            </fieldset></fdl-record
+        >`;
     }
 }
 

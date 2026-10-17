@@ -45,7 +45,7 @@ it('keeps selected detail values, required state, and edits attached to the sele
     };
     const detail = (name: string) =>
         Array.from(demo.shadowRoot!.querySelectorAll<FdlField>(`fdl-field[field="${name}"]`))
-            .find(field => field.parentNode === demo.shadowRoot)!
+            .find(field => field.parentElement?.localName === 'fdl-record')!
             .shadowRoot!.querySelector<HTMLInputElement>('input')!;
     const select = async (id: string) => {
         Array.from(demo.shadowRoot!.querySelectorAll<HTMLButtonElement>('tbody button'))

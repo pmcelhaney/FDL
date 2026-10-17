@@ -1,3 +1,4 @@
+import '@pmcelhaney/fdl/lit/fdl-record';
 import { field, Record } from '@pmcelhaney/fdl';
 import { LitElement, css, html } from 'lit';
 import {
@@ -108,7 +109,9 @@ export class FdlPrediction extends LitElement {
                 practice; the comparison remains available.</p
             >
             <div class="choices"
-                >${['method', 'sample', 'visible', 'required', 'valid'].map(field => html`<fdl-field .record=${this.guesses} field=${field}></fdl-field>`)}</div
+                ><fdl-record .record=${this.guesses}
+                    >${['method', 'sample', 'visible', 'required', 'valid'].map(field => html`<fdl-field field=${field}></fdl-field>`)}</fdl-record
+                ></div
             >
             <button ?disabled=${!this.guesses.isValid()} @click=${this.reveal}
                 >Reveal model result</button

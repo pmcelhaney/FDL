@@ -19,12 +19,11 @@ export class DeliveryForm extends LitElement {
         super.disconnectedCallback();
     }
     render() {
-        return html`<div class="experiment">
-            ${deliveryView(this.delivery)}
-            <fdl-record-inspector
-                .record=${this.delivery}
-            ></fdl-record-inspector>
-        </div>`;
+        return html`<fdl-record .record=${this.delivery}
+            ><div class="experiment">
+                ${deliveryView(this.delivery)}
+                <fdl-record-inspector></fdl-record-inspector> </div
+        ></fdl-record>`;
     }
     static styles = [
         deliveryStyles,

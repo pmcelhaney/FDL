@@ -1,5 +1,6 @@
-import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
+import { css, html, nothing, type PropertyValues } from 'lit';
 import { Record } from '@pmcelhaney/fdl';
+import { RecordElement } from '@pmcelhaney/fdl/lit/record-context';
 import { exampleTheme } from './example-theme';
 
 const statusPaths = {
@@ -82,14 +83,12 @@ type InspectorView =
       };
 
 /** Read-only inspection of an FDL record, independent of its form or page. */
-export class FdlRecordInspector extends LitElement {
+export class FdlRecordInspector extends RecordElement {
     static properties = {
-        record: { attribute: false },
         fields: { attribute: false },
         collapsed: { type: Boolean, reflect: true },
     };
 
-    record?: Record<any>;
     fields?: readonly string[];
     collapsed = false;
     private navigation: InspectorView[] = [];

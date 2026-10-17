@@ -1,3 +1,4 @@
+import '@pmcelhaney/fdl/lit/fdl-record';
 import modelSource from './cancellation-rules.ts?raw';
 import viewSource from './cancellation-view.ts?raw';
 import { cancellationView } from './cancellation-view';
@@ -82,14 +83,11 @@ export class FdlTransferChallenge extends LitElement {
             >
             <div class="grid"
                 ><section aria-label="Choose cancellation rules"
-                    ><fdl-field
-                        .record=${this.configuration}
-                        field="visibility"
-                    ></fdl-field
-                    ><fdl-field
-                        .record=${this.configuration}
-                        field="requiredness"
-                    ></fdl-field></section
+                    ><fdl-record .record=${this.configuration}
+                        ><fdl-field field="visibility"></fdl-field
+                        ><fdl-field
+                            field="requiredness"
+                        ></fdl-field></fdl-record></section
                 ><section aria-label="Try the cancellation form"
                     >${keyed(this.record.field('reason'), html`${cancellationView(this.record)}`)}<p
                         >Stored reason:

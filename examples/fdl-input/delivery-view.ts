@@ -3,6 +3,7 @@ import type { Record } from '@pmcelhaney/fdl';
 import { exampleTheme } from './example-theme';
 import { storesByZip } from './delivery-data';
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 
 function deliverySummary(record: Record<any>) {
     if (record.getField('fulfillment') === 'pickup') {
@@ -19,16 +20,12 @@ function deliverySummary(record: Record<any>) {
 
 export function deliveryView(record: Record<any>) {
     const pickup = record.getField('fulfillment') === 'pickup';
-    return html`
+    return html`<fdl-record .record=${record}>
         <div class="editor">
-            <fdl-field .record=${record} field="fulfillment"></fdl-field>
-            <fdl-field .record=${record} field="address"></fdl-field>
-            <fdl-field .record=${record} field="pickupZip"></fdl-field>
-            <fdl-field
-                .record=${record}
-                field="store"
-                select-prompt="Select a store"
-            ></fdl-field>
+            <fdl-field field="fulfillment"></fdl-field>
+            <fdl-field field="address"></fdl-field>
+            <fdl-field field="pickupZip"></fdl-field>
+            <fdl-field field="store" select-prompt="Select a store"></fdl-field>
             ${
                 pickup
                     ? html`<p class="sample-note">
@@ -42,7 +39,7 @@ export function deliveryView(record: Record<any>) {
                 <p role="status">${deliverySummary(record)}</p>
             </section>
         </div>
-    `;
+    </fdl-record>`;
 }
 
 export const deliveryStyles = css`

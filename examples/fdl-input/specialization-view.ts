@@ -1,13 +1,14 @@
 import { html } from 'lit';
 import type { Record } from '@pmcelhaney/fdl';
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 
 export function specializationView(record: Record<any>) {
-    return html`
+    return html`<fdl-record .record=${record}>
         <section aria-label="base definition">
             <h3>baseName</h3>
             <code>field.label('Name')</code>
-            <fdl-field .record=${record} field="base"></fdl-field>
+            <fdl-field field="base"></fdl-field>
             <p class="variant-state"
                 >${record.field('base').required ? 'Required' : 'Optional'} ·
                 ${record.isValid('base') ? 'Valid' : 'Invalid'}</p
@@ -18,7 +19,7 @@ export function specializationView(record: Record<any>) {
             <code
                 >${record.field('required').required ? 'baseName.required()' : 'baseName'}</code
             >
-            <fdl-field .record=${record} field="required"></fdl-field>
+            <fdl-field field="required"></fdl-field>
             <p class="variant-state"
                 >${record.field('required').required ? 'Required' : 'Optional'}
                 · ${record.isValid('required') ? 'Valid' : 'Invalid'}</p
@@ -27,11 +28,11 @@ export function specializationView(record: Record<any>) {
         <section aria-label="sibling definition">
             <h3>shortName</h3>
             <code>baseName.minLength(2)</code>
-            <fdl-field .record=${record} field="sibling"></fdl-field>
+            <fdl-field field="sibling"></fdl-field>
             <p class="variant-state"
                 >${record.field('sibling').required ? 'Required' : 'Optional'} ·
                 ${record.isValid('sibling') ? 'Valid' : 'Invalid'}</p
             >
         </section>
-    `;
+    </fdl-record>`;
 }

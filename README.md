@@ -66,10 +66,12 @@ The package includes styled Lit elements for fields, nested addresses, and table
 
 ```js
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 import '@pmcelhaney/fdl/lit/fdl-table';
 ```
 
-Use `<fdl-field .record=${record} field="name">` and
+Group controls with `<fdl-record .record=${record}>` and give each child
+`<fdl-field field="name">` its field name. Use
 `<fdl-table .recordset=${recordset}>` in Lit templates. Importing the table
 module also registers `<fdl-column>`. Import `@pmcelhaney/fdl/lit` for all
 components and their classes. See [Form elements](docs/form-element.md) for

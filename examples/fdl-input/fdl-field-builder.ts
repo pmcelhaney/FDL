@@ -1,3 +1,4 @@
+import '@pmcelhaney/fdl/lit/fdl-record';
 import { keyed } from 'lit/directives/keyed.js';
 import { recordSummary } from './model-summary';
 import modelSource from './field-builder-model.ts?raw';
@@ -102,7 +103,9 @@ export class FdlFieldBuilder extends LitElement {
             >
             <div class="workspace"
                 ><section aria-label="Field definition controls"
-                    >${['name', 'initialValue', 'visibility', 'requiredness', 'validation'].map(field => html`<fdl-field .record=${this.configuration} field=${field} .showValidationErrors=${true}></fdl-field>`)}</section
+                    ><fdl-record .record=${this.configuration}
+                        >${['name', 'initialValue', 'visibility', 'requiredness', 'validation'].map(field => html`<fdl-field field=${field} .showValidationErrors=${true}></fdl-field>`)}</fdl-record
+                    ></section
                 ><section class="preview"
                     ><h3>Try your field</h3
                     >${keyed(this.record, fieldBuilderView(this.record, this.spec.name))}${recordSummary(this.record, [this.spec.name])}</section
@@ -123,9 +126,12 @@ export class FdlFieldBuilder extends LitElement {
                 ></div
             >
             <h3>field-builder-model.ts</h3
-            ><fdl-code-snippet><pre><code>${highlightJavaScript(modelSource)}</code></pre
-            ></fdl-code-snippet><h3>field-builder-view.ts</h3
-            ><fdl-code-snippet><pre><code>${highlightJavaScript(viewSource)}</code></pre></fdl-code-snippet>`;
+            ><fdl-code-snippet>
+                <pre><code>${highlightJavaScript(modelSource)}</code></pre></fdl-code-snippet
+            ><h3>field-builder-view.ts</h3
+            ><fdl-code-snippet>
+                <pre><code>${highlightJavaScript(viewSource)}</code></pre>
+            </fdl-code-snippet>`;
     }
     static styles = css`
         :host {

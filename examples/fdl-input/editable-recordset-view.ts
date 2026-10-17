@@ -3,6 +3,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import type { Record } from '@pmcelhaney/fdl';
 import { createShipments, shipmentCharge } from './editable-recordset-model';
 import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-record';
 export function editableRecordsetView(
     shipments: ReturnType<typeof createShipments>,
     selected: Record<any> | undefined,
@@ -61,6 +62,8 @@ export function editableRecordsetView(
     >`;
 }
 export function shipmentDetailView(record: Record<any>) {
-    return html`<fdl-field .record=${record} field="quantity"></fdl-field
-        ><fdl-field .record=${record} field="reason"></fdl-field>`;
+    return html`<fdl-record .record=${record}
+        ><fdl-field field="quantity"></fdl-field
+        ><fdl-field field="reason"></fdl-field
+    ></fdl-record>`;
 }

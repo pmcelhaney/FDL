@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { LitElement, PropertyValues, html, css, nothing } from 'lit';
+import { PropertyValues, html, css, nothing } from 'lit';
+import { RecordElement } from './record-context';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { property, state, customElement } from 'lit/decorators.js';
 import Record from '../record.js';
 import { ListeningElementMixin } from '../utilities/listening-element';
 import { Events } from '../types/events.types';
 
-const ListeningElement = ListeningElementMixin(LitElement);
+const ListeningElement = ListeningElementMixin(RecordElement);
 let nextFormElementId = 0;
 
 class FormElement extends ListeningElement {
@@ -20,9 +21,6 @@ class FormElement extends ListeningElement {
 
     @property({ type: String, reflect: true })
     public field: string;
-
-    @property({ type: Object })
-    public record?: Record<any>;
 
     /**
      * Whether this adapter should expose the field's synchronous model validation errors.
@@ -140,14 +138,26 @@ class FormElement extends ListeningElement {
     @state()
     private element?: any;
 
+    private controlRecord?: Record<any>;
+    private controlField?: string;
+
     async firstUpdated() {
-        if (!this.record) throw new Error('OmegaFormElement: record is required');
+        if (this.element && this.controlRecord === this.record && this.controlField === this.field)
+            return;
+        if (!this.record) return;
         if (!this.field) throw new Error('OmegaFormElement: field is required');
         const field = this.record.field(this.field);
         const controlTag = field.hasOptions ? 'select' : field.hasRowCount ? 'textarea' : 'input';
-        this.element = document.createElement(controlTag);
+        this.optionsRequestVersion++;
+        this.optionsRequest = undefined;
+        this.controlRecord = this.record;
+        this.controlField = this.field;
+        if (this.element?.localName !== controlTag) {
+            this.element = document.createElement(controlTag);
+            this.addListenersToElement();
+        }
+        this.element.loading = false;
         this.syncSelectPrompt();
-        this.addListenersToElement();
         this.addListenersToRecord();
         await this.destructureFieldType();
     }
@@ -537,7 +547,11 @@ class FormElement extends ListeningElement {
     protected updated(changedProperties: PropertyValues) {
         if (changedProperties.has('record') || changedProperties.has('field')) {
             this.connectValidation();
-            if (this.element) void this.destructureFieldType();
+            if (this.record && this.field) void this.firstUpdated();
+            else {
+                this.optionsRequestVersion++;
+                this.element = undefined;
+            }
         }
         if (changedProperties.has('selectPrompt')) this.syncSelectPrompt();
         this.updateValidationAccessibility();
