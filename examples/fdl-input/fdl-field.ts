@@ -1,7 +1,8 @@
-import { css } from 'lit';
+import { css, html } from 'lit';
 import { disabledFieldStyles } from './field-example-styles';
 import { exampleTheme } from './example-theme';
 import FormElement from '../../src/form-element';
+import './fdl-address';
 
 /**
  * The example's single FDL field component.
@@ -11,6 +12,23 @@ import FormElement from '../../src/form-element';
  * the example's visual treatment across all supported native controls.
  */
 export class FdlField extends FormElement {
+    async firstUpdated() {
+        if (this.record?.field(this.field).recordDefinition) return;
+        await super.firstUpdated();
+    }
+
+    render() {
+        const boundField = this.record?.field(this.field);
+        if (boundField?.semanticType === 'address' && boundField.recordDefinition) {
+            return [html`<fdl-address
+                .record=${this.record}
+                field=${this.field}
+                .showValidationErrors=${this.showValidationErrors}
+            ></fdl-address>`];
+        }
+        return this.record && this.field ? super.render() : [];
+    }
+
     static get styles() {
         return css`
             ${FormElement.styles}

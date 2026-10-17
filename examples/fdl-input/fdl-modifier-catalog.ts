@@ -20,6 +20,7 @@ import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
 import Record from '../../src/record.js';
 import Recordset from '../../src/recordset.js';
 import './fdl-field';
+import './fdl-address';
 import { inputText, valuePipeline } from './value-pipeline';
 import {
     sortCases,
@@ -52,6 +53,8 @@ type DemoName =
     | 'multipleValues'
     | 'options'
     | 'placeholder'
+    | 'record'
+    | 'semanticType'
     | 'readOnly'
     | 'reducer'
     | 'required'
@@ -223,10 +226,11 @@ field
         'placeholder',
         `.placeholder('For example, Apollo migration')`
     ),
-    placeholder(
+    live(
         'record',
         'Defines a structured field value with named child fields.',
-        'The model records the child definitions, but the native adapter does not yet render nested records as a composite control.'
+        'record',
+        `.record({ street: string, city: string, state: string, zip: string })`
     ),
     placeholder(
         'recordset',
@@ -268,10 +272,11 @@ field
         'Enables a rich option-search dialog and describes its result columns.',
         customControlGap
     ),
-    placeholder(
+    live(
         'semanticType',
         'Declares domain meaning independently of the renderer.',
-        'The native adapter does not select a semantic component from this hint yet; specialized adapters can use it alongside record() or recordset().'
+        'semanticType',
+        `.semanticType('address')`
     ),
     live(
         'sortable',
@@ -416,6 +421,16 @@ export class FdlModifierCatalog extends LitElement {
                 { text: 'Engineering', value: 'engineering' },
                 { text: 'Finance', value: 'finance' },
             ]),
+            address: field
+                .label('Shipping address')
+                .semanticType('address')
+                .record({
+                    street: field.label('Street').required(),
+                    city: field.label('City').required(),
+                    state: field.label('State').required(),
+                    zip: field.label('ZIP code').required(),
+                })
+                .visible(record => record.getField('fulfillment') === 'ship'),
             assignee: field
                 .label('Assignee (function)')
                 .options(
@@ -488,9 +503,6 @@ export class FdlModifierCatalog extends LitElement {
                 { text: 'Ship', value: 'ship' },
                 { text: 'Pickup', value: 'pickup' },
             ]),
-            address: field
-                .label('Shipping address')
-                .visible(record => record.getField('fulfillment') === 'ship'),
         },
         {
             extraProperty: '',
@@ -509,6 +521,12 @@ export class FdlModifierCatalog extends LitElement {
             quantity: 2,
             total: 50,
             department: 'engineering',
+            address: {
+                street: '1 Main Street',
+                city: 'New York',
+                state: 'NY',
+                zip: '10001',
+            },
             assignee: 'margaret',
             asyncAssignee: 'margaret',
             projectName: '',
@@ -523,7 +541,6 @@ export class FdlModifierCatalog extends LitElement {
             orderQuantity: 2.5,
             username: '7bad-name',
             fulfillment: 'ship',
-            address: '',
         }
     );
 
@@ -1218,6 +1235,14 @@ export class FdlModifierCatalog extends LitElement {
                         >${inputTypeNote(this.probes.getField('inputType') as inputType)}</p
                     >
                     ${this.renderField('inputValue', this.inputTypeRecord)}`;
+            case 'record':
+            case 'semanticType':
+                return html`<p class="try"
+                        >The generic <code>&lt;fdl-field&gt;</code> delegates this
+                        address value to <code>&lt;fdl-address&gt;</code>. Edit a
+                        child field and inspect the parent value below.</p
+                    >${this.renderField('address')}
+                    <pre class="composite-value">${JSON.stringify(this.record.getField('address'), null, 2)}</pre>`;
             case 'validator':
                 return html`${validatorExamples.map(
                     example =>

@@ -215,6 +215,43 @@ Use a context such as `"model"`, `"input-focus"`, `"input-blur"`, `"table"`,
 or `"print"` consistently within your renderer. The component chooses which
 representation it needs; the field definition remains renderer-independent.
 
+## Composite field values
+
+Use `semanticType()` to name the domain meaning of a field without selecting a
+particular component. Use `record()` when one field contains a structured value
+with named child fields, and `recordset()` when it contains repeated
+record-shaped values:
+
+```js
+const shippingAddress = field
+    .semanticType('address')
+    .record({
+        street: string,
+        city: string,
+        state: string,
+        zip: string,
+    });
+
+const lineItems = field
+    .semanticType('line-items')
+    .recordset({
+        sku: string,
+        quantity: number,
+        unitPrice: number,
+    });
+```
+
+The application-facing values are ordinary objects and arrays of objects. A
+compatible adapter may normalize the child definitions into nested `Record`
+and `Field` facades for validation, change tracking, and rendering. The native
+adapter demonstrates the address contract through the site's
+`<fdl-address>` element: `<fdl-field>` delegates an address field to that
+accessible composite adapter, while each child continues to use `<fdl-field>`.
+
+`semanticType()` is a meaning hint, not a custom-element selector. A semantic
+type such as `address` may be rendered by a fieldset, a compact address editor,
+or a read-only formatter depending on the consuming adapter.
+
 ## `Recordset`: rows and table state
 
 Use a `Recordset` when the component renders a collection. It finalizes the
