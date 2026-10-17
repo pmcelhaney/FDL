@@ -31,7 +31,7 @@ export class FdlEditableRecordset extends LitElement {
         super.disconnectedCallback();
     }
     private async load() {
-        await this.shipments.requestHardUpdate();
+        await this.shipments.requestRefresh();
         this.selected = this.shipments.allRecords[0];
         this.ready = true;
         this.requestUpdate();

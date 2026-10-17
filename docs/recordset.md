@@ -45,7 +45,7 @@ const reports = new Recordset(fields, async ({ parameters, startIndex, pageSize,
     };
 });
 
-await reports.requestHardUpdate();
+await reports.requestRefresh();
 ```
 
 The request object contains `parameters`, `startIndex`, `pageSize`, `page`,
@@ -71,10 +71,10 @@ An empty response also follows this server-side path.
 
 Pages are one-based (`pageNumber` and request `page`); `pageIndex` and request
 `startIndex` are zero-based. Construction alone does not load rows: call
-`requestHardUpdate()` for the first load, even when supplying an array.
+`requestRefresh()` for the first load, even when supplying an array.
 
 Client-side updates reuse loaded data. Changing `parameters` schedules a view
-update but does not itself invalidate that cache. Call `requestHardUpdate()`
+update but does not itself invalidate that cache. Call `requestRefresh()`
 after changing parameters when the fetch function needs to run again.
 
 For client-side filtering, assign a predicate that receives each `Record`:
@@ -100,7 +100,7 @@ const exampleReports = new ExampleRecordset(fields, 100, index => ({
     title: `Report ${index + 1}`,
     isFavorite: false,
 }));
-await exampleReports.requestHardUpdate();
+await exampleReports.requestRefresh();
 ```
 
 The row factory receives a zero-based index and returns a complete data row

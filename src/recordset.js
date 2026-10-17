@@ -401,13 +401,12 @@ export default class Recordset extends EventTarget {
         this._.dispatchUpdateEvents();
     }
 
-    async requestHardUpdate() {
+    async requestRefresh() {
         this._.isFetchNeeded = true;
         return this.debouncedUpdate();
     }
 
-    async requestSoftUpdate() {
-        // TODO: add check here to determine if a fetch has already been made
+    async requestViewUpdate() {
         return this.debouncedUpdate();
     }
 

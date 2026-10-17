@@ -146,7 +146,7 @@ it('distinguishes server totals from loaded rows', async () => {
     const recordset = new Recordset<any>({ name: field }, function fetchPage() {
         return { data: [{ name: 'Loaded row' }], totalCount: 100 };
     });
-    await recordset.requestHardUpdate();
+    await recordset.requestRefresh();
     const inspector = await inspect(recordset);
     const counts = inspector
         .shadowRoot!.querySelector('.counts')!

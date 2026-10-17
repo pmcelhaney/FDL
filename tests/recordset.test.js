@@ -311,7 +311,7 @@ describe('Recordset', () => {
             expect(changedSpy).toHaveBeenCalledTimes(callCount);
         });
 
-        it('fires a loading event when standard and hard updates are requested, not on soft updates', async () => {
+        it('fires a loading event when standard and refresh updates are requested, not on view updates', async () => {
             let isLoadingCount = 0;
             let isFinishedLoadingCount = 0;
             const rs = new Recordset({}, numberNames);
@@ -324,9 +324,9 @@ describe('Recordset', () => {
             });
             rs.requestUpdate();
             await nextFrame();
-            rs.requestHardUpdate();
+            rs.requestRefresh();
             await nextFrame();
-            rs.requestSoftUpdate();
+            rs.requestViewUpdate();
             await nextFrame();
             expect(isLoadingCount).toEqual(2);
             expect(isFinishedLoadingCount).toEqual(2);
@@ -363,7 +363,7 @@ describe('Recordset', () => {
             rs.requestUpdate();
             await nextFrame();
             const recordToForget = rs.currentPage[0];
-            rs.requestHardUpdate();
+            rs.requestRefresh();
             await nextFrame();
             recordToForget.setField('name', 'bye');
             expect(timesUpdated).toEqual(0);

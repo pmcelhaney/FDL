@@ -9,7 +9,7 @@ import {
 
 it('preserves edited row identity across sorting and filtering, with explicitly scoped totals', async () => {
     const shipments = createShipments();
-    await shipments.requestHardUpdate();
+    await shipments.requestRefresh();
     const selected = shipments.allRecords[0];
     selected.setField('quantity', 8);
     expect(shipmentTotals(shipments.allRecords)).toEqual({ quantity: 14, charge: 195 });

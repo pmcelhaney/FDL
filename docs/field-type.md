@@ -242,8 +242,9 @@ rows from the recordset and use the `Record`/`Field` APIs for each cell.
 
 | Method | Purpose |
 | --- | --- |
-| `requestHardUpdate()` | Fetch and rebuild the current view. Use for the initial load or a forced refresh. |
-| `requestSoftUpdate()` / `requestUpdate()` | Request the corresponding queued update behavior. |
+| `requestRefresh()` | Fetch and rebuild the current view. Use for the initial load or a forced refresh. |
+| `requestViewUpdate()` | Recompute the current view from loaded data without fetching. |
+| `requestUpdate()` | Run the queued update if one is not already in progress. |
 | `sort(column)` | Sort using a column descriptor. |
 | `reset(hardReset?)` | Restore the recordset's original data and view state. |
 | `createRecord(values)` | Create a record using the recordset's field types. |

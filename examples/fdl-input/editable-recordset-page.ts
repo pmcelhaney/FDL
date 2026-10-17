@@ -58,7 +58,7 @@ const shipments = new Recordset(shipmentFields, [
         reason: 'Awaiting allocation',
     },
 ]);
-await shipments.requestHardUpdate(); // construction does not load rows
+await shipments.requestRefresh(); // construction does not load rows
 const selected = shipments.allRecords[0];
 selected.parseAndSetField('quantity', '3');
 // Bind this same selected Record in the cell and detail editors.
