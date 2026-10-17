@@ -65,6 +65,36 @@ The components include default CSS. For a custom element with different styles,
 extend `FormElement` from `@pmcelhaney/fdl/lit/form-element` and register your
 own tag. The existing `@pmcelhaney/fdl/form-element` path remains available.
 
+## Table pagination
+
+`fdl-table` renders the bound recordset's current page and includes First,
+Previous, Next, and Last buttons, a row range and page count, and a labelled
+Rows per page selector. The controls use `Recordset.pageNumber`, `pageSize`, and
+`filteredCount`; application changes to the recordset update the controls too.
+No separate pagination configuration is needed on the element.
+
+```ts
+import { field, Recordset } from '@pmcelhaney/fdl';
+import '@pmcelhaney/fdl/lit/fdl-table';
+
+const orders = new Recordset({ name: field.label('Name') }, orderRows);
+orders.setInitialPageSize(25);
+const view = html`<fdl-table .recordset=${orders}>
+    <fdl-column field="name"></fdl-column>
+</fdl-table>`;
+```
+
+The selector offers 5, 10, 25, 50, and 100 rows, plus the current page size if the
+application supplies another value. Changing page size returns to page one.
+Sorting and filtering also return to page one through the recordset's existing
+behavior. If deleting rows removes the current page, the table returns to the
+last available page. An empty result shows `0–0 of 0 rows` and `Page 0 of 0`,
+with navigation disabled. Controls are disabled while a page request is pending.
+
+Both client-side and server-side recordsets use these controls. For server-side
+paging, the fetch function must honor `page`, `startIndex`, and `pageSize` and
+return `{ data, totalCount }`; see [Recordset](./recordset.md).
+
 ## Custom field elements
 
 `FormElement` is the Lit base class for FDL field controls. Extend it when you

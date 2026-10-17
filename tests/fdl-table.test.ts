@@ -690,3 +690,161 @@ it('renders an empty table without invoking per-record header settings', async (
     expect(callback).not.toHaveBeenCalled();
     table.remove();
 });
+
+function paginationButton(table: TestTable, text: string) {
+    return [...table.shadowRoot!.querySelectorAll<HTMLButtonElement>('.pagination button')].find(
+        button => button.textContent === text
+    )!;
+}
+
+async function paginatedTable(count = 23, pageSize = 10) {
+    const recordset = new Recordset(
+        { name: new FieldTypeBuilder<string>().label('Name').filter() },
+        Array.from({ length: count }, (_, index) => ({ name: `Row ${index + 1}` }))
+    );
+    recordset.setInitialPageSize(pageSize);
+    const table = document.createElement('fdl-table') as TestTable;
+    table.recordset = recordset;
+    table.innerHTML = '<fdl-column field="name"></fdl-column>';
+    document.body.append(table);
+    await settle(table);
+    return table;
+}
+
+it('navigates every page boundary and changes page size through the recordset', async () => {
+    const table = await paginatedTable();
+    const summary = () =>
+        table.shadowRoot!.querySelector('.page-summary')!.textContent!.replace(/\s+/g, ' ').trim();
+    expect(rows(table)).toHaveLength(10);
+    expect(table.shadowRoot!.querySelector<HTMLSelectElement>('select')!.value).toBe('10');
+    expect(summary()).toBe('1–10 of 23 rows · Page 1 of 3');
+    expect(paginationButton(table, 'First').disabled).toBe(true);
+    expect(paginationButton(table, 'Previous').disabled).toBe(true);
+
+    paginationButton(table, 'Next').click();
+    await table.recordset.updating;
+    await settle(table);
+    expect(rows(table)[0]).toEqual(['Row 11']);
+    paginationButton(table, 'Last').click();
+    await table.recordset.updating;
+    await settle(table);
+    expect(rows(table)).toEqual([['Row 21'], ['Row 22'], ['Row 23']]);
+    expect(summary()).toBe('21–23 of 23 rows · Page 3 of 3');
+    expect(paginationButton(table, 'Next').disabled).toBe(true);
+    expect(paginationButton(table, 'Last').disabled).toBe(true);
+
+    paginationButton(table, 'Previous').click();
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.recordset.pageNumber).toBe(2);
+    paginationButton(table, 'First').click();
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.recordset.pageNumber).toBe(1);
+
+    table.recordset.pageNumber = 3;
+    await table.recordset.updating;
+    await settle(table);
+    const select = table.shadowRoot!.querySelector<HTMLSelectElement>('.page-size select')!;
+    select.value = '25';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.recordset.pageSize).toBe(25);
+    expect(table.recordset.pageNumber).toBe(1);
+    expect(rows(table)).toHaveLength(23);
+    expect(select.value).toBe('25');
+    table.remove();
+});
+
+it('reflects custom page sizes, filter and sort resets, and an empty result', async () => {
+    const table = await paginatedTable(23, 7);
+    const select = table.shadowRoot!.querySelector<HTMLSelectElement>('select')!;
+    expect(select.value).toBe('7');
+    table.recordset.pageNumber = 3;
+    await table.recordset.updating;
+    await settle(table);
+    table.shadowRoot!.querySelector<HTMLButtonElement>('.sort-button')!.click();
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.recordset.pageNumber).toBe(1);
+    table.recordset.pageNumber = 3;
+    await table.recordset.updating;
+    await settle(table);
+    table.shadowRoot!.querySelector<HTMLButtonElement>('.filter-button')!.click();
+    await settle(table);
+    const input = table.shadowRoot!.querySelector<HTMLInputElement>('[data-filter-input]')!;
+    input.value = 'Row 23';
+    input.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    await table.recordset.updating;
+    await settle(table);
+    expect(rows(table)).toEqual([['Row 23']]);
+    expect(table.shadowRoot!.querySelector('.page-summary')!.textContent).toContain('Page 1 of 1');
+    input.value = 'missing';
+    input.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.shadowRoot!.querySelector('.page-summary')!.textContent).toContain('0–0');
+    expect(table.shadowRoot!.querySelector('.page-summary')!.textContent).toContain('Page 0 of 0');
+    expect(
+        [...table.shadowRoot!.querySelectorAll<HTMLButtonElement>('.pagination button')].every(
+            button => button.disabled
+        )
+    ).toBe(true);
+    table.remove();
+});
+
+it('returns to the last available page when rows are deleted', async () => {
+    const table = await paginatedTable(11);
+    paginationButton(table, 'Last').click();
+    await table.recordset.updating;
+    await settle(table);
+    table.recordset.deleteRecord(table.recordset.currentPage[0]);
+    await table.recordset.updating;
+    await settle(table);
+    expect(table.recordset.pageNumber).toBe(1);
+    expect(rows(table)).toHaveLength(10);
+    table.remove();
+});
+
+it('requests server pages and disables controls until the response arrives', async () => {
+    let finishPage: (() => void) | undefined;
+    const fetch = jest.fn(({ startIndex, pageSize }) => {
+        const result = {
+            data: Array.from({ length: Math.min(pageSize, 23 - startIndex) }, (_, index) => ({
+                name: `Row ${startIndex + index + 1}`,
+            })),
+            totalCount: 23,
+        };
+        if (startIndex === 0) return result;
+        return new Promise<typeof result>(resolve => {
+            finishPage = () => resolve(result);
+        });
+    });
+    const recordset = new Recordset({ name: new FieldTypeBuilder() }, fetch);
+    const table = document.createElement('fdl-table') as TestTable;
+    table.recordset = recordset;
+    table.innerHTML = '<fdl-column field="name"></fdl-column>';
+    document.body.append(table);
+    await settle(table);
+    paginationButton(table, 'Next').click();
+    await settle(table);
+    expect(
+        [
+            ...table.shadowRoot!.querySelectorAll<HTMLButtonElement | HTMLSelectElement>(
+                '.pagination button, .pagination select'
+            ),
+        ].every(control => control.disabled)
+    ).toBe(true);
+    const updated = recordset.updating;
+    await new Promise(resolve => setTimeout(resolve, 120));
+    expect(fetch).toHaveBeenLastCalledWith(
+        expect.objectContaining({ page: 2, startIndex: 10, pageSize: 10 })
+    );
+    finishPage!();
+    await updated;
+    await settle(table);
+    expect(rows(table)[0]).toEqual(['Row 11']);
+    expect(paginationButton(table, 'Next').disabled).toBe(false);
+    table.remove();
+});

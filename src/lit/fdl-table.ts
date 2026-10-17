@@ -112,7 +112,16 @@ export class FdlTable extends LitElement {
 
     private columnObserver = new MutationObserver(() => this.requestUpdate());
 
-    private onRecordsetChange = () => this.requestUpdate();
+    private paginationRequest?: Recordset<any>;
+
+    private onRecordsetChange = () => {
+        const recordset = this.recordset;
+        if (recordset && !recordset.isLoading) {
+            const lastPage = Math.max(1, Math.ceil(recordset.filteredCount / recordset.pageSize));
+            if (recordset.pageNumber > lastPage) recordset.pageNumber = lastPage;
+        }
+        this.requestUpdate();
+    };
 
     connectedCallback() {
         super.connectedCallback();
@@ -142,6 +151,7 @@ export class FdlTable extends LitElement {
             this.observedRecordset = this.recordset;
             this.observedRecordset?.addEventListener('page-changed', this.onRecordsetChange);
             this.observedRecordset?.addEventListener('updated', this.onRecordsetChange);
+            this.observedRecordset?.addEventListener('loading', this.onRecordsetChange);
             void this.observedRecordset?.requestImmediateUpdate();
         }
         if (this.filters) {
@@ -156,6 +166,7 @@ export class FdlTable extends LitElement {
     private stopObservingRecordset() {
         this.observedRecordset?.removeEventListener('page-changed', this.onRecordsetChange);
         this.observedRecordset?.removeEventListener('updated', this.onRecordsetChange);
+        this.observedRecordset?.removeEventListener('loading', this.onRecordsetChange);
         this.observedRecordset = undefined;
     }
 
@@ -694,6 +705,73 @@ export class FdlTable extends LitElement {
         </td>`;
     }
 
+    private async changePagination(page: number, pageSize = this.recordset?.pageSize) {
+        const recordset = this.recordset;
+        if (!recordset || !pageSize || this.paginationRequest === recordset || recordset.isLoading)
+            return;
+        this.paginationRequest = recordset;
+        if (pageSize !== recordset.pageSize) recordset.pageSize = pageSize;
+        else recordset.pageNumber = page;
+        this.requestUpdate();
+        try {
+            await recordset.updating;
+        } finally {
+            if (this.paginationRequest === recordset) this.paginationRequest = undefined;
+            this.requestUpdate();
+        }
+    }
+
+    private renderPagination() {
+        const recordset = this.recordset;
+        if (!recordset) return nothing;
+        const count = recordset.filteredCount;
+        const pageCount = Math.ceil(count / recordset.pageSize);
+        const page = count ? recordset.pageNumber : 0;
+        const busy = this.paginationRequest === recordset || recordset.isLoading;
+        const sizes = [...new Set([5, 10, 25, 50, 100, recordset.pageSize])].sort((a, b) => a - b);
+        return html`<nav class="pagination" aria-label="Table pagination">
+            <span class="page-summary" role="status" aria-atomic="true">
+                ${count ? recordset.firstRecordNumberOnPage : 0}–${count ? recordset.lastRecordNumberOnPage : 0}
+                of ${count} rows · Page ${page} of ${pageCount}
+            </span>
+            <label class="page-size"
+                >Rows per page
+                <select
+                    aria-label="Rows per page"
+                    ?disabled=${busy}
+                    @change=${(event: Event) => this.changePagination(1, Number((event.currentTarget as HTMLSelectElement).value))}
+                    >${sizes.map(size => html`<option value=${size} .selected=${size === recordset.pageSize}>${size}</option>`)}</select
+                >
+            </label>
+            <div class="page-buttons">
+                <button
+                    type="button"
+                    ?disabled=${busy || page <= 1}
+                    @click=${() => this.changePagination(1)}
+                    >First</button
+                >
+                <button
+                    type="button"
+                    ?disabled=${busy || page <= 1}
+                    @click=${() => this.changePagination(page - 1)}
+                    >Previous</button
+                >
+                <button
+                    type="button"
+                    ?disabled=${busy || page >= pageCount}
+                    @click=${() => this.changePagination(page + 1)}
+                    >Next</button
+                >
+                <button
+                    type="button"
+                    ?disabled=${busy || page >= pageCount}
+                    @click=${() => this.changePagination(pageCount)}
+                    >Last</button
+                >
+            </div>
+        </nav>`;
+    }
+
     render() {
         const columns = this.columns;
         const records = this.recordset?.currentPage ?? [];
@@ -805,6 +883,7 @@ export class FdlTable extends LitElement {
                       >`
                     : nothing
             }
+            ${this.renderPagination()}
             <slot></slot>
         `;
     }
@@ -812,6 +891,49 @@ export class FdlTable extends LitElement {
     static styles = css`
         :host {
             display: block;
+        }
+
+        .pagination {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding-top: 0.75rem;
+            font-size: var(--fdl-table-control-font-size, 0.875rem);
+        }
+
+        .page-size,
+        .page-buttons {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .pagination button,
+        .pagination select {
+            min-height: 2.75rem;
+            padding: 0.4rem 0.65rem;
+            border: 1px solid #bac2d3;
+            border-radius: 0.3rem;
+            background: #fff;
+            color: #343d50;
+            font: inherit;
+        }
+
+        .pagination button:enabled,
+        .pagination select:enabled {
+            cursor: pointer;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+        }
+
+        .pagination :focus-visible {
+            outline: 2px solid #5b52d6;
+            outline-offset: 2px;
         }
 
         .table-frame {
