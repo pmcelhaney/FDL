@@ -65,5 +65,5 @@ export async function applyShipmentView(
         field: 'quantity',
         sort: descending ? 'descending' : 'ascending',
     });
-    await shipments.requestUpdate();
+    await shipments.requestImmediateUpdate();
 }

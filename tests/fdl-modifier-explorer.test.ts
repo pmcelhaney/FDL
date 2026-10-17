@@ -414,7 +414,7 @@ describe('extended model exercises', () => {
         await catalog.updateComplete;
         const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
         await table.updateComplete;
-        await table.recordset.requestUpdate();
+        await table.recordset.requestImmediateUpdate();
         await catalog.updateComplete;
         await table.updateComplete;
         expect(await stateText(catalog)).toContain('Zulu');
@@ -422,7 +422,7 @@ describe('extended model exercises', () => {
             'button[title="Sort by Last name"]'
         ) as HTMLButtonElement;
         sort.click();
-        await table.recordset.requestUpdate();
+        await table.recordset.requestImmediateUpdate();
         await catalog.updateComplete;
         const state = JSON.parse(
             catalog
@@ -742,7 +742,7 @@ it('shows conditional invoice templates without a balance editor', async () => {
     const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as FdlModifierCatalog;
     await catalog.updateComplete;
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await table.updateComplete;
     expect(catalog.shadowRoot!.querySelector('fdl-field')).toBeNull();
     expect(table.shadowRoot.querySelectorAll('.paid-balance')).toHaveLength(1);
@@ -862,7 +862,7 @@ it('opens the singular rowClass page from its old plural URL', async () => {
     const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as any;
     await catalog.updateComplete;
     const table = catalog.shadowRoot.querySelector('fdl-table') as any;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await table.updateComplete;
     expect(table.shadowRoot.querySelectorAll('tr.invoice-row')).toHaveLength(2);
     expect(table.shadowRoot.querySelectorAll('tr.disputed-row.needs-review')).toHaveLength(1);

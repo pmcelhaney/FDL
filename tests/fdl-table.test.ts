@@ -535,7 +535,7 @@ describe('<fdl-table>', () => {
         );
         reopenedInput!.value = 'gr';
         reopenedInput?.dispatchEvent(new InputEvent('input', { bubbles: true }));
-        await recordset.requestUpdate();
+        await recordset.requestImmediateUpdate();
         await settle(table);
 
         expect(rows(table)).toEqual([['Grace', 'Platform']]);
@@ -545,7 +545,7 @@ describe('<fdl-table>', () => {
         expect(filterButton?.classList.contains('filtered')).toBe(true);
 
         table.shadowRoot?.querySelector<HTMLButtonElement>('.filter-chip')?.click();
-        await recordset.requestUpdate();
+        await recordset.requestImmediateUpdate();
         await settle(table);
         expect(rows(table)).toEqual([
             ['Ada', 'Research'],
@@ -572,7 +572,7 @@ describe('<fdl-table>', () => {
         );
         const applicationFilter = (record: any) => record.getField('team') === 'Research';
         recordset.filter = applicationFilter;
-        await recordset.requestUpdate();
+        await recordset.requestImmediateUpdate();
 
         const table = document.createElement('fdl-table') as TestTable;
         table.recordset = recordset;
@@ -595,7 +595,7 @@ describe('<fdl-table>', () => {
             );
             input!.value = value;
             input?.dispatchEvent(new InputEvent('input', { bubbles: true }));
-            await recordset.requestUpdate();
+            await recordset.requestImmediateUpdate();
             await settle(table);
         };
 
@@ -607,7 +607,7 @@ describe('<fdl-table>', () => {
         expect(table.shadowRoot?.querySelectorAll('.filter-chip')).toHaveLength(2);
 
         table.shadowRoot?.querySelector<HTMLButtonElement>('.clear-all')?.click();
-        await recordset.requestUpdate();
+        await recordset.requestImmediateUpdate();
         await settle(table);
         expect(recordset.filter).toBe(applicationFilter);
         expect(rows(table)).toEqual([
@@ -635,7 +635,7 @@ it.each([true, false])('aligns table headings and cells for sortable=%s', async 
         '<fdl-column field="left"></fdl-column><fdl-column field="center"></fdl-column><fdl-column field="right"></fdl-column>';
     document.body.append(table);
     await table.updateComplete;
-    await recordset.requestUpdate();
+    await recordset.requestImmediateUpdate();
     await settle(table);
     expect(
         [...table.shadowRoot!.querySelectorAll('th')].map(header => header.style.textAlign)

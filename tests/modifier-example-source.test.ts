@@ -92,7 +92,7 @@ it('shows the declared default when the Lit clear button is used', () => {
 
 it('exports the same weekday expenses, dollar formatting, and strict threshold', async () => {
     const { model, container } = runExample('cellClass', { threshold: 125.25 });
-    await model.requestUpdate();
+    await model.requestImmediateUpdate();
     expect(model.getData()).toEqual([
         { day: 'Monday', amount: 85.5 },
         { day: 'Tuesday', amount: 142.75 },
@@ -181,7 +181,7 @@ it('exports working function and async options with a shared value that stays se
 
 it('exports a T-shirt order table with sorting disabled for sizes', async () => {
     const { model, container } = runExample('sortable');
-    await model.requestUpdate();
+    await model.requestImmediateUpdate();
     expect(model.getData()).toHaveLength(6);
     expect(model.getFieldType('shirtSize').sortable()).toBe(false);
     expect(model.getFieldType('firstName').sortable()).toBe(true);
@@ -192,7 +192,7 @@ it('exports a T-shirt order table with sorting disabled for sizes', async () => 
 
 it('renders conditional invoice balances without changing the stored number', async () => {
     const { model, container, update } = runExample('template');
-    await model.requestUpdate();
+    await model.requestImmediateUpdate();
     update();
     const first = model.allRecords[0];
     const cell = document.createElement('div');
@@ -268,7 +268,7 @@ it('demonstrates simple email validation and accumulated quantity and username r
 
 it('exports rowClass declarations with fixed and returned array classes', async () => {
     const { model } = runExample('rowClass');
-    await model.requestUpdate();
+    await model.requestImmediateUpdate();
     const status = model.getFieldType('status');
     expect(status.rowClasses(model.allRecords[0])).toEqual([
         'invoice-row',
@@ -301,7 +301,7 @@ it('exports unconditional and conditional disabled rules together', () => {
 
 it('exports column classes that reach the col, heading, and cells alongside cell-specific classes', async () => {
     const { model, container } = runExample('columnClass');
-    await model.requestUpdate();
+    await model.requestImmediateUpdate();
     const table = container.querySelector('fdl-table') as any;
     await table.updateComplete;
     const root = table.shadowRoot;

@@ -59,13 +59,13 @@ describe('Recordset', () => {
     describe('gets computed values', () => {
         it('gets the record number on the current page', async () => {
             const rs = new Recordset({}, () => Promise.resolve([{ name: 'one' }, { name: 'two' }]));
-            await rs.requestUpdate();
+            await rs.requestImmediateUpdate();
             rs.setInitialPageSize(25);
             expect(rs.firstRecordNumberOnPage).toEqual(1);
         });
         it('gets the last record number on the current page', async () => {
             const rs = new Recordset({}, () => Promise.resolve([{ name: 'one' }, { name: 'two' }]));
-            await rs.requestUpdate();
+            await rs.requestImmediateUpdate();
             rs.setInitialPageSize(25);
             expect(rs.lastRecordNumberOnPage).toEqual(2);
         });
@@ -155,7 +155,7 @@ describe('Recordset', () => {
             const fetchSpy = jest.fn().mockImplementation(() => numberNames());
             const rs = new Recordset({}, fetchSpy);
 
-            await rs.requestUpdate();
+            await rs.requestImmediateUpdate();
 
             rs.pageNumber = 3;
             await rs.updating;
@@ -240,18 +240,18 @@ describe('Recordset', () => {
         });
     });
 
-    describe('requestUpdate()', () => {
+    describe('requestImmediateUpdate()', () => {
         it('only updates once per event loop', async () => {
             const rs = new Recordset({}, numberNames);
             const updateSpy = jest.spyOn(rs, 'update');
 
-            rs.requestUpdate();
-            rs.requestUpdate();
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
+            rs.requestImmediateUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
-            rs.requestUpdate();
-            rs.requestUpdate();
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
+            rs.requestImmediateUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
 
             expect(updateSpy).toHaveBeenCalledTimes(2); // cSpell:disable-line
@@ -322,7 +322,7 @@ describe('Recordset', () => {
                     isFinishedLoadingCount++;
                 }
             });
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
             rs.requestRefresh();
             await nextFrame();
@@ -336,7 +336,7 @@ describe('Recordset', () => {
             let timesUpdated = 0;
             const rs = new Recordset({}, numberNames);
             rs.addEventListener('updated', () => timesUpdated++);
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
             rs.currentPage[0].setField('name', 'uno');
             rs.currentPage[1].setField('name', 'dos');
@@ -347,7 +347,7 @@ describe('Recordset', () => {
             let timesUpdated = 0;
             const rs = new Recordset({}, numberNames);
             rs.addEventListener('updated', () => timesUpdated++);
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
 
             const recordToRemove = rs.currentPage[0];
@@ -360,7 +360,7 @@ describe('Recordset', () => {
             let timesUpdated = 0;
             const rs = new Recordset({}, numberNames);
             rs.addEventListener('updated', () => timesUpdated++);
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
             const recordToForget = rs.currentPage[0];
             rs.requestRefresh();
@@ -542,7 +542,7 @@ describe('Recordset', () => {
                 { name: new FieldTypeBuilder(), value: new FieldTypeBuilder() },
                 numberNames
             );
-            await rs.requestUpdate();
+            await rs.requestImmediateUpdate();
             rs.addValidator({
                 name: 'must have a record with a value of 13',
                 validate: records => records.some(record => record.getField('value') === 13),
@@ -580,7 +580,7 @@ describe('Recordset', () => {
                 { letter: 'b' },
             ]);
 
-            await rs.requestUpdate();
+            await rs.requestImmediateUpdate();
 
             expect(rs.isValid()).toEqual(false);
             valid = true;
@@ -591,7 +591,7 @@ describe('Recordset', () => {
     describe('getData() / setData()', () => {
         it('getData()', async () => {
             const rs = new Recordset({}, numberNames);
-            rs.requestUpdate();
+            rs.requestImmediateUpdate();
             await nextFrame();
             expect(rs.getData()[0]).toEqual({
                 isANumber: true,

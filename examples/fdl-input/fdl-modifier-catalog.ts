@@ -855,7 +855,7 @@ export class FdlModifierCatalog extends LitElement {
 
         if (this.modifier === 'cellClass') {
             const threshold = this.probes.getField('classThreshold');
-            void this.cellClassRecordset.requestUpdate();
+            void this.cellClassRecordset.requestImmediateUpdate();
             this.dispatchEvent(
                 new CustomEvent('example-settings-change', {
                     detail: { threshold },
@@ -877,7 +877,7 @@ export class FdlModifierCatalog extends LitElement {
                     composed: true,
                 })
             );
-            this.filterRecordset.requestUpdate();
+            this.filterRecordset.requestImmediateUpdate();
         }
         this.requestUpdate();
     };

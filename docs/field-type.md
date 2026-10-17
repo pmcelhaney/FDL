@@ -244,7 +244,7 @@ rows from the recordset and use the `Record`/`Field` APIs for each cell.
 | --- | --- |
 | `requestRefresh()` | Fetch and rebuild the current view. Use for the initial load or a forced refresh. |
 | `requestViewUpdate()` | Recompute the current view from loaded data without fetching. |
-| `requestUpdate()` | Run the queued update if one is not already in progress. |
+| `requestImmediateUpdate()` | Immediately run the pending update if one is not already in progress. Does not itself request a fetch. |
 | `sort(column)` | Sort using a column descriptor. |
 | `reset(hardReset?)` | Restore the recordset's original data and view state. |
 | `createRecord(values)` | Create a record using the recordset's field types. |
@@ -405,7 +405,7 @@ const people = new Recordset(
 );
 
 people.sortColumns = [{ field: 'name', sort: 'ascending' }];
-await people.requestUpdate();
+await people.requestImmediateUpdate();
 ```
 
 Resolve table presentation at its natural scope:

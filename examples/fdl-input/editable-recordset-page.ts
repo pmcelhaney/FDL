@@ -65,13 +65,13 @@ selected.parseAndSetField('quantity', '3');
 // Listen to 'updated' for row edits and 'page-changed' for view changes.
 shipments.filter = row => row.getField('status') === 'ready';
 await shipments.sort({ field: 'quantity', sort: 'ascending' });
-await shipments.requestUpdate();
+await shipments.requestImmediateUpdate();
 // selected still references the same edited Record.`)}</code></pre></fdl-code-snippet>
         <h2>Choose the update policy and aggregate scope</h2>
         <p
             >This example stages sort/filter controls until Apply view. Record
             edits notify consumers but do not automatically reapply the view.
-            Calling <code>requestUpdate()</code> recomputes the view from the
+            Calling <code>requestImmediateUpdate()</code> recomputes the view from the
             loaded Records. A hard update refetches and creates Records again,
             so do not use it to re-sort unsaved edits. A client-side parameter
             change alone does not invalidate cached rows.</p

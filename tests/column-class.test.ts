@@ -10,7 +10,7 @@ type TestTable = HTMLElement & {
 };
 
 const settle = async (table: TestTable) => {
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await table.updateComplete;
 };
 afterEach(() => {

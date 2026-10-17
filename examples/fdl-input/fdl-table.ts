@@ -166,7 +166,7 @@ export class FdlTable extends LitElement {
                 'updated',
                 this.onRecordsetChange
             );
-            void this.observedRecordset?.requestUpdate();
+        void this.observedRecordset?.requestImmediateUpdate();
         }
         if (this.filters) {
             const next = Object.entries(this.filters).filter(([, value]) =>
@@ -607,7 +607,7 @@ export class FdlTable extends LitElement {
         const sort = currentSort === 'ascending' ? 'descending' : 'ascending';
 
         await this.recordset.sort({ field: column.field, sort });
-        await this.recordset.requestUpdate();
+        await this.recordset.requestImmediateUpdate();
     }
 
     private columnAlignment(column: FdlColumn) {

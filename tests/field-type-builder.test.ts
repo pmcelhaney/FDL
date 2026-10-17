@@ -56,7 +56,7 @@ it('normalizes a recordset once and shares runtime types with its rows', async (
     const builder = number.defaultValue(3).compareFunction((a, b) => a - b);
     const finalize = jest.spyOn(builder, 'valueOf');
     const table = new Recordset({ amount: builder }, [{ amount: 2 }, { amount: 1 }]);
-    await table.requestUpdate();
+    await table.requestImmediateUpdate();
     const type = table.getFieldType('amount');
     expect(type).toBeInstanceOf(FieldType);
     for (const record of table.allRecords) expect(record.fieldTypeForField('amount')).toBe(type);
@@ -176,7 +176,7 @@ it('uses custom field chains directly in recordsets and added fields', async () 
         .defaultValue(0)
         .validator({ name: 'positive', validate: value => value > 0 });
     const table = new Recordset({ amount }, [{ amount: 2 }, { amount: -1 }]);
-    await table.requestUpdate();
+    await table.requestImmediateUpdate();
     expect(table.allRecords[0].isValid()).toBe(true);
     expect(table.allRecords[1].isValid()).toBe(false);
     const record = new Record({}, {});

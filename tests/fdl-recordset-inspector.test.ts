@@ -19,7 +19,7 @@ function data() {
 }
 
 async function inspect(recordset?: Recordset<any>) {
-    if (recordset) await recordset.requestUpdate();
+    if (recordset) await recordset.requestImmediateUpdate();
     const inspector = document.createElement('fdl-recordset-inspector');
     inspector.recordset = recordset;
     document.body.append(inspector);
@@ -58,14 +58,14 @@ it('tracks sorting, filtering, paging and edits without a parent update', async 
     const root = inspector.shadowRoot!;
     await recordset.sort({ field: 'name', sort: 'ascending' });
     recordset.pageSize = 1;
-    await recordset.requestUpdate();
+    await recordset.requestImmediateUpdate();
     await inspector.updateComplete;
     expect(root.querySelector('.counts')!.textContent!.replace(/\s+/g, ' ')).toContain(
         'Sorted by name ↑'
     );
     expect(root.querySelectorAll('tbody tr')).toHaveLength(1);
     recordset.pageNumber = 2;
-    await recordset.requestUpdate();
+    await recordset.requestImmediateUpdate();
     await inspector.updateComplete;
     expect(root.querySelector('tbody th')!.textContent!.trim()).toBe('2');
     expect(root.querySelector('[data-field="name"]')!.textContent!.trim()).toBe('Alpha');
@@ -75,7 +75,7 @@ it('tracks sorting, filtering, paging and edits without a parent update', async 
     recordset.filter = function noMatches() {
         return false;
     };
-    await recordset.requestUpdate();
+    await recordset.requestImmediateUpdate();
     await inspector.updateComplete;
     expect(root.textContent).toContain('No records on this page.');
     expect(root.querySelector('.counts')!.textContent!.replace(/\s+/g, ' ')).toContain(
@@ -112,7 +112,7 @@ it('collapses accessibly and reopens with current data', async () => {
 it('releases subscriptions on replacement and disconnect, and reconnects', async () => {
     const first = data();
     const second = data();
-    await second.requestUpdate();
+    await second.requestImmediateUpdate();
     const inspector = await inspect(first);
     const removeSet = jest.spyOn(first, 'removeEventListener');
     const removeRow = jest.spyOn(first.allRecords[0], 'removeEventListener');
@@ -133,7 +133,7 @@ it('supports an unbound inspector and an empty recordset assigned later', async 
     const inspector = await inspect();
     expect(inspector.shadowRoot!.textContent).toContain('No recordset selected.');
     const empty = new Recordset<any>({ name: field }, []);
-    await empty.requestUpdate();
+    await empty.requestImmediateUpdate();
     inspector.recordset = empty;
     await inspector.updateComplete;
     expect(inspector.shadowRoot!.textContent).toContain('No records on this page.');

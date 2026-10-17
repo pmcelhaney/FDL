@@ -95,7 +95,7 @@ export default class Recordset extends EventTarget {
 
                 updateHandle = setTimeout(() => {
                     this.cancelUpdate();
-                    rs.requestUpdate();
+                    rs.requestImmediateUpdate();
                 }, 100);
             },
             cancelUpdate() {
@@ -414,7 +414,7 @@ export default class Recordset extends EventTarget {
      * Performs an update and no-ops on repeated requests
      * until the pending update finishes.
      */
-    async requestUpdate() {
+    async requestImmediateUpdate() {
         // perform an update only if a previous one is not outstanding
         if (!this._.currentUpdatePromise) {
             this._.currentUpdatePromise = this.update();
@@ -431,7 +431,7 @@ export default class Recordset extends EventTarget {
      */
     async debouncedUpdate() {
         await delay(this.debounceInterval);
-        return this.requestUpdate();
+        return this.requestImmediateUpdate();
     }
 
     async sort(column) {
@@ -751,7 +751,7 @@ export default class Recordset extends EventTarget {
         this._.records = data.map(values => this.createRecord(values));
         this._.totalCount = data.length;
         this._.isFetchNeeded = false;
-        this.requestUpdate();
+        this.requestImmediateUpdate();
     }
 
     /**

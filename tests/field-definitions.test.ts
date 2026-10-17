@@ -78,7 +78,7 @@ it('preserves international names, free-form addresses, and leading postal zeros
     const table = new Recordset({ firstName, postalCode, phone: fieldDefinitions.phoneNumber }, [
         { firstName: 'محمد', postalCode: '00123', phone: '+44 (0)20 1234 5678' },
     ]);
-    await table.requestUpdate();
+    await table.requestImmediateUpdate();
     expect(table.allRecords[0].isValid()).toBe(true);
     expect(table.allRecords[0].getField('postalCode')).toBe('00123');
 });

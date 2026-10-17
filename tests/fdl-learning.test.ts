@@ -416,9 +416,9 @@ it('explains actual sort precedence without requiring a JSON read', async () => 
     await catalog.updateComplete;
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     await table.updateComplete;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     table.shadowRoot.querySelector('button[title="Sort by Last name"]').click();
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await catalog.updateComplete;
     const inspector = catalog.shadowRoot!.querySelector('fdl-recordset-inspector')!;
     await inspector.updateComplete;
@@ -582,7 +582,7 @@ it('builds a single example through parsing, validation, dependencies, and a col
     await next();
     const table = root.querySelector('fdl-table') as any;
     await table.updateComplete;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     expect(table.recordset.allRecords).toHaveLength(3);
     expect(table.recordset.allRecords[0].isValid()).toBe(true);
     expect(root.querySelector('details ol')!.children).toHaveLength(5);
@@ -597,7 +597,7 @@ it('shares filter text between the comparison and the table header', async () =>
     await catalog.updateComplete;
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     await table.updateComplete;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await table.updateComplete;
     expect(table.shadowRoot.textContent).toContain('Grace');
     expect(table.shadowRoot.textContent).not.toContain('Margaret');
@@ -643,7 +643,7 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
     expect(catalog.shadowRoot!.querySelector('fdl-field[field="classAmount"]')).toBeNull();
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     const rows = async () => {
-        await table.recordset.requestUpdate();
+        await table.recordset.requestImmediateUpdate();
         await table.updateComplete;
         return Array.from(
             table.shadowRoot.querySelectorAll('tbody tr') as NodeListOf<HTMLTableRowElement>
@@ -696,9 +696,9 @@ it('sorts the live T-shirt size column in size order and highlights all comparat
     await catalog.updateComplete;
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     await table.updateComplete;
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     table.shadowRoot.querySelector('button[title="Sort by T-shirt size"]').click();
-    await table.recordset.requestUpdate();
+    await table.recordset.requestImmediateUpdate();
     await table.updateComplete;
     expect(
         [...table.shadowRoot.querySelectorAll('tbody tr')].map((row: any) =>
