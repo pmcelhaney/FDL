@@ -116,7 +116,17 @@ export function renderSitePage(
                 values are formatted, and what depends on what. FDL brings those
                 rules into a shared model for JavaScript and TypeScript. Use
                 the same rules across forms, tables, and other interfaces—even
-                as your UI changes.</p
+                as your UI changes—and reuse them for
+                <a href="#reference/docs/backend-validation"
+                    >server-side validation</a
+                >.</p
+            >
+            <p
+                >Already have a data schema? FDL can read existing
+                <a href="#reference/docs/prisma">Prisma schemas</a> and
+                <a href="#reference/docs/openapi">OpenAPI specifications</a>
+                to create field definitions, which you can extend with your
+                application’s rules.</p
             >
             <p
                 >FDL works with any framework. Plug it into your existing design
