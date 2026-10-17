@@ -19,7 +19,7 @@ export class FdlDeliveryExperiment extends LitElement {
             <p slot="description">
                 The interactive example pairs a working delivery form with an
                 inspector showing its stored values and field states. The file
-                tabs show the field rules in delivery-model.ts, the controls in
+                tabs show the field rules in delivery-model.ts, the delivery form and styles in
                 delivery-view.ts, and the sample data in delivery-data.ts. Open
                 the address record in the inspector to explore its fields. Clear
                 the street address to see required-field validation, then
