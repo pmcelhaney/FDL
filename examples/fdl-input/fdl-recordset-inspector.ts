@@ -243,6 +243,9 @@ export class FdlRecordsetInspector extends LitElement {
                                       }}
                                   />Show CSS classes
                               </label>` : ''}
+                              ${this.showClasses && activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
+                                  ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number" title=${`CSS class ${number}: ${name}`}>${number}</span><code>${name}</code></span>`)}
+                              </div>` : ''}
                               <p class="note"
                                   >Values are stored values before formatting.
                                   Icons on the left indicate applicable states;
@@ -350,6 +353,21 @@ ${JSON.stringify(
             }
             .class-toggle input {
                 margin: 0;
+            }
+            .class-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 16px;
+                margin-top: 8px;
+                font-size: 0.8125rem;
+            }
+            .class-entry {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .class-entry code {
+                overflow-wrap: anywhere;
             }
             .class-number {
                 display: inline-flex;

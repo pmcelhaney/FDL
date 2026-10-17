@@ -237,7 +237,10 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     expect(root.querySelector('.class-number')).toBeNull();
     toggle.click();
     await inspector.updateComplete;
-    expect(root.querySelector('.class-legend')).toBeNull();
+    expect([...root.querySelectorAll('.class-entry code')].map(entry => entry.textContent)).toEqual([
+        'shared', 'heading', 'row', 'cell', 'high',
+    ]);
+    expect(root.querySelector('.legend')).toBeNull();
     function numbers(selector: string) {
         return [...root.querySelectorAll(`${selector} .class-number`)].map(marker => marker.textContent!.trim());
     }
@@ -259,6 +262,7 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     recordset.allRecords[0].setField('amount', 2);
     await inspector.updateComplete;
     expect(root.querySelector('[title="CSS class 5: high"]')).toBeNull();
+    expect(root.querySelector('.class-legend')!.textContent).not.toContain('high');
     recordset.allRecords[0].setField('amount', 20);
     await inspector.updateComplete;
     expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
