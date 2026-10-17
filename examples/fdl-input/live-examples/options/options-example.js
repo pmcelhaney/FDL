@@ -2,7 +2,6 @@ import { optionsView as renderExample } from './options-view.js';
 import { ExampleModel } from './options-example-state.js';
 import { html, nothing } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
@@ -42,22 +41,10 @@ export class ExampleView extends ExampleModel {
             })}
         </div>`;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
         return html`<p class="try"
                 >Change Department; Assignee choices refresh.</p
-            >${this.renderField('department')}${this.renderField('assignee')}${this.renderField('asyncAssignee')}${this.selectionExplanation()}`;
+            >${keyed(this.record.field('asyncAssignee'), renderExample())}${this.selectionExplanation()}`;
     }
     render() {
         return html`<div class="focused" data-modifier="options"

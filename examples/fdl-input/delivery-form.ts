@@ -23,14 +23,9 @@ export class DeliveryForm extends LitElement {
     render() {
         const pickup = this.delivery.getField('fulfillment') === 'pickup';
         return html` <div class="experiment">
-            <div class="editor">
-                ${deliveryView(this.delivery, ['fulfillment'])}
-                ${deliveryView(this.delivery, ['address'])}
-                ${deliveryView(this.delivery, ['city'])}
-                ${deliveryView(this.delivery, ['state'])}
-                ${deliveryView(this.delivery, ['zip'])}
+            <div class="editor"
+                >${deliveryView(this.delivery)}
                 ${pickup ? html`<p class="sample-note">Sample store lookup (2-second delay): try ZIP code <strong>28202</strong> or <strong>10001</strong>.</p>` : ''}
-                ${deliveryView(this.delivery, ['store'])}
             </div>
             <fdl-record-inspector
                 .record=${this.delivery}

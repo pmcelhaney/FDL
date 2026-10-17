@@ -3,26 +3,13 @@ import { ExampleModel } from './disabled-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { explainDependency } from '../../dependency-explanation';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
-        return html`${this.renderField('lockedId')}${this.renderField('approvalStatus')}${this.renderField('budget')}${explainDependency(this.record, 'budget', 'approvalStatus', `approvalStatus === 'approved'`, 'disabled')}`;
+        return html`${keyed(this.record.field('budget'), renderExample())}${explainDependency(this.record, 'budget', 'approvalStatus', `approvalStatus === 'approved'`, 'disabled')}`;
     }
     render() {
         return html`<div class="focused" data-modifier="disabled"

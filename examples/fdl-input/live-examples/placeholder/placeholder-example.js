@@ -2,26 +2,13 @@ import { placeholderView as renderExample } from './placeholder-view.js';
 import { ExampleModel } from './placeholder-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
-        return html`${this.renderField('projectName')}`;
+        return html`${keyed(this.record.field('projectName'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="placeholder"

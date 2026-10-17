@@ -1,8 +1,8 @@
 import { record } from './formatter-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
-export function formatterView(fields = ['amount'], showErrors = false) {
-    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
+export function formatterView() {
+    return html` <fdl-field .record=${record} field="amount"></fdl-field> `;
 }
 
 export function formattedAmountView() {

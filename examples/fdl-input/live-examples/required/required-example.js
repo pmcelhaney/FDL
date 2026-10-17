@@ -47,7 +47,7 @@ export class RequiredExample extends ExampleController {
 
     render() {
         return html`<div class="demo-grid">
-            <div class="controls">
+            <form class="controls" @submit=${event => event.preventDefault()}>
                 <label class="rule-control">
                     <input
                         type="checkbox"
@@ -56,13 +56,13 @@ export class RequiredExample extends ExampleController {
                     />
                     Require a value
                 </label>
-                ${keyed(this.person.field('name'), requiredView(this.checked))}
+                ${keyed(this.person.field('name'), requiredView())}
                 ${explainDependency(this.person, 'followUpNotes', 'followUp', "followUp === 'yes'", 'required')}
                 <button class="primary" @click=${() => this.checkRecord()}
                     >Check record</button
                 >
                 <p class="result" role="status">${this.status()}</p>
-            </div>
+            </form>
             <fdl-record-inspector .record=${this.person}></fdl-record-inspector>
         </div>`;
     }

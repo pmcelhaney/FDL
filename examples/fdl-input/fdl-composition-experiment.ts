@@ -352,8 +352,7 @@ export class FdlCompositionExperiment extends LitElement {
                     >3. Inspect the selected case</h3
                 ><div class="case-workspace"
                     ><div class="editor">
-                        ${compositionView(this.record, ['fulfillment'])}
-                        ${keyed(this.record.field('address'), html`${compositionView(this.record, ['address'])}`)}
+                        ${keyed(this.record.field('address'), html`${compositionView(this.record)}`)}
                         <p
                             >Try your own address. The number check is an
                             illustrative format rule, not proof that an address

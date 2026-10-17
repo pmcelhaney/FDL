@@ -1,9 +1,10 @@
 import { record } from './readOnly-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
-export function readOnlyView(
-    fields = ['fixedOwner', 'phase', 'conditionalOwner'],
-    showErrors = false
-) {
-    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
+export function readOnlyView() {
+    return html`
+        <fdl-field .record=${record} field="fixedOwner"></fdl-field>
+        <fdl-field .record=${record} field="phase"></fdl-field>
+        <fdl-field .record=${record} field="conditionalOwner"></fdl-field>
+    `;
 }

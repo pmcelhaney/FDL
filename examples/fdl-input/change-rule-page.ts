@@ -27,8 +27,8 @@ export class FdlConditionalValidation extends LitElement {
                 the hidden value remains stored, and its format no longer blocks
                 validation.</p
             >
-            ${conditionalValidationView(this.account, ['country'])}
-            ${conditionalValidationView(this.account, ['taxId'])}
+            ${conditionalValidationView(this.account)}
+
             <p role="status"
                 >${this.account.isValid() ? 'Valid account.' : this.account.readableRecordErrors().join('. ')}</p
             >
@@ -54,10 +54,12 @@ customElements.define('fdl-conditional-validation', FdlConditionalValidation);
 export function renderValidatorContract(includeExample = true) {
     return html`<section
         ><h3>Validator callback contract</h3>
-        <fdl-code-snippet><pre
-            class="code"
-        ><code>validate(modelValue, viewValue, record, options, field)
-  =&gt; boolean | Promise&lt;boolean&gt;</code></pre></fdl-code-snippet>
+        <fdl-code-snippet>
+            <pre
+                class="code"
+            ><code>validate(modelValue, viewValue, record, options, field)
+  =&gt; boolean | Promise&lt;boolean&gt;</code></pre>
+        </fdl-code-snippet>
         <p
             >The first argument is the stored model value; the second is the
             consumer-supplied view value (Record validation passes null); the
@@ -167,9 +169,10 @@ export function renderChangeRule() {
             </tbody></table
         >
         <h2>Test behavior without a browser</h2>
-        <fdl-code-snippet><pre
-            class="code"
-        ><code>${highlightJavaScript(`import { createAccount } from '../examples/fdl-input/conditional-validation-model';
+        <fdl-code-snippet>
+            <pre
+                class="code"
+            ><code>${highlightJavaScript(`import { createAccount } from '../examples/fdl-input/conditional-validation-model';
 it.each([
     ['US', '', true],
     ['US', 'invalid', true],
@@ -185,7 +188,8 @@ it('keeps values when the condition changes', () => {
     account.setField('country', 'US');
     expect(account.isValid()).toBe(true);
     expect(account.getField('taxId')).toBe('invalid');
-});`)}</code></pre></fdl-code-snippet>
+});`)}</code></pre>
+        </fdl-code-snippet>
         <p
             >Run
             <code

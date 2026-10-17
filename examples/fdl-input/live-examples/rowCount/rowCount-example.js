@@ -8,20 +8,12 @@ export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
-        return html`${this.renderField('textareaRows', this.probes)}${this.renderField('comments')}`;
+        return html`<fdl-field
+                .record=${this.probes}
+                field="textareaRows"
+            ></fdl-field
+            >${keyed(this.record.field('comments'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="rowCount"

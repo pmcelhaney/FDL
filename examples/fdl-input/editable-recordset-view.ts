@@ -29,7 +29,27 @@ export function editableRecordsetView(
                                 >${row.getField('id')}</button
                             ></th
                         >
-                        ${(['quantity', 'unitPrice', 'status', 'reason'] as const).map(name => html`<td><fdl-field .record=${row} field=${name} .showValidationErrors=${true}></fdl-field></td>`)}
+                        <td
+                            ><fdl-field
+                                .record=${row}
+                                field="quantity"
+                            ></fdl-field></td
+                        ><td
+                            ><fdl-field
+                                .record=${row}
+                                field="unitPrice"
+                            ></fdl-field></td
+                        ><td
+                            ><fdl-field
+                                .record=${row}
+                                field="status"
+                            ></fdl-field></td
+                        ><td
+                            ><fdl-field
+                                .record=${row}
+                                field="reason"
+                            ></fdl-field
+                        ></td>
                         <td class="numeric"
                             >${shipmentCharge(row).toFixed(2)}</td
                         ><td
@@ -41,14 +61,6 @@ export function editableRecordsetView(
     >`;
 }
 export function shipmentDetailView(record: Record<any>) {
-    return html`<fdl-field
-            .record=${record}
-            field="quantity"
-            .showValidationErrors=${true}
-        ></fdl-field
-        ><fdl-field
-            .record=${record}
-            field="reason"
-            .showValidationErrors=${true}
-        ></fdl-field>`;
+    return html`<fdl-field .record=${record} field="quantity"></fdl-field
+        ><fdl-field .record=${record} field="reason"></fdl-field>`;
 }

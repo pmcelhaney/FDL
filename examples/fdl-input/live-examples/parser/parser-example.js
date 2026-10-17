@@ -3,7 +3,6 @@ import { ExampleModel } from './parser-example-state.js';
 import { html } from 'lit';
 import { valuePipeline } from '../../value-pipeline';
 import { keyed } from 'lit/directives/keyed.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -13,24 +12,12 @@ export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
         return html`<p class="try"
                 >Edit the money field. The stored number updates as you type;
                 currency formatting is applied when you leave the field.</p
             ><div @input=${this.captureMoneyInput}
-                >${this.renderField('money')}</div
+                >${keyed(this.record.field('money'), renderExample())}</div
             >${valuePipeline(this.record, 'money', this.moneyInput)}`;
     }
     render() {

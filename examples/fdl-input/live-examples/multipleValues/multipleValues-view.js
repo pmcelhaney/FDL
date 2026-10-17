@@ -1,6 +1,6 @@
 import { record } from './multipleValues-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
-export function multipleValuesView(fields = ['skills'], showErrors = false) {
-    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
+export function multipleValuesView() {
+    return html` <fdl-field .record=${record} field="skills"></fdl-field> `;
 }

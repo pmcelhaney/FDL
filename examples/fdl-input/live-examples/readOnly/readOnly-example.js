@@ -3,26 +3,13 @@ import { ExampleModel } from './readOnly-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { explainDependency } from '../../dependency-explanation';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.record
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
-        return html`${this.renderField('fixedOwner')}${this.renderField('phase')}${this.renderField('conditionalOwner')}${explainDependency(this.record, 'conditionalOwner', 'phase', `phase === 'submitted'`, 'readonly')}`;
+        return html`${keyed(this.record.field('conditionalOwner'), renderExample())}${explainDependency(this.record, 'conditionalOwner', 'phase', `phase === 'submitted'`, 'readonly')}`;
     }
     render() {
         return html`<div class="focused" data-modifier="readOnly"

@@ -82,9 +82,16 @@ export class FdlTransferChallenge extends LitElement {
             >
             <div class="grid"
                 ><section aria-label="Choose cancellation rules"
-                    >${['visibility', 'requiredness'].map(field => html`<fdl-field .record=${this.configuration} field=${field}></fdl-field>`)}</section
+                    ><fdl-field
+                        .record=${this.configuration}
+                        field="visibility"
+                    ></fdl-field
+                    ><fdl-field
+                        .record=${this.configuration}
+                        field="requiredness"
+                    ></fdl-field></section
                 ><section aria-label="Try the cancellation form"
-                    >${cancellationView(this.record, ['status'])}${keyed(this.record.field('reason'), html`${cancellationView(this.record, ['reason'])}`)}<p
+                    >${keyed(this.record.field('reason'), html`${cancellationView(this.record)}`)}<p
                         >Stored reason:
                         <code
                             >${JSON.stringify(this.record.getField('reason'))}</code
@@ -140,12 +147,18 @@ export class FdlTransferChallenge extends LitElement {
                 ></details
             ><details
                 ><summary>Inspect a solution</summary>
-                <p>Choose Only when Cancelled for both visibility and requiredness.</p>
+                <p
+                    >Choose Only when Cancelled for both visibility and
+                    requiredness.</p
+                >
             </details>
             <h3>cancellation-rules.ts</h3
             ><fdl-code-snippet>
-                <pre><code>${highlightJavaScript(modelSource)}</code></pre>
-            </fdl-code-snippet><h3>cancellation-view.ts</h3><fdl-code-snippet><pre><code>${highlightJavaScript(viewSource)}</code></pre></fdl-code-snippet>`;
+                <pre><code>${highlightJavaScript(modelSource)}</code></pre></fdl-code-snippet
+            ><h3>cancellation-view.ts</h3
+            ><fdl-code-snippet>
+                <pre><code>${highlightJavaScript(viewSource)}</code></pre>
+            </fdl-code-snippet>`;
     }
     static styles = css`
         :host {

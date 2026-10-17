@@ -1,7 +1,6 @@
 import { filterView as renderExample } from './filter-view.js';
 import { ExampleModel } from './filter-example-state.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '@pmcelhaney/fdl/lit/fdl-table';
 import '../../fdl-recordset-inspector';
@@ -9,21 +8,13 @@ export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                field=${field}
-                .record=${record}
-                .showValidationErrors=${showValidationErrors}
-            ></fdl-field>`
-        );
-    }
     renderDemo() {
         return html`<p class="try"
                 >Choose a matching rule and enter search text to filter the
                 table.</p
-            >${this.renderField('matchRule', this.probes)}${this.renderField('filterProbe', this.probes)}${renderExample(
+            ><fdl-field .record=${this.probes} field="matchRule"></fdl-field
+            ><fdl-field .record=${this.probes} field="filterProbe"></fdl-field
+            >${renderExample(
                 { name: this.probes.getField('filterProbe') },
                 event => {
                     const text = event.detail.name ?? '';

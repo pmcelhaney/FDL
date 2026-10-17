@@ -1,9 +1,10 @@
 import { record } from './disabled-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
-export function disabledView(
-    fields = ['lockedId', 'approvalStatus', 'budget'],
-    showErrors = false
-) {
-    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
+export function disabledView() {
+    return html`
+        <fdl-field .record=${record} field="lockedId"></fdl-field>
+        <fdl-field .record=${record} field="approvalStatus"></fdl-field>
+        <fdl-field .record=${record} field="budget"></fdl-field>
+    `;
 }

@@ -40,3 +40,15 @@ it.each([...displayedFiles])('keeps displayed source free of tutorial components
         /<fdl-(?:example|record-inspector|recordset-inspector|prediction)\b/
     );
 });
+
+it.each([...displayedFiles].filter(file => /-view\.[jt]s$/.test(file)))(
+    'lists field controls explicitly without validation-display flags: %s',
+    file => {
+        const source = readFileSync(file, 'utf8');
+        expect(source).not.toMatch(/fields\.map|showErrors|showValidationErrors/);
+        // The field builder renders the name entered by the user, rather than a fixed form.
+        if (!file.endsWith('field-builder-view.ts')) {
+            expect(source).not.toMatch(/<fdl-field\b[^>]*\bfield=\$\{/s);
+        }
+    }
+);

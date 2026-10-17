@@ -3,11 +3,11 @@ import type { Record } from '@pmcelhaney/fdl';
 import type { Recordset } from '@pmcelhaney/fdl';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '@pmcelhaney/fdl/lit/fdl-table';
-export function learningView(
-    record: Record<any>,
-    fields = ['method', 'charge']
-) {
-    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${true}></fdl-field>`)}`;
+export function learningView(record: Record<any>, step = 3) {
+    return html`
+        ${step >= 3 ? html`<fdl-field .record=${record} field="method"></fdl-field>` : ''}
+        <fdl-field .record=${record} field="charge"></fdl-field>
+    `;
 }
 export function learningTableView(recordset: Recordset<any>) {
     return html`<fdl-table .recordset=${recordset}

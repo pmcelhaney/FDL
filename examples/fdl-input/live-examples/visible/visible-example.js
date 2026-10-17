@@ -3,26 +3,13 @@ import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './visible-example-state.js';
 import { explainDependency } from '../../dependency-explanation';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    field(record, field) {
-        return keyed(
-            record.field(field),
-            record === this.delivery
-                ? renderExample([field], this.checked)
-                : html`<fdl-field
-                      .record=${record}
-                      field=${field}
-                      .showValidationErrors=${this.checked}
-                  ></fdl-field>`
-        );
-    }
     demo() {
-        return html`${this.field(this.delivery, 'fulfillment')}${this.field(this.delivery, 'address')}${explainDependency(this.delivery, 'address', 'fulfillment', `fulfillment === 'ship'`, 'visible')}<p
+        return html`${keyed(this.delivery.field('address'), renderExample())}${explainDependency(this.delivery, 'address', 'fulfillment', `fulfillment === 'ship'`, 'visible')}<p
                 class="result"
                 role="status"
                 >${this.delivery.getField('fulfillment') === 'ship' ? 'Shipping address is visible.' : 'Pickup selected. Shipping address is hidden.'}</p

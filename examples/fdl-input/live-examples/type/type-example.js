@@ -9,24 +9,15 @@ export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    renderField(field, record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            record === this.inputTypeRecord
-                ? renderExample([field], showValidationErrors)
-                : html`<fdl-field
-                      field=${field}
-                      .record=${record}
-                      .showValidationErrors=${showValidationErrors}
-                  ></fdl-field>`
-        );
-    }
     renderDemo() {
-        return html`${this.renderField('inputType', this.probes)}
+        return html`<fdl-field
+                .record=${this.probes}
+                field="inputType"
+            ></fdl-field>
             <p class="try"
                 >${inputTypeNote(this.probes.getField('inputType'))}</p
             >
-            ${this.renderField('inputValue', this.inputTypeRecord)}`;
+            ${keyed(this.inputTypeRecord.field('inputValue'), renderExample())}`;
     }
     render() {
         return html`<div class="focused" data-modifier="type"

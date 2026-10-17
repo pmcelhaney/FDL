@@ -1,4 +1,8 @@
-import { learningFields, createLearningRecord, createLearningTable } from './learning-model';
+import {
+    learningFields,
+    createLearningRecord,
+    createLearningTable,
+} from './learning-model';
 import { learningView, learningTableView } from './learning-view';
 import './fdl-code-snippet';
 import { field, Record, Recordset } from '@pmcelhaney/fdl';
@@ -63,7 +67,9 @@ export class FdlLearningPath extends LitElement {
     static properties = { session: { attribute: false } };
     session?: LearningState;
     private step = 0;
-    private definitions() {return learningFields(this.step); }
+    private definitions() {
+        return learningFields(this.step);
+    }
     private record = createLearningRecord();
     private table = createLearningTable(this.step);
     private refresh = () => {
@@ -80,7 +86,9 @@ export class FdlLearningPath extends LitElement {
     connectedCallback() {
         if (this.session) {
             this.step = this.session.step;
-            this.record = createLearningRecord(this.step, {...this.session.values});
+            this.record = createLearningRecord(this.step, {
+                ...this.session.values,
+            });
             this.table = createLearningTable(this.step);
         }
         super.connectedCallback();
@@ -149,7 +157,7 @@ export class FdlLearningPath extends LitElement {
                 ><p>${lesson.explanation}</p>
                 <div class="lesson-grid"
                     ><div class="lesson-controls"
-                        >${this.step >= 3 ? learningView(this.record,['method']) : ''}${keyed(this.record.field('charge'), learningView(this.record,['charge']))}</div
+                        >${keyed(this.record.field('charge'), learningView(this.record, this.step))}</div
                     ><div class="lesson-state" role="status"
                         >${recordSummary(this.record, this.step >= 3 ? ['method', 'charge'] : ['charge'])}</div
                     ></div

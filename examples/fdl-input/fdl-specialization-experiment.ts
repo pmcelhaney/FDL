@@ -65,23 +65,7 @@ export class FdlSpecializationExperiment extends LitElement {
                 requiredName</button
             >
             <div class="variants"
-                >${(['base', 'required', 'sibling'] as const).map(
-                    key =>
-                        html`<section aria-label=${`${key} definition`}
-                            ><h3
-                                >${key === 'base' ? 'baseName' : key === 'required' ? 'requiredName' : 'shortName'}</h3
-                            >
-                            <code
-                                >${key === 'base' ? "field.label('Name')" : key === 'required' ? (this.enabled ? 'baseName.required()' : 'baseName') : 'baseName.minLength(2)'}</code
-                            >
-                            ${keyed(this.record.field(key), html`${specializationView(this.record, [key])}`)}
-                            <p class="variant-state"
-                                >${this.record.field(key).required ? 'Required' : 'Optional'}
-                                ·
-                                ${this.record.isValid(key) ? 'Valid' : 'Invalid'}</p
-                            ></section
-                        >`
-                )}</div
+                >${keyed(this.record.field('required'), specializationView(this.record))}</div
             >
             <p role="status"
                 >The base is

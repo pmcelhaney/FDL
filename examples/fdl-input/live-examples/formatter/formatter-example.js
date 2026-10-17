@@ -3,27 +3,14 @@ import { formatterView as renderExample } from './formatter-view.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './formatter-example-state.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;
     }
-    field(record, field) {
-        return keyed(
-            record.field(field),
-            record === this.money
-                ? renderExample([field], this.checked)
-                : html`<fdl-field
-                      .record=${record}
-                      field=${field}
-                      .showValidationErrors=${this.checked}
-                  ></fdl-field>`
-        );
-    }
     demo() {
-        return html`${this.field(this.money, 'amount')}
-            ${formattedAmountView()}`;
+        return html`${keyed(this.money.field('amount'), renderExample())}
+        ${formattedAmountView()}`;
     }
     render() {
         return html`<div class="demo-grid"

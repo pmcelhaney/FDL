@@ -19,32 +19,35 @@ export class ExampleView extends ExampleModel {
                 the maximum; assigning an overlong model value bypasses that
                 input cap so you can check model validation.</p
             >
-            ${['minimum', 'maximum'].map(name => html`<fdl-field .record=${this.settings} field=${name}></fdl-field>`)}
-            ${textLengthView(this.checked)}
-            <div class="actions"
-                ><button
-                    @click=${() => {
-                        this.checked = true;
-                        this.requestUpdate();
-                    }}
-                    >Check value</button
+            <fdl-field .record=${this.settings} field="minimum"></fdl-field>
+            <fdl-field .record=${this.settings} field="maximum"></fdl-field>
+            <form @submit=${event => event.preventDefault()}
+                >${textLengthView()}
+                <div class="actions"
+                    ><button
+                        @click=${() => {
+                            this.checked = true;
+                            this.requestUpdate();
+                        }}
+                        >Check value</button
+                    >
+                    <button
+                        class="model-assignment"
+                        @click=${() => {
+                            this.record.setField(
+                                'code',
+                                'X'.repeat(this.settings.values.maximum + 1)
+                            );
+                            this.checked = true;
+                            this.requestUpdate();
+                        }}
+                        >Assign an overlong model value</button
+                    ></div
                 >
-                <button
-                    class="model-assignment"
-                    @click=${() => {
-                        this.record.setField(
-                            'code',
-                            'X'.repeat(this.settings.values.maximum + 1)
-                        );
-                        this.checked = true;
-                        this.requestUpdate();
-                    }}
-                    >Assign an overlong model value</button
-                ></div
-            >
-            <p class="result" role="status"
-                >${this.checked ? (this.record.isValid() ? 'Valid code.' : this.record.readableRecordErrors().join('. ')) : 'Check the value to show validation errors.'}</p
-            >
+                <p class="result" role="status"
+                    >${this.checked ? (this.record.isValid() ? 'Valid code.' : this.record.readableRecordErrors().join('. ')) : 'Check the value to show validation errors.'}</p
+                >
+            </form>
             <fdl-record-inspector .record=${this.record}></fdl-record-inspector>
         </fdl-example>`;
     }
