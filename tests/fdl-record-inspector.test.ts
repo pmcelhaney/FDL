@@ -195,7 +195,7 @@ it('inspects nested records and nested recordsets', async () => {
     addressButton.click();
     await inspector.updateComplete;
 
-    expect(root.querySelector('h3')!.textContent).toBe('Nested record');
+    expect(root.querySelector('h3')!.textContent).toBe('address');
     expect(root.querySelector('header')!.firstElementChild!.classList.contains('back-button')).toBe(
         true
     );

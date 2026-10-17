@@ -183,7 +183,7 @@ export class FdlRecordInspector extends LitElement {
                             <th scope="row" class="field-name">${name}</th>
                             <td class="field-label">${field.label}</td>
                             <td class="stored-value">
-                                ${this.renderNestedValue(field, field.rawValue)}
+                                ${this.renderNestedValue(field, field.rawValue, name)}
                             </td>
                         </tr>`;
                     })}
@@ -194,7 +194,8 @@ export class FdlRecordInspector extends LitElement {
 
     private renderNestedValue(
         field: ReturnType<Record<any>['field']>,
-        value: unknown
+        value: unknown,
+        name: string
     ): unknown {
         if (field.recordDefinition) {
             const child = nestedRecord(field.recordDefinition, value);
@@ -202,7 +203,7 @@ export class FdlRecordInspector extends LitElement {
                 type="button"
                 class="nested-inspect"
                 aria-label="Inspect nested record"
-                @click=${() => this.openNestedRecord(child, 'Nested record')}
+                @click=${() => this.openNestedRecord(child, name)}
                 >${inspectIcon()} record</button
             >`;
         }
@@ -325,7 +326,7 @@ export class FdlRecordInspector extends LitElement {
                 }
                 <div class="inspector-heading" ?hidden=${this.collapsed}>
                     <h3>${currentView?.label ?? 'Record Inspector'}</h3>
-                    <p>Stored values · Field state</p>
+                    <p>See each field’s stored value and current state.</p>
                 </div>
                 ${
                     record
@@ -389,7 +390,7 @@ export class FdlRecordInspector extends LitElement {
                                                     >${field.label}</td
                                                 >
                                                 <td class="stored-value"
-                                                    >${this.renderNestedValue(field, field.rawValue)}</td
+                                                    >${this.renderNestedValue(field, field.rawValue, name)}</td
                                                 >
                                             </tr>`;
                                         })}</tbody
