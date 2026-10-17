@@ -110,14 +110,20 @@ export function renderSitePage(
         ></article>`;
     if (page === 'home')
         return html` <article class="site-page">
-            <h1 tabindex="-1">Finally, a framework for business rules.</h1>
+            <h1 tabindex="-1">Finally, a design system for business rules</h1>
             <p class="description"
                 >Define how your data behaves—what’s valid, what’s required, how
                 values are formatted, and what depends on what. FDL brings those
-                rules into a shared model for JavaScript and TypeScript,
-                independent of your frontend framework and design system. Use
+                rules into a shared model for JavaScript and TypeScript. Use
                 the same rules across forms, tables, and other interfaces—even
                 as your UI changes.</p
+            >
+            <p
+                >FDL works with any framework. Plug it into your existing design
+                system or start with the built-in example components.
+                Accessibility is baked into those components, with labelled
+                controls, keyboard interaction, and validation messages connected
+                to the fields they describe.</p
             >
             <fdl-delivery-experiment></fdl-delivery-experiment>
             <p
@@ -135,6 +141,13 @@ export function renderSitePage(
                 form, a table, and a validation check can all use it, so
                 changing the rule does not mean finding and updating several
                 copies. You can also test it without rendering a screen.</p
+            >
+            <p
+                >Small, composable abstractions give humans and coding agents
+                less room to make mistakes. Declare a rule once; the model
+                enforces it wherever it is used. Clear affordances in the
+                example components make required fields, available choices, and
+                validation feedback visible to the person using the form.</p
             >
             <p
                 >Your UI components read FDL’s field behavior and record state
