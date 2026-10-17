@@ -1,21 +1,37 @@
 # Binding components to FDL fields
 
-This page is for authors of form controls, table renderers, filters, and other
-components that consume FDL. It describes the boundary between an FDL model and
-your renderer.
+This page assumes that you have used FDL to define fields and work with
+`Record` or `Recordset`, but have not yet built a component that binds to that
+model. It is for authors of form controls, table renderers, filters, and other
+FDL consumers.
+
+You already know the first half of the story: field definitions describe
+reusable behavior, and a `Record` supplies values and evaluates that behavior.
+The component is the second half. It reads the current model state, translates
+that state into accessible UI, and sends user input back through the model.
+
+The important boundary is:
+
+```text
+FDL model: meaning and state  ->  component: semantics and interaction
+FDL model: parsed user input  <-  component: user events
+```
 
 FDL owns field meaning and model state. Your component owns semantic HTML,
 accessible relationships, interaction policy, focus, events, layout, and visual
-styling. The integration flow is:
+styling.
 
 ```text
 Field definition -> Record/Recordset -> component state -> accessible UI
                                       <- parsed user input
 ```
 
-Do not make the component the source of business rules. Read the current state
-from the `Record` and `FieldType`, and send user input back through the record's
-parsing API.
+Do not make the component the source of business rules. The rest of this page
+answers three practical questions:
+
+1. What should the component read from a `Record` and its `FieldType`?
+2. How should it turn that state into a control, table, or other accessible UI?
+3. How should user input and model changes flow across the boundary?
 
 ## The renderer contract
 
