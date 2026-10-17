@@ -24,11 +24,13 @@ export class FdlRecordsetInspector extends LitElement {
         recordset: { attribute: false },
         fields: { attribute: false },
         collapsed: { type: Boolean, reflect: true },
+        showClasses: { state: true },
     };
 
     recordset?: Recordset<any>;
     fields?: readonly string[];
     collapsed = false;
+    private showClasses = false;
     private classNumbers = new Map<string, number>();
     private observedRecordset?: Recordset<any>;
     private observedRecords = new Set<Record<any>>();
@@ -91,7 +93,7 @@ export class FdlRecordsetInspector extends LitElement {
     }
 
     private classMarkers(classes: readonly string[]) {
-        return classes.length
+        return this.showClasses && classes.length
             ? html`<span class="class-markers">${classes.map(name => html`<span
                   class="class-number"
                   title=${name}
@@ -233,8 +235,16 @@ export class FdlRecordsetInspector extends LitElement {
                                   </table>
                               </div>
                               ${recordset.currentPage.length ? '' : html`<p>No records on this page.</p>`}
-                              ${activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
-                                  <strong>CSS classes</strong>
+                              ${activeClasses.size ? html`<label class="class-toggle">
+                                  <input
+                                      type="checkbox"
+                                      .checked=${this.showClasses}
+                                      @change=${(event: Event) => {
+                                          this.showClasses = (event.target as HTMLInputElement).checked;
+                                      }}
+                                  />Show CSS classes
+                              </label>` : ''}
+                              ${this.showClasses && activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
                                   ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number">${number}</span><code>${name}</code></span>`)}
                               </div>` : ''}
                               ${statusLegend()}
@@ -343,6 +353,18 @@ ${JSON.stringify(
                 gap: 8px 16px;
                 margin-top: 16px;
                 font-size: 0.8125rem;
+            }
+            .class-toggle {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 12px;
+                min-height: 44px;
+                font-size: 0.8125rem;
+                cursor: pointer;
+            }
+            .class-toggle input {
+                margin: 0;
             }
             .class-entry code {
                 overflow-wrap: anywhere;

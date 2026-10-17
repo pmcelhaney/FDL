@@ -179,7 +179,9 @@ records have no row status icon or Valid label. The JSON disclosure
 includes current-page values and view metadata. Server-side totals can exceed
 the number of loaded records; the inspector reports these separately.
 
-CSS class numbers appear beside cell values, in column headers, and at the start
+The **Show CSS classes** checkbox is unchecked by default. Checking it reveals
+the class numbers and legend; unchecking it hides both. CSS class numbers appear
+beside cell values, in column headers, and at the start
 of rows for `cellClass`, `columnClass`, and `rowClass` respectively. A shared legend
 maps each number to its class name; hovering a number also reveals the name.
 Only classes applicable to the displayed fields and current page appear in the

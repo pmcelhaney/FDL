@@ -233,6 +233,12 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     );
     const inspector = await inspect(recordset);
     const root = inspector.shadowRoot!;
+    const toggle = root.querySelector<HTMLInputElement>('.class-toggle input')!;
+    expect(toggle.checked).toBe(false);
+    expect(root.querySelector('.class-legend')).toBeNull();
+    expect(root.querySelector('.class-number')).toBeNull();
+    toggle.click();
+    await inspector.updateComplete;
     const entries = [...root.querySelectorAll('.class-entry')];
     expect(entries.map(entry => entry.querySelector('code')!.textContent)).toEqual([
         'shared', 'heading', 'row', 'cell', 'high',
@@ -248,6 +254,13 @@ it('numbers unique CSS classes across columns, rows and cells and keeps their sc
     expect(numbers('[data-field="name"]')).toEqual([]);
     expect(root.querySelector('[data-field="amount"] [title="high"]')!.getAttribute('aria-label')).toBe('CSS class 5: high');
     expect(root.querySelector('[data-field="amount"] .stored-cell > span:nth-child(2)')!.textContent).toBe('12');
+    toggle.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('.class-legend')).toBeNull();
+    expect(root.querySelector('.class-number')).toBeNull();
+    toggle.click();
+    await inspector.updateComplete;
+    expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
     recordset.allRecords[0].setField('amount', 2);
     await inspector.updateComplete;
     expect(root.querySelector('.class-legend')!.textContent).not.toContain('high');
