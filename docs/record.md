@@ -4,7 +4,8 @@ A `Record` combines a map of field names and field definitions with one
 object of values. Start definitions with `field` or a primitive and chain
 modifiers, then pass them directly to the constructor. The record connects their
 rules to values and is the model passed to FDL form controls.
-Use `fieldTypeForField(name)` to inspect a field's runtime behavior.
+Use `field(name)` to access the complete field-scoped facade, including its
+runtime `fieldType`, value, parsing, formatting, options, and validation.
 
 ```js
 import { Record, string } from '@pmcelhaney/fdl';
@@ -22,15 +23,16 @@ const account = new Record(
 ```
 
 `addField(name, definition, value)` uses the same conversion. The input map is
-not changed. `fieldTypeForField(name)` returns the finalized `FieldType`, so
+not changed. `record.field(name).fieldType` returns the finalized `FieldType`, so
 runtime methods such as `required()` evaluate state rather than add modifiers.
 
 ## Working with fields
 
 Prefer `record.field(name)` in components and other UI code. It returns a
-`Field` object that exposes printed and raw values, validity, and the runtime
-field type. For example, assigning `field.value` parses the displayed value
-before storing it, while `field.rawValue` reads or writes the stored value.
+`Field` object that owns the field's printed and raw values, parsing, formatting,
+validity, options, and runtime field type. For example, assigning `field.value`
+parses the displayed value before storing it, while `field.rawValue` reads or
+writes the stored value.
 
 ```js
 const name = account.field('name');
@@ -48,10 +50,9 @@ account.setField('name', 'Savings');
 account.getField('name'); // 'Savings'
 ```
 
-`setField()` stores the supplied value directly, without parsing or rejecting
-invalid values. Use `parseAndSetField(name, input)` to parse first, and call
-validation explicitly. Disabled and read-only state affects consumers; it does
-not block programmatic assignments.
+The field facade's `value` setter parses before storing; `rawValue` writes an
+already parsed value directly. Disabled and read-only state affects consumers;
+it does not block programmatic assignments.
 
 ## Change events and lifecycle
 
@@ -98,16 +99,16 @@ Reconciliation is asynchronous even for static options. Before submitting or
 validating a record after a change, await all current lookups and cascading clears:
 
 ```js
-record.setField('zip', '10001');
+record.field('zip').rawValue = '10001';
 await record.whenOptionsReady();
-record.getField('store'); // undefined if the previous store is no longer an option
+record.field('store').rawValue; // undefined if the previous store is no longer an option
 record.isValid(); // required fields still require a new selection
 ```
 
-Use `optionsForField(name)` to load choices through the same disabled-state gate
-as the native adapter. It returns an empty list without invoking the provider
-when the field is disabled. The lower-level `FieldType.options(record)` method
-remains an explicit provider call and does not apply this gate.
+Use `record.field(name).options()` to load choices through the same disabled-state
+gate as the native adapter. It returns an empty list without invoking the
+provider when the field is disabled. The lower-level `FieldType.options(record)`
+method remains an explicit provider call and does not apply this gate.
 
 Use `refreshOptions()` to request reconciliation explicitly; option-provider
 caching still applies. `whenOptionsReady()` waits for the latest pass and any
@@ -129,19 +130,16 @@ if (!account.isValid()) {
 account.print('name');
 ```
 
-`fieldTypeForField(name)` returns the `FieldType` definition for integrations
+`record.field(name).fieldType` returns the `FieldType` definition for integrations
 that need it directly.
 
-`getFormattedField(fieldName, context)` runs the formatter pipeline without
-applying a template. Its default context is `"model"`. The `Field` facade
-exposes `focusedInputValue` and `blurredInputValue` using `"input-focus"` and
-`"input-blur"` respectively. The current native adapter requests `"input-focus"`
-when synchronizing editable text, including on blur; it does not switch to
-`"input-blur"` automatically. `print(fieldName)` formats with `"print"`
-and then applies `template(...)`, so its result may be a Lit template rather
-than a string. `record.field(name).value` also uses that printed representation.
-`parse(fieldName, input)` uses `"model"` and returns the parsed value without
-storing it.
+`field.format(value, context)` runs the formatter pipeline without applying a
+template. Its default context is `"model"`. The `Field` facade exposes
+`focusedInputValue` and `blurredInputValue` using `"input-focus"` and
+`"input-blur"` respectively. `field.print()` formats with `"print"` and then
+applies `template(...)`, so its result may be a Lit template rather than a
+string. `field.value` uses that printed representation, and `field.parse(input)`
+returns the parsed value without storing it.
 
 Synchronous validation throws when it encounters a promise-returning validator.
 Use `await record.isValidAsync(fieldName?)` or `await record.errorsAsync()` for

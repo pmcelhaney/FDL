@@ -108,7 +108,7 @@ export default class Record extends EventTarget {
      * @param {*} context
      */
     getFormattedField(field, context) {
-        return this.fieldTypeForField(field).format(this.getField(field), this, context);
+        return this.field(field).format(this.getField(field), context);
     }
 
     /**
@@ -118,7 +118,7 @@ export default class Record extends EventTarget {
      */
     print(field, index) {
         const value = index === undefined ? this.getField(field) : this.getField(field)[index];
-        return this.fieldTypeForField(field).print(value, this);
+        return this.field(field).print(value);
     }
 
     /**
@@ -127,7 +127,7 @@ export default class Record extends EventTarget {
      * @param {any} value
      */
     parse(field, value) {
-        return this.fieldTypeForField(field).parse(value, this, 'model');
+        return this.field(field).parse(value);
     }
 
     /**
@@ -236,14 +236,7 @@ export default class Record extends EventTarget {
      * @returns {array}
      */
     readableFieldErrors(field) {
-        return this.fieldTypeForField(field)
-            .validate(field, this.values[field], null, this)
-            .map(v => ({
-                ...v,
-                label: this.fieldTypeForField(field).label(this.getField(field), this, 'model'),
-            }))
-            .map(error => `${error.label} ${error.name}`)
-            .flat();
+        return this.field(field).readableErrors();
     }
 
     /**
@@ -256,7 +249,7 @@ export default class Record extends EventTarget {
      */
     isValid(key, value = this.values[key]) {
         if (key) {
-            return this.fieldTypeForField(key).validate(key, value, null, this).length === 0;
+            return this.field(key).isValid(value);
         }
 
         return !this.hasErrors();
@@ -264,10 +257,7 @@ export default class Record extends EventTarget {
 
     async isValidAsync(key, value = this.values[key]) {
         if (key) {
-            return (
-                (await this.fieldTypeForField(key).validateAsync(key, value, null, this)).length ===
-                0
-            );
+            return this.field(key).isValidAsync(value);
         }
 
         return (await this.errorsAsync()).flat(2).length === 0;
@@ -361,7 +351,7 @@ export default class Record extends EventTarget {
      * @param {*} formattedValue
      */
     parseAndSetField(fieldName, formattedValue) {
-        this.setField(fieldName, this.parse(fieldName, formattedValue));
+        this.field(fieldName).set(formattedValue);
     }
 
     /**
@@ -407,7 +397,7 @@ export default class Record extends EventTarget {
     }
 
     allowInputChar(field, char) {
-        return this.fieldTypeForField(field).allowInputChar(char);
+        return this.field(field).allowInputChar(char);
     }
 
     /**

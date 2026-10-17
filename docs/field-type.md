@@ -319,7 +319,7 @@ record's disabled-state gate and participates in dependency and selection
 reconciliation:
 
 ```js
-const options = await record.optionsForField(fieldName);
+const options = await record.field(fieldName).options();
 renderOptions(options);
 
 control.addEventListener('change', event => {

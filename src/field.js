@@ -5,9 +5,16 @@ export default class Field extends EventTarget {
         this.record = record;
         this.fieldName = fieldName;
 
+        let initialValidity;
+        try {
+            initialValidity = this.valid;
+        } catch {
+            // Async validators are evaluated through the async Field methods.
+            initialValidity = undefined;
+        }
         this.previousState = {
             rawValue: this.rawValue,
-            valid: this.valid,
+            valid: initialValidity,
         };
 
         // Note: there's no mechanism to clean up this listener when the Field is destroyed.
@@ -61,8 +68,8 @@ export default class Field extends EventTarget {
         return !this.valid;
     }
 
-    async isValidAsync() {
-        return (await this.errorsAsync()).length === 0;
+    async isValidAsync(value = this.rawValue) {
+        return (await this.errorsAsync(value)).length === 0;
     }
 
     isValid(value = this.rawValue) {
