@@ -6,11 +6,11 @@ accessible control. The application chooses workflow and presentation.
 
 ## Responsibilities
 
-| Layer                                            | Owns                                                                                                                                                                                                       | Does not own                                                                                                          |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| FDL (`Record`, `Field`, `Column`, and `Recordset`) | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                     | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling                              |
-| Form adapter (`FormElement` or another renderer) | Selecting and configuring the control, accessible labels and descriptions, semantic read-only output, translating shown model state to native and ARIA state, and sending edited values back to the Record | New business rules, when the application considers a field touched, submission policy, colors, spacing, or typography |
-| Application and CSS                              | Workflow such as touched/submitted state, when validation is shown, submission and persistence, layout, theme, and visual error treatment                                                                  | Recomputing FDL validity in CSS or treating browser appearance as the business rule                                   |
+| Layer                                              | Owns                                                                                                                                                                                                       | Does not own                                                                             |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| FDL (`Record`, `Field`, `Column`, and `Recordset`) | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                         | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling |
+| Form adapter (`FormElement` or another renderer)   | Selecting and configuring the control, accessible labels and descriptions, semantic read-only output, translating shown model state to native and ARIA state, and sending edited values back to the Record | New business rules, submission or persistence decisions, colors, spacing, or typography  |
+| Application and CSS                                | Workflow, submission and persistence, explicit validation reveal/reset, layout, theme, and visual error treatment                                                                                          | Recomputing FDL validity in CSS or treating browser appearance as the business rule      |
 
 Information moves in one direction:
 
@@ -18,10 +18,11 @@ Information moves in one direction:
 FDL business state -> adapter semantics -> application presentation
 ```
 
-The adapter may expose a setting that carries an application decision, but it
-must not move that policy into the field model. `FormElement.showValidationErrors`
-is one such setting: FDL supplies errors, the application decides when they are
-shown, and the adapter creates the accessible relationship.
+FDL supplies validity independently of interaction. The Lit adapter owns default
+blur and submit error-display timing and creates the accessible relationship.
+Applications can explicitly reveal errors with `showValidationErrors = true`
+and reset interaction state with `resetValidation()`. This UI policy stays out
+of the field model.
 
 ## Native `FormElement` behavior
 
@@ -46,9 +47,30 @@ of an instance, but callers must not parse them or use them as domain IDs.
 
 ## Validation display
 
-`showValidationErrors` defaults to `false`. An application can set it to
-`true` after its chosen interaction boundary, such as blur, touch, or a submit
-attempt. If synchronous `Record` validation then reports errors, the adapter:
+The Lit adapter starts with errors hidden and applies these defaults:
+
+- Leaving a field reveals its current errors. Moving focus between controls
+  within one field does not count as leaving it.
+- After reveal, errors update as values change and disappear as soon as the
+  field is valid. A later invalid value is shown immediately.
+- When another field in the same Record blurs, an untouched field reveals errors
+  if it was valid and visible at the previous blur boundary and its existing,
+  non-empty value is now invalid. A newly required empty field or newly visible
+  field waits for its own blur or a submit attempt.
+- A containing native form's `submit` event reveals all of its adapters' errors,
+  including fields inside nested shadow roots. A prevented submit still counts
+  as an attempt. Submission and persistence remain application responsibilities.
+- A non-cancelled form `reset` event clears validation-display state. It does not
+  reset Record values: the application still calls `record.reset()` or
+  `record.clear()`. For other reset flows, call `resetValidation()` on the adapter
+  after resetting the model. Rebinding an adapter to a different record or field
+  also starts fresh interaction state.
+
+`showValidationErrors` defaults to `false`; setting it to `true` additionally
+forces errors to be shown. Setting it to `false` returns to automatic timing;
+it does not suppress errors already revealed by interaction.
+
+When errors are shown, the adapter:
 
 - renders a connected, readable `.validation-error` element;
 - sets `aria-invalid="true"` on the editable control or read-only output; and

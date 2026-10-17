@@ -62,11 +62,11 @@ The complete ownership boundary is documented in the
 
 ## Properties
 
-| Property               | Required | Purpose                                                                                                                                                                                                                |
-| ---------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `field`                | Yes      | Names the field in `record` that this instance renders.                                                                                                                                                                |
-| `record`               | Yes      | Supplies the field definition, value, and model behavior.                                                                                                                                                              |
-| `showValidationErrors` | No       | When `true`, exposes current synchronous FDL errors in the UI and accessibility tree. Defaults to `false`; the application or adapter decides when to set it. The corresponding attribute is `show-validation-errors`. |
+| Property               | Required | Purpose                                                                                                                                                                                                                                         |
+| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `field`                | Yes      | Names the field in `record` that this instance renders.                                                                                                                                                                                         |
+| `record`               | Yes      | Supplies the field definition, value, and model behavior.                                                                                                                                                                                       |
+| `showValidationErrors` | No       | When `true`, exposes current synchronous FDL errors in the UI and accessibility tree. Defaults to `false`, using automatic blur/submit timing. Set `true` to reveal errors explicitly. The corresponding attribute is `show-validation-errors`. |
 
 ## A unified field component
 
@@ -133,26 +133,33 @@ its label connected without pretending the value is editable.
 
 ## Choosing when to show validation
 
-FDL determines whether the current record value is valid. The application owns
-the interaction policy for when an error should be shown—for example, after a
-field is touched or after the first submission attempt. Express that decision
-through the adapter property:
+FDL determines whether the current record value is valid. The Lit adapter waits
+until the field loses focus before showing its errors, then keeps them current
+as the user edits. An error disappears as soon as the value is valid.
+
+When another field in the same Record loses focus, a previously valid, visible,
+non-empty value that has become invalid also shows its error. Newly required
+empty fields and newly visible fields wait for their own blur or a form submit.
+A containing form's `submit` event reveals all errors; its `reset` event clears
+the display state. Applications still own submission and resetting Record data.
+See [Validation display](./adapter-contract.md#validation-display) for details.
+
+Ordinary views need no validation-display binding:
 
 ```ts
-html`<fdl-field
-    field="contactMethod"
-    .record=${record}
-    .showValidationErrors=${submissionAttempted}
-></fdl-field>`;
+html`<fdl-field field="contactMethod" .record=${record}></fdl-field>`;
 ```
 
-When the property is true and the field has synchronous model errors,
-`FormElement` renders a readable `.validation-error` element, sets
-`aria-invalid="true"` on the control, and connects the two with
-`aria-describedby`. When the property is false or the value becomes valid, it
-removes that error element and the ARIA state. CSS may style
-`.validation-error`, `[aria-invalid="true"]`, or both, but must not decide
-whether the model is valid.
+Set `showValidationErrors = true` to force errors to appear, for example from a
+custom submission flow without a native form. Setting it back to `false` uses
+automatic timing. Call `element.resetValidation()` after resetting a Record to
+clear both explicit reveal and interaction state.
+
+Shown errors render as `.validation-error`, set `aria-invalid="true"` on the
+control, and connect the two with `aria-describedby`. Hidden fields do not show
+errors. Resolved errors remove only the adapter's own error-description reference,
+preserving other descriptions. CSS styles these states; it does not determine
+validity.
 
 This behavior uses `record.field(name).readableErrors()`, so it covers
 synchronous FDL validators only. The adapter also constructs a `Field` facade,

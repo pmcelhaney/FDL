@@ -26,7 +26,7 @@ class FormElement extends ListeningElement {
 
     /**
      * Whether this adapter should expose the field's synchronous model validation errors.
-     * Applications own the interaction policy that decides when to enable it.
+     * Set true to reveal errors explicitly, in addition to automatic blur/submit display.
      */
     @property({ type: Boolean, attribute: 'show-validation-errors' })
     public showValidationErrors: boolean;
@@ -34,6 +34,102 @@ class FormElement extends ListeningElement {
     /** Empty-choice text belongs to this control, not to the option data. */
     @property({ type: String, attribute: 'select-prompt' })
     public selectPrompt?: string;
+
+    @state()
+    private validationRevealed = false;
+
+    private validationRecord?: Record<any>;
+    private validationField?: string;
+    private lastCommittedValid = true;
+    private lastCommittedVisible = true;
+    private validationForm?: HTMLFormElement;
+
+    /** Clear touched/submitted display state after the application resets its Record. */
+    public resetValidation() {
+        this.validationRevealed = false;
+        this.showValidationErrors = false;
+        this.snapshotValidation();
+        this.updateValidationAccessibility();
+    }
+
+    private snapshotValidation() {
+        if (!this.record || !this.field) return;
+        const field = this.record.field(this.field);
+        this.lastCommittedValid = field.valid;
+        this.lastCommittedVisible = field.visible;
+    }
+
+    private readonly recordChange = () => {
+        if (this.element) void this.destructureFieldType();
+    };
+
+    private readonly recordBlur = (event: Event) => {
+        if (!this.record || !this.field) return;
+        const field = this.record.field(this.field);
+        const blurredField = (event as CustomEvent<{ field: string }>).detail.field;
+        if (
+            blurredField === this.field ||
+            (this.lastCommittedValid &&
+                this.lastCommittedVisible &&
+                field.visible &&
+                !field.empty &&
+                !field.valid)
+        ) {
+            this.validationRevealed = true;
+        }
+        this.snapshotValidation();
+        this.updateValidationAccessibility();
+        this.requestUpdate();
+    };
+
+    private readonly fieldFocusOut = (event: FocusEvent) => {
+        const next = event.relatedTarget;
+        if (next instanceof Node && (this.contains(next) || this.shadowRoot?.contains(next)))
+            return;
+        this.record?.announceBlur(this.field);
+    };
+
+    private readonly formSubmit = () => {
+        this.validationRevealed = true;
+        this.updateValidationAccessibility();
+        this.requestUpdate();
+    };
+
+    private readonly formReset = (event: Event) => {
+        queueMicrotask(() => {
+            if (!event.defaultPrevented && this.isConnected) this.resetValidation();
+        });
+    };
+
+    private connectValidation() {
+        if (this.validationRecord !== this.record || this.validationField !== this.field) {
+            this.validationRecord?.removeEventListener('blur', this.recordBlur);
+            this.validationRecord?.removeEventListener('change', this.recordChange);
+            this.validationRecord = this.record;
+            this.validationField = this.field;
+            this.validationRevealed = false;
+            this.snapshotValidation();
+        }
+        this.validationRecord?.addEventListener('blur', this.recordBlur);
+        this.validationRecord?.addEventListener('change', this.recordChange);
+        this.validationForm?.removeEventListener('submit', this.formSubmit);
+        this.validationForm?.removeEventListener('reset', this.formReset);
+        let ancestor: Element | null = this.parentElement;
+        let current: Element = this;
+        while (true) {
+            if (!ancestor) {
+                const root = current.getRootNode();
+                if (!(root instanceof ShadowRoot)) break;
+                ancestor = root.host;
+            }
+            if (ancestor instanceof HTMLFormElement) break;
+            current = ancestor;
+            ancestor = ancestor.parentElement;
+        }
+        this.validationForm = ancestor instanceof HTMLFormElement ? ancestor : undefined;
+        this.validationForm?.addEventListener('submit', this.formSubmit);
+        this.validationForm?.addEventListener('reset', this.formReset);
+    }
 
     private readonly controlId = `form-element-control-${++nextFormElementId}`;
 
@@ -158,10 +254,21 @@ class FormElement extends ListeningElement {
     connectedCallback() {
         super.connectedCallback();
         document.addEventListener('click', this.closeMultipleMenu);
+        this.addEventListener('focusout', this.fieldFocusOut);
+        this.connectValidation();
+        if (this.element) {
+            this.addListenersToElement();
+            void this.destructureFieldType();
+        }
     }
 
     disconnectedCallback() {
         document.removeEventListener('click', this.closeMultipleMenu);
+        this.removeEventListener('focusout', this.fieldFocusOut);
+        this.validationRecord?.removeEventListener('blur', this.recordBlur);
+        this.validationRecord?.removeEventListener('change', this.recordChange);
+        this.validationForm?.removeEventListener('submit', this.formSubmit);
+        this.validationForm?.removeEventListener('reset', this.formReset);
         super.disconnectedCallback();
     }
 
@@ -250,10 +357,7 @@ class FormElement extends ListeningElement {
     }
 
     addListenersToRecord() {
-        // @ts-ignore
-        this.listenTo(this.record, 'change', async () => this.destructureFieldType());
-        // @ts-ignore
-        // this.listenTo(this.record, 'blur', async () => this.destructureFieldType());
+        this.connectValidation();
     }
 
     async destructureFieldType() {
@@ -430,15 +534,21 @@ class FormElement extends ListeningElement {
         }
     }
 
-    protected updated(changedProperties: PropertyValues<this>) {
-        if (changedProperties.has('selectPrompt')) this.syncSelectPrompt();
-        if (changedProperties.has('showValidationErrors')) {
-            this.updateValidationAccessibility();
+    protected updated(changedProperties: PropertyValues) {
+        if (changedProperties.has('record') || changedProperties.has('field')) {
+            this.connectValidation();
+            if (this.element) void this.destructureFieldType();
         }
+        if (changedProperties.has('selectPrompt')) this.syncSelectPrompt();
+        this.updateValidationAccessibility();
+    }
+
+    protected get validationErrorsVisible(): boolean {
+        return this.showValidationErrors || this.validationRevealed;
     }
 
     private visibleValidationErrors() {
-        if (!this.showValidationErrors || !this.record) return [];
+        if (!this.validationErrorsVisible || !this.record || !this.field) return [];
         if (!this.record.field(this.field).visible) return [];
         return this.record.field(this.field).readableErrors();
     }

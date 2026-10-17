@@ -230,3 +230,198 @@ it('renders a control-owned prompt and defers options for a disabled dropdown', 
         { text: 'Uptown store', value: 'uptown' },
     ]);
 });
+
+describe('automatic validation display', () => {
+    function inputOf(element: FormElement) {
+        return element.shadowRoot!.querySelector('input, select, textarea') as HTMLInputElement;
+    }
+
+    function blur(element: FormElement) {
+        inputOf(element).focus();
+        inputOf(element).blur();
+    }
+
+    function errorOf(element: FormElement) {
+        return element.shadowRoot!.querySelector('.validation-error');
+    }
+
+    it('waits for blur, then updates errors as the user edits', async () => {
+        const record = new Record(
+            { name: new FieldTypeBuilder().label('Name').required() },
+            { name: '' }
+        );
+        const element = await renderField(record, 'name');
+        expect(errorOf(element)).toBeNull();
+        const input = inputOf(element);
+        blur(element);
+        await element.updateComplete;
+        expect(errorOf(element)?.textContent).toContain('Name is required');
+        expect(input.getAttribute('aria-invalid')).toBe('true');
+        expect(input.getAttribute('aria-describedby')).toBe(errorOf(element)!.id);
+        input.value = 'Ada';
+        input.dispatchEvent(new Event('input'));
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+        expect(input.hasAttribute('aria-invalid')).toBe(false);
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+    });
+
+    it('reveals a previously valid existing value on a dependency blur, but leaves a newly required empty field quiet', async () => {
+        const record = new Record(
+            {
+                minimum: new FieldTypeBuilder().type('number'),
+                amount: new FieldTypeBuilder().type('number').validator({
+                    name: 'must meet the minimum',
+                    validate: (value: number, _view: unknown, owner: Record<any>) =>
+                        value >= owner.getField('minimum'),
+                }),
+                notes: new FieldTypeBuilder()
+                    .label('Notes')
+                    .required((owner: Record<any>) => owner.getField('minimum') > 5),
+            },
+            { minimum: 1, amount: 5, notes: '' }
+        );
+        const minimum = await renderField(record, 'minimum');
+        const amount = await renderField(record, 'amount');
+        const notes = await renderField(record, 'notes');
+        record.setField('minimum', 10);
+        await Promise.all([minimum.updateComplete, amount.updateComplete, notes.updateComplete]);
+        expect(errorOf(amount)).toBeNull();
+        expect(errorOf(notes)).toBeNull();
+        blur(minimum);
+        await Promise.all([amount.updateComplete, notes.updateComplete]);
+        expect(errorOf(amount)?.textContent).toContain('must meet the minimum');
+        expect(inputOf(notes).required).toBe(true);
+        expect(errorOf(notes)).toBeNull();
+        blur(notes);
+        await notes.updateComplete;
+        expect(errorOf(notes)?.textContent).toContain('Notes is required');
+        record.setField('minimum', 1);
+        await Promise.all([amount.updateComplete, notes.updateComplete]);
+        expect(errorOf(amount)).toBeNull();
+        expect(errorOf(notes)).toBeNull();
+    });
+
+    it('handles select blur and ignores focus moving within a compound control', async () => {
+        const record = new Record(
+            { choice: new FieldTypeBuilder().label('Choice').required().options(['A', 'B']) },
+            { choice: '' }
+        );
+        const element = await renderField(record, 'choice');
+        const sibling = document.createElement('button');
+        element.shadowRoot!.append(sibling);
+        inputOf(element).dispatchEvent(
+            new FocusEvent('focusout', { bubbles: true, composed: true, relatedTarget: sibling })
+        );
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+        blur(element);
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+    });
+
+    it('shows untouched errors on form submit and clears display state on reset', async () => {
+        const form = document.createElement('form');
+        document.body.append(form);
+        const record = new Record(
+            { name: new FieldTypeBuilder().label('Name').required() },
+            { name: '' }
+        );
+        const element = await renderField(record, 'name');
+        form.append(element);
+        await element.updateComplete;
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+        form.dispatchEvent(new Event('reset', { cancelable: true }));
+        await Promise.resolve();
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+        expect(record.isValid('name')).toBe(false);
+        blur(element);
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+        element.resetValidation();
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+    });
+
+    it('does not reveal a newly visible untouched field on another field blur', async () => {
+        const record = new Record(
+            {
+                reveal: new FieldTypeBuilder(),
+                name: new FieldTypeBuilder()
+                    .required()
+                    .visible((owner: Record<any>) => owner.getField('reveal')),
+            },
+            { reveal: false, name: '' }
+        );
+        const reveal = await renderField(record, 'reveal');
+        const name = await renderField(record, 'name');
+        record.setField('reveal', true);
+        blur(reveal);
+        await name.updateComplete;
+        expect(errorOf(name)).toBeNull();
+    });
+    it('isolates submit attempts to the containing form, including nested shadow roots', async () => {
+        const firstForm = document.createElement('form');
+        const otherForm = document.createElement('form');
+        const host = document.createElement('div');
+        const root = host.attachShadow({ mode: 'open' });
+        firstForm.append(host);
+        document.body.append(firstForm, otherForm);
+        const record = new Record({ name: new FieldTypeBuilder().required() }, { name: '' });
+        const first = await renderField(record, 'name');
+        const other = await renderField(record, 'name');
+        root.append(first);
+        otherForm.append(other);
+        await Promise.all([first.updateComplete, other.updateComplete]);
+        firstForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        await Promise.all([first.updateComplete, other.updateComplete]);
+        expect(errorOf(first)).not.toBeNull();
+        expect(errorOf(other)).toBeNull();
+        firstForm.addEventListener('reset', event => event.preventDefault());
+        firstForm.dispatchEvent(new Event('reset', { cancelable: true }));
+        await Promise.resolve();
+        await first.updateComplete;
+        expect(errorOf(first)).not.toBeNull();
+    });
+
+    it('starts fresh when rebound and removes subscriptions to the old record', async () => {
+        const definitions = { name: new FieldTypeBuilder().required() };
+        const oldRecord = new Record(definitions, { name: '' });
+        const nextRecord = new Record(definitions, { name: '' });
+        const element = await renderField(oldRecord, 'name');
+        blur(element);
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+        element.record = nextRecord;
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+        oldRecord.announceBlur('name');
+        await element.updateComplete;
+        expect(errorOf(element)).toBeNull();
+        nextRecord.announceBlur('name');
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+        element.remove();
+        const update = jest.spyOn(element, 'requestUpdate');
+        nextRecord.setField('name', 'Ada');
+        nextRecord.announceBlur('name');
+        expect(update).not.toHaveBeenCalled();
+        document.body.append(element);
+        await element.updateComplete;
+        const input = inputOf(element);
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        expect(nextRecord.getField('name')).toBe('');
+        blur(element);
+        await element.updateComplete;
+        expect(errorOf(element)).not.toBeNull();
+    });
+
+});

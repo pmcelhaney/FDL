@@ -22,7 +22,7 @@ export class FdlField extends FormElement {
                 html`<fdl-address
                     .record=${this.record}
                     field=${this.field}
-                    .showValidationErrors=${this.showValidationErrors}
+                    .showValidationErrors=${this.validationErrorsVisible}
                 ></fdl-address>`,
             ];
         }
