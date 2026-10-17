@@ -6,7 +6,7 @@ function data() {
     return new Recordset(
         {
             name: field.label('Name').required(),
-            amount: field.type('number').formatter(value => `$${value}`),
+            amount: field.type('number').textAlign('right').formatter(value => `$${value}`),
             enabled: field,
             missing: field,
         },
@@ -37,6 +37,8 @@ it('shows raw values, row validity and counts, with selectable field order', asy
     );
     expect(root.querySelectorAll('tbody tr')).toHaveLength(3);
     expect(root.querySelector('[data-field="amount"]')!.textContent!.trim()).toBe('0');
+    expect(root.querySelector('[data-field="amount"]')!.getAttribute('data-align')).toBe('right');
+    expect(root.querySelector('[data-field="name"]')!.getAttribute('data-align')).toBe('left');
     expect(root.querySelector('[data-field="enabled"]')!.textContent!.trim()).toBe('false');
     expect(root.querySelector('[data-field="missing"]')!.textContent!.trim()).toBe('(undefined)');
     expect(

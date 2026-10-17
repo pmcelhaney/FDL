@@ -95,11 +95,18 @@ export class FdlRecordsetInspector extends LitElement {
 
     private classMarkers(classes: readonly string[]) {
         return this.showClasses && classes.length
-            ? html`<span class="class-markers">${classes.map(name => html`<span
-                  class="class-number"
-                  title=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
-                  aria-label=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
-              >${this.classNumbers.get(name)}</span>`)}</span>`
+            ? html`<span class="class-markers"
+                  >${classes.map(
+                      name =>
+                          html`<span
+                              class="class-number"
+                              data-tone=${(this.classNumbers.get(name)! - 1) % 4}
+                              title=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
+                              aria-label=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
+                              >${this.classNumbers.get(name)}</span
+                          >`
+                  )}</span
+              >`
             : '';
     }
 
@@ -108,18 +115,39 @@ export class FdlRecordsetInspector extends LitElement {
         const fields = this.fields ?? recordset?.fieldNames ?? [];
         const activeClasses = new Set<string>();
         function normalize(classes: string[]) {
-            return [...new Set(classes.flatMap(name => name.split(/\s+/)).filter(Boolean))];
+            return [
+                ...new Set(
+                    classes.flatMap(name => name.split(/\s+/)).filter(Boolean)
+                ),
+            ];
         }
         const columnClasses = fields.map(name =>
             normalize(recordset?.column(name).columnClasses() ?? [])
         );
-        const displayedRecords = (this.showAllRows ? recordset?.allRecords : recordset?.currentPage) ?? [];
+        const displayedRecords =
+            (this.showAllRows
+                ? recordset?.allRecords
+                : recordset?.currentPage) ?? [];
         const rows = displayedRecords.map(record => ({
             record,
-            classes: normalize(fields.flatMap(name => recordset!.column(name).rowClasses(record))),
-            cells: fields.map(name => normalize(record.field(name).cellClasses())),
+            classes: normalize(
+                fields.flatMap(name =>
+                    recordset!.column(name).rowClasses(record)
+                )
+            ),
+            cells: fields.map(name =>
+                normalize(record.field(name).cellClasses())
+            ),
         }));
-        for (const classes of [...columnClasses, ...rows.flatMap(row => [row.classes, ...row.cells])]) {
+        const markerWidths = fields.map((_, index) =>
+            this.showClasses
+                ? Math.max(0, ...rows.map(row => row.cells[index].length)) * 24
+                : 0
+        );
+        for (const classes of [
+            ...columnClasses,
+            ...rows.flatMap(row => [row.classes, ...row.cells]),
+        ]) {
             for (const name of classes) {
                 if (!this.classNumbers.has(name))
                     this.classNumbers.set(name, this.classNumbers.size + 1);
@@ -143,7 +171,7 @@ export class FdlRecordsetInspector extends LitElement {
                 </span>
                 <div class="inspector-heading" ?hidden=${this.collapsed}>
                     <h3>Recordset Inspector</h3>
-                    <p>Current view · Stored values</p>
+                    <p>Stored values · Live model state</p>
                 </div>
                 <button
                     type="button"
@@ -172,8 +200,12 @@ export class FdlRecordsetInspector extends LitElement {
                         ? html`
                               <div class="counts" role="status">
                                   <p
-                                      >${recordset.filteredCount} of
-                                      ${recordset.totalCount} records match;
+                                      ><strong
+                                          >${recordset.filteredCount}</strong
+                                      >
+                                      of
+                                      <strong>${recordset.totalCount}</strong>
+                                      records match;
                                       ${recordset.currentPage.length} shown on
                                       this page.</p
                                   >
@@ -192,22 +224,49 @@ export class FdlRecordsetInspector extends LitElement {
                                   >
                                   ${recordset.isLoading ? html`<p>Loading records…</p>` : ''}
                               </div>
-                              <label class="row-toggle">
-                                  <input
-                                      type="checkbox"
-                                      .checked=${this.showAllRows}
-                                      @change=${(event: Event) => {
-                                          this.showAllRows = (event.target as HTMLInputElement).checked;
-                                      }}
-                                  />Show all rows
-                              </label>
+                              <div
+                                  class="view-controls"
+                                  role="group"
+                                  aria-label="Inspector display"
+                              >
+                                  <label class="row-toggle">
+                                      <input
+                                          type="checkbox"
+                                          .checked=${this.showAllRows}
+                                          @change=${(event: Event) => {
+                                              this.showAllRows = (
+                                                  event.target as HTMLInputElement
+                                              ).checked;
+                                          }}
+                                      />Show all rows
+                                  </label>
+                                  ${
+                                      activeClasses.size
+                                          ? html`<label class="class-toggle">
+                                                <input
+                                                    type="checkbox"
+                                                    .checked=${this.showClasses}
+                                                    @change=${(
+                                                        event: Event
+                                                    ) => {
+                                                        this.showClasses = (
+                                                            event.target as HTMLInputElement
+                                                        ).checked;
+                                                    }}
+                                                />Show CSS classes
+                                            </label>`
+                                          : ''
+                                  }
+                              </div>
                               <div
                                   class="table-scroll"
                                   tabindex="0"
                                   role="region"
                                   aria-label=${this.showAllRows ? 'All loaded rows stored values' : 'Visible rows stored values'}
                               >
-                                  <table aria-label=${this.showAllRows ? 'All loaded rows' : 'Visible rows'}>
+                                  <table
+                                      aria-label=${this.showAllRows ? 'All loaded rows' : 'Visible rows'}
+                                  >
                                       <thead
                                           ><tr>
                                               <th
@@ -220,7 +279,10 @@ export class FdlRecordsetInspector extends LitElement {
                                       >
                                       <tbody
                                           >${rows.map(
-                                              ({ record, classes, cells }, index) =>
+                                              (
+                                                  { record, classes, cells },
+                                                  index
+                                              ) =>
                                                   html` <tr>
                                                       <td class="row-status"
                                                           >${this.classMarkers(classes)}${!record.isValid() ? statusIcon('Invalid') : ''}</td
@@ -232,11 +294,11 @@ export class FdlRecordsetInspector extends LitElement {
                                                           (name, fieldIndex) =>
                                                               html`<td
                                                                   data-field=${name}
+                                                                  data-align=${record.field(name).textAlign() ?? 'left'}
                                                                   ><span
                                                                       class="stored-cell"
-                                                                      >${fieldStatus(record, name)}<span
-                                                                          >${storedValue(record.getField(name))}</span
-                                                                      >${this.classMarkers(cells[fieldIndex])}</span
+                                                                      style=${`--marker-width: ${markerWidths[fieldIndex]}px`}
+                                                                      >${fieldStatus(record, name)}<span>${storedValue(record.getField(name))}</span>${this.classMarkers(cells[fieldIndex])}</span
                                                                   ></td
                                                               >`
                                                       )}
@@ -246,18 +308,16 @@ export class FdlRecordsetInspector extends LitElement {
                                   </table>
                               </div>
                               ${rows.length ? '' : html`<p>${this.showAllRows ? 'No records loaded.' : 'No records on this page.'}</p>`}
-                              ${activeClasses.size ? html`<label class="class-toggle">
-                                  <input
-                                      type="checkbox"
-                                      .checked=${this.showClasses}
-                                      @change=${(event: Event) => {
-                                          this.showClasses = (event.target as HTMLInputElement).checked;
-                                      }}
-                                  />Show CSS classes
-                              </label>` : ''}
-                              ${this.showClasses && activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
-                                  ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number" title=${`CSS class ${number}: ${name}`}>${number}</span><code>${name}</code></span>`)}
-                              </div>` : ''}
+                              ${
+                                  this.showClasses && activeClasses.size
+                                      ? html`<div
+                                            class="class-legend"
+                                            aria-label="CSS class legend"
+                                        >
+                                            ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number" data-tone=${(number - 1) % 4} title=${`CSS class ${number}: ${name}`}>${number}</span><code>${name}</code></span>`)}
+                                        </div>`
+                                      : ''
+                              }
                               <p class="note"
                                   >Values are stored values before formatting.
                                   Icons on the left indicate applicable states;
@@ -265,30 +325,41 @@ export class FdlRecordsetInspector extends LitElement {
                               >
                               <details
                                   ><summary>Inspect full JSON</summary
-                                  ><fdl-code-snippet><pre>
+                                  ><fdl-code-snippet>
+                                      <pre>
 ${JSON.stringify(
-                                          {
-                                              visibleRows:
-                                                  recordset.currentPage.map(
-                                                      record => record.values
-                                                  ),
-                                              ...(this.showAllRows ? {
-                                                  allRows: displayedRecords.map(record => record.values),
-                                              } : {}),
-                                              totalRecords:
-                                                  recordset.totalCount,
-                                              loadedRecords:
-                                                  recordset.allRecords.length,
-                                              matchingRecords:
-                                                  recordset.filteredCount,
-                                              pageNumber: recordset.pageNumber,
-                                              pageSize: recordset.pageSize,
-                                              sortColumns:
-                                                  recordset.sortColumns,
-                                          },
-                                          null,
-                                          2
-                                      )}</pre></fdl-code-snippet>
+                                              {
+                                                  visibleRows:
+                                                      recordset.currentPage.map(
+                                                          record =>
+                                                              record.values
+                                                      ),
+                                                  ...(this.showAllRows
+                                                      ? {
+                                                            allRows:
+                                                                displayedRecords.map(
+                                                                    record =>
+                                                                        record.values
+                                                                ),
+                                                        }
+                                                      : {}),
+                                                  totalRecords:
+                                                      recordset.totalCount,
+                                                  loadedRecords:
+                                                      recordset.allRecords
+                                                          .length,
+                                                  matchingRecords:
+                                                      recordset.filteredCount,
+                                                  pageNumber:
+                                                      recordset.pageNumber,
+                                                  pageSize: recordset.pageSize,
+                                                  sortColumns:
+                                                      recordset.sortColumns,
+                                              },
+                                              null,
+                                              2
+                                          )}</pre>
+                                  </fdl-code-snippet>
                               </details>
                           `
                         : html`<p>No recordset selected.</p>`
@@ -300,50 +371,127 @@ ${JSON.stringify(
     static styles = [
         FdlRecordInspector.styles,
         css`
-            .counts,
-            .note {
-                font-size: 0.875rem;
-                line-height: 1.6;
+            section {
+                --example-border: #dbe2ea;
+                border-color: var(--example-border);
+                box-shadow: none;
+                color: #1e293b;
+            }
+            header {
+                padding: 16px 20px;
+                background: #f8fafc;
+                border-color: var(--example-border);
+            }
+            header .inspector-icon {
+                background: #eef2ff;
+                border-color: #c7d2fe;
+                color: #4338ca;
+            }
+            header button {
+                border-radius: 8px;
+                border-color: var(--example-border);
+            }
+            #recordset-details {
+                padding-top: 16px;
             }
             .counts {
-                padding: 0 0 8px;
-                border-bottom: 1px solid var(--example-border);
-                color: #404040;
+                color: #64748b;
+                font-size: 0.75rem;
+                line-height: 1.6;
             }
             .counts p {
+                margin: 4px 0;
+            }
+            .counts p:first-child {
+                margin-top: 0;
+                color: #334155;
+                font-size: 0.875rem;
+            }
+            .counts strong {
+                color: #0f172a;
+                font-variant-numeric: tabular-nums;
+            }
+            .view-controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px 20px;
                 margin: 12px 0;
             }
             .table-scroll {
                 overflow-x: auto;
+                border: 1px solid var(--example-border);
+                border-radius: 8px;
             }
             .table-scroll:focus-visible,
             summary:focus-visible {
-                outline: 3px solid #525252;
+                outline: 3px solid #4338ca;
                 outline-offset: 3px;
             }
             table {
                 table-layout: auto;
-                min-width: 640px;
+                min-width: 100%;
+                width: 100%;
+                font-size: 0.8125rem;
+            }
+            th,
+            td {
+                min-width: 72px;
+                padding: 10px 12px;
+                border-color: #e2e8f0;
+                vertical-align: middle;
+            }
+            thead th {
+                background: #f1f5f9;
+                color: #475569;
+                font-family: ui-monospace, monospace;
+                font-size: 0.75rem;
             }
             th:first-child,
             th:last-child {
                 width: auto;
             }
-            th,
-            td {
-                min-width: 72px;
+            tbody th {
+                width: 44px;
+                min-width: 44px;
+                color: #64748b;
+                font-size: 0.75rem;
+                font-weight: 500;
+                font-variant-numeric: tabular-nums;
             }
             td {
-                font-family: monospace;
+                font-family: ui-monospace, monospace;
+                white-space: nowrap;
+                overflow-wrap: normal;
+            }
+            tbody tr:nth-child(even) {
+                background: #f8fafc;
+            }
+            tbody tr:last-child > * {
+                border-bottom: 0;
+            }
+            tbody tr:hover {
+                background: #eef2ff;
             }
             .row-status {
-                min-width: 32px;
-                width: 32px;
+                min-width: 24px;
+                width: 24px;
+                padding-inline: 6px;
             }
             .stored-cell {
+                position: relative;
+                padding-inline-end: var(--marker-width);
                 display: flex;
-                align-items: flex-start;
+                align-items: center;
                 gap: 6px;
+            }
+            [data-align='right'] .stored-cell {
+                justify-content: flex-end;
+                text-align: right;
+                font-variant-numeric: tabular-nums;
+            }
+            [data-align='center'] .stored-cell {
+                justify-content: center;
+                text-align: center;
             }
             .class-markers {
                 display: inline-flex;
@@ -352,6 +500,12 @@ ${JSON.stringify(
                 gap: 4px;
                 margin-inline-start: 6px;
                 vertical-align: middle;
+            }
+            .stored-cell .class-markers {
+                position: absolute;
+                inset-inline-end: 0;
+                margin: 0;
+                flex-wrap: nowrap;
             }
             .row-status .class-markers {
                 flex-wrap: nowrap;
@@ -362,7 +516,7 @@ ${JSON.stringify(
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                margin-top: 12px;
+                margin: 0;
                 min-height: 44px;
                 font-size: 0.8125rem;
                 cursor: pointer;
@@ -370,18 +524,26 @@ ${JSON.stringify(
             .row-toggle input,
             .class-toggle input {
                 margin: 0;
+                accent-color: #4338ca;
+                width: 16px;
+                height: 16px;
             }
             .class-legend {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 8px 16px;
-                margin-top: 8px;
+                padding: 12px;
+                margin-top: 12px;
+                border: 1px solid var(--example-border);
+                border-radius: 8px;
+                background: #f8fafc;
                 font-size: 0.8125rem;
             }
             .class-entry {
                 display: inline-flex;
                 align-items: center;
-                gap: 4px;
+                gap: 8px;
+                color: #334155;
             }
             .class-entry code {
                 overflow-wrap: anywhere;
@@ -390,24 +552,49 @@ ${JSON.stringify(
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                min-width: 1.4em;
-                padding: 0 3px;
-                border: 1px solid #a3a3a3;
-                border-radius: 4px;
-                background: #f5f5f5;
-                color: #404040;
-                font: 600 0.75rem/1.4 monospace;
+                min-width: 20px;
+                height: 20px;
+                padding: 0 4px;
+                border: 1px solid #c7d2fe;
+                border-radius: 5px;
+                background: #eef2ff;
+                color: #3730a3;
+                font:
+                    600 0.6875rem/1 ui-monospace,
+                    monospace;
+                flex-shrink: 0;
+            }
+            .class-number[data-tone='1'] {
+                border-color: #fcd34d;
+                background: #fffbeb;
+                color: #92400e;
+            }
+            .class-number[data-tone='2'] {
+                border-color: #99f6e4;
+                background: #f0fdfa;
+                color: #115e59;
+            }
+            .class-number[data-tone='3'] {
+                border-color: #f5d0fe;
+                background: #fdf4ff;
+                color: #86198f;
             }
             .field-status:not(:has(.status-icon)) {
                 display: none;
             }
+            .note {
+                margin: 12px 0;
+                color: #64748b;
+                font-size: 0.75rem;
+                line-height: 1.6;
+            }
             summary {
                 cursor: pointer;
-                padding: 12px 14px;
+                padding: 12px 0;
                 min-height: 44px;
-                border: 1px solid #d4d4d4;
-                border-radius: 8px;
-                background: #fafafa;
+                border-top: 1px solid var(--example-border);
+                border-radius: 0;
+                background: transparent;
                 color: #262626;
                 font-size: 0.875rem;
                 font-weight: 600;
