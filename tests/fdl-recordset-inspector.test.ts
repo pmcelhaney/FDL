@@ -222,3 +222,53 @@ it('shows only applicable icons on the left without a validation column or valid
     expect(name.firstElementChild!.classList.contains('field-status')).toBe(true);
     expect(name.lastElementChild!.textContent).toBe('Zulu');
 });
+
+it('numbers unique CSS classes across columns, rows and cells and keeps their scopes distinct', async () => {
+    const recordset = new Recordset<any>(
+        {
+            name: field.columnClass('shared heading').rowClass('row shared'),
+            amount: field.cellClass('shared cell').cellClass(value => value > 10 ? ['high', 'cell'] : []),
+        },
+        [{ name: 'Ada', amount: 12 }, { name: 'Grace', amount: 3 }]
+    );
+    const inspector = await inspect(recordset);
+    const root = inspector.shadowRoot!;
+    const entries = [...root.querySelectorAll('.class-entry')];
+    expect(entries.map(entry => entry.querySelector('code')!.textContent)).toEqual([
+        'shared', 'heading', 'row', 'cell', 'high',
+    ]);
+    function numbers(selector: string) {
+        return [...root.querySelectorAll(`${selector} .class-number`)].map(marker => marker.textContent!.trim());
+    }
+    expect(numbers('thead th:nth-child(3)')).toEqual(['1', '2']);
+    expect(numbers('thead th:nth-child(4)')).toEqual([]);
+    expect(numbers('tbody tr:first-child .row-status')).toEqual(['3', '1']);
+    expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
+    expect(numbers('tbody tr:last-child [data-field="amount"]')).toEqual(['1', '4']);
+    expect(numbers('[data-field="name"]')).toEqual([]);
+    expect(root.querySelector('[data-field="amount"] [title="high"]')!.getAttribute('aria-label')).toBe('CSS class 5: high');
+    expect(root.querySelector('[data-field="amount"] .stored-cell > span:nth-child(2)')!.textContent).toBe('12');
+    recordset.allRecords[0].setField('amount', 2);
+    await inspector.updateComplete;
+    expect(root.querySelector('.class-legend')!.textContent).not.toContain('high');
+    recordset.allRecords[0].setField('amount', 20);
+    await inspector.updateComplete;
+    expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
+    inspector.fields = ['amount'];
+    await inspector.updateComplete;
+    expect(root.querySelector('.class-legend')!.textContent).not.toContain('heading');
+    expect(numbers('tbody tr:first-child .row-status')).toEqual([]);
+    expect(numbers('tbody tr:first-child [data-field="amount"]')).toEqual(['1', '4', '5']);
+    inspector.fields = undefined;
+    const replacement = new Recordset<any>({ name: field.columnClass('replacement') }, []);
+    await replacement.requestImmediateUpdate();
+    inspector.recordset = replacement;
+    await inspector.updateComplete;
+    expect(root.querySelector('.class-entry')!.textContent).toBe('1replacement');
+});
+
+it('omits the CSS legend and markers when no classes apply', async () => {
+    const inspector = await inspect(data());
+    expect(inspector.shadowRoot!.querySelector('.class-legend')).toBeNull();
+    expect(inspector.shadowRoot!.querySelector('.class-number')).toBeNull();
+});

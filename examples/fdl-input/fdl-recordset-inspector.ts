@@ -29,6 +29,7 @@ export class FdlRecordsetInspector extends LitElement {
     recordset?: Recordset<any>;
     fields?: readonly string[];
     collapsed = false;
+    private classNumbers = new Map<string, number>();
     private observedRecordset?: Recordset<any>;
     private observedRecords = new Set<Record<any>>();
     private readonly handleChange = this.refresh.bind(this);
@@ -63,6 +64,7 @@ export class FdlRecordsetInspector extends LitElement {
     private observe() {
         if (this.observedRecordset !== this.recordset) {
             this.release();
+            this.classNumbers.clear();
             this.observedRecordset = this.recordset;
             for (const event of events)
                 this.observedRecordset?.addEventListener(
@@ -88,9 +90,38 @@ export class FdlRecordsetInspector extends LitElement {
         this.collapsed = !this.collapsed;
     }
 
+    private classMarkers(classes: readonly string[]) {
+        return classes.length
+            ? html`<span class="class-markers">${classes.map(name => html`<span
+                  class="class-number"
+                  title=${name}
+                  aria-label=${`CSS class ${this.classNumbers.get(name)}: ${name}`}
+              >${this.classNumbers.get(name)}</span>`)}</span>`
+            : '';
+    }
+
     render() {
         const recordset = this.recordset;
         const fields = this.fields ?? recordset?.fieldNames ?? [];
+        const activeClasses = new Set<string>();
+        function normalize(classes: string[]) {
+            return [...new Set(classes.flatMap(name => name.split(/\s+/)).filter(Boolean))];
+        }
+        const columnClasses = fields.map(name =>
+            normalize(recordset?.column(name).columnClasses() ?? [])
+        );
+        const rows = (recordset?.currentPage ?? []).map(record => ({
+            record,
+            classes: normalize(fields.flatMap(name => recordset!.column(name).rowClasses(record))),
+            cells: fields.map(name => normalize(record.field(name).cellClasses())),
+        }));
+        for (const classes of [...columnClasses, ...rows.flatMap(row => [row.classes, ...row.cells])]) {
+            for (const name of classes) {
+                if (!this.classNumbers.has(name))
+                    this.classNumbers.set(name, this.classNumbers.size + 1);
+                activeClasses.add(name);
+            }
+        }
         const action = this.collapsed
             ? 'Inspect recordset'
             : 'Collapse recordset inspector';
@@ -171,28 +202,28 @@ export class FdlRecordsetInspector extends LitElement {
                                                   class="row-status"
                                               ></th>
                                               <th scope="col">Row</th>
-                                              ${fields.map(name => html`<th scope="col">${name}</th>`)}
+                                              ${fields.map((name, index) => html`<th scope="col">${name}${this.classMarkers(columnClasses[index])}</th>`)}
                                           </tr></thead
                                       >
                                       <tbody
-                                          >${recordset.currentPage.map(
-                                              (record, index) =>
+                                          >${rows.map(
+                                              ({ record, classes, cells }, index) =>
                                                   html` <tr>
                                                       <td class="row-status"
-                                                          >${!record.isValid() ? statusIcon('Invalid') : ''}</td
+                                                          >${this.classMarkers(classes)}${!record.isValid() ? statusIcon('Invalid') : ''}</td
                                                       >
                                                       <th scope="row"
                                                           >${recordset.firstRecordNumberOnPage + index}</th
                                                       >
                                                       ${fields.map(
-                                                          name =>
+                                                          (name, fieldIndex) =>
                                                               html`<td
                                                                   data-field=${name}
                                                                   ><span
                                                                       class="stored-cell"
                                                                       >${fieldStatus(record, name)}<span
                                                                           >${storedValue(record.getField(name))}</span
-                                                                      ></span
+                                                                      >${this.classMarkers(cells[fieldIndex])}</span
                                                                   ></td
                                                               >`
                                                       )}
@@ -202,6 +233,10 @@ export class FdlRecordsetInspector extends LitElement {
                                   </table>
                               </div>
                               ${recordset.currentPage.length ? '' : html`<p>No records on this page.</p>`}
+                              ${activeClasses.size ? html`<div class="class-legend" aria-label="CSS class legend">
+                                  <strong>CSS classes</strong>
+                                  ${[...this.classNumbers].filter(([name]) => activeClasses.has(name)).map(([name, number]) => html`<span class="class-entry"><span class="class-number">${number}</span><code>${name}</code></span>`)}
+                              </div>` : ''}
                               ${statusLegend()}
                               <p class="note"
                                   >Values are stored values before formatting.
@@ -286,6 +321,43 @@ ${JSON.stringify(
                 display: flex;
                 align-items: flex-start;
                 gap: 6px;
+            }
+            .class-markers,
+            .class-legend,
+            .class-entry {
+                display: inline-flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .class-markers {
+                margin-inline-start: 6px;
+                vertical-align: middle;
+            }
+            .row-status .class-markers {
+                flex-wrap: nowrap;
+                margin-inline-start: 0;
+            }
+            .class-legend {
+                display: flex;
+                gap: 8px 16px;
+                margin-top: 16px;
+                font-size: 0.8125rem;
+            }
+            .class-entry code {
+                overflow-wrap: anywhere;
+            }
+            .class-number {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 1.4em;
+                padding: 0 3px;
+                border: 1px solid #a3a3a3;
+                border-radius: 4px;
+                background: #f5f5f5;
+                color: #404040;
+                font: 600 0.75rem/1.4 monospace;
             }
             .field-status:not(:has(.status-icon)) {
                 display: none;

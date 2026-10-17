@@ -179,6 +179,13 @@ records have no row status icon or Valid label. The JSON disclosure
 includes current-page values and view metadata. Server-side totals can exceed
 the number of loaded records; the inspector reports these separately.
 
+CSS class numbers appear beside cell values, in column headers, and at the start
+of rows for `cellClass`, `columnClass`, and `rowClass` respectively. A shared legend
+maps each number to its class name; hovering a number also reveals the name.
+Only classes applicable to the displayed fields and current page appear in the
+legend. Numbers stay stable while inspecting the same recordset, including after
+edits, filtering, and paging. Rebinding to another recordset restarts numbering.
+
 Use `.fields=${['name', 'amount']}` to select and order the displayed columns;
 the default is every declared field. Column headers use field keys to make it
 easy to match values to the model source. The panel observes recordset updates
