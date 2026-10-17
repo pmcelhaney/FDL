@@ -131,6 +131,12 @@ example on Change and test a rule instead of embedding a second copy.
 
 ## Reusing the record inspector
 
+The magnifying-glass button collapses and expands the inspector. Nested record
+values appear as a magnifying-glass “record” button; opening one replaces the
+header control with a back button. A check or X in the header shows the validity
+of the current record (or displayed field subset). The icon legend remains
+available in nested views and can be collapsed independently.
+
 Import `./fdl-record-inspector` to register `<fdl-record-inspector>`, then bind
 an FDL record as a JavaScript property:
 

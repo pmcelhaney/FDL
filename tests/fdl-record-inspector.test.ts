@@ -72,11 +72,13 @@ it('reflects dependent field state and record validity without a parent rerender
     expect(
         root.querySelector('tbody tr')!.firstElementChild!.querySelectorAll('[role="img"]')
     ).toHaveLength(5);
-    expect(root.querySelector('.validation')!.textContent).toContain('Invalid');
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe(
+        'Invalid record'
+    );
     record.setField('name', 'Ada');
     await inspector.updateComplete;
     expect(root.querySelector('tbody .stored-value')!.textContent).toBe('Ada');
-    expect(root.querySelector('.validation')!.textContent).toContain('Valid');
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
 });
 
 it('collapses to an accessible icon and reopens with the latest record values', async () => {
@@ -143,13 +145,14 @@ it('validates only the displayed fields when inspecting part of a record', async
     inspector.fields = ['shown'];
     await inspector.updateComplete;
     expect(record.isValid()).toBe(false);
-    expect(inspector.shadowRoot!.querySelector('.validation')!.textContent).toContain(
-        'Displayed fields validation:'
-    );
-    expect(inspector.shadowRoot!.querySelector('.validation strong')!.textContent).toBe('Valid');
+    expect(
+        inspector.shadowRoot!.querySelector('.record-validity')!.getAttribute('aria-label')
+    ).toBe('Valid displayed fields');
     record.setField('shown', '');
     await inspector.updateComplete;
-    expect(inspector.shadowRoot!.querySelector('.validation strong')!.textContent).toBe('Invalid');
+    expect(
+        inspector.shadowRoot!.querySelector('.record-validity')!.getAttribute('aria-label')
+    ).toBe('Invalid displayed fields');
 });
 
 it('inspects nested records and nested recordsets', async () => {
@@ -178,12 +181,31 @@ it('inspects nested records and nested recordsets', async () => {
     const addressButton = root.querySelector<HTMLButtonElement>(
         '[data-field="address"] .nested-inspect'
     )!;
-    expect(addressButton.textContent).toContain('Inspect nested record');
+    expect(addressButton.textContent!.trim()).toBe('record');
+    expect(addressButton.querySelector('svg')).toBeTruthy();
+    expect(addressButton.getAttribute('aria-label')).toBe('Inspect nested record');
+    expect(root.querySelector('[data-field="address"] .stored-value')!.textContent).not.toContain(
+        '1 Main Street'
+    );
+    expect(root.querySelectorAll('header button')).toHaveLength(1);
+    expect(root.querySelector('.validation')).toBeNull();
+    const legend = root.querySelector<HTMLDetailsElement>('.legend')!;
+    expect(legend.open).toBe(true);
+    legend.open = false;
     addressButton.click();
     await inspector.updateComplete;
 
     expect(root.querySelector('h3')!.textContent).toBe('Nested record');
-    expect(root.querySelector('.back-button')).toBeTruthy();
+    expect(root.querySelector('header')!.firstElementChild!.classList.contains('back-button')).toBe(
+        true
+    );
+    expect(root.querySelectorAll('header button')).toHaveLength(1);
+    expect(root.querySelector('.legend')).toBe(legend);
+    expect(legend.open).toBe(false);
+    legend.open = true;
+    expect(root.querySelectorAll('.legend li')).toHaveLength(5);
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    expect(root.querySelector('.nested-validation')).toBeNull();
     expect(root.textContent).toContain('1 Main Street');
 
     root.querySelector<HTMLButtonElement>('.back-button')!.click();
@@ -197,4 +219,28 @@ it('inspects nested records and nested recordsets', async () => {
     await inspector.updateComplete;
     expect(root.querySelector('h3')!.textContent).toBe('Nested row 1');
     expect(root.textContent).toContain('Ada');
+});
+
+it('shows the validity of the current nested record and restores parent validity on back', async () => {
+    const inspector = await inspect(
+        new Record(
+            {
+                child: field.record({ name: field.required() }),
+                other: field.required(),
+            },
+            { child: { name: 'Ada' }, other: '' }
+        )
+    );
+    const root = inspector.shadowRoot!;
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe(
+        'Invalid record'
+    );
+    root.querySelector<HTMLButtonElement>('.nested-inspect')!.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe('Valid record');
+    root.querySelector<HTMLButtonElement>('.back-button')!.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('.record-validity')!.getAttribute('aria-label')).toBe(
+        'Invalid record'
+    );
 });

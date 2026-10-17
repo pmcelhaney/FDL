@@ -971,6 +971,9 @@ it('adds a record inspector to the structured record page', async () => {
     expect(inspector.fields).toEqual(['address']);
     expect(inspector.shadowRoot!.querySelector('[data-field="address"]')).toBeTruthy();
     expect(inspector.shadowRoot!.textContent).toContain('Shipping address');
+    expect(inspector.shadowRoot!.textContent).not.toContain('1 Main Street');
+    inspector.shadowRoot!.querySelector<HTMLButtonElement>('.nested-inspect')!.click();
+    await inspector.updateComplete;
     expect(inspector.shadowRoot!.textContent).toContain('1 Main Street');
 });
 

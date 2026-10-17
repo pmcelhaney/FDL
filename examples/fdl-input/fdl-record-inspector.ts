@@ -48,12 +48,19 @@ export function fieldStatus(record: Record<any>, name: string) {
 }
 
 export function statusLegend() {
-    return html`<div class="legend" aria-label="Status icon legend">
-        <p>Icon legend</p>
+    return html`<details class="legend" aria-label="Status icon legend" open>
+        <summary>Icon legend</summary>
         <ul
             >${Object.keys(statusPaths).map(status => html`<li>${statusIcon(status as keyof typeof statusPaths)}<span>${status}</span></li>`)}</ul
         >
-    </div>`;
+    </details>`;
+}
+
+function inspectIcon() {
+    return html`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="10" cy="10" r="6"></circle>
+        <path d="m15 15 6 6"></path>
+    </svg>`;
 }
 
 function nestedRecord(
@@ -62,10 +69,7 @@ function nestedRecord(
 ): Record<any> {
     return value instanceof Record
         ? value
-        : new Record(
-              definitions,
-              (value as { [key: string]: unknown }) ?? {}
-          );
+        : new Record(definitions, (value as { [key: string]: unknown }) ?? {});
 }
 
 type InspectorView =
@@ -125,7 +129,10 @@ export class FdlRecordInspector extends LitElement {
     }
 
     private openNestedRecord(record: Record<any>, label: string) {
-        this.navigation = [...this.navigation, { kind: 'record', label, record }];
+        this.navigation = [
+            ...this.navigation,
+            { kind: 'record', label, record },
+        ];
         this.requestUpdate();
     }
 
@@ -148,35 +155,41 @@ export class FdlRecordInspector extends LitElement {
 
     private renderRecordTable(record: Record<any>, nested = false): unknown {
         const fields = Object.keys(record.fieldTypes);
-        return html`<div class="${nested ? 'nested-table-scroll' : 'table-scroll'}" role="region" aria-label="Record fields" tabindex="0">
-                <table aria-label="Field state">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="status-column"></th>
-                            <th scope="col">Field</th>
-                            <th scope="col">Label</th>
-                            <th scope="col">Stored value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${fields.map(name => {
-                            const field = record.field(name);
-                            return html`<tr
-                                data-field=${nested ? nothing : name}
-                                data-nested-field=${nested ? name : nothing}
+        return html`<div
+            class="${nested ? 'nested-table-scroll' : 'table-scroll'}"
+            role="region"
+            aria-label="Record fields"
+            tabindex="0"
+        >
+            <table aria-label="Field state">
+                <thead>
+                    <tr>
+                        <th scope="col" class="status-column"></th>
+                        <th scope="col">Field</th>
+                        <th scope="col">Label</th>
+                        <th scope="col">Stored value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${fields.map(name => {
+                        const field = record.field(name);
+                        return html`<tr
+                            data-field=${nested ? nothing : name}
+                            data-nested-field=${nested ? name : nothing}
+                        >
+                            <td class="status-column"
+                                >${fieldStatus(record, name)}</td
                             >
-                                <td class="status-column">${fieldStatus(record, name)}</td>
-                                <th scope="row" class="field-name">${name}</th>
-                                <td class="field-label">${field.label}</td>
-                                <td class="stored-value">
-                                    ${storedValue(field.rawValue)}
-                                    ${this.renderNestedValue(field, field.rawValue)}
-                                </td>
-                            </tr>`;
-                        })}
-                    </tbody>
-                </table>
-            </div>`;
+                            <th scope="row" class="field-name">${name}</th>
+                            <td class="field-label">${field.label}</td>
+                            <td class="stored-value">
+                                ${this.renderNestedValue(field, field.rawValue)}
+                            </td>
+                        </tr>`;
+                    })}
+                </tbody>
+            </table>
+        </div>`;
     }
 
     private renderNestedValue(
@@ -188,8 +201,10 @@ export class FdlRecordInspector extends LitElement {
             return html`<button
                 type="button"
                 class="nested-inspect"
+                aria-label="Inspect nested record"
                 @click=${() => this.openNestedRecord(child, 'Nested record')}
-            >Inspect nested record</button>`;
+                >${inspectIcon()} record</button
+            >`;
         }
         if (field.recordsetDefinition) {
             const values = Array.isArray(value) ? value : [];
@@ -202,17 +217,17 @@ export class FdlRecordInspector extends LitElement {
                         values,
                         'Nested recordset'
                     )}
-            >Inspect nested recordset (${values.length} rows)</button>`;
+                >Inspect nested recordset (${values.length} rows)</button
+            >`;
         }
-        return '';
+        return storedValue(value);
     }
 
-    private renderNestedRecordView(view: Extract<InspectorView, { kind: 'record' }>) {
+    private renderNestedRecordView(
+        view: Extract<InspectorView, { kind: 'record' }>
+    ) {
         return html`<div class="nested-view">
             ${this.renderRecordTable(view.record, true)}
-            <p class="nested-validation" role="status">
-                ${view.record.isValid() ? 'Valid' : 'Invalid'} nested record
-            </p>
         </div>`;
     }
 
@@ -220,20 +235,42 @@ export class FdlRecordInspector extends LitElement {
         view: Extract<InspectorView, { kind: 'recordset' }>
     ) {
         return html`<div class="nested-view">
-            <div class="nested-table-scroll" role="region" aria-label="Nested recordset" tabindex="0">
+            <div
+                class="nested-table-scroll"
+                role="region"
+                aria-label="Nested recordset"
+                tabindex="0"
+            >
                 <table aria-label="Nested recordset">
-                    <thead><tr><th scope="col">Row</th><th scope="col">Stored value</th><th scope="col">Action</th></tr></thead>
-                    <tbody>${view.values.map((value, index) => html`<tr data-nested-row=${index + 1}>
-                        <th scope="row">${index + 1}</th>
-                        <td class="stored-value">${storedValue(value)}</td>
-                        <td><button type="button" class="nested-inspect" @click=${() => this.openNestedRecord(nestedRecord(view.definitions, value), `Nested row ${index + 1}`)}>Inspect row</button></td>
-                    </tr>`)}</tbody>
+                    <thead
+                        ><tr
+                            ><th scope="col">Row</th
+                            ><th scope="col">Stored value</th
+                            ><th scope="col">Action</th></tr
+                        ></thead
+                    >
+                    <tbody
+                        >${view.values.map(
+                            (value, index) =>
+                                html`<tr data-nested-row=${index + 1}>
+                                    <th scope="row">${index + 1}</th>
+                                    <td class="stored-value"
+                                        >${storedValue(value)}</td
+                                    >
+                                    <td
+                                        ><button
+                                            type="button"
+                                            class="nested-inspect"
+                                            @click=${() => this.openNestedRecord(nestedRecord(view.definitions, value), `Nested row ${index + 1}`)}
+                                            >Inspect row</button
+                                        ></td
+                                    >
+                                </tr>`
+                        )}</tbody
+                    >
                 </table>
             </div>
             ${view.values.length ? '' : html`<p class="nested-empty">No nested rows.</p>`}
-            <p class="nested-validation" role="status">
-                ${view.values.every(value => nestedRecord(view.definitions, value).isValid()) ? 'Valid' : 'Invalid'} nested recordset
-            </p>
         </div>`;
     }
 
@@ -252,112 +289,116 @@ export class FdlRecordInspector extends LitElement {
         const action = this.collapsed
             ? 'Inspect record'
             : 'Collapse record inspector';
+        const valid = currentView
+            ? currentView.kind === 'record'
+                ? currentView.record.isValid()
+                : currentView.values.every(value =>
+                      nestedRecord(currentView.definitions, value).isValid()
+                  )
+            : record &&
+              (this.fields
+                  ? fields.every(name => record.isValid(name))
+                  : record.isValid());
+        const validityLabel = `${valid ? 'Valid' : 'Invalid'} ${currentView?.kind === 'recordset' ? 'recordset' : this.fields && !currentView ? 'displayed fields' : 'record'}`;
         return html`<section aria-label="Record Inspector">
             <header>
-                <span
-                    class="inspector-icon"
-                    aria-hidden="true"
-                    ?hidden=${this.collapsed}
-                >
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <circle cx="10" cy="10" r="6"></circle>
-                        <path d="m15 15 6 6"></path>
-                    </svg>
-                </span>
+                ${
+                    currentView && !this.collapsed
+                        ? html`<button
+                              type="button"
+                              class="inspector-icon back-button"
+                              aria-label="Back to parent record"
+                              title="Back to parent record"
+                              @click=${this.goBack}
+                              >←</button
+                          >`
+                        : html`<button
+                              type="button"
+                              class="inspector-icon"
+                              aria-label=${action}
+                              title=${action}
+                              aria-expanded=${!this.collapsed}
+                              aria-controls="record-details"
+                              @click=${this.toggle}
+                              >${inspectIcon()}</button
+                          >`
+                }
                 <div class="inspector-heading" ?hidden=${this.collapsed}>
                     <h3>${currentView?.label ?? 'Record Inspector'}</h3>
                     <p>Stored values · Field state</p>
                 </div>
-                ${currentView
-                    ? html`<button
-                          type="button"
-                          class="back-button"
-                          aria-label="Back to parent record"
-                          title="Back to parent record"
-                          @click=${this.goBack}
-                      >
-                          ← Back
-                      </button>`
-                    : ''}
-                <button
-                    type="button"
-                    aria-label=${action}
-                    title=${action}
-                    aria-expanded=${!this.collapsed}
-                    aria-controls="record-details"
-                    @click=${this.toggle}
-                >
-                    <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        focusable="false"
-                    >
-                        <g ?hidden=${!this.collapsed}>
-                            <circle cx="10" cy="10" r="6"></circle>
-                            <path d="m15 15 6 6"></path>
-                        </g>
-                        <path ?hidden=${this.collapsed} d="m6 9 6 6 6-6"></path>
-                    </svg>
-                </button>
+                ${
+                    record
+                        ? html`<span
+                              class="record-validity"
+                              role="img"
+                              aria-label=${validityLabel}
+                              title=${validityLabel}
+                              ?hidden=${this.collapsed}
+                          >
+                              <svg
+                                  viewBox="0 0 24 24"
+                                  aria-hidden="true"
+                                  focusable="false"
+                              >
+                                  <path
+                                      d=${valid ? 'm5 12 4 4L19 6' : 'm6 6 12 12 M18 6 6 18'}
+                                  ></path>
+                              </svg>
+                          </span>`
+                        : nothing
+                }
             </header>
             <div id="record-details" ?hidden=${this.collapsed}>
                 ${
                     currentView
                         ? this.renderCurrentNestedView()
                         : record
-                        ? html`<div
-                                  class="table-scroll"
-                                  role="region"
-                                  aria-label="Record fields"
-                                  tabindex="0"
-                                  ><table aria-label="Field state">
-                                      <thead
-                                          ><tr
-                                              ><th
-                                                  scope="col"
-                                                  class="status-column"
-                                              ></th
-                                              ><th scope="col">Field</th
-                                              ><th scope="col">Label</th
-                                              ><th scope="col"
-                                                  >Stored value</th
-                                              ></tr
-                                          ></thead
-                                      >
-                                      <tbody
-                                          >${fields.map(name => {
-                                              const field = record.field(name);
-                                              return html`<tr
-                                                  data-field=${name}
-                                              >
-                                                  <td class="status-column"
-                                                      >${fieldStatus(record, name)}</td
-                                                  >
-                                                  <th
-                                                      scope="row"
-                                                      class="field-name"
-                                                      >${name}</th
-                                                  >
-                                                  <td class="field-label"
-                                                      >${field.label}</td
-                                                  >
-                                                  <td class="stored-value"
-                                                      >${storedValue(field.rawValue)}${this.renderNestedValue(field, field.rawValue)}</td
-                                                  >
-                                              </tr>`;
-                                          })}</tbody
-                                      >
-                                  </table></div
-                              >
-                              ${statusLegend()}
-                              <p class="validation" role="status"
-                                  >${this.fields ? 'Displayed fields validation:' : 'Record validation:'}
-                                  <strong
-                                      >${(this.fields ? this.fields.every(name => record.isValid(name)) : record.isValid()) ? 'Valid' : 'Invalid'}</strong
-                                  ></p
-                              >`
-                        : html`<p>No record selected.</p>`
+                          ? html`<div
+                                class="table-scroll"
+                                role="region"
+                                aria-label="Record fields"
+                                tabindex="0"
+                                ><table aria-label="Field state">
+                                    <thead
+                                        ><tr
+                                            ><th
+                                                scope="col"
+                                                class="status-column"
+                                            ></th
+                                            ><th scope="col">Field</th
+                                            ><th scope="col">Label</th
+                                            ><th scope="col"
+                                                >Stored value</th
+                                            ></tr
+                                        ></thead
+                                    >
+                                    <tbody
+                                        >${fields.map(name => {
+                                            const field = record.field(name);
+                                            return html`<tr data-field=${name}>
+                                                <td class="status-column"
+                                                    >${fieldStatus(record, name)}</td
+                                                >
+                                                <th
+                                                    scope="row"
+                                                    class="field-name"
+                                                    >${name}</th
+                                                >
+                                                <td class="field-label"
+                                                    >${field.label}</td
+                                                >
+                                                <td class="stored-value"
+                                                    >${this.renderNestedValue(field, field.rawValue)}</td
+                                                >
+                                            </tr>`;
+                                        })}</tbody
+                                    >
+                                </table></div
+                            > `
+                          : html`<p>No record selected.</p>`
                 }
+                ${record ? statusLegend() : nothing}
             </div>
         </section>`;
     }
@@ -461,7 +502,7 @@ export class FdlRecordInspector extends LitElement {
             height: 20px;
             transition: transform 160ms;
         }
-        button[aria-expanded='true'] svg {
+        button:not(.inspector-icon)[aria-expanded='true'] svg {
             transform: rotate(180deg);
         }
         svg {
@@ -491,9 +532,22 @@ export class FdlRecordInspector extends LitElement {
             font-size: 0.8125rem;
             font-weight: 600;
         }
-        .back-button {
+        header .inspector-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+        }
+        .record-validity {
+            display: inline-flex;
             margin-left: auto;
-            white-space: nowrap;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .nested-inspect svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
         }
         .nested-view {
             min-width: 0;
@@ -502,7 +556,6 @@ export class FdlRecordInspector extends LitElement {
             min-width: 420px;
             margin-top: 8px;
         }
-        .nested-validation,
         .nested-empty {
             margin: 8px 0 0;
             font-size: 0.8125rem;
@@ -575,9 +628,17 @@ export class FdlRecordInspector extends LitElement {
             font-size: 0.8125rem;
             color: #525252;
         }
-        .legend p {
-            margin: 0 0 8px;
+        .legend summary {
+            cursor: pointer;
+            padding: 4px 0;
             font-weight: 600;
+        }
+        .legend summary:focus-visible {
+            outline: 3px solid #525252;
+            outline-offset: 3px;
+        }
+        .legend[open] summary {
+            margin-bottom: 8px;
         }
         .legend ul {
             display: grid;
@@ -591,12 +652,6 @@ export class FdlRecordInspector extends LitElement {
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        .validation {
-            padding-top: 16px;
-            border-top: 1px solid var(--example-border);
-            font-size: 0.875rem;
-            margin-bottom: 0;
         }
         @media (max-width: 480px) {
             header {
