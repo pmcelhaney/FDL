@@ -1,339 +1,416 @@
 import { parse } from 'yaml';
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
+import type { ErrorObject } from 'ajv';
 import type FieldTypeBuilder from './field-type-builder';
-import { boolean, number, string } from './primitives.js';
+import { boolean, field, number, string } from './primitives.js';
 
-/** Select a named components.schemas object and the exact properties to translate. */
+/** Select component properties; references supply external documents without network access. */
 export interface OpenAPIFieldSelection {
     schema: string;
     fields: readonly string[];
+    references?: Readonly<{ [uri: string]: string | object }>;
+    /** Standard format assertions are opt-in, preserving the original annotation behavior. */
+    validateFormats?: boolean;
 }
 
-type Schema = { [key: string]: unknown };
-type Check = (value: any) => boolean;
+type Schema = { [key: string]: any };
 type Definition = FieldTypeBuilder<any>;
-
-const annotations = [
-    'title',
-    'description',
-    'format',
-    'default',
-    'example',
-    'examples',
-    'deprecated',
-    'readOnly',
-    'writeOnly',
-    'externalDocs',
-    'xml',
-];
-const scalarKeywords = new Set([
-    ...annotations,
-    'type',
-    'nullable',
-    'enum',
-    'const',
-    'minLength',
-    'maxLength',
-    'pattern',
-    'minimum',
-    'maximum',
-    'exclusiveMinimum',
-    'exclusiveMaximum',
-    'multipleOf',
+const documentURI = 'https://fdl.invalid/openapi.json';
+const dialects = new Set([
+    'https://json-schema.org/draft/2020-12/schema',
+    'https://spec.openapis.org/oas/3.1/dialect/base',
 ]);
-const objectKeywords = new Set([
-    ...annotations,
-    'type',
+const schemaMaps = new Set([
     'properties',
-    'required',
+    'patternProperties',
+    '$defs',
+    'definitions',
+    'dependentSchemas',
+]);
+const schemaArrays = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems']);
+const schemaValues = new Set([
+    'items',
+    'contains',
     'additionalProperties',
+    'unevaluatedProperties',
+    'unevaluatedItems',
+    'propertyNames',
+    'not',
+    'if',
+    'then',
+    'else',
+    'contentSchema',
 ]);
 
 function fail(context: string, message: string): never {
     throw new Error(`fieldsFromOpenAPI: ${context}: ${message}.`);
 }
 
-function asObject(value: unknown, context: string): Schema {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-        fail(context, 'expected a schema object');
-    }
-    return value as Schema;
-}
-
 function own(value: object, key: string): boolean {
     return Object.prototype.hasOwnProperty.call(value, key);
 }
 
-function checkKeywords(schema: Schema, allowed: Set<string>, context: string): void {
-    for (const keyword of Object.keys(schema)) {
-        if (!allowed.has(keyword) && !keyword.startsWith('x-')) {
-            fail(context, `unsupported keyword ${keyword}`);
-        }
-    }
+function asObject(value: unknown, context: string): Schema {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+        fail(context, 'expected an object');
+    return value as Schema;
 }
 
-function resolveSchema(value: unknown, document: Schema, context: string): Schema {
-    const visited = new Set<string>();
-    let schema = asObject(value, context);
-    while (own(schema, '$ref')) {
-        const reference = schema.$ref;
-        if (typeof reference !== 'string' || !reference.startsWith('#/')) {
-            fail(context, 'only local JSON Pointer references are supported');
-        }
-        if (
-            Object.keys(schema).some(function sibling(key) {
-                return !['$ref', 'summary', 'description'].includes(key);
-            })
-        ) {
-            fail(context, 'reference siblings other than summary and description are unsupported');
-        }
-        if (visited.has(reference)) fail(context, `cyclic reference ${reference}`);
-        visited.add(reference);
-        let pointer: string;
-        try {
-            pointer = decodeURIComponent(reference.slice(2));
-        } catch {
-            fail(context, `invalid reference ${reference}`);
-        }
-        let target: unknown = document;
-        for (const encoded of pointer.split('/')) {
-            if (/~(?![01])/u.test(encoded)) fail(context, `invalid reference ${reference}`);
-            const key = encoded.replace(/~1/g, '/').replace(/~0/g, '~');
-            const container = asObject(target, context);
-            if (!own(container, key)) fail(context, `unresolved reference ${reference}`);
-            target = container[key];
-        }
-        schema = asObject(target, context);
-    }
-    return schema;
+function read(source: string | object, context: string): Schema {
+    return asObject(typeof source === 'string' ? parse(source) : source, context);
 }
 
-function numericKeyword(schema: Schema, key: string, context: string): number | undefined {
-    if (!own(schema, key)) return undefined;
-    const value = schema[key];
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-        fail(context, `${key} must be a finite number`);
-    }
-    return value;
-}
-
-function stringChecks(schema: Schema, context: string): Check[] {
-    const checks: Check[] = [];
-    for (const key of ['minLength', 'maxLength']) {
-        const length = numericKeyword(schema, key, context);
-        if (length === undefined) continue;
-        if (!Number.isSafeInteger(length) || length < 0)
-            fail(context, `${key} must be a nonnegative integer`);
-        checks.push(function checkLength(value) {
-            const count = Array.from(value as string).length;
-            return key === 'minLength' ? count >= length : count <= length;
-        });
-    }
-    if (own(schema, 'pattern')) {
-        if (typeof schema.pattern !== 'string') fail(context, 'pattern must be a string');
-        let pattern: RegExp;
-        try {
-            pattern = new RegExp(schema.pattern, 'u');
-        } catch {
-            fail(context, 'pattern must be a valid Unicode regular expression');
-        }
-        checks.push(function matchesPattern(value) {
-            return pattern.test(value);
-        });
-    }
-    return checks;
-}
-
-// Compare decimal representations exactly instead of relying on floating-point division.
 function decimalParts(value: number): [bigint, number] {
     const [coefficient, exponent = '0'] = value.toString().split('e');
-    const fractionalDigits = coefficient.split('.')[1]?.length || 0;
-    return [BigInt(coefficient.replace('.', '')), Number(exponent) - fractionalDigits];
+    return [
+        BigInt(coefficient.replace('.', '')),
+        Number(exponent) - (coefficient.split('.')[1]?.length || 0),
+    ];
 }
 
-function numberChecks(schema: Schema, version30: boolean, context: string): Check[] {
-    const checks: Check[] = [];
-    for (const side of ['Minimum', 'Maximum']) {
-        const key = side.toLowerCase();
-        const exclusiveKey = `exclusive${side}`;
-        const inclusive = numericKeyword(schema, key, context);
-        let exclusive: number | undefined;
-        if (version30) {
-            if (own(schema, exclusiveKey) && typeof schema[exclusiveKey] !== 'boolean') {
-                fail(context, `${exclusiveKey} must be boolean in OpenAPI 3.0`);
-            }
-            if (schema[exclusiveKey] === true) {
-                if (inclusive === undefined) fail(context, `${exclusiveKey} requires ${key}`);
-                exclusive = inclusive;
-            }
-        } else {
-            exclusive = numericKeyword(schema, exclusiveKey, context);
-        }
-        checks.push(function withinBounds(value) {
-            if (side === 'Minimum') {
-                return (
-                    (inclusive === undefined || value >= inclusive) &&
-                    (exclusive === undefined || value > exclusive)
-                );
-            }
-            return (
-                (inclusive === undefined || value <= inclusive) &&
-                (exclusive === undefined || value < exclusive)
-            );
-        });
-    }
-    const multiple = numericKeyword(schema, 'multipleOf', context);
-    if (multiple !== undefined) {
-        if (multiple <= 0) fail(context, 'multipleOf must be positive');
-        checks.push(function isMultiple(value) {
-            const [numerator, numeratorScale] = decimalParts(value);
-            const [divisor, divisorScale] = decimalParts(multiple);
-            const scale = Math.min(numeratorScale, divisorScale);
-            return (
-                (numerator * 10n ** BigInt(numeratorScale - scale)) %
-                    (divisor * 10n ** BigInt(divisorScale - scale)) ===
-                0n
-            );
-        });
-    }
-    return checks;
+function isMultiple(multiple: number, value: number): boolean {
+    if (!Number.isFinite(value)) return false;
+    const [numerator, numeratorScale] = decimalParts(value);
+    const [divisor, divisorScale] = decimalParts(multiple);
+    const scale = Math.min(numeratorScale, divisorScale);
+    return (
+        (numerator * 10n ** BigInt(numeratorScale - scale)) %
+            (divisor * 10n ** BigInt(divisorScale - scale)) ===
+        0n
+    );
 }
 
-function translateField(
-    schema: Schema,
-    required: boolean,
+/** Normalize schema positions only: never reinterpret defaults, examples, or enum data as schemas. */
+function normalize(
+    value: any,
     version30: boolean,
-    context: string
-): Definition {
-    checkKeywords(schema, scalarKeywords, context);
-    let type = schema.type;
-    let nullable = false;
-    if (version30) {
-        if (own(schema, 'nullable') && typeof schema.nullable !== 'boolean')
-            fail(context, 'nullable must be boolean');
-        nullable = schema.nullable === true;
-    } else {
-        if (own(schema, 'nullable')) fail(context, 'use a type union with null in OpenAPI 3.1');
-        if (Array.isArray(type)) {
-            if (type.length !== 2 || !type.includes('null') || new Set(type).size !== 2) {
-                fail(context, 'only a scalar type union with null is supported');
-            }
-            type = type.find(function nonNull(member) {
-                return member !== 'null';
-            });
-            nullable = true;
-        }
-    }
-    let definition: Definition;
-    let accepts: Check;
-    switch (type) {
-        case 'string':
-            definition = string;
-            accepts = function isString(value) {
-                return typeof value === 'string';
-            };
-            break;
-        case 'integer':
-            definition = number;
-            accepts = function isInteger(value) {
-                return Number.isSafeInteger(value);
-            };
-            break;
-        case 'number':
-            definition = number;
-            accepts = function isNumber(value) {
-                return typeof value === 'number' && Number.isFinite(value);
-            };
-            break;
-        case 'boolean':
-            definition = boolean;
-            accepts = function isBoolean(value) {
-                return typeof value === 'boolean';
-            };
-            break;
-        default:
-            fail(context, `unsupported scalar type ${JSON.stringify(type)}`);
-    }
-    const textKeys = ['minLength', 'maxLength', 'pattern'];
-    const numberKeys = ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'];
-    if (
-        (type !== 'string' &&
-            textKeys.some(function present(key) {
-                return own(schema, key);
-            })) ||
-        (!['integer', 'number'].includes(type as string) &&
-            numberKeys.some(function present(key) {
-                return own(schema, key);
-            }))
-    ) {
-        fail(context, 'constraint does not match the declared type');
-    }
-    const checks =
-        type === 'string'
-            ? stringChecks(schema, context)
-            : ['integer', 'number'].includes(type as string)
-              ? numberChecks(schema, version30, context)
-              : [];
-    const commonChecks: Check[] = [];
-    const enumeration = schema.enum;
-    if (own(schema, 'enum')) {
-        if (
-            !Array.isArray(enumeration) ||
-            enumeration.length === 0 ||
-            enumeration.some(function invalid(value) {
-                return value === null ? !nullable : !accepts(value);
-            }) ||
-            new Set(enumeration).size !== enumeration.length
-        ) {
-            fail(context, 'enum must contain distinct values matching the declared type');
-        }
-        // Capture values instead of closing over the caller's mutable document.
-        const values = enumeration.slice();
-        definition = definition.options(
-            values.map(function option(value) {
-                return { value, text: String(value) };
-            })
-        );
-        commonChecks.push(function inEnum(value) {
-            return values.includes(value);
-        });
-    }
-    if (own(schema, 'const')) {
-        if (version30) fail(context, 'const requires OpenAPI 3.1');
-        const constant = schema.const;
-        if (constant === null ? !nullable : !accepts(constant))
-            fail(context, 'const does not match the declared type');
-        commonChecks.push(function equalsConstant(value) {
-            return value === constant;
-        });
-    }
-    if (own(schema, 'title')) {
-        if (typeof schema.title !== 'string') fail(context, 'title must be a string');
-        definition = definition.label(schema.title);
-    }
-    // required means property presence, not a nonempty value or non-null value.
-    return definition.defaultValue(undefined).validator({
-        name: `must match OpenAPI schema ${context}`,
-        validate: function validateOpenAPI(value) {
-            if (value === undefined) return !required;
-            if (value === null) {
-                return (
-                    nullable &&
-                    commonChecks.every(function checkNull(check) {
-                        return check(value);
-                    })
-                );
-            }
-            return (
-                accepts(value) &&
-                [...checks, ...commonChecks].every(function checkValue(check) {
-                    return check(value);
+    context: string,
+    active = new Set<object>()
+): any {
+    if (typeof value === 'boolean') return value;
+    const input = asObject(value, context);
+    if (active.has(input))
+        fail(context, 'cyclic JavaScript object; use $ref for recursive schemas');
+    active.add(input);
+    const output: Schema = {};
+    for (const [key, child] of Object.entries(input)) {
+        if (key === '$async') fail(context, 'asynchronous schemas are unsupported');
+        if (key.startsWith('x-') || key === 'nullable') continue;
+        if (schemaMaps.has(key)) {
+            output[key] = Object.fromEntries(
+                Object.entries(asObject(child, `${context}.${key}`)).map(function entry([
+                    name,
+                    schema,
+                ]) {
+                    return [
+                        name,
+                        normalize(schema, version30, `${context}.${key}.${name}`, active),
+                    ];
                 })
             );
-        },
+        } else if (schemaArrays.has(key)) {
+            if (!Array.isArray(child)) fail(context, `${key} must be an array`);
+            output[key] = child.map(function item(schema, index) {
+                return normalize(schema, version30, `${context}.${key}[${index}]`, active);
+            });
+        } else if (schemaValues.has(key)) {
+            output[key] = normalize(child, version30, `${context}.${key}`, active);
+        } else if ((key === '$ref' || key === '$dynamicRef') && typeof child === 'string') {
+            output[key] = child.replace('#/components/schemas/', '#/$defs/');
+        } else {
+            // Clone annotations and literal data too, so callers retain ownership.
+            output[key] = JSON.parse(JSON.stringify(child));
+        }
+    }
+    active.delete(input);
+    if (own(input, 'nullable')) {
+        if (!version30) fail(context, 'use a type union with null in OpenAPI 3.1 or 3.2');
+        if (typeof input.nullable !== 'boolean') fail(context, 'nullable must be boolean');
+        if (input.nullable) {
+            if (typeof input.type !== 'string') fail(context, 'nullable requires an explicit type');
+            output.type = [input.type, 'null'];
+        }
+    }
+    if (version30) {
+        if (Array.isArray(input.type)) fail(context, 'type arrays require OpenAPI 3.1 or 3.2');
+        if (own(input, 'const')) fail(context, 'const requires OpenAPI 3.1 or 3.2');
+        for (const side of ['Minimum', 'Maximum']) {
+            const key = `exclusive${side}`;
+            if (!own(input, key)) continue;
+            if (typeof input[key] !== 'boolean')
+                fail(context, `${key} must be boolean in OpenAPI 3.0`);
+            delete output[key];
+            if (input[key]) {
+                const inclusive = side.toLowerCase();
+                if (typeof input[inclusive] !== 'number')
+                    fail(context, `${key} requires ${inclusive}`);
+                output[key] = input[inclusive];
+                delete output[inclusive];
+            }
+        }
+        // OpenAPI 3.0 Reference Objects ignore siblings; preserve that version's meaning.
+        if (own(input, '$ref')) return { $ref: output.$ref };
+    }
+    if (own(output, '$schema')) {
+        if (!dialects.has(output.$schema))
+            fail(context, `unsupported schema dialect ${output.$schema}`);
+        output.$schema = 'https://json-schema.org/draft/2020-12/schema';
+    }
+    if (
+        input.type === 'integer' ||
+        (Array.isArray(input.type) &&
+            input.type.includes('integer') &&
+            !input.type.includes('number'))
+    ) {
+        output.fdlSafeInteger = true;
+    }
+    if (Array.isArray(output.enum) && output.enum.length === 0) return false;
+    return output;
+}
+
+function resource(source: string | object, context: string): Schema {
+    const document = read(source, context);
+    if (!own(document, 'openapi')) return normalize(document, false, context);
+    if (typeof document.openapi !== 'string' || !/^3\.[012]\.\d+$/u.test(document.openapi))
+        fail(context, 'expected OpenAPI 3.0.x, 3.1.x, or 3.2.x');
+    if (document.jsonSchemaDialect !== undefined && !dialects.has(document.jsonSchemaDialect))
+        fail(context, 'unsupported schema dialect');
+    const schemas = asObject(
+        asObject(document.components, 'components').schemas,
+        'components.schemas'
+    );
+    const definitions = Object.fromEntries(
+        Object.entries(schemas).map(function entry([name, schema]) {
+            return [name, normalize(schema, document.openapi.startsWith('3.0.'), name)];
+        })
+    );
+    // Use real JSON Schema locations; normalization rewrites OpenAPI component pointers.
+    return { $defs: definitions };
+}
+
+function pointer(
+    reference: string,
+    resources: Map<string, Schema>,
+    context: string
+): { schema: any; base: string } {
+    const direct = resources.get(reference);
+    if (direct) return { schema: direct, base: reference.split('#')[0] };
+    const url = new URL(reference);
+    const fragment = url.hash;
+    url.hash = '';
+    let schema: any = resources.get(url.href);
+    if (!schema) fail(context, `external reference ${url.href} must be supplied in references`);
+    if (fragment && fragment !== '#') {
+        if (!fragment.startsWith('#/'))
+            fail(context, 'named anchors are validated but cannot supply field metadata');
+        let decoded: string;
+        try {
+            decoded = decodeURIComponent(fragment.slice(2));
+        } catch {
+            fail(context, 'invalid reference');
+        }
+        for (const encoded of decoded.split('/')) {
+            if (/~(?![01])/u.test(encoded)) fail(context, 'invalid JSON Pointer escape');
+            const key = encoded.replace(/~1/g, '/').replace(/~0/g, '~');
+            if (!schema || typeof schema !== 'object' || !own(schema, key))
+                fail(context, `unresolved reference ${reference}`);
+            schema = schema[key];
+        }
+    }
+    return { schema, base: url.href };
+}
+
+function indexSchemas(
+    schema: any,
+    base: string,
+    locations: Map<string, Schema>,
+    bases: WeakMap<object, string>,
+    visited = new Set<object>()
+): void {
+    if (typeof schema === 'boolean' || visited.has(schema)) return;
+    visited.add(schema);
+    if (schema.$id) {
+        base = new URL(schema.$id, base).href;
+        schema.$id = base;
+        if (locations.has(base) && locations.get(base) !== schema)
+            fail(base, 'duplicate schema identifier');
+        locations.set(base, schema);
+    }
+    bases.set(schema, base);
+    for (const keyword of ['$anchor', '$dynamicAnchor']) {
+        if (schema[keyword]) locations.set(new URL(`#${schema[keyword]}`, base).href, schema);
+    }
+    for (const key of schemaMaps) {
+        if (schema[key])
+            for (const child of Object.values(schema[key]))
+                indexSchemas(child, base, locations, bases, visited);
+    }
+    for (const key of schemaArrays) {
+        if (schema[key])
+            for (const child of schema[key]) indexSchemas(child, base, locations, bases, visited);
+    }
+    for (const key of schemaValues) {
+        if (schema[key] !== undefined) indexSchemas(schema[key], base, locations, bases, visited);
+    }
+}
+
+function checkReferences(
+    schema: any,
+    base: string,
+    resources: Map<string, Schema>,
+    visited = new Set<object>()
+): void {
+    if (typeof schema === 'boolean' || visited.has(schema)) return;
+    visited.add(schema);
+    if (schema.$id) base = new URL(schema.$id, base).href;
+    if (schema.$ref || schema.$dynamicRef) {
+        const reference = new URL(schema.$ref || schema.$dynamicRef, base).href;
+        const resolved = pointer(reference, resources, base);
+        checkReferences(resolved.schema, resolved.base, resources, visited);
+    }
+    for (const key of schemaMaps) {
+        if (schema[key])
+            for (const child of Object.values(schema[key]))
+                checkReferences(child, base, resources, visited);
+    }
+    for (const key of schemaArrays) {
+        if (schema[key])
+            for (const child of schema[key]) checkReferences(child, base, resources, visited);
+    }
+    for (const key of schemaValues) {
+        if (schema[key] !== undefined) checkReferences(schema[key], base, resources, visited);
+    }
+}
+
+function propertySchemas(
+    schema: any,
+    name: string,
+    base: string,
+    resources: Map<string, Schema>,
+    visited = new Set<any>()
+): any[] {
+    if (typeof schema === 'boolean') return [];
+    if (visited.has(schema)) return [];
+    visited.add(schema);
+    const result: any[] = [];
+    if (schema.$id) base = new URL(schema.$id, base).href;
+    if (schema.$ref || schema.$dynamicRef) {
+        const resolved = pointer(
+            new URL(schema.$ref || schema.$dynamicRef, base).href,
+            resources,
+            name
+        );
+        result.push(...propertySchemas(resolved.schema, name, resolved.base, resources, visited));
+    }
+    const declared = schema.properties && own(schema.properties, name);
+    if (declared) result.push(schema.properties[name]);
+    let matched = false;
+    for (const [pattern, property] of Object.entries(schema.patternProperties || {})) {
+        if (new RegExp(pattern, 'u').test(name)) {
+            matched = true;
+            result.push(property);
+        }
+    }
+    if (!declared && !matched && schema.additionalProperties)
+        result.push(schema.additionalProperties);
+    for (const keyword of ['allOf', 'anyOf', 'oneOf', 'then', 'else']) {
+        const branches = Array.isArray(schema[keyword])
+            ? schema[keyword]
+            : schema[keyword]
+              ? [schema[keyword]]
+              : [];
+        for (const branch of branches)
+            result.push(...propertySchemas(branch, name, base, resources, visited));
+    }
+    return result;
+}
+
+// Inspect renderer metadata independently; validation retains the original composition.
+function definitionHints(
+    schema: any,
+    resources: Map<string, Schema>,
+    bases: WeakMap<object, string>,
+    visited = new Set<object>()
+): Schema[] {
+    if (typeof schema === 'boolean' || visited.has(schema)) return [];
+    visited.add(schema);
+    const base = bases.get(schema) || documentURI;
+    const hints: Schema[] = [];
+    if (schema.type || schema.enum || schema.title) hints.push(schema);
+    if (schema.$ref || schema.$dynamicRef) {
+        const resolved = pointer(
+            new URL(schema.$ref || schema.$dynamicRef, base).href,
+            resources,
+            'field metadata'
+        );
+        hints.push(...definitionHints(resolved.schema, resources, bases, visited));
+    }
+    for (const keyword of ['allOf', 'anyOf', 'oneOf']) {
+        for (const branch of schema[keyword] || [])
+            hints.push(...definitionHints(branch, resources, bases, visited));
+    }
+    return hints;
+}
+
+function hasAlternatives(
+    schema: any,
+    resources: Map<string, Schema>,
+    bases: WeakMap<object, string>,
+    visited = new Set<object>()
+): boolean {
+    if (typeof schema === 'boolean' || visited.has(schema)) return false;
+    visited.add(schema);
+    if (
+        schema.anyOf ||
+        schema.oneOf ||
+        schema.if ||
+        schema.then ||
+        schema.else ||
+        schema.dependentSchemas
+    )
+        return true;
+    if (schema.$ref || schema.$dynamicRef) {
+        const base = bases.get(schema) || documentURI;
+        const resolved = pointer(
+            new URL(schema.$ref || schema.$dynamicRef, base).href,
+            resources,
+            'field metadata'
+        );
+        if (hasAlternatives(resolved.schema, resources, bases, visited)) return true;
+    }
+    return (schema.allOf || []).some(function branch(child: any) {
+        return hasAlternatives(child, resources, bases, visited);
     });
 }
 
-/** Translate selected scalar properties of an OpenAPI 3.0/3.1 component schema. */
+function primitiveType(schema: Schema): string | undefined {
+    if (!Array.isArray(schema.type))
+        return typeof schema.type === 'string' ? schema.type : undefined;
+    const types = schema.type.filter(function nonNull(type: string) {
+        return type !== 'null';
+    });
+    return types.length === 1 ? types[0] : undefined;
+}
+
+function acyclic(value: unknown, active = new Set<object>()): boolean {
+    if (!value || typeof value !== 'object') return true;
+    if (active.has(value)) return false;
+    active.add(value);
+    const valid = Object.values(value).every(function child(item) {
+        return acyclic(item, active);
+    });
+    active.delete(value);
+    return valid;
+}
+
+function affectsField(error: ErrorObject, name: string): boolean {
+    const first = error.instancePath.split('/')[1]?.replace(/~1/g, '/').replace(/~0/g, '~');
+    // Root-level errors are shared constraints, including missing required siblings.
+    return first === undefined || first === name;
+}
+
+/** Translate OpenAPI schemas without flattening structured values or weakening composed rules. */
 export function fieldsFromOpenAPI(
     source: string | object,
     selection: OpenAPIFieldSelection
@@ -353,46 +430,162 @@ export function fieldsFromOpenAPI(
             'fieldsFromOpenAPI requires a schema name and a nonempty array of distinct field names.'
         );
     }
-    const document = asObject(typeof source === 'string' ? parse(source) : source, 'document');
-    if (typeof document.openapi !== 'string' || !/^3\.[01]\.\d+$/u.test(document.openapi)) {
-        fail('document', 'expected OpenAPI 3.0.x or 3.1.x');
+    if (selection.validateFormats !== undefined && typeof selection.validateFormats !== 'boolean') {
+        throw new TypeError('fieldsFromOpenAPI: validateFormats must be boolean.');
     }
-    if (own(document, 'jsonSchemaDialect'))
-        fail('document', 'custom schema dialects are unsupported');
-    const version30 = document.openapi.startsWith('3.0.');
-    const schemas = asObject(
-        asObject(document.components, 'components').schemas,
-        'components.schemas'
-    );
-    if (!own(schemas, selection.schema)) fail(selection.schema, 'unknown component schema');
-    const schema = resolveSchema(schemas[selection.schema], document, selection.schema);
-    checkKeywords(schema, objectKeywords, selection.schema);
-    if (schema.type !== 'object') fail(selection.schema, 'expected type object');
-    if (own(schema, 'additionalProperties') && typeof schema.additionalProperties !== 'boolean') {
-        fail(selection.schema, 'schema-valued additionalProperties is unsupported');
+    if (selection.references !== undefined) asObject(selection.references, 'references');
+    const resources = new Map<string, Schema>([[documentURI, resource(source, 'document')]]);
+    for (const [uri, document] of Object.entries(selection.references || {})) {
+        const absolute = new URL(uri, documentURI).href;
+        if (absolute === documentURI) fail('references', 'cannot replace the primary document');
+        resources.set(absolute, resource(document, uri));
     }
-    const properties = asObject(schema.properties, `${selection.schema}.properties`);
-    const required = schema.required === undefined ? [] : schema.required;
-    if (
-        !Array.isArray(required) ||
-        required.some(function invalid(name) {
-            return typeof name !== 'string' || !own(properties, name);
-        }) ||
-        new Set(required).size !== required.length
-    )
-        fail(selection.schema, 'invalid required property list');
+    const schemas = resources.get(documentURI)!.$defs;
+    if (!schemas || !own(schemas, selection.schema))
+        fail(selection.schema, 'unknown component schema');
+    const ajv = new Ajv2020({
+        allErrors: true,
+        strictSchema: true,
+        strictTypes: false,
+        strictTuples: false,
+        strictRequired: false,
+        allowUnionTypes: true,
+        validateFormats: selection.validateFormats === true,
+        ownProperties: true,
+    });
+    addFormats(ajv);
+    for (const keyword of [
+        'example',
+        'externalDocs',
+        'xml',
+        'discriminator',
+        '$anchor',
+        'summary',
+    ]) {
+        if (!ajv.getKeyword(keyword)) ajv.addKeyword({ keyword, valid: true });
+    }
+    ajv.addKeyword({
+        keyword: 'fdlSafeInteger',
+        type: 'number',
+        schemaType: 'boolean',
+        validate: function safe(_schema: boolean, value: number) {
+            return !Number.isInteger(value) || Number.isSafeInteger(value);
+        },
+    });
+    ajv.removeKeyword('multipleOf');
+    ajv.addKeyword({
+        keyword: 'multipleOf',
+        type: 'number',
+        schemaType: 'number',
+        metaSchema: { type: 'number', exclusiveMinimum: 0 },
+        validate: isMultiple,
+    });
+    const locations = new Map(resources);
+    const bases = new WeakMap<object, string>();
+    for (const [uri, schema] of resources) indexSchemas(schema, uri, locations, bases);
+    for (const [uri, schema] of resources) {
+        try {
+            ajv.addSchema(schema, uri);
+        } catch (error) {
+            fail(selection.schema, error instanceof Error ? error.message : String(error));
+        }
+    }
+    checkReferences(schemas[selection.schema], documentURI, locations);
+    const reference = `${documentURI}#/$defs/${selection.schema.replace(/~/g, '~0').replace(/\//g, '~1')}`;
+    let validate: ReturnType<typeof ajv.compile>;
+    try {
+        validate = ajv.compile({ $ref: reference });
+    } catch (error) {
+        fail(selection.schema, error instanceof Error ? error.message : String(error));
+    }
+    const schema = schemas[selection.schema];
     return Object.fromEntries(
         selection.fields.map(function translate(name) {
-            const context = `${selection.schema}.${name}`;
-            if (!own(properties, name)) fail(context, 'unknown property');
+            const hints = propertySchemas(schema, name, documentURI, locations);
+            if (
+                !hints.length &&
+                schema !== true &&
+                schema !== false &&
+                !schema.additionalProperties &&
+                !schema.patternProperties
+            )
+                fail(`${selection.schema}.${name}`, 'unknown property');
+            const metadata = hints.flatMap(function resolveHint(hint) {
+                return definitionHints(hint, locations, bases);
+            });
+            const hint =
+                metadata.find(function objectHint(value) {
+                    return value && typeof value === 'object';
+                }) || {};
+            const types = metadata
+                .map(primitiveType)
+                .filter(function present(type): type is string {
+                    return type !== undefined;
+                });
+            let definition: Definition =
+                types.length &&
+                types.every(function same(type) {
+                    return type === 'string';
+                })
+                    ? string
+                    : types.length &&
+                        types.every(function same(type) {
+                            return type === 'integer' || type === 'number';
+                        })
+                      ? number
+                      : types.length &&
+                          types.every(function same(type) {
+                              return type === 'boolean';
+                          })
+                        ? boolean
+                        : field;
+            if (hint.title) definition = definition.label(hint.title);
+            // Only direct scalar enums have unambiguous choices across schema alternatives.
+            if (
+                !hasAlternatives(schema, locations, bases) &&
+                !hints.some(function alternatives(hint) {
+                    return hasAlternatives(hint, locations, bases);
+                }) &&
+                metadata.length === 1 &&
+                Array.isArray(hint.enum) &&
+                hint.enum.every(function scalar(value: any) {
+                    return value === null || ['string', 'number', 'boolean'].includes(typeof value);
+                })
+            ) {
+                definition = definition.options(
+                    hint.enum.map(function option(value: any) {
+                        return { value, text: String(value) };
+                    })
+                );
+            }
             return [
                 name,
-                translateField(
-                    resolveSchema(properties[name], document, context),
-                    required.includes(name),
-                    version30,
-                    context
-                ),
+                definition.defaultValue(undefined).validator({
+                    name: `must match OpenAPI schema ${selection.schema}.${name}`,
+                    validate: function validateOpenAPI(value, _view, record) {
+                        const values = Object.fromEntries(
+                            Object.entries(record?.values || {}).filter(function present([
+                                _key,
+                                stored,
+                            ]) {
+                                return stored !== undefined;
+                            })
+                        );
+                        if (value === undefined) delete values[name];
+                        else
+                            Object.defineProperty(values, name, {
+                                value,
+                                enumerable: true,
+                                configurable: true,
+                                writable: true,
+                            });
+                        if (!acyclic(values)) return false;
+                        if (validate(values)) return true;
+                        return !(validate.errors || []).some(function relevant(error) {
+                            return affectsField(error, name);
+                        });
+                    },
+                }),
             ];
         })
     );

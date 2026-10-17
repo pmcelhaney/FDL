@@ -60,114 +60,183 @@ returned definition with normal modifiers without changing the original map.
 
 ## Arguments and result
 
-Import the function and its selection type from `@pmcelhaney/fdl/openapi`:
-
 ```typescript
 fieldsFromOpenAPI(source: string | object, selection: OpenAPIFieldSelection)
 ```
 
-| Argument                              | Meaning                                                                             |
-| ------------------------------------- | ----------------------------------------------------------------------------------- |
-| `source`                              | OpenAPI YAML, JSON text, or a parsed document object. It is not a file path or URL. |
-| `selection.schema: string`            | Exact name under `components.schemas`, such as `Product`.                           |
-| `selection.fields: readonly string[]` | Nonempty list of distinct property names to translate, in output order.             |
+| Argument                    | Meaning                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `source`                    | OpenAPI YAML, JSON text, or a parsed document object.                                                                    |
+| `selection.schema`          | Exact component name under `components.schemas`.                                                                         |
+| `selection.fields`          | Nonempty list of distinct property names, in output order. Properties can be declared directly or inside composition.    |
+| `selection.references`      | Optional map from document URI to supplied OpenAPI or JSON Schema documents. Values can be YAML, JSON text, or objects.  |
+| `selection.validateFormats` | Optional boolean. When true, assert standard formats such as email, date, date-time, UUID, and int32. Defaults to false. |
 
-The function is synchronous and returns a map of FDL builders. It does not mutate
-the input document. Only selected properties are translated; an unselected array
-or nested object can remain in the source schema. Unknown selections and
-unsupported declarations throw errors that identify the schema or property.
+The function remains synchronous. It compiles the schema once when creating the
+field map and uses it for subsequent validation. It never fetches URLs or reads
+files. The main FDL entry point does not load the adapter or its schema engine.
 
-The adapter supports OpenAPI `3.0.x` and `3.1.x`. It checks the selected schema
-subset, rather than validating the complete OpenAPI document. Swagger 2,
-OpenAPI 3.2, and explicit JSON Schema dialect declarations are not supported.
+The adapter supports OpenAPI 3.0, 3.1, and 3.2 schema documents. OpenAPI 3.1/3.2
+use JSON Schema draft 2020-12 semantics. The standard OpenAPI dialect and explicit
+2020-12 dialect are accepted; custom dialects and Swagger 2 are not supported.
 
-## Types and constraints
+## Structured values
 
-The selected component must declare `type: object` and `properties`. Each selected
-property must declare a supported scalar type, directly or through a local
-reference.
+An object or array is one FDL field value. Its nested structure is preserved,
+and its complete contents are validated. The adapter does not flatten nested
+properties into dotted field names or automatically build nested controls.
 
-| OpenAPI schema keyword                 | Generated behavior                                                                                             |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `type: string`                         | Requires a JavaScript string.                                                                                  |
-| `type: integer`                        | Requires a JavaScript safe integer, including negative values unless constrained.                              |
-| `type: number`                         | Requires a finite JavaScript number.                                                                           |
-| `type: boolean`                        | Requires `true` or `false`.                                                                                    |
-| `enum`                                 | Adds selectable options and validates membership. Values must match the declared type.                         |
-| `const` (3.1 only)                     | Validates equality to the declared scalar or nullable value.                                                   |
-| `minLength`, `maxLength`               | Validates string length in Unicode code points, including empty strings.                                       |
-| `pattern`                              | Applies an unanchored JavaScript Unicode regular expression. Use `^` and `$` for a whole-string match.         |
-| `minimum`, `maximum`                   | Validates inclusive numeric bounds.                                                                            |
-| `exclusiveMinimum`, `exclusiveMaximum` | Validates exclusive bounds using the version-specific syntax below.                                            |
-| `multipleOf`                           | Checks multiples using exact decimal representations of JavaScript numbers, avoiding division rounding errors. |
-| `title`                                | Sets the field label.                                                                                          |
+```javascript
+import { Record } from '@pmcelhaney/fdl';
+import { fieldsFromOpenAPI } from '@pmcelhaney/fdl/openapi';
 
-Integer validation intentionally stays within JavaScript's safe range. It does
-not provide arbitrary-precision JSON numbers. `multipleOf: 0.1` accepts `0.3`;
-it rejects `0.30000000000000004`. Numeric strings are not coerced.
+const document = {
+    openapi: '3.1.0',
+    components: {
+        schemas: {
+            Order: {
+                type: 'object',
+                properties: {
+                    items: {
+                        type: 'array',
+                        minItems: 1,
+                        items: {
+                            type: 'object',
+                            required: ['sku', 'quantity'],
+                            properties: {
+                                sku: { type: 'string', minLength: 1 },
+                                quantity: { type: 'integer', minimum: 1 },
+                            },
+                            additionalProperties: false,
+                        },
+                    },
+                },
+                required: ['items'],
+            },
+        },
+    },
+};
 
-The adapter uses its own validators for schema constraints so that empty strings
-and Unicode lengths follow schema semantics. These checks run through the FDL
-model, including candidate and asynchronous validation APIs.
+const fields = fieldsFromOpenAPI(document, {
+    schema: 'Order',
+    fields: ['items'],
+});
+const order = new Record(fields, {
+    items: [{ sku: 'COFFEE', quantity: 2 }],
+});
 
-## Required properties and nullability
+order.isValid(); // true
+order.isValid('items', [{ sku: 'COFFEE', quantity: 0 }]); // false
+```
 
-OpenAPI's parent `required` list means that a property must be present. It does
-not mean a string must be nonempty or a nullable value must be non-null. The
-adapter therefore does not automatically add FDL's `.required()` modifier.
-Use `minLength: 1` for a nonempty string, or specialize the definition with
-`.required()` when that matches your application rule.
+Use an application component to edit a structured field. Returning an FDL
+definition does not prescribe a control for an object, array, or union. Scalar
+string, number, and boolean definitions still use the corresponding FDL
+primitives when their type is unambiguous. A direct scalar enum supplies options;
+object-valued enums and ambiguous composition do not invent selectable choices.
 
-For optional selected properties, `undefined` represents absence and passes
-validation. For required selected properties, `undefined` is invalid. Supply
-an own property for every selected field in the `Record` values object, using
-`undefined` for absent optional values. FDL's whole-record validation iterates
-the supplied value keys; the adapter does not change that behavior or validate
-the shape of an entire request object.
+## Supported validation
 
-In OpenAPI 3.0, use `type: string` with `nullable: true`. In 3.1, use
-`type: [string, 'null']`. Only a single scalar type combined with `null` is
-supported. Nullability does not override `enum` or `const`: `null` must also
-satisfy those constraints when they are present.
+| Structure or keyword            | Behavior                                                                                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scalars and general type unions | Validates string, number, integer, boolean, null, object, and array values, including unions. Integers remain restricted to JavaScript's safe integer range.                 |
+| `enum`, `const`                 | Structural equality, including object and array values.                                                                                                                      |
+| String constraints              | Unicode code-point lengths, patterns, and optional format assertions.                                                                                                        |
+| Numeric constraints             | Inclusive/exclusive bounds and exact decimal `multipleOf` checks.                                                                                                            |
+| Arrays                          | `items`, `prefixItems`, `minItems`, `maxItems`, `uniqueItems`, `contains`, `minContains`, `maxContains`, and `unevaluatedItems`.                                             |
+| Objects and dictionaries        | Nested properties, required properties, schema-valued or boolean `additionalProperties`, `patternProperties`, `propertyNames`, property counts, and `unevaluatedProperties`. |
+| Composition                     | `allOf` requires every branch; `anyOf` requires at least one; `oneOf` requires exactly one; `not` excludes a schema. Schemas are not flattened or merged.                    |
+| Conditional rules               | `if` / `then` / `else`, `dependentRequired`, and `dependentSchemas`, including rules involving sibling fields.                                                               |
+| Boolean schemas                 | `true` permits any value; `false` rejects every value.                                                                                                                       |
+| References                      | Local and supplied external documents, recursive data schemas, `$id`, named anchors, and draft-2020-12 dynamic references supported by the schema engine.                    |
+| `$ref` siblings                 | OpenAPI 3.1/3.2 applies sibling constraints. OpenAPI 3.0 ignores Reference Object siblings according to that version's semantics.                                            |
+| `discriminator`                 | Accepted as a schema-selection hint. The declared composition and branch constraints determine validity; the hint does not replace them.                                     |
 
-OpenAPI 3.0 exclusive bounds are booleans used with `minimum` or `maximum`.
-OpenAPI 3.1 exclusive bounds are numbers in their own right. The adapter rejects
-syntax from the wrong version.
+JavaScript cannot represent arbitrary-precision JSON numbers. Numeric strings
+are not coerced. Decimal `multipleOf` uses a number's decimal representation:
+`0.3` is a multiple of `0.1`, while `0.30000000000000004` is not.
 
-## References
+OpenAPI 3.0 nullable types and boolean exclusive bounds are normalized before
+validation. The adapter does not turn nullable values into optional properties,
+or extend enums with null. In 3.1/3.2, use type unions containing `null`.
 
-Local `$ref` chains are supported on the selected component and its selected
-properties. JSON Pointer escapes such as `~1` for `/` and `~0` for `~` are decoded.
-References are resolved only against the supplied document. Cycles, unresolved
-references, external references, and schema constraint siblings beside `$ref`
-produce errors. Only `summary` and `description` siblings are accepted; they do
-not change field validation.
+Malformed schemas, missing references, unknown validation keywords, and
+unsupported dialects throw during translation. Extension keys starting with
+`x-` remain annotations. Referenced schemas are compiled along with the selected
+schema, and component definitions are checked for schema validity.
 
-## Annotations and unsupported behavior
+## Sibling rules and candidate values
 
-`format`, `description`, `default`, `example`, `examples`, `deprecated`,
-`readOnly`, `writeOnly`, `externalDocs`, `xml`, and `x-` extensions are accepted
-as annotations. Apart from `title`, they do not configure field behavior.
-In particular:
+Each definition validates its candidate in the context of the complete record.
+A conditional rule can therefore depend on a sibling field. Candidate validation
+does not store the candidate or mutate any nested values.
 
-- Formats such as `email`, `date`, `date-time`, `int32`, and `int64` do not add validators. Date values stay as API strings. Add an application validator or parser when needed.
-- `readOnly` and `writeOnly` do not impose editability or request/response policies without application context.
-- Defaults are not applied. Primitive FDL defaults are removed; `record.clear()` falls back to empty strings. `reset()` restores initial values.
+Validation errors within a property make that field invalid. Failures of rules
+on the whole object, such as a failed root `oneOf` or missing required sibling,
+are shared failures and can make every selected field invalid. This preserves
+the whole-schema rule rather than attributing it to an arbitrary field.
 
-Selected arrays, nested objects, boolean schemas, general type unions,
-`allOf`, `oneOf`, `anyOf`, conditional schemas, and other unknown keywords are
-rejected. Object-wide rules that cannot be represented by independent fields
-are also rejected. Boolean `additionalProperties` is accepted as object-shape
-metadata, but the adapter does not enforce extra-property policy; schema-valued
-`additionalProperties` is unsupported.
+Select and supply all properties needed by the component's rules. The validator
+uses the complete component schema, so leaving out an unselected but required
+property can invalidate the record. Field selection controls which definitions
+are returned; it does not delete constraints from the source schema.
 
-This function translates named component schemas, not operation parameters,
-request-body selection, authentication, API submission, or persistence errors.
-It keeps those integration responsibilities separate from reusable field rules.
+Supply an own property for every selected field in the `Record` values object,
+using `undefined` for absent optional values. The adapter omits these top-level
+undefined values from the schema-validation candidate. FDL's whole-record
+validation iterates supplied value keys; an entirely empty values object does
+not trigger field validators. This adapter does not change `Record` construction
+or provide a separate request-object validator.
 
-The supported semantics follow the
-[OpenAPI 3.0 Schema Object](https://spec.openapis.org/oas/v3.0.4.html#schema-object),
-[OpenAPI 3.1 Schema Object](https://spec.openapis.org/oas/v3.1.1.html#schema-object),
-and [JSON Schema validation](https://json-schema.org/draft/2020-12/json-schema-validation).
-For a database schema source, see the [Prisma adapter](./prisma.md).
+`required` means presence, not nonempty input. The adapter does not add FDL's
+`.required()` modifier automatically. Use `minLength: 1` or specialize the
+definition with `.required()` when the application requires nonempty input.
+
+## External documents and format assertions
+
+Supply external resources explicitly, keyed by the URI used to resolve them:
+
+```typescript
+const fields = fieldsFromOpenAPI(document, {
+    schema: 'Customer',
+    fields: ['address', 'email'],
+    references: {
+        'address.yaml': addressDocument,
+        'https://example.com/zip.json': zipSchema,
+    },
+    validateFormats: true,
+});
+```
+
+Relative references are resolved against the containing document or schema
+identifier. References in the primary document without a schema identifier use
+an internal base URI; relative resource keys and relative references share that
+base. External resources can themselves reference other supplied resources.
+Missing resources fail without a network request. Recursive data schemas are
+supported; a reference-only cycle without a structural boundary is not a usable
+schema and fails compilation.
+
+With `validateFormats: true`, the standard formats supplied by `ajv-formats`
+become assertions. Unknown formats then fail compilation. Format validation is
+opt-in to preserve annotation behavior for existing consumers. Dates remain
+API strings; enabling format validation does not convert them to `Date` objects.
+
+## Annotations and boundaries
+
+`title` supplies a label. Descriptions, examples, defaults, deprecation markers,
+`readOnly`, `writeOnly`, XML metadata, and extensions do not impose application
+workflow or mutate values. Defaults are not applied; `clear()` retains FDL's
+empty-string fallback and `reset()` restores initial values.
+
+The adapter validates nested values; applications still own accessible editing
+controls, request/response policies, serialization, submission, and authentication.
+It selects named component schemas, not operation parameters or request bodies.
+No automatic network resolution, custom schema dialects, or arbitrary-precision
+numbers are provided. Schema compilation uses Ajv's runtime code generation.
+
+The semantics follow the
+[OpenAPI Schema Object](https://spec.openapis.org/oas/v3.1.1.html#schema-object)
+and [JSON Schema validation](https://json-schema.org/draft/2020-12/json-schema-validation),
+using [Ajv's draft-2020-12 engine](https://ajv.js.org/json-schema.html).
+For database definitions, see the [Prisma adapter](./prisma.md).
 For model operations, see [Record](./record.md).

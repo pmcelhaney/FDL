@@ -53,6 +53,8 @@
     },
     "dependencies": {
         "@loancrate/prisma-schema-parser": "3.0.0",
+        "ajv": "8.20.0",
+        "ajv-formats": "3.0.1",
         "jsdoc": "^3.6.7",
         "lit": "^2.2.3",
         "ts-jest": "^27.1.3",

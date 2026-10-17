@@ -114,7 +114,8 @@ export function renderIntegration() {
             >Starting from an API schema?
             <a href="#reference/docs/openapi"
                 >Translate OpenAPI properties into FDL definitions</a
-            >, including validation constraints and enum choices.</p
+            >, including nested values, arrays, composition, and sibling
+            validation rules.</p
         >
         <section
             class="integration-note"

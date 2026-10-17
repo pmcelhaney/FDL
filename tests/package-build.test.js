@@ -56,7 +56,16 @@ it('packs the declared runtime and type entry points, including documented adapt
             '-C',
             packageRoot,
         ]);
-        for (const dependency of ['lit', 'lit-html', 'lit-element', '@lit', '@loancrate', 'yaml']) {
+        for (const dependency of [
+            'lit',
+            'lit-html',
+            'lit-element',
+            '@lit',
+            '@loancrate',
+            'yaml',
+            'ajv',
+            'ajv-formats',
+        ]) {
             symlinkSync(
                 resolve('node_modules', dependency),
                 join(destination, 'node_modules', dependency)
@@ -84,13 +93,17 @@ const openapiFields = fieldsFromOpenAPI(JSON.stringify({
     } } },
 }), { schema: 'Product', fields: ['stock'] });
 const openapiRecord = new Record(openapiFields, { stock: 12 });
+const structuredFields = fieldsFromOpenAPI({ openapi: '3.1.0', components: { schemas: {
+    Basket: { type: 'object', properties: { items: { type: 'array', items: { type: 'object', properties: { quantity: { type: 'integer', minimum: 1 } }, required: ['quantity'] } } } },
+} } }, { schema: 'Basket', fields: ['items'] });
+const basket = new Record(structuredFields, { items: [{ quantity: 1 }] });
 const fields = { name: field.label('Name') };
 const control = new FdlField();
 control.record = new Record(fields, { name: '' });
 control.field = 'name';
 const table = new FdlTable();
 table.recordset = new Recordset(fields, [{ name: 'Ada' }]);
-export { control, table, prismaRecord, openapiRecord, FdlAddress, FdlColumn, FormElement, BaseField };
+export { control, table, prismaRecord, openapiRecord, basket, FdlAddress, FdlColumn, FormElement, BaseField };
 `
         );
         execFileSync(
@@ -147,7 +160,9 @@ export { control, table, prismaRecord, openapiRecord, FdlAddress, FdlColumn, For
             for (const tag of ['fdl-field', 'fdl-address', 'fdl-table', 'fdl-column']) {
                 expect(dom.window.customElements.get(tag)).toBeDefined();
             }
-            const { control, table, prismaRecord, openapiRecord } = dom.window.FdlConsumer;
+            const { control, table, prismaRecord, openapiRecord, basket } = dom.window.FdlConsumer;
+            expect(basket.isValid()).toBe(true);
+            expect(basket.isValid('items', [{ quantity: 0 }])).toBe(false);
             expect(openapiRecord.isValid()).toBe(true);
             expect(openapiRecord.isValid('stock', -1)).toBe(false);
             expect(prismaRecord.isValid()).toBe(true);
