@@ -1,15 +1,13 @@
 import { css, html } from 'lit';
-import { disabledFieldStyles } from './field-example-styles';
-import { exampleTheme } from './example-theme';
-import FormElement from '@pmcelhaney/fdl/form-element';
+import FormElement from './form-element';
 import './fdl-address';
 
 /**
- * The example's single FDL field component.
+ * A styled Lit control for an FDL field.
  *
  * FormElement resolves the field metadata, creates the configured native
  * control, and synchronizes it with the Record. This subclass supplies only
- * the example's visual treatment across all supported native controls.
+ * default styling across all supported native controls.
  */
 export class FdlField extends FormElement {
     async firstUpdated() {
@@ -20,11 +18,13 @@ export class FdlField extends FormElement {
     render() {
         const boundField = this.record?.field(this.field);
         if (boundField?.semanticType === 'address' && boundField.recordDefinition) {
-            return [html`<fdl-address
-                .record=${this.record}
-                field=${this.field}
-                .showValidationErrors=${this.showValidationErrors}
-            ></fdl-address>`];
+            return [
+                html`<fdl-address
+                    .record=${this.record}
+                    field=${this.field}
+                    .showValidationErrors=${this.showValidationErrors}
+                ></fdl-address>`,
+            ];
         }
         return this.record && this.field ? super.render() : [];
     }
@@ -59,8 +59,8 @@ export class FdlField extends FormElement {
 
             input,
             select {
-                height: var(--example-control-height, 48px);
-                min-height: var(--example-control-height, 48px);
+                height: var(--fdl-control-height, 48px);
+                min-height: var(--fdl-control-height, 48px);
             }
 
             input:focus-visible,
@@ -111,8 +111,39 @@ export class FdlField extends FormElement {
                 font-weight: 700;
                 line-height: 1.4;
             }
-            ${exampleTheme}
-            ${disabledFieldStyles}
+            select:not([multiple]) {
+                box-sizing: border-box;
+                appearance: none;
+                height: var(--fdl-control-height, 48px);
+                padding: 10px 44px 10px 14px;
+                border: 1px solid #94a3b8;
+                border-radius: 6px;
+                background-color: #fff;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 14px center;
+                background-size: 16px;
+                color: #0f172a;
+                font: inherit;
+                line-height: 1.5;
+            }
+            @media (forced-colors: active) {
+                select:not([multiple]) {
+                    appearance: auto;
+                    background-image: none;
+                }
+            }
+            input:disabled,
+            select:disabled,
+            textarea:disabled {
+                background-color: #e2e8f0;
+                border-color: #94a3b8;
+                border-style: dashed;
+                color: #475569;
+                -webkit-text-fill-color: currentColor;
+                opacity: 1;
+                cursor: not-allowed;
+            }
         `;
     }
 }

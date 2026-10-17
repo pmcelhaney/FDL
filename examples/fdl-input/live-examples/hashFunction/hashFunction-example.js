@@ -3,7 +3,7 @@ import { hashFunctionView as renderExample } from './hashFunction-view.js';
 import { ExampleModel } from './hashFunction-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {
         return this;

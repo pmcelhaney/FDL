@@ -4,7 +4,7 @@ import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './formatter-example-state.js';
 import { valuePipeline } from '../../value-pipeline';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

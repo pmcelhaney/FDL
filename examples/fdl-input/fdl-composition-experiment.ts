@@ -17,7 +17,7 @@ import {
     defaultCompositionRules,
     type CompositionRules,
 } from './composition-model';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export class FdlCompositionExperiment extends LitElement {
     private continuation = learningContinuation(window.location.hash);

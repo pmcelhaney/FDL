@@ -18,7 +18,7 @@ it('type-checks the complete copied first-form script against the source package
         baseUrl: process.cwd(),
         paths: {
             '@pmcelhaney/fdl': ['src/index.js'],
-            '@pmcelhaney/fdl/form-element': ['src/form-element.ts'],
+            '@pmcelhaney/fdl/*': ['src/*'],
         },
     };
     const host = ts.createCompilerHost(options);

@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 export function formatterView(record, fields = ['amount'], showErrors = false) {
     return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }

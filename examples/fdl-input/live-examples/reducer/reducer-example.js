@@ -3,7 +3,7 @@ import { reducerView as renderExample } from './reducer-view.js';
 import { ExampleModel } from './reducer-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

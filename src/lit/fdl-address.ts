@@ -1,9 +1,10 @@
 import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
+import './fdl-field';
 import { property } from 'lit/decorators.js';
-import { Record } from '@pmcelhaney/fdl';
+import { Record } from '../index';
 
 /**
- * A focused composite adapter for the documentation site's address example.
+ * A focused composite adapter for nested address records.
  * The parent FDL field owns the value; this element owns the accessible group
  * and delegates each child to the ordinary fdl-field adapter.
  */
@@ -77,10 +78,9 @@ export class FdlAddress extends LitElement {
     protected willUpdate(changedProperties: PropertyValues<this>) {
         if (changedProperties.has('record')) {
             if (this.parentChangeListener) {
-                changedProperties.get('record')?.removeEventListener(
-                    'change',
-                    this.parentChangeListener
-                );
+                changedProperties
+                    .get('record')
+                    ?.removeEventListener('change', this.parentChangeListener);
             }
             this.record?.addEventListener('change', this.parentChangeListener!);
         }

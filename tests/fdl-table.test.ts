@@ -1,7 +1,7 @@
 import FieldTypeBuilder from '../src/field-type-builder';
 import Recordset from '../src/recordset.js';
 import Record from '../src/record.js';
-import { resizeColumnWidths } from '../examples/fdl-input/fdl-table';
+import { resizeColumnWidths } from '@pmcelhaney/fdl/lit/fdl-table';
 
 type TestTable = HTMLElement & {
     recordset: Recordset<any>;

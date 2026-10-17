@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import type { Record } from '@pmcelhaney/fdl';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export function conditionalValidationView(
     record: Record<any>,

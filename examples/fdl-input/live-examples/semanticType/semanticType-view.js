@@ -1,6 +1,6 @@
 import { html } from 'lit';
-import '../../fdl-field';
-import '../../fdl-address';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-address';
 export function semanticTypeView(
     record,
     fields = ['address'],

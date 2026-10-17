@@ -1,5 +1,5 @@
 import type { FdlExample } from '../examples/fdl-input/fdl-example';
-import type { FdlField } from '../examples/fdl-input/fdl-field';
+import type { FdlField } from '@pmcelhaney/fdl/lit/fdl-field';
 import FieldTypeBuilder from '../src/field-type-builder';
 import { inputTypes } from '../src/types/input-types.types';
 import { modifierPage, modifierPageGroups } from '../examples/fdl-input/modifier-page-groups';

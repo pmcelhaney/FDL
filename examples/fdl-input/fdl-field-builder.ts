@@ -13,7 +13,7 @@ import {
 } from './field-builder-model';
 import { highlightJavaScript } from './highlight-javascript';
 import { exampleTheme } from './example-theme';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 const choiceText: { [value: string]: string } = {
     always: 'Always',
     enabled: 'When Condition is Enabled',

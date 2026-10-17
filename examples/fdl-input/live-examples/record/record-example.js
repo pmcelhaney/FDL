@@ -2,8 +2,8 @@ import { recordView as renderExample } from './record-view.js';
 import { ExampleModel } from './record-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
-import '../../fdl-address';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-address';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

@@ -2,8 +2,8 @@ import { createModel } from './column-widths-model.js';
 import { LitElement } from 'lit';
 import { field, Record, Recordset } from '@pmcelhaney/fdl';
 import '../../fdl-example';
-import '../../fdl-field';
-import '../../fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export class ExampleModel extends LitElement {
     settings = new Record(
         {

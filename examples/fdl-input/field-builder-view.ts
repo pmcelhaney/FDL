@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import type { Record as FdlRecord } from '@pmcelhaney/fdl';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export function fieldBuilderView(record: FdlRecord<any>, fieldName: string) {
     return html`

@@ -19,7 +19,7 @@ import { exampleTheme } from './example-theme';
 import { highlightJavaScript } from './highlight-javascript';
 import './fdl-record-inspector';
 import { keyed } from 'lit/directives/keyed.js';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import './fdl-modifier-catalog';
 import {
     additionalRecipes,

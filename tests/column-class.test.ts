@@ -1,7 +1,7 @@
 import FieldTypeBuilder from '../src/field-type-builder';
 import Record from '../src/record.js';
 import Recordset from '../src/recordset.js';
-import '../examples/fdl-input/fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-table';
 
 type TestTable = HTMLElement & {
     recordset: Recordset<any>;

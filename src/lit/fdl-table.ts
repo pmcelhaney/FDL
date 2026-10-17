@@ -1,7 +1,6 @@
 import { LitElement, css, html, nothing } from 'lit';
-import { tableExampleStyles } from './table-example-styles';
-import type { Record } from '@pmcelhaney/fdl';
-import { Recordset } from '@pmcelhaney/fdl';
+import type { Record } from '../index';
+import { Recordset } from '../index';
 
 type SortDirection = 'ascending' | 'descending';
 type SortColumn = {
@@ -32,38 +31,21 @@ export function resizeColumnWidths(
 
     const leftMinimumDelta = left.min - widths[leftIndex];
     const leftMaximumDelta = (left.max ?? Infinity) - widths[leftIndex];
-    let delta = Math.max(
-        leftMinimumDelta,
-        Math.min(leftMaximumDelta, requestedDelta)
-    );
+    let delta = Math.max(leftMinimumDelta, Math.min(leftMaximumDelta, requestedDelta));
 
-    const available = limits
-        .slice(leftIndex + 1)
-        .reduce((total, limit, index) => {
-            const width = widths[leftIndex + index + 1];
-            return (
-                total +
-                (delta > 0
-                    ? width - limit.min
-                    : (limit.max ?? Infinity) - width)
-            );
-        }, 0);
-    delta =
-        delta > 0 ? Math.min(delta, available) : Math.max(delta, -available);
+    const available = limits.slice(leftIndex + 1).reduce((total, limit, index) => {
+        const width = widths[leftIndex + index + 1];
+        return total + (delta > 0 ? width - limit.min : (limit.max ?? Infinity) - width);
+    }, 0);
+    delta = delta > 0 ? Math.min(delta, available) : Math.max(delta, -available);
     if (!delta) return next;
 
     next[leftIndex] += delta;
     let remaining = Math.abs(delta);
     const shrink = delta > 0;
-    for (
-        let index = leftIndex + 1;
-        index < next.length && remaining > 0;
-        index += 1
-    ) {
+    for (let index = leftIndex + 1; index < next.length && remaining > 0; index += 1) {
         const limit = limits[index];
-        const capacity = shrink
-            ? next[index] - limit.min
-            : (limit.max ?? Infinity) - next[index];
+        const capacity = shrink ? next[index] - limit.min : (limit.max ?? Infinity) - next[index];
         const adjustment = Math.min(remaining, capacity);
         next[index] += shrink ? -adjustment : adjustment;
         remaining -= adjustment;
@@ -158,23 +140,13 @@ export class FdlTable extends LitElement {
             this.activeFilterField = undefined;
             this.stopObservingRecordset();
             this.observedRecordset = this.recordset;
-            this.observedRecordset?.addEventListener(
-                'page-changed',
-                this.onRecordsetChange
-            );
-            this.observedRecordset?.addEventListener(
-                'updated',
-                this.onRecordsetChange
-            );
+            this.observedRecordset?.addEventListener('page-changed', this.onRecordsetChange);
+            this.observedRecordset?.addEventListener('updated', this.onRecordsetChange);
             void this.observedRecordset?.requestImmediateUpdate();
         }
         if (this.filters) {
-            const next = Object.entries(this.filters).filter(([, value]) =>
-                value.trim()
-            );
-            if (
-                JSON.stringify(next) !== JSON.stringify([...this.columnFilters])
-            ) {
+            const next = Object.entries(this.filters).filter(([, value]) => value.trim());
+            if (JSON.stringify(next) !== JSON.stringify([...this.columnFilters])) {
                 this.columnFilters = new Map(next);
                 this.applyRecordsetFilter();
             }
@@ -182,21 +154,13 @@ export class FdlTable extends LitElement {
     }
 
     private stopObservingRecordset() {
-        this.observedRecordset?.removeEventListener(
-            'page-changed',
-            this.onRecordsetChange
-        );
-        this.observedRecordset?.removeEventListener(
-            'updated',
-            this.onRecordsetChange
-        );
+        this.observedRecordset?.removeEventListener('page-changed', this.onRecordsetChange);
+        this.observedRecordset?.removeEventListener('updated', this.onRecordsetChange);
         this.observedRecordset = undefined;
     }
 
     private get columns() {
-        return [...this.querySelectorAll<FdlColumn>('fdl-column')].filter(
-            column => column.field
-        );
+        return [...this.querySelectorAll<FdlColumn>('fdl-column')].filter(column => column.field);
     }
 
     private get sortColumns() {
@@ -208,9 +172,7 @@ export class FdlTable extends LitElement {
     }
 
     private sortPriority(field: string) {
-        const index = this.sortColumns.findIndex(
-            column => column.field === field
-        );
+        const index = this.sortColumns.findIndex(column => column.field === field);
         return index < 0 ? undefined : index + 1;
     }
 
@@ -227,15 +189,12 @@ export class FdlTable extends LitElement {
     }
 
     private openFilter(column: FdlColumn) {
-        this.activeFilterField =
-            this.activeFilterField === column.field ? undefined : column.field;
+        this.activeFilterField = this.activeFilterField === column.field ? undefined : column.field;
         this.requestUpdate();
         if (this.activeFilterField) {
             void this.updateComplete.then(() => {
                 this.shadowRoot
-                    ?.querySelector<HTMLInputElement>(
-                        `[data-filter-input="${column.field}"]`
-                    )
+                    ?.querySelector<HTMLInputElement>(`[data-filter-input="${column.field}"]`)
                     ?.focus();
             });
         }
@@ -247,9 +206,7 @@ export class FdlTable extends LitElement {
         if (restoreFocus) {
             void this.updateComplete.then(() => {
                 this.shadowRoot
-                    ?.querySelector<HTMLButtonElement>(
-                        `[data-filter-button="${field}"]`
-                    )
+                    ?.querySelector<HTMLButtonElement>(`[data-filter-button="${field}"]`)
                     ?.focus();
             });
         }
@@ -262,8 +219,7 @@ export class FdlTable extends LitElement {
             .some(
                 target =>
                     target instanceof Element &&
-                    (target.matches('.filter-button') ||
-                        target.matches('.filter-popover'))
+                    (target.matches('.filter-button') || target.matches('.filter-popover'))
             );
         if (!clickedFilter) this.closeFilter(this.activeFilterField, false);
     };
@@ -337,8 +293,7 @@ export class FdlTable extends LitElement {
             this.appliedRecordsetFilter &&
             this.filteringRecordset.filter === this.appliedRecordsetFilter
         ) {
-            this.filteringRecordset.filter =
-                this.baseRecordsetFilter ?? (() => true);
+            this.filteringRecordset.filter = this.baseRecordsetFilter ?? (() => true);
         }
         this.filteringRecordset = undefined;
         this.baseRecordsetFilter = undefined;
@@ -354,29 +309,21 @@ export class FdlTable extends LitElement {
     }
 
     private measureColumnWidths() {
-        const headers =
-            this.shadowRoot?.querySelectorAll<HTMLTableCellElement>('thead th');
+        const headers = this.shadowRoot?.querySelectorAll<HTMLTableCellElement>('thead th');
         const headerWidths = headers
             ? [...headers].map(header => header.getBoundingClientRect().width)
             : [];
-        if (
-            headerWidths.length === this.columns.length &&
-            headerWidths.every(width => width > 0)
-        ) {
+        if (headerWidths.length === this.columns.length && headerWidths.every(width => width > 0)) {
             return headerWidths;
         }
 
         // Keep a fallback for layout engines and tests that expose geometry on
         // <col>, although Safari does not consistently give <col> a layout box.
-        const columnElements =
-            this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
+        const columnElements = this.shadowRoot?.querySelectorAll<HTMLTableColElement>('col');
         const columnWidths = columnElements
-            ? [...columnElements].map(
-                  column => column.getBoundingClientRect().width
-              )
+            ? [...columnElements].map(column => column.getBoundingClientRect().width)
             : [];
-        return columnWidths.length === this.columns.length &&
-            columnWidths.every(width => width > 0)
+        return columnWidths.length === this.columns.length && columnWidths.every(width => width > 0)
             ? columnWidths
             : undefined;
     }
@@ -398,9 +345,7 @@ export class FdlTable extends LitElement {
         if (!this.columnWidths) return 'Waiting for browser measurements.';
         const width = this.columnWidths[index];
         const limits = this.columnLimits(column);
-        const preferred = this.recordset
-            ?.column(column.field)
-            .targetColumnWidth();
+        const preferred = this.recordset?.column(column.field).targetColumnWidth();
         const explanation: string[] = [];
         if (preferred !== undefined) {
             const difference = Math.round(width - preferred);
@@ -415,8 +360,7 @@ export class FdlTable extends LitElement {
             explanation.push('at the maximum');
         else explanation.push('within the width limits');
         const otherWidth = this.columnWidths.reduce(
-            (total, value, otherIndex) =>
-                total + (otherIndex === index ? 0 : value),
+            (total, value, otherIndex) => total + (otherIndex === index ? 0 : value),
             0
         );
         return `${explanation.join('; ')}. Other columns use ${Math.round(otherWidth)}px.`;
@@ -440,13 +384,8 @@ export class FdlTable extends LitElement {
             this.measureColumnWidths() ??
             this.columns.map(column => {
                 const limits = this.columnLimits(column);
-                const target = this.recordset
-                    ?.column(column.field)
-                    .targetColumnWidth();
-                return Math.max(
-                    limits.min,
-                    Math.min(limits.max ?? Infinity, target ?? 160)
-                );
+                const target = this.recordset?.column(column.field).targetColumnWidth();
+                return Math.max(limits.min, Math.min(limits.max ?? Infinity, target ?? 160));
             })
         );
     }
@@ -455,21 +394,14 @@ export class FdlTable extends LitElement {
         const limits = this.columns.map(column => this.columnLimits(column));
         const left = limits[leftIndex];
         const current = widths[leftIndex];
-        const availableToGrow = limits
-            .slice(leftIndex + 1)
-            .reduce((total, limit, index) => {
-                const width = widths[leftIndex + index + 1];
-                return (
-                    total +
-                    (limit.max === undefined ? Infinity : limit.max - width)
-                );
-            }, 0);
-        const availableToShrink = limits
-            .slice(leftIndex + 1)
-            .reduce((total, limit, index) => {
-                const width = widths[leftIndex + index + 1];
-                return total + width - limit.min;
-            }, 0);
+        const availableToGrow = limits.slice(leftIndex + 1).reduce((total, limit, index) => {
+            const width = widths[leftIndex + index + 1];
+            return total + (limit.max === undefined ? Infinity : limit.max - width);
+        }, 0);
+        const availableToShrink = limits.slice(leftIndex + 1).reduce((total, limit, index) => {
+            const width = widths[leftIndex + index + 1];
+            return total + width - limit.min;
+        }, 0);
         return {
             min: Math.max(left.min, current - availableToGrow),
             max: Math.min(left.max ?? Infinity, current + availableToShrink),
@@ -478,8 +410,7 @@ export class FdlTable extends LitElement {
     }
 
     private resizeWithKeyboard(event: KeyboardEvent, leftIndex: number) {
-        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
-            return;
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
         const widths = this.resizeWidths();
         if (leftIndex >= widths.length - 1) return;
         const range = this.resizeRange(widths, leftIndex);
@@ -505,17 +436,10 @@ export class FdlTable extends LitElement {
         const width = this.columnWidths?.[index];
         if (width === undefined) return;
         const limit = this.columnLimits(this.columns[index]);
-        const neighborAtLimit = this.columnWidths!.slice(index + 1).some(
-            (value, offset) => {
-                const neighbor = this.columnLimits(
-                    this.columns[index + offset + 1]
-                );
-                return (
-                    value <= neighbor.min ||
-                    (neighbor.max !== undefined && value >= neighbor.max)
-                );
-            }
-        );
+        const neighborAtLimit = this.columnWidths!.slice(index + 1).some((value, offset) => {
+            const neighbor = this.columnLimits(this.columns[index + offset + 1]);
+            return value <= neighbor.min || (neighbor.max !== undefined && value >= neighbor.max);
+        });
         this.resizeMessage =
             width <= limit.min
                 ? 'Minimum reached.'
@@ -535,13 +459,8 @@ export class FdlTable extends LitElement {
         const widths = this.measureColumnWidths();
         if (!widths || leftIndex >= widths.length - 1) return;
         const handle = event.currentTarget as HTMLElement;
-        const pointerId =
-            input === 'pointer' ? (event as PointerEvent).pointerId : undefined;
-        if (
-            input === 'pointer' &&
-            pointerId !== undefined &&
-            Number.isInteger(pointerId)
-        ) {
+        const pointerId = input === 'pointer' ? (event as PointerEvent).pointerId : undefined;
+        if (input === 'pointer' && pointerId !== undefined && Number.isInteger(pointerId)) {
             handle.setPointerCapture?.(pointerId);
         }
         this.resizing = {
@@ -574,9 +493,7 @@ export class FdlTable extends LitElement {
         );
         this.describeResize(
             this.resizing.leftIndex,
-            this.resizing.widths[this.resizing.leftIndex] +
-                event.clientX -
-                this.resizing.startX
+            this.resizing.widths[this.resizing.leftIndex] + event.clientX - this.resizing.startX
         );
         this.requestUpdate();
     };
@@ -618,35 +535,24 @@ export class FdlTable extends LitElement {
         const columnFacade = this.recordset?.column(column.field);
         const record = this.recordset?.currentPage[0];
         return record
-            ? (columnFacade?.textAlign(
-                  record.getField(column.field),
-                  record,
-                  'table-header'
-              ) ?? 'left')
+            ? (columnFacade?.textAlign(record.getField(column.field), record, 'table-header') ??
+                  'left')
             : 'left';
     }
 
     private heading(column: FdlColumn) {
         const record = this.recordset?.currentPage[0];
-        const configuredLabel = this.recordset
-            ?.column(column.field)
-            .label(record);
+        const configuredLabel = this.recordset?.column(column.field).label(record);
         return (
             column.label ||
             configuredLabel ||
-            column.field
-                .replace(/[-_]+/g, ' ')
-                .replace(/\b\w/g, letter => letter.toUpperCase())
+            column.field.replace(/[-_]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase())
         );
     }
 
     private rowClasses(record: Record<any>) {
         return this.columns
-            .flatMap(
-                column =>
-                    this.recordset?.column(column.field).rowClasses(record) ??
-                    []
-            )
+            .flatMap(column => this.recordset?.column(column.field).rowClasses(record) ?? [])
             .join(' ');
     }
 
@@ -654,13 +560,8 @@ export class FdlTable extends LitElement {
         const activeSort = this.sortFor(column.field);
         const priority = this.sortPriority(column.field);
         const indicator =
-            activeSort?.sort === 'ascending'
-                ? '↑'
-                : activeSort?.sort === 'descending'
-                  ? '↓'
-                  : '';
-        const ariaSort =
-            priority === 1 && activeSort ? activeSort.sort : nothing;
+            activeSort?.sort === 'ascending' ? '↑' : activeSort?.sort === 'descending' ? '↓' : '';
+        const ariaSort = priority === 1 && activeSort ? activeSort.sort : nothing;
 
         const heading = this.heading(column);
         const filterText = this.filterFor(column.field);
@@ -688,12 +589,8 @@ export class FdlTable extends LitElement {
                               <span>${heading}</span>
                               ${
                                   indicator
-                                      ? html`<span
-                                            class="sort-indicator"
-                                            aria-hidden="true"
-                                            >${indicator}<small
-                                                >${priority}</small
-                                            ></span
+                                      ? html`<span class="sort-indicator" aria-hidden="true"
+                                            >${indicator}<small>${priority}</small></span
                                         >`
                                       : nothing
                               }
@@ -717,9 +614,7 @@ export class FdlTable extends LitElement {
                               @click=${() => this.openFilter(column)}
                           >
                               <svg aria-hidden="true" viewBox="0 0 20 20">
-                                  <path
-                                      d="M3 4h14l-5.4 6.2v4.6l-3.2 1.7v-6.3z"
-                                  ></path>
+                                  <path d="M3 4h14l-5.4 6.2v4.6l-3.2 1.7v-6.3z"></path>
                               </svg>
                           </button>`
                         : nothing
@@ -733,8 +628,7 @@ export class FdlTable extends LitElement {
                           role="dialog"
                           aria-label=${`Filter ${heading}`}
                           @keydown=${(event: KeyboardEvent) => {
-                              if (event.key === 'Escape')
-                                  this.closeFilter(column.field);
+                              if (event.key === 'Escape') this.closeFilter(column.field);
                           }}
                       >
                           <label>
@@ -747,9 +641,7 @@ export class FdlTable extends LitElement {
                                   @input=${(event: InputEvent) =>
                                       this.updateFilter(
                                           column,
-                                          (
-                                              event.currentTarget as HTMLInputElement
-                                          ).value
+                                          (event.currentTarget as HTMLInputElement).value
                                       )}
                               />
                           </label>
@@ -791,11 +683,7 @@ export class FdlTable extends LitElement {
         </th>`;
     }
 
-    private renderCell(
-        record: Record<any>,
-        column: FdlColumn,
-        classes: string
-    ) {
+    private renderCell(record: Record<any>, column: FdlColumn, classes: string) {
         const value = record.getField(column.field);
         const field = record.field(column.field);
         return html`<td
@@ -810,18 +698,12 @@ export class FdlTable extends LitElement {
         const columns = this.columns;
         const records = this.recordset?.currentPage ?? [];
         const columnClasses = columns.map(
-            column =>
-                this.recordset
-                    ?.column(column.field)
-                    .columnClasses()
-                    .join(' ') ?? ''
+            column => this.recordset?.column(column.field).columnClasses().join(' ') ?? ''
         );
         const activeFilters = [...this.columnFilters].map(([field, value]) => ({
             field,
             value,
-            heading: this.heading(
-                columns.find(column => column.field === field)!
-            ),
+            heading: this.heading(columns.find(column => column.field === field)!),
         }));
 
         return html`
@@ -844,18 +726,13 @@ export class FdlTable extends LitElement {
                                       <span aria-hidden="true">×</span></button
                                   >`
                           )}
-                          <button
-                              type="button"
-                              class="clear-all"
-                              @click=${this.clearFilters}
+                          <button type="button" class="clear-all" @click=${this.clearFilters}
                               >Clear all</button
                           >
                       </div>`
                     : nothing
             }
-            <div
-                class=${`table-frame ${this.activeFilterField ? 'filter-open' : ''}`}
-            >
+            <div class=${`table-frame ${this.activeFilterField ? 'filter-open' : ''}`}>
                 <table
                     style=${this.columnWidths ? `width:${this.columnWidths.reduce((total, width) => total + width, 0)}px` : ''}
                 >
@@ -872,16 +749,12 @@ export class FdlTable extends LitElement {
                             records.length
                                 ? records.map(
                                       record =>
-                                          html`<tr
-                                              class=${this.rowClasses(record)}
-                                          >
+                                          html`<tr class=${this.rowClasses(record)}>
                                               ${columns.map((column, index) => this.renderCell(record, column, columnClasses[index]))}
                                           </tr>`
                                   )
                                 : html`<tr
-                                      ><td
-                                          class="empty-state"
-                                          colspan=${columns.length}
+                                      ><td class="empty-state" colspan=${columns.length}
                                           >${
                                               activeFilters.length
                                                   ? 'No rows match the active filters.'
@@ -895,33 +768,27 @@ export class FdlTable extends LitElement {
             </div>
             ${
                 this.showWidthDiagnostics
-                    ? html`<section
-                          class="width-diagnostics"
-                          aria-label="Column width measurements"
+                    ? html`<section class="width-diagnostics" aria-label="Column width measurements"
                           ><h3>Live column widths</h3>
                           <p
-                              >The browser lays out the initial columns using
-                              their content and available space, then the
-                              example applies the minimum and maximum limits.
-                              Preferred width is a fallback when measurements
-                              are unavailable; changing it may leave the
-                              measured layout unchanged.</p
+                              >The browser lays out the initial columns using their content and
+                              available space, then the table applies the minimum and maximum
+                              limits. Preferred width is a fallback when measurements are
+                              unavailable; changing it may leave the measured layout unchanged.</p
                           >
                           ${
                               this.columnWidths
                                   ? html`<p class="width-allocation">
                                         Current column space:
                                         ${Math.round(this.columnWidths.reduce((total, width) => total + width, 0))}px.
-                                        Resizing transfers space between columns
-                                        while keeping this total unchanged.
+                                        Resizing transfers space between columns while keeping this
+                                        total unchanged.
                                     </p>`
                                   : nothing
                           }
                           <ul
                               >${columns.map((column, index) => {
-                                  const columnFacade = this.recordset?.column(
-                                      column.field
-                                  );
+                                  const columnFacade = this.recordset?.column(column.field);
                                   return html`<li
                                       ><strong>${this.heading(column)}</strong>:
                                       ${this.columnWidths ? `${Math.round(this.columnWidths[index])}px` : 'Measuring…'}
@@ -1001,10 +868,56 @@ export class FdlTable extends LitElement {
             text-align: left;
         }
 
-        ${tableExampleStyles.cellClass}
-        ${tableExampleStyles.columnClass}
-        ${tableExampleStyles.rowClass}
-        ${tableExampleStyles.template}
+        .amount-cell {
+            border-left: 0.3rem solid #5b52d6;
+            background: #e9edff;
+            color: #34308f;
+            font-family: Georgia, serif;
+            font-size: 1.08rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+        .high-value {
+            background: #fff4d6;
+            color: #8a4b00;
+            font-weight: 800;
+        }
+
+        .expense-column {
+            background: #e9edff;
+            color: #34308f;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        td.expense-column.high-value {
+            background: #fff4d6;
+            color: #8a4b00;
+        }
+
+        tr.disputed-row {
+            background: #fffdf7;
+            box-shadow: inset 0.25rem 0 #ff695b;
+        }
+
+        .paid-balance {
+            display: inline-block;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #e6f5ec;
+            color: #17633b;
+            font-weight: 700;
+        }
+        .due-balance {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.15rem;
+            font-variant-numeric: tabular-nums;
+        }
+        .due-balance small {
+            color: #77500d;
+            font-size: 0.8rem;
+        }
 
         th {
             position: relative;
@@ -1237,7 +1150,5 @@ export class FdlTable extends LitElement {
     `;
 }
 
-if (!customElements.get('fdl-column'))
-    customElements.define('fdl-column', FdlColumn);
-if (!customElements.get('fdl-table'))
-    customElements.define('fdl-table', FdlTable);
+if (!customElements.get('fdl-column')) customElements.define('fdl-column', FdlColumn);
+if (!customElements.get('fdl-table')) customElements.define('fdl-table', FdlTable);

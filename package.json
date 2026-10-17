@@ -12,10 +12,17 @@
         "./*": {
             "types": "./dist/*.d.ts",
             "default": "./dist/*.js"
+        },
+        "./lit": {
+            "types": "./dist/lit/index.d.ts",
+            "default": "./dist/lit/index.js"
         }
     },
     "typesVersions": {
         "*": {
+            "lit": [
+                "dist/lit/index.d.ts"
+            ],
             "dist/*": [
                 "dist/*"
             ],

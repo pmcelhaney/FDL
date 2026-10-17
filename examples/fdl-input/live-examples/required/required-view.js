@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export function requiredView(person, showErrors = false) {
     return html`

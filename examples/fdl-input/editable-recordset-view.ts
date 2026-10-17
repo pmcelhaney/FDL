@@ -2,7 +2,7 @@ import { html } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import type { Record } from '@pmcelhaney/fdl';
 import { createShipments, shipmentCharge } from './editable-recordset-model';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 export function editableRecordsetView(
     shipments: ReturnType<typeof createShipments>,
     selected: Record<any> | undefined,

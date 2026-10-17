@@ -3,7 +3,7 @@ import { deliveryView } from './delivery-view';
 import { LitElement, css, html } from 'lit';
 import { createDelivery } from './delivery-model';
 import { exampleTheme } from './example-theme';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import './fdl-record-inspector';
 
 export class DeliveryForm extends LitElement {

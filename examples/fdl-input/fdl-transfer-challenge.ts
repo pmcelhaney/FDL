@@ -13,7 +13,7 @@ import {
 } from './cancellation-model';
 import { highlightJavaScript } from './highlight-javascript';
 import { exampleTheme } from './example-theme';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export class FdlTransferChallenge extends LitElement {
     private configuration = new Record(

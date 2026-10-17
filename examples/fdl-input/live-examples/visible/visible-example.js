@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { ExampleModel } from './visible-example-state.js';
 import { explainDependency } from '../../dependency-explanation';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

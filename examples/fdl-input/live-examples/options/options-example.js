@@ -2,7 +2,7 @@ import { optionsView as renderExample } from './options-view.js';
 import { ExampleModel } from './options-example-state.js';
 import { html, nothing } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

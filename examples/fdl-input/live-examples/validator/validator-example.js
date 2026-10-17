@@ -3,7 +3,7 @@ import { ExampleModel } from './validator-example-state.js';
 import { validatorExamples } from '../../validator-examples';
 import { html, nothing } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

@@ -1,6 +1,6 @@
 import '../examples/fdl-input/fdl-editable-recordset';
 import type { FdlEditableRecordset } from '../examples/fdl-input/fdl-editable-recordset';
-import type { FdlField } from '../examples/fdl-input/fdl-field';
+import type { FdlField } from '@pmcelhaney/fdl/lit/fdl-field';
 import {
     createShipments,
     applyShipmentView,

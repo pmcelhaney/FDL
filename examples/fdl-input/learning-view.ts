@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import type { Record } from '@pmcelhaney/fdl';
 import type { Recordset } from '@pmcelhaney/fdl';
-import './fdl-field';
-import './fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export function learningView(
     record: Record<any>,
     fields = ['method', 'charge']

@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import '../../fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export function filterView(
     recordset,
     filters = {},

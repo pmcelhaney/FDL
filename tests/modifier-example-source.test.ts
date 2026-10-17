@@ -3,8 +3,8 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { exampleSource } from '../examples/fdl-input/modifier-example-source';
 import { explorerRecipes } from '../examples/fdl-input/fdl-modifier-explorer';
-import { tableExampleStyles } from '../examples/fdl-input/table-example-styles';
-import { disabledFieldStyles } from '../examples/fdl-input/field-example-styles';
+import { FdlTable } from '@pmcelhaney/fdl/lit/fdl-table';
+import { FdlField } from '@pmcelhaney/fdl/lit/fdl-field';
 
 it.each(explorerRecipes.map(recipe => recipe.name))(
     'shows the exact executable model and view files for .%s()',
@@ -30,10 +30,15 @@ it.each(explorerRecipes.map(recipe => recipe.name))(
 );
 it.each(['columnClass', 'cellClass', 'template', 'rowClass'] as const)(
     'uses the displayed %s stylesheet in the live adapter',
-    name => expect(tableExampleStyles[name].cssText).toBe(exampleSource(name).styles)
+    name =>
+        expect(FdlTable.styles.cssText.replace(/\s+/g, '')).toContain(
+            exampleSource(name).styles.replace(/\s+/g, '')
+        )
 );
 it('uses the displayed disabled stylesheet in the live field adapter', () => {
-    expect(disabledFieldStyles.cssText).toBe(exampleSource('disabled').styles);
+    expect(FdlField.styles.cssText.replace(/\s+/g, '')).toContain(
+        exampleSource('disabled').styles.replace(/\s+/g, '')
+    );
 });
 
 import { createPerson } from '../examples/fdl-input/live-examples/required/required-model.js';

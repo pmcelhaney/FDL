@@ -9,8 +9,8 @@ import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { recordSummary } from './model-summary';
 import { highlightJavaScript } from './highlight-javascript';
-import './fdl-field';
-import './fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
 import './fdl-recordset-inspector';
 
 const lessons = [

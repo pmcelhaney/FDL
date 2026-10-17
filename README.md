@@ -54,6 +54,21 @@ example checks presence; a Tax ID format rule would be a separate validator.
 The initial values are explicit: `defaultValue()` applies when clearing a
 record, rather than filling its constructor values.
 
+## Lit elements
+
+The package includes styled Lit elements for fields, nested addresses, and tables:
+
+```js
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
+```
+
+Use `<fdl-field .record=${record} field="name">` and
+`<fdl-table .recordset=${recordset}>` in Lit templates. Importing the table
+module also registers `<fdl-column>`. Import `@pmcelhaney/fdl/lit` for all
+components and their classes. See [Form elements](docs/form-element.md) for
+registration, properties, and custom styling.
+
 ## Build your first form
 
 Install the published package in a new application:

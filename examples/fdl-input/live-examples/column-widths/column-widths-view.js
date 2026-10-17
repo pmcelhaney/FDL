@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import '../../fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export function columnWidthsView(recordset) {
     return html`<fdl-table .recordset=${recordset} show-width-diagnostics
         ><fdl-column field="constrained"></fdl-column

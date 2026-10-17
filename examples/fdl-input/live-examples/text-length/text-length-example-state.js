@@ -2,7 +2,7 @@ import { codeType, createModel } from './text-length-model.js';
 import { LitElement } from 'lit';
 import { field, Record } from '@pmcelhaney/fdl';
 import '../../fdl-example';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 export class ExampleModel extends LitElement {
     settings = new Record(

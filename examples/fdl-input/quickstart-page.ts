@@ -4,11 +4,7 @@ import { highlightJavaScript } from './highlight-javascript';
 
 export const firstFormSource = `import { html, render } from 'lit';
 import { field, Record } from '@pmcelhaney/fdl';
-import FormElement from '@pmcelhaney/fdl/form-element';
-
-// Register a local adapter. Its styles and control semantics belong here.
-class AccountField extends FormElement {}
-customElements.define('account-field', AccountField);
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 const account = new Record(
     {
@@ -25,17 +21,17 @@ const root = document.getElementById('app') || document.body;
 const update = () =>
     render(
         html\`
-            <account-field
+            <fdl-field
                 .record=\${account}
                 field="name"
                 .showValidationErrors=\${checked}
-            ></account-field>
-            <account-field .record=\${account} field="country"></account-field>
-            <account-field
+            ></fdl-field>
+            <fdl-field .record=\${account} field="country"></fdl-field>
+            <fdl-field
                 .record=\${account}
                 field="taxId"
                 .showValidationErrors=\${checked}
-            ></account-field>
+            ></fdl-field>
             <button
                 @click=\${() => {
                     checked = true;
@@ -63,7 +59,7 @@ export function renderQuickstart() {
     return html`<article class="site-page"
         ><h1 tabindex="-1">Your first form</h1>
         <p class="description"
-            >Install the model, register an adapter, and display your first
+            >Install the model and Lit elements, and display your first
             validation error.</p
         >
         <p
@@ -74,7 +70,7 @@ export function renderQuickstart() {
         <h2>Create a local application</h2>
         <p
             >Create a new application and install the published npm package. Lit
-            supplies the example adapter; Vite runs the application locally.</p
+            supplies the components; Vite runs the application locally.</p
         >
         <fdl-code-snippet>
             <pre class="code"><code>mkdir fdl-first-form
@@ -86,7 +82,7 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
         <p
             >No repository checkout or package build is needed. The npm package
             includes compiled JavaScript, TypeScript declarations, and the
-            <code>@pmcelhaney/fdl/form-element</code> adapter used below.</p
+            <code>@pmcelhaney/fdl/lit/fdl-field</code> adapter used below.</p
         >
         <p
             >Create an <code>index.html</code> with the following body and save
@@ -134,15 +130,13 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
         <h2>Use the modifier examples in this repository</h2>
         <p
             >The model and view files on modifier pages run inside this
-            repository’s example environment. Their field and table adapter imports
-            refer to components in
-            <code>examples/fdl-input/</code>, including their relative helpers
-            and styles. The source tabs display the exact files that run the
-            live examples; their relative imports resolve inside this checkout. Run <code>npm install</code> and
-            <code>npm run docs:dev</code> in the checkout to explore them. To
-            move an example into another app, supply its adapter and
-            dependencies or use the complete adapter registration above for
-            single fields.</p
+            repository’s example environment. Their model imports use
+            <code>@pmcelhaney/fdl</code>, and their field and table imports use
+            <code>@pmcelhaney/fdl/lit/</code>. The source tabs display the exact
+            files that run the live examples. Copy the model, view, and any
+            local sample-data or style files into your app; the Lit elements
+            ship with the package. Run <code>npm install</code> and
+            <code>npm run docs:dev</code> in this checkout to explore them.</p
         >
         <h2>Integrate your component stack</h2>
         <p

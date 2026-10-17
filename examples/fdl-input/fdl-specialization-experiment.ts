@@ -4,7 +4,7 @@ import { field, Record } from '@pmcelhaney/fdl';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 export class FdlSpecializationExperiment extends LitElement {
     private model = createSpecializations();

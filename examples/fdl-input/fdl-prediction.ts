@@ -8,7 +8,7 @@ import {
     type CompositionRules,
 } from './composition-model';
 import { exampleTheme } from './example-theme';
-import './fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 
 const choice = (label: string, options: { text: string; value: string }[]) =>
     field.label(label).options(options);

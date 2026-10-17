@@ -6,6 +6,39 @@
 > control selection and textarea sizing in renderer configuration for new
 > integrations; keep validation and dependencies in the field model.
 
+## Packaged Lit elements
+
+Import a module to register its custom element:
+
+```ts
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
+```
+
+`fdl-field` binds a `Record` and field name to a labelled native control.
+It also registers `fdl-address` for nested address records. `fdl-table`
+registers both `fdl-table` and its declarative `fdl-column` children.
+
+```ts
+import { html } from 'lit';
+import { field, Record } from '@pmcelhaney/fdl';
+import '@pmcelhaney/fdl/lit/fdl-field';
+
+const account = new Record({ name: field.label('Name').required() }, { name: '' });
+const view = html`<fdl-field .record=${account} field="name"></fdl-field>`;
+```
+
+Import `@pmcelhaney/fdl/lit` to register all three elements and access the
+`FdlField`, `FdlAddress`, `FdlTable`, `FdlColumn`, and `FormElement` classes.
+These modules require a browser DOM. Core model imports remain independent
+of Lit element registration.
+
+The components include default CSS. For a custom element with different styles,
+extend `FormElement` from `@pmcelhaney/fdl/lit/form-element` and register your
+own tag. The existing `@pmcelhaney/fdl/form-element` path remains available.
+
+## Custom field elements
+
 `FormElement` is the Lit base class for FDL field controls. Extend it when you
 need a custom element that presents one field from a `Record`.
 
@@ -44,7 +77,7 @@ field:
 
 ```ts
 import { css } from 'lit';
-import FormElement from '@pmcelhaney/fdl/form-element';
+import FormElement from '@pmcelhaney/fdl/lit/form-element';
 
 export class FdlField extends FormElement {
     static get styles() {

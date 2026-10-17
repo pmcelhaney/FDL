@@ -2,8 +2,8 @@ import { cellClassView as renderExample } from './cellClass-view.js';
 import { ExampleModel } from './cellClass-example-state.js';
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
-import '../../fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-table';
 import '../../fdl-recordset-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

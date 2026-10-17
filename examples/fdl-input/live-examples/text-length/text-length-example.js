@@ -2,7 +2,7 @@ import { textLengthView } from './text-length-view.js';
 import { html, css } from 'lit';
 import { exampleTheme } from '../../example-theme';
 import '../../fdl-example';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 import { ExampleModel } from './text-length-example-state.js';
 import model from './text-length-model.js?raw';

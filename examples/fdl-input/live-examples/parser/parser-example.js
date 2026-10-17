@@ -3,7 +3,7 @@ import { ExampleModel } from './parser-example-state.js';
 import { html } from 'lit';
 import { valuePipeline } from '../../value-pipeline';
 import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
+import '@pmcelhaney/fdl/lit/fdl-field';
 import '../../fdl-record-inspector';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',

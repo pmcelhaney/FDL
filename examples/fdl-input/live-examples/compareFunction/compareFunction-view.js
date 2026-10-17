@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import '../../fdl-table';
+import '@pmcelhaney/fdl/lit/fdl-table';
 export function compareFunctionView(recordset) {
     return html`<fdl-table .recordset=${recordset}>
         <fdl-column field="firstName"></fdl-column>
