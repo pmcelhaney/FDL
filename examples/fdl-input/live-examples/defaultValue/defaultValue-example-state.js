@@ -1,10 +1,10 @@
-import { createModel } from './defaultValue-model.js';
+import { record } from './defaultValue-model.js';
 // Tutorial state for the .defaultValue() example.
 import { ExampleController } from '../../example-controller';
 
 export class ExampleModel extends ExampleController {
     modifier = 'defaultValue';
-    defaultRecord = createModel();
+    defaultRecord = record;
     clearDefaultRecord = () => {
         this.defaultRecord.clear();
         this.requestUpdate();

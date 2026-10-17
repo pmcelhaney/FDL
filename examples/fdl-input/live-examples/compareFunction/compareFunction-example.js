@@ -15,7 +15,7 @@ export class ExampleView extends ExampleModel {
                     alphabetically. First and last names use alphabetic
                     order.</p
                 >
-                ${renderExample(this.compareRecordset)}${sortCases(this.compareRecordset)}`;
+                ${renderExample()}${sortCases(this.compareRecordset)}`;
         }
     }
     render() {

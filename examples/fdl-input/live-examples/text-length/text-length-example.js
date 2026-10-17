@@ -20,7 +20,7 @@ export class ExampleView extends ExampleModel {
                 input cap so you can check model validation.</p
             >
             ${['minimum', 'maximum'].map(name => html`<fdl-field .record=${this.settings} field=${name}></fdl-field>`)}
-            ${textLengthView(this.record, this.checked)}
+            ${textLengthView(this.checked)}
             <div class="actions"
                 ><button
                     @click=${() => {

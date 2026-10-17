@@ -1,8 +1,8 @@
-import { createModel } from './compareFunction-model.js';
+import { recordset } from './compareFunction-model.js';
 // Tutorial state for the .compareFunction() example.
 import { ExampleController } from '../../example-controller';
 
 export class ExampleModel extends ExampleController {
     modifier = 'compareFunction';
-    compareRecordset = createModel();
+    compareRecordset = recordset;
 }

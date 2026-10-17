@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import '../examples/fdl-input/fdl-column-widths';
 import '../examples/fdl-input/fdl-text-length';
 
@@ -34,5 +35,7 @@ it('applies numeric width selections to the table and displayed source', async (
     expect(table.recordset.column('constrained').maxColumnWidth()).toBe(320);
     const frame = demo.shadowRoot.querySelector('fdl-example') as any;
     await frame.updateComplete;
-    expect(frame.sources['column-widths-model.js']).toContain('.maxColumnWidth(maximum)');
+    expect(frame.sources['column-widths-model.js']).toContain(
+        ".maxColumnWidth(() => settings.getField('maximum'))"
+    );
 });

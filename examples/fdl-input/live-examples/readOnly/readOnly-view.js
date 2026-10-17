@@ -1,7 +1,7 @@
+import { record } from './readOnly-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function readOnlyView(
-    record,
     fields = ['fixedOwner', 'phase', 'conditionalOwner'],
     showErrors = false
 ) {

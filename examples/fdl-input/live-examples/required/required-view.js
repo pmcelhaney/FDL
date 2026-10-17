@@ -1,7 +1,8 @@
+import { person } from './required-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 
-export function requiredView(person, showErrors = false) {
+export function requiredView(showErrors = false) {
     return html`
         <fdl-field
             .record=${person}

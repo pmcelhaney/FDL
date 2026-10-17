@@ -6,9 +6,8 @@ export function inputTypeField(type) {
         ? definition.parser(Number)
         : definition;
 }
-export function createModel(inputType = 'text') {
-    return new Record(
-        { inputValue: inputTypeField(inputType) },
-        { inputValue: inputTypeInitialValue(inputType) }
-    );
-}
+const inputType = 'text';
+export const record = new Record(
+    { inputValue: inputTypeField(inputType) },
+    { inputValue: inputTypeInitialValue(inputType) }
+);

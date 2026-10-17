@@ -1,10 +1,7 @@
+import { recordset } from './filter-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-table';
-export function filterView(
-    recordset,
-    filters = {},
-    onFiltersChanged = () => {}
-) {
+export function filterView(filters = {}, onFiltersChanged = () => {}) {
     return html`<fdl-table
         .recordset=${recordset}
         .filters=${filters}

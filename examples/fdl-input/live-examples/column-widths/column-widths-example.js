@@ -22,7 +22,7 @@ export class ExampleView extends ExampleModel {
                 layout.</p
             >
             ${['minimum', 'preferred', 'maximum'].map(name => html`<fdl-field .record=${this.settings} field=${name}></fdl-field>`)}
-            ${keyed(this.table, columnWidthsView(this.table))}
+            ${keyed(`${minimum}-${preferred}-${maximum}`, columnWidthsView())}
         </fdl-example>`;
     }
     static styles = [exampleTheme];

@@ -8,7 +8,7 @@ export class ExampleView extends ExampleModel {
         return this;
     }
     renderDemo() {
-        return html` ${renderExample(this.templateRecordset)}`;
+        return html` ${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="template"

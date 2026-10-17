@@ -1,7 +1,7 @@
+import { record } from './disabled-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function disabledView(
-    record,
     fields = ['lockedId', 'approvalStatus', 'budget'],
     showErrors = false
 ) {

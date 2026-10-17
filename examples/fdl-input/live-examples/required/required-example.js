@@ -3,14 +3,14 @@ import { keyed } from 'lit/directives/keyed.js';
 import { field } from '@pmcelhaney/fdl';
 import { ExampleController } from '../../example-controller';
 import { explainDependency } from '../../dependency-explanation';
-import { createPerson } from './required-model.js';
+import { person } from './required-model.js';
 import { requiredView } from './required-view.js';
 import '../../fdl-record-inspector';
 
 // Documentation controls surround the small model/view example without
 // becoming part of the source that teaches rendering an FDL record.
 export class RequiredExample extends ExampleController {
-    person = createPerson();
+    person = person;
     checked = false;
     requiredRule = true;
 
@@ -56,7 +56,7 @@ export class RequiredExample extends ExampleController {
                     />
                     Require a value
                 </label>
-                ${keyed(this.person.field('name'), requiredView(this.person, this.checked))}
+                ${keyed(this.person.field('name'), requiredView(this.checked))}
                 ${explainDependency(this.person, 'followUpNotes', 'followUp', "followUp === 'yes'", 'required')}
                 <button class="primary" @click=${() => this.checkRecord()}
                     >Check record</button

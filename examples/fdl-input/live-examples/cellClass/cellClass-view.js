@@ -1,6 +1,7 @@
+import { recordset } from './cellClass-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-table';
-export function cellClassView(recordset) {
+export function cellClassView() {
     return html`<fdl-table .recordset=${recordset}
         ><fdl-column field="day"></fdl-column
         ><fdl-column field="amount"></fdl-column

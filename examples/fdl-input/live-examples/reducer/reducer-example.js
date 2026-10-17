@@ -16,7 +16,7 @@ export class ExampleView extends ExampleModel {
         return keyed(
             record.field(field),
             record === this.probes
-                ? renderExample(record, [field], showValidationErrors)
+                ? renderExample([field], showValidationErrors)
                 : html`<fdl-field
                       field=${field}
                       .record=${record}
@@ -25,7 +25,7 @@ export class ExampleView extends ExampleModel {
         );
     }
     renderDemo() {
-        return html`${['firstAmount', 'secondAmount', 'thirdAmount'].map(field => this.renderField(field, this.probes))}${aggregateView(this.probes, this.reducerType)}`;
+        return html`${['firstAmount', 'secondAmount', 'thirdAmount'].map(field => this.renderField(field, this.probes))}${aggregateView(this.reducerType)}`;
     }
     render() {
         return html`<div class="focused" data-modifier="reducer"

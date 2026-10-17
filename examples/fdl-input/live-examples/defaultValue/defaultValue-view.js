@@ -1,7 +1,7 @@
+import { record } from './defaultValue-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function defaultValueView(
-    record,
     fields = ['documentTitle'],
     showErrors = false
 ) {

@@ -1,25 +1,33 @@
-import { field, Recordset } from '@pmcelhaney/fdl';
+import { field, Record, Recordset } from '@pmcelhaney/fdl';
 
 import { prefixFilter, substringFilter } from '../../comparison-examples';
-export function createModel(getMatchingRule = () => 'prefix') {
-    return new Recordset(
-        {
-            name: field
-                .label('Name')
-                .filter((text, value) =>
-                    (getMatchingRule() === 'contains'
-                        ? substringFilter
-                        : prefixFilter
-                    )
-                        .valueOf()
-                        .match(text, value)
-                ),
-            team: field.label('Team'),
-        },
-        [
-            { name: 'Ada', team: 'Research' },
-            { name: 'Grace', team: 'Platform' },
-            { name: 'Margaret', team: 'Research' },
-        ]
-    );
-}
+export const probes = new Record(
+    {
+        filterProbe: field.label('Search names'),
+        matchRule: field.label('Filter matching rule').options([
+            { text: 'Starts with', value: 'prefix' },
+            { text: 'Contains', value: 'contains' },
+        ]),
+    },
+    { filterProbe: 'ar', matchRule: 'prefix' }
+);
+export const recordset = new Recordset(
+    {
+        name: field
+            .label('Name')
+            .filter((text, value) =>
+                (probes.getField('matchRule') === 'contains'
+                    ? substringFilter
+                    : prefixFilter
+                )
+                    .valueOf()
+                    .match(text, value)
+            ),
+        team: field.label('Team'),
+    },
+    [
+        { name: 'Ada', team: 'Research' },
+        { name: 'Grace', team: 'Platform' },
+        { name: 'Margaret', team: 'Research' },
+    ]
+);

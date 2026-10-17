@@ -1,9 +1,9 @@
-import { createReducerType, createProbes } from './reducer-model.js';
+import { createReducerType, record } from './reducer-model.js';
 // Tutorial state for the .reducer() example.
 import { ExampleController } from '../../example-controller';
 
 export class ExampleModel extends ExampleController {
     modifier = 'reducer';
     reducerType = createReducerType();
-    probes = createProbes();
+    probes = record;
 }

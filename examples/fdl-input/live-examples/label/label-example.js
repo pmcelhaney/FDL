@@ -9,7 +9,7 @@ export class ExampleView extends ExampleModel {
     renderDemo() {
         return html`<p class="try"
                 >Change the expense type and watch the amount label.</p
-            >${renderExample(this.record)}`;
+            >${renderExample()}`;
     }
     render() {
         return html`<div class="focused" data-modifier="label"

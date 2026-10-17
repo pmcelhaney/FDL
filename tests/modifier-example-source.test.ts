@@ -14,7 +14,12 @@ it.each(explorerRecipes.map(recipe => recipe.name))(
         expect(source.definition).toBe(readFileSync(resolve(directory, source.modelFile), 'utf8'));
         expect(source.ui).toBe(readFileSync(resolve(directory, source.uiFile), 'utf8'));
         expect(source.definition).not.toContain('fdl-modifier-explorer');
+        expect(source.definition).not.toContain('createModel');
         if (!explorerRecipes.find(recipe => recipe.name === name)!.limitation) {
+            expect(source.definition).toMatch(
+                /export const (record|recordset|person) = new Record/
+            );
+            expect(source.ui).toContain(`from './${source.modelFile}'`);
             const tag =
                 source.directory === 'text-length'
                     ? 'fdl-text-length'
@@ -41,15 +46,15 @@ it('uses the displayed disabled stylesheet in the live field adapter', () => {
     );
 });
 
-import { createPerson } from '../examples/fdl-input/live-examples/required/required-model.js';
-import { createModel as createExpenses } from '../examples/fdl-input/live-examples/cellClass/cellClass-model.js';
+import { person } from '../examples/fdl-input/live-examples/required/required-model.js';
+import { recordset as expenses } from '../examples/fdl-input/live-examples/cellClass/cellClass-model.js';
 
 afterEach(() => document.body.replaceChildren());
 it('renders the requiredness view using its imported model instance', async () => {
     const demo = document.createElement('fdl-live-required') as any;
     document.body.append(demo);
     await demo.updateComplete;
-    expect(demo.person.values).toEqual(createPerson().values);
+    expect(demo.person).toBe(person);
     const control = demo.querySelector('fdl-field[field="name"]');
     expect(control.record).toBe(demo.person);
 });
@@ -57,10 +62,6 @@ it('renders the expense table using its imported model instance', async () => {
     const demo = document.createElement('fdl-live-cellclass') as any;
     document.body.append(demo);
     await demo.updateComplete;
-    const reference = createExpenses();
-    await reference.requestImmediateUpdate();
-    expect(demo.cellClassRecordset.allRecords.map((record: any) => record.values)).toEqual(
-        reference.allRecords.map(record => record.values)
-    );
-    expect(demo.querySelector('fdl-table').recordset).toBe(demo.cellClassRecordset);
+    expect(demo.cellClassRecordset).toBe(expenses);
+    expect(demo.querySelector('fdl-table').recordset).toBe(expenses);
 });

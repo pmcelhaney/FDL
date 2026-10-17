@@ -1,10 +1,10 @@
-import { createModel } from './formatter-model.js';
+import { record } from './formatter-model.js';
 // Tutorial state for the .formatter() example.
 import { ExampleController } from '../../example-controller';
 
 import { inputText } from '../../value-pipeline';
 export class ExampleModel extends ExampleController {
-    money = createModel();
+    money = record;
     checked = false;
     requiredRule = true;
     amountInput;

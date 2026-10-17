@@ -12,7 +12,7 @@ export class ExampleView extends ExampleModel {
         return keyed(
             record.field(field),
             record === this.probes
-                ? renderExample(record, [field], showValidationErrors)
+                ? renderExample([field], showValidationErrors)
                 : html`<fdl-field
                       field=${field}
                       .record=${record}
@@ -21,7 +21,7 @@ export class ExampleView extends ExampleModel {
         );
     }
     renderDemo() {
-        return html`${this.renderField('firstId', this.probes)}${this.renderField('secondId', this.probes)}${hashComparisonView(this.probes, this.hashType)}`;
+        return html`${this.renderField('firstId', this.probes)}${this.renderField('secondId', this.probes)}${hashComparisonView(this.hashType)}`;
     }
     render() {
         return html`<div class="focused" data-modifier="hashFunction"

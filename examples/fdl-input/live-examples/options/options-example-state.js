@@ -1,4 +1,4 @@
-import { createModel } from './options-model.js';
+import { record } from './options-model.js';
 // Tutorial state for the .options() example.
 import { ExampleController } from '../../example-controller';
 import { field } from '@pmcelhaney/fdl';
@@ -8,7 +8,7 @@ export class ExampleModel extends ExampleController {
     optionsDepartment = '';
     assigneeChoices = [];
     optionsLoading = false;
-    record = createModel();
+    record = record;
     async loadAssigneeChoices() {
         const department = this.record.getField('department');
         if (department === this.optionsDepartment) return;

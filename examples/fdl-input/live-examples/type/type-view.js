@@ -1,5 +1,6 @@
+import { record } from './type-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
-export function typeView(record, fields = ['inputValue'], showErrors = false) {
+export function typeView(fields = ['inputValue'], showErrors = false) {
     return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }

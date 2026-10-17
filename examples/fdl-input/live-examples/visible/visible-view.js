@@ -1,7 +1,7 @@
+import { record } from './visible-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function visibleView(
-    record,
     fields = ['fulfillment', 'address'],
     showErrors = false
 ) {

@@ -24,7 +24,6 @@ export class ExampleView extends ExampleModel {
                 >Choose a matching rule and enter search text to filter the
                 table.</p
             >${this.renderField('matchRule', this.probes)}${this.renderField('filterProbe', this.probes)}${renderExample(
-                this.filterRecordset,
                 { name: this.probes.getField('filterProbe') },
                 event => {
                     const text = event.detail.name ?? '';

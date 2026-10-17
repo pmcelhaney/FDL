@@ -687,7 +687,7 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
             .shadowRoot!.getElementById('cellClass')!
             .querySelector('fdl-example')!
             .shadowRoot!.querySelector('.code')!.textContent
-    ).toContain('getThreshold()');
+    ).toContain("probes.getField('classThreshold')");
 });
 
 it('sorts the live T-shirt size column in size order and highlights all comparator calls', async () => {

@@ -10,7 +10,7 @@ export class ExampleView extends ExampleModel {
     renderDemo() {
         return html`<p class="try"
                 >The columns demonstrate left, center, and right alignment.</p
-            >${renderExample(this.alignRecordset)}`;
+            >${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="textAlign"

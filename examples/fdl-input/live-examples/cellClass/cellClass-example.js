@@ -20,7 +20,7 @@ export class ExampleView extends ExampleModel {
         );
     }
     renderDemo() {
-        return html`${this.renderField('classThreshold', this.probes)}${renderExample(this.cellClassRecordset)}`;
+        return html`${this.renderField('classThreshold', this.probes)}${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="cellClass"

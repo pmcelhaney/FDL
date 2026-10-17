@@ -14,7 +14,7 @@ export class ExampleView extends ExampleModel {
         return keyed(
             record.field(field),
             record === this.money
-                ? renderExample(record, [field], this.checked)
+                ? renderExample([field], this.checked)
                 : html`<fdl-field
                       .record=${record}
                       field=${field}
@@ -26,7 +26,7 @@ export class ExampleView extends ExampleModel {
         return html` <div @input=${this.captureAmountInput}
                 >${this.field(this.money, 'amount')}</div
             >
-            ${formattedAmountView(this.money)}
+            ${formattedAmountView()}
             <p class="result"
                 >The formatter leaves the stored number unchanged.</p
             >${valuePipeline(this.money, 'amount', this.amountInput)}`;

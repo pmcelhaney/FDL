@@ -1,7 +1,7 @@
+import { record } from './emptyWhen-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function emptyWhenView(
-    record,
     fields = ['emptyCode', 'optionalEmptyCode'],
     showErrors = false
 ) {

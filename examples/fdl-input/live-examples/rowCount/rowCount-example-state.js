@@ -1,11 +1,11 @@
-import { createModel, commentType } from './rowCount-model.js';
+import { record, commentType } from './rowCount-model.js';
 // Tutorial state for the .rowCount() example.
 import { ExampleController } from '../../example-controller';
 import { field, Record } from '@pmcelhaney/fdl';
 
 export class ExampleModel extends ExampleController {
     modifier = 'rowCount';
-    record = createModel();
+    record = record;
     probes = new Record(
         {
             textareaRows: field

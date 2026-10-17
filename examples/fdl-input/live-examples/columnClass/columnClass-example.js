@@ -12,7 +12,7 @@ export class ExampleView extends ExampleModel {
                 >The Expenses column shares its classes across the column,
                 heading, and cells. Only the value above 100 adds the
                 cell-specific high-value class.</p
-            >${renderExample(this.columnClassRecordset)}`;
+            >${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="columnClass"

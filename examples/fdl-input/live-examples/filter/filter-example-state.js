@@ -1,21 +1,11 @@
-import { createModel } from './filter-model.js';
+import { recordset, probes } from './filter-model.js';
 // Tutorial state for the .filter() example.
 import { ExampleController } from '../../example-controller';
-import { field, Record } from '@pmcelhaney/fdl';
 
 export class ExampleModel extends ExampleController {
     modifier = 'filter';
-    filterRecordset = createModel(() => this.probes.getField('matchRule'));
-    probes = new Record(
-        {
-            filterProbe: field.label('Search names'),
-            matchRule: field.label('Filter matching rule').options([
-                { text: 'Starts with', value: 'prefix' },
-                { text: 'Contains', value: 'contains' },
-            ]),
-        },
-        { filterProbe: 'ar', matchRule: 'prefix' }
-    );
+    filterRecordset = recordset;
+    probes = probes;
     onProbeChange = () => {
         {
             const filterMode =

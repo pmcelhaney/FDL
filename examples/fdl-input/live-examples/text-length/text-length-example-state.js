@@ -1,5 +1,6 @@
-import { codeType, createModel } from './text-length-model.js';
+import { codeType, record } from './text-length-model.js';
 import { LitElement } from 'lit';
+import { resetExampleRecord } from '../../example-controller';
 import { field, Record } from '@pmcelhaney/fdl';
 import '../../fdl-example';
 import '@pmcelhaney/fdl/lit/fdl-field';
@@ -34,7 +35,7 @@ export class ExampleModel extends LitElement {
             this.settings.values.maximum
         );
     }
-    record = createModel();
+    record = record;
     checked = false;
     refresh = () => this.requestUpdate();
     changeRules = () => {
@@ -47,6 +48,7 @@ export class ExampleModel extends LitElement {
     };
     connectedCallback() {
         super.connectedCallback();
+        resetExampleRecord(this.record);
         this.settings.addEventListener('change', this.changeRules);
         this.record.addEventListener('change', this.refresh);
     }

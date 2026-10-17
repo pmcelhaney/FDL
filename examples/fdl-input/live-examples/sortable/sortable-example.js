@@ -11,7 +11,7 @@ export class ExampleView extends ExampleModel {
         return html`<p class="try"
                 >First name and Last name can sort. T-shirt size has
                 .sortable(false), so its header has no sort action.</p
-            >${renderExample(this.sortableRecordset)}`;
+            >${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="sortable"

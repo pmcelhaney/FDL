@@ -1,7 +1,7 @@
+import { record } from './options-model.js';
 import { html } from 'lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 export function optionsView(
-    record,
     fields = ['department', 'assignee', 'asyncAssignee'],
     showErrors = false
 ) {

@@ -12,7 +12,7 @@ export class ExampleView extends ExampleModel {
                 >Every row receives <code>invoice-row</code>. The Disputed row
                 also receives <code>disputed-row</code> and
                 <code>needs-review</code>.</p
-            >${renderExample(this.rowClassRecordset)}`;
+            >${renderExample()}`;
     }
     render() {
         return html`<div class="focused full-width" data-modifier="rowClass"

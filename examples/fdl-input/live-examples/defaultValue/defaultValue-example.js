@@ -12,7 +12,7 @@ export class ExampleView extends ExampleModel {
         return keyed(
             record.field(field),
             record === this.defaultRecord
-                ? renderExample(record, [field], showValidationErrors)
+                ? renderExample([field], showValidationErrors)
                 : html`<fdl-field
                       field=${field}
                       .record=${record}
