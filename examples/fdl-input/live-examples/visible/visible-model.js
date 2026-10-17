@@ -1,9 +1,7 @@
-// Field rules and state for the .visible() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-export class ExampleModel extends ExampleController {
-    delivery = new Record(
+export function createModel() {
+    return new Record(
         {
             fulfillment: field.label('Delivery method').options([
                 { text: 'Ship to address', value: 'ship' },
@@ -15,6 +13,4 @@ export class ExampleModel extends ExampleController {
         },
         { fulfillment: 'ship', address: '42 Orchard Street' }
     );
-    checked = false;
-    requiredRule = true;
 }

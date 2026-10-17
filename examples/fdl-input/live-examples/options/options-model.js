@@ -1,15 +1,8 @@
-// Field rules and state for the .options() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import { assigneeDirectory, optionsDelay } from '../../assignee-options';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'options';
-    optionsDepartment = '';
-    assigneeChoices = [];
-    optionsLoading = false;
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             department: field.label('Department').options([
                 { text: 'Engineering', value: 'engineering' },
@@ -37,16 +30,4 @@ export class ExampleModel extends ExampleController {
             asyncAssignee: 'margaret',
         }
     );
-    async loadAssigneeChoices() {
-        const department = this.record.getField('department');
-        if (department === this.optionsDepartment) return;
-        this.optionsDepartment = department;
-        this.optionsLoading = true;
-        this.requestUpdate();
-        const choices = await this.record.field('assignee').options();
-        if (department !== this.optionsDepartment) return;
-        this.assigneeChoices = choices;
-        this.optionsLoading = false;
-        this.requestUpdate();
-    }
 }

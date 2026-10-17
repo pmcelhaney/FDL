@@ -1,34 +1,9 @@
-import { ExampleModel } from './disabled-model.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
-import { explainDependency } from '../../dependency-explanation';
 import '../../fdl-field';
-import '../../fdl-record-inspector';
-export class ExampleView extends ExampleModel {
-    createRenderRoot() {
-        return this;
-    }
-    renderField(field, record = this.record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                field=${field}
-                .record=${record}
-                .showValidationErrors=${showValidationErrors}
-            ></fdl-field>`
-        );
-    }
-    renderDemo() {
-        return html`${this.renderField('lockedId')}${this.renderField('approvalStatus')}${this.renderField('budget')}${explainDependency(this.record, 'budget', 'approvalStatus', `approvalStatus === 'approved'`, 'disabled')}`;
-    }
-    render() {
-        return html`<div class="focused" data-modifier="disabled"
-            ><div class="focused-demo">${this.renderDemo()}</div
-            ><fdl-record-inspector
-                .record=${this.record}
-                .fields=${['lockedId', 'approvalStatus', 'budget']}
-            ></fdl-record-inspector
-        ></div>`;
-    }
+export function disabledView(
+    record,
+    fields = ['lockedId', 'approvalStatus', 'budget'],
+    showErrors = false
+) {
+    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }
-customElements.define('fdl-live-disabled', ExampleView);

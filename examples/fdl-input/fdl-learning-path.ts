@@ -1,3 +1,5 @@
+import { learningFields, createLearningRecord, createLearningTable } from './learning-model';
+import { learningView, learningTableView } from './learning-view';
 import './fdl-code-snippet';
 import { field } from '../../src/index';
 import './fdl-transfer-challenge';
@@ -63,56 +65,9 @@ export class FdlLearningPath extends LitElement {
     static properties = { session: { attribute: false } };
     session?: LearningState;
     private step = 0;
-    private definitions() {
-        let charge = field.label('Delivery charge').textAlign('right');
-        if (this.step >= 1)
-            charge = charge
-                .parser(value =>
-                    String(value).trim() === ''
-                        ? undefined
-                        : Number(String(value).replace(/[$,]/g, ''))
-                )
-                .formatter(
-                    (value: unknown, _record?: unknown, context?: string) =>
-                        value == null
-                            ? ''
-                            : context === 'input-focus'
-                              ? String(value)
-                              : currency.format(Number(value))
-                );
-        if (this.step >= 2) {
-            charge = charge.validator({
-                name: 'must be a finite, non-negative number',
-                validate: value =>
-                    value == null ||
-                    (typeof value === 'number' &&
-                        Number.isFinite(value) &&
-                        value >= 0),
-            });
-            charge =
-                this.step >= 3
-                    ? charge.required(
-                          record => record.getField('method') === 'ship'
-                      )
-                    : charge.required();
-        }
-        if (this.step >= 3)
-            charge = charge.visible(
-                record => record.getField('method') === 'ship'
-            );
-        return {
-            method: field.label('Delivery method').options([
-                { text: 'Ship', value: 'ship' },
-                { text: 'Pickup', value: 'pickup' },
-            ]),
-            charge,
-        };
-    }
-    private record = new Record(this.definitions(), {
-        method: 'ship',
-        charge: '$25.00' as any,
-    });
-    private table = new Recordset(this.definitions(), []);
+    private definitions() {return learningFields(this.step); }
+    private record = createLearningRecord();
+    private table = createLearningTable(this.step);
     private refresh = () => {
         this.updateTable();
         this.requestUpdate();
@@ -127,10 +82,8 @@ export class FdlLearningPath extends LitElement {
     connectedCallback() {
         if (this.session) {
             this.step = this.session.step;
-            this.record = new Record(this.definitions(), {
-                ...this.session.values,
-            });
-            this.table = new Recordset(this.definitions(), []);
+            this.record = createLearningRecord(this.step, {...this.session.values});
+            this.table = createLearningTable(this.step);
         }
         super.connectedCallback();
         this.record.addEventListener('change', this.refresh);
@@ -159,7 +112,7 @@ export class FdlLearningPath extends LitElement {
                   ? fields.charge.valueOf().parse(value)
                   : value;
         this.record.addField('charge', fields.charge, nextValue);
-        this.table = new Recordset(fields, []);
+        this.table = createLearningTable(this.step);
         this.updateTable();
         this.requestUpdate();
         this.updateComplete.then(() =>
@@ -175,31 +128,7 @@ export class FdlLearningPath extends LitElement {
         });
         this.requestUpdate();
     };
-    private code() {
-        return `const charge = field.label('Delivery charge')
-  .textAlign('right')${
-      this.step >= 1
-          ? `
-  .parser(value => String(value).trim() === ''
-    ? undefined : Number(String(value).replace(/[$,]/g, '')))
-  .formatter((value, record, context) => value == null
-    ? '' : context === 'input-focus' ? String(value) : currency.format(value))`
-          : ''
-  }${
-      this.step >= 2
-          ? `
-  .validator({ name: 'must be a finite, non-negative number',
-    validate: value => value == null ||
-      (typeof value === 'number' && Number.isFinite(value) && value >= 0) })
-  .${this.step >= 3 ? "required(record => record.getField('method') === 'ship')" : 'required()'}`
-          : ''
-  }${
-      this.step >= 3
-          ? `
-  .visible(record => record.getField('method') === 'ship')`
-          : ''
-  };${this.step >= 4 ? `const deliveries = new Recordset({ method, charge }, data);` : ''}`;
-    }
+
     render() {
         const lesson = lessons[this.step];
         return html`<div class="lesson-toolbar"
@@ -222,7 +151,7 @@ export class FdlLearningPath extends LitElement {
                 ><p>${lesson.explanation}</p>
                 <div class="lesson-grid"
                     ><div class="lesson-controls"
-                        >${this.step >= 3 ? html`<fdl-field .record=${this.record} field="method"></fdl-field>` : ''}${keyed(this.record.field('charge'), html`<fdl-field .record=${this.record} field="charge" .showValidationErrors=${true}></fdl-field>`)}</div
+                        >${this.step >= 3 ? learningView(this.record,['method']) : ''}${keyed(this.record.field('charge'), learningView(this.record,['charge']))}</div
                     ><div class="lesson-state" role="status"
                         >${recordSummary(this.record, this.step >= 3 ? ['method', 'charge'] : ['charge'])}</div
                     ></div
@@ -237,10 +166,7 @@ export class FdlLearningPath extends LitElement {
                                   separate records. Its first row is a refreshed
                                   snapshot of the form, rather than the same
                                   record object.</p
-                              ><fdl-table .recordset=${this.table}
-                                  ><fdl-column field="method"></fdl-column
-                                  ><fdl-column field="charge"></fdl-column
-                              ></fdl-table>
+                              >${learningTableView(this.table)}
                               <fdl-recordset-inspector
                                   .recordset=${this.table}
                               ></fdl-recordset-inspector>`
@@ -252,10 +178,6 @@ export class FdlLearningPath extends LitElement {
                         >${lessons.slice(0, this.step + 1).map(item => html`<li>${item.rule}</li>`)}</ol
                     ></details
                 >
-                <h3>The current definition</h3
-                ><fdl-code-snippet>
-                    <pre><code>${highlightJavaScript(this.code())}</code></pre>
-                </fdl-code-snippet>
                 <p
                     ><a href=${`#${lesson.reference}`}
                         >Explore ${lesson.reference} in the modifier

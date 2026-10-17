@@ -1,10 +1,12 @@
 import './fdl-code-snippet';
 import { documentationPages, renderReference } from './reference-pages';
 import './fdl-example';
-import compositionSource from './fdl-composition-experiment.ts?raw';
-import compositionModelSource from './composition-model.ts?raw';
-import specializationSource from './fdl-specialization-experiment.ts?raw';
-import learningSource from './fdl-learning-path.ts?raw';
+import compositionSource from './composition-view.ts?raw';
+import compositionModelSource from './composition-rules.ts?raw';
+import specializationSource from './specialization-view.ts?raw';
+import specializationModelSource from './specialization-model.ts?raw';
+import learningSource from './learning-view.ts?raw';
+import learningModelSource from './learning-model.ts?raw';
 import { renderChangeRule } from './change-rule-page';
 import { renderEditableRecordset } from './editable-recordset-page';
 import { renderIntegration } from './integration-page';
@@ -86,8 +88,8 @@ export function renderSitePage(
             ><h1 tabindex="-1">Combine the rules</h1
             ><fdl-example
                 heading="Combine the rules"
-                .filenames=${['composition-model.ts', 'fdl-composition-experiment.ts']}
-                .sources=${{ 'composition-model.ts': compositionModelSource, 'fdl-composition-experiment.ts': compositionSource }}
+                .filenames=${['composition-rules.ts', 'composition-view.ts']}
+                .sources=${{ 'composition-rules.ts': compositionModelSource, 'composition-view.ts': compositionSource }}
                 >${compositionView ?? html`<fdl-composition-experiment></fdl-composition-experiment>`}</fdl-example
             ></article
         >`;
@@ -100,8 +102,8 @@ export function renderSitePage(
                 investigate.</p
             ><fdl-example
                 heading="Learn by exploring"
-                .filenames=${['fdl-learning-path.ts']}
-                .sources=${{ 'fdl-learning-path.ts': learningSource }}
+                .filenames=${['learning-model.ts', 'learning-view.ts']}
+                .sources=${{ 'learning-model.ts': learningModelSource, 'learning-view.ts': learningSource }}
                 ><fdl-learning-path
                     .session=${learningState}
                 ></fdl-learning-path></fdl-example
@@ -238,8 +240,8 @@ export function renderSitePage(
             >
             <fdl-example
                 heading="One base, independent specializations"
-                .filenames=${['fdl-specialization-experiment.ts']}
-                .sources=${{ 'fdl-specialization-experiment.ts': specializationSource }}
+                .filenames=${['specialization-model.ts', 'specialization-view.ts']}
+                .sources=${{ 'specialization-model.ts': specializationModelSource, 'specialization-view.ts': specializationSource }}
                 ><fdl-specialization-experiment></fdl-specialization-experiment
             ></fdl-example>
             <h2>2. Create a record</h2>

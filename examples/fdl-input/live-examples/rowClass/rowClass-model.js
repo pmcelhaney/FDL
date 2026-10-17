@@ -1,11 +1,7 @@
-// Field rules and state for the .rowClass() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
-
 import Recordset from '../../../../src/recordset.js';
-export class ExampleModel extends ExampleController {
-    modifier = 'rowClass';
-    rowClassRecordset = new Recordset(
+export function createModel() {
+    return new Recordset(
         {
             status: field
                 .label('Status')

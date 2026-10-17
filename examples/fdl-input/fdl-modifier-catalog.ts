@@ -2,7 +2,7 @@ import { LitElement, css } from 'lit';
 import { html, unsafeStatic } from 'lit/static-html.js';
 import { exampleTheme } from './example-theme';
 import { compareShirtSizesSource } from './shirt-size-example';
-import './live-example-modules';
+import { liveExamples } from './live-example-modules';
 type DemoName =
     | 'cellClass'
     | 'columnClass'
@@ -296,7 +296,16 @@ export class FdlModifierCatalog extends LitElement {
 static properties = {modifier:{type:String}};
 modifier='';
 createRenderRoot(){return ['required','formatter','visible'].includes(this.modifier)?this:super.createRenderRoot();}
-render(){const tag=unsafeStatic('fdl-live-'+this.modifier.toLowerCase());return html`<${tag}></${tag}>`;}
+render() {
+    const directory = liveExamples[this.modifier]?.directory;
+    const tagName = directory === 'text-length'
+        ? 'fdl-text-length'
+        : directory === 'column-widths'
+          ? 'fdl-column-widths'
+          : 'fdl-live-' + this.modifier.toLowerCase();
+    const tag = unsafeStatic(tagName);
+    return html`<${tag}></${tag}>`;
+}
 static styles = css`
         .validator-example + .validator-example {
             margin-top: 1.5rem;

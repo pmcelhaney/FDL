@@ -65,18 +65,22 @@ relative documentation links to local routes.
   entered code; width changes restore the initial table layout.
 - Validator, filter, and comparator examples compare several cases at once.
   Parser and formatter pages trace original input through stored and display values.
-- Supported modifier examples import their model and view directly from
-  `live-examples/<modifier>/`. Source tabs read those same files with Vite's
-  `?raw` imports. Keep each pair focused on that example; the documentation shell
-  handles navigation and source tabs, and `example-controller.js` handles shared
-  model subscriptions. Change the executable files instead of maintaining
-  illustrative source strings. Keep documentation-only controls, dependency
-  explanations, and inspectors in a separate example wrapper, as in
-  `required/required-example.js`. The wrapper calls the displayed view function
-  with the record created by the displayed model.
-- Text-length and column-width pages use the same arrangement, with their
-  executable model and view in `live-examples/text-length/` and
-  `live-examples/column-widths/`.
+- Each supported modifier example has a small model factory and a rendering
+  function in `live-examples/<modifier>/`. Source tabs read those exact files
+  with Vite's `?raw` imports. The example wrapper imports and calls the factory
+  and renderer, so the displayed code is the code that runs.
+- Keep tutorial state, rule selectors, validation buttons, dependency
+  explanations, inspectors, styles, and lifecycle handling in the example
+  wrapper. These support the lesson without becoming part of the code a reader
+  needs to render the domain fields or table. Shared subscriptions live in
+  `example-controller.js`.
+- Text-length and column-width pages share canonical model/view pairs in
+  `live-examples/text-length/` and `live-examples/column-widths/`. Their individual
+  modifier routes use those same files rather than parallel implementations.
+- The delivery, conditional-validation, specialization, learning, composition,
+  cancellation, field-builder, and editable-recordset examples follow the same
+  separation. Their page components call the small view functions and keep the
+  teaching interface outside the displayed source.
 - Class-based styling examples (`cellClass` and
   `rowClass`) also provide a CSS tab. These rules are shared
   with the live adapters through literal CSS imports and belong in its shadow-root stylesheet, not the page

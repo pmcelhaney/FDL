@@ -1,8 +1,9 @@
+import { conditionalValidationView } from './conditional-validation-view';
 import conditionalRuleSource from './conditional-validation-model.ts?raw';
 export { conditionalRuleSource };
 import './fdl-code-snippet';
 import './fdl-example';
-import viewSource from './change-rule-page.ts?raw';
+import viewSource from './conditional-validation-view.ts?raw';
 import { LitElement, html } from 'lit';
 import { createAccount } from './conditional-validation-model';
 import { highlightJavaScript } from './highlight-javascript';
@@ -26,16 +27,8 @@ export class FdlConditionalValidation extends LitElement {
                 the hidden value remains stored, and its format no longer blocks
                 validation.</p
             >
-            <fdl-field
-                .record=${this.account}
-                field="country"
-                .showValidationErrors=${true}
-            ></fdl-field>
-            <fdl-field
-                .record=${this.account}
-                field="taxId"
-                .showValidationErrors=${true}
-            ></fdl-field>
+            ${conditionalValidationView(this.account, ['country'])}
+            ${conditionalValidationView(this.account, ['taxId'])}
             <p role="status"
                 >${this.account.isValid() ? 'Valid account.' : this.account.readableRecordErrors().join('. ')}</p
             >
@@ -93,8 +86,8 @@ export function renderValidatorContract(includeExample = true) {
                       >
                       <fdl-example
                           heading="Conditional validation"
-                          .filenames=${['conditional-validation-model.ts', 'change-rule-page.ts']}
-                          .sources=${{ 'conditional-validation-model.ts': conditionalRuleSource, 'change-rule-page.ts': viewSource }}
+                          .filenames=${['conditional-validation-model.ts', 'conditional-validation-view.ts']}
+                          .sources=${{ 'conditional-validation-model.ts': conditionalRuleSource, 'conditional-validation-view.ts': viewSource }}
                           ><fdl-conditional-validation></fdl-conditional-validation
                       ></fdl-example>
                   `

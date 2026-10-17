@@ -1,37 +1,9 @@
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
-import { ExampleModel } from './visible-model.js';
-import { explainDependency } from '../../dependency-explanation';
 import '../../fdl-field';
-import '../../fdl-record-inspector';
-export class ExampleView extends ExampleModel {
-    createRenderRoot() {
-        return this;
-    }
-    field(record, field) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                .record=${record}
-                field=${field}
-                .showValidationErrors=${this.checked}
-            ></fdl-field>`
-        );
-    }
-    demo() {
-        return html`${this.field(this.delivery, 'fulfillment')}${this.field(this.delivery, 'address')}${explainDependency(this.delivery, 'address', 'fulfillment', `fulfillment === 'ship'`, 'visible')}<p
-                class="result"
-                role="status"
-                >${this.delivery.getField('fulfillment') === 'ship' ? 'Shipping address is visible.' : 'Pickup selected. Shipping address is hidden.'}</p
-            >`;
-    }
-    render() {
-        return html`<div class="demo-grid"
-            ><div class="controls">${this.demo()}</div
-            ><fdl-record-inspector
-                .record=${this.delivery}
-            ></fdl-record-inspector
-        ></div>`;
-    }
+export function visibleView(
+    record,
+    fields = ['fulfillment', 'address'],
+    showErrors = false
+) {
+    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }
-customElements.define('fdl-live-visible', ExampleView);

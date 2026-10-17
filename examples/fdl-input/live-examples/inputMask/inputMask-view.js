@@ -1,33 +1,5 @@
-import { ExampleModel } from './inputMask-model.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
 import '../../fdl-field';
-import '../../fdl-record-inspector';
-export class ExampleView extends ExampleModel {
-    createRenderRoot() {
-        return this;
-    }
-    renderField(field, record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                field=${field}
-                .record=${record}
-                .showValidationErrors=${showValidationErrors}
-            ></fdl-field>`
-        );
-    }
-    renderDemo() {
-        return html`${this.renderField('input', this.probes)}`;
-    }
-    render() {
-        return html`<div class="focused" data-modifier="inputMask"
-            ><div class="focused-demo">${this.renderDemo()}</div
-            ><fdl-record-inspector
-                .fields=${['input']}
-                .record=${this.probes}
-            ></fdl-record-inspector
-        ></div>`;
-    }
+export function inputMaskView(record, fields = ['input'], showErrors = false) {
+    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }
-customElements.define('fdl-live-inputmask', ExampleView);

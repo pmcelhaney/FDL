@@ -1,36 +1,9 @@
-import { ExampleModel } from './defaultValue-model.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
 import '../../fdl-field';
-import '../../fdl-record-inspector';
-export class ExampleView extends ExampleModel {
-    createRenderRoot() {
-        return this;
-    }
-    renderField(field, record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                field=${field}
-                .record=${record}
-                .showValidationErrors=${showValidationErrors}
-            ></fdl-field>`
-        );
-    }
-    renderDemo() {
-        return html`${this.renderField('documentTitle', this.defaultRecord)}<button
-                type="button"
-                @click=${this.clearDefaultRecord}
-                >Clear the record</button
-            >`;
-    }
-    render() {
-        return html`<div class="focused" data-modifier="defaultValue"
-            ><div class="focused-demo">${this.renderDemo()}</div
-            ><fdl-record-inspector
-                .record=${this.defaultRecord}
-            ></fdl-record-inspector
-        ></div>`;
-    }
+export function defaultValueView(
+    record,
+    fields = ['documentTitle'],
+    showErrors = false
+) {
+    return html`${fields.map(field => html`<fdl-field .record=${record} field=${field} .showValidationErrors=${showErrors}></fdl-field>`)}`;
 }
-customElements.define('fdl-live-defaultvalue', ExampleView);

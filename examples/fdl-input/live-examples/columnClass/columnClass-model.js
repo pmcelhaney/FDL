@@ -1,11 +1,7 @@
-// Field rules and state for the .columnClass() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
-
 import Recordset from '../../../../src/recordset.js';
-export class ExampleModel extends ExampleController {
-    modifier = 'columnClass';
-    columnClassRecordset = new Recordset(
+export function createModel() {
+    return new Recordset(
         {
             day: field.label('Day'),
             amount: field

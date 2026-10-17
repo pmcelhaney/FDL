@@ -1,3 +1,5 @@
+import { createSpecializations } from './specialization-model';
+import { specializationView } from './specialization-view';
 import { field } from '../../src/index';
 import { exampleTheme } from './example-theme';
 import { LitElement, css, html } from 'lit';
@@ -6,9 +8,10 @@ import Record from '../../src/record.js';
 import './fdl-field';
 
 export class FdlSpecializationExperiment extends LitElement {
-    private base = field.label('Name');
-    private sibling = this.base.minLength(2);
-    private required = this.base.required();
+    private model = createSpecializations();
+    private base = this.model.base;
+    private sibling = this.model.sibling;
+    private required = this.model.required;
     private enabled = true;
     private get definitions() {
         return {
@@ -17,11 +20,7 @@ export class FdlSpecializationExperiment extends LitElement {
             sibling: this.sibling,
         };
     }
-    private record = new Record(this.definitions, {
-        base: '',
-        required: '',
-        sibling: '',
-    });
+    private record = this.model.record;
     private syncing = false;
     private sync = (event: Event) => {
         if (this.syncing) return;
@@ -76,7 +75,7 @@ export class FdlSpecializationExperiment extends LitElement {
                             <code
                                 >${key === 'base' ? "field.label('Name')" : key === 'required' ? (this.enabled ? 'baseName.required()' : 'baseName') : 'baseName.minLength(2)'}</code
                             >
-                            ${keyed(this.record.field(key), html`<fdl-field .record=${this.record} field=${key} .showValidationErrors=${true}></fdl-field>`)}
+                            ${keyed(this.record.field(key), html`${specializationView(this.record, [key])}`)}
                             <p class="variant-state"
                                 >${this.record.field(key).required ? 'Required' : 'Optional'}
                                 ·

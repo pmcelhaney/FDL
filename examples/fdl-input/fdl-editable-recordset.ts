@@ -1,3 +1,4 @@
+import { editableRecordsetView, shipmentDetailView } from './editable-recordset-view';
 import './fdl-code-snippet';
 import { LitElement, html, css } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
@@ -81,43 +82,7 @@ export class FdlEditableRecordset extends LitElement {
                 detail editor.</p
             >
             <div class="table-scroll"
-                ><table
-                    ><caption
-                        >Editable shipments — use Tab to move between
-                        controls</caption
-                    ><thead
-                        ><tr
-                            ><th>Shipment</th><th>Quantity</th
-                            ><th>Unit price</th><th>Status</th
-                            ><th>Hold reason</th><th>Charge</th
-                            ><th>Validation</th></tr
-                        ></thead
-                    ><tbody>
-                        ${repeat(
-                            this.shipments.currentPage,
-                            row => row,
-                            row =>
-                                html`<tr
-                                    ><th
-                                        ><button
-                                            @click=${() => {
-                                                this.selected = row;
-                                                this.requestUpdate();
-                                            }}
-                                            aria-pressed=${this.selected === row}
-                                            >${row.getField('id')}</button
-                                        ></th
-                                    >
-                                    ${(['quantity', 'unitPrice', 'status', 'reason'] as const).map(name => html`<td><fdl-field .record=${row} field=${name} .showValidationErrors=${true}></fdl-field></td>`)}
-                                    <td class="numeric"
-                                        >${shipmentCharge(row).toFixed(2)}</td
-                                    ><td
-                                        >${row.isValid() ? 'Valid' : row.readableRecordErrors().join('. ')}</td
-                                    ></tr
-                                >`
-                        )}
-                    </tbody></table
-                ></div
+                >${editableRecordsetView(this.shipments, this.selected, row => {this.selected=row;this.requestUpdate();})}</div
             >
             <p role="status"
                 >All records: ${all.quantity} units / $${all.charge.toFixed(2)}.
@@ -125,7 +90,7 @@ export class FdlEditableRecordset extends LitElement {
                 $${visible.charge.toFixed(2)}.</p
             >
             <h2>Selected shipment: ${this.selected?.getField('id')}</h2>
-            ${this.selected ? keyed(this.selected, html`<fdl-field .record=${this.selected} field="quantity" .showValidationErrors=${true}></fdl-field><fdl-field .record=${this.selected} field="reason" .showValidationErrors=${true}></fdl-field>`) : ''}
+            ${this.selected ? keyed(this.selected, shipmentDetailView(this.selected)) : ''}
             <fdl-recordset-inspector
                 .recordset=${this.shipments}
             ></fdl-recordset-inspector>

@@ -1,12 +1,7 @@
-// Field rules and state for the .validator() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'validator';
-    validatedFields = new Set();
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             email: field
                 .label('Email address')
@@ -42,8 +37,4 @@ export class ExampleModel extends ExampleController {
         },
         { email: 'ada@', orderQuantity: 2.5, username: '7bad-name' }
     );
-    validateField(field) {
-        this.validatedFields.add(field);
-        this.requestUpdate();
-    }
 }

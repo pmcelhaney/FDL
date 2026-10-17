@@ -1,3 +1,6 @@
+import modelSource from './cancellation-rules.ts?raw';
+import viewSource from './cancellation-view.ts?raw';
+import { cancellationView } from './cancellation-view';
 import './fdl-code-snippet';
 import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
@@ -5,7 +8,6 @@ import { keyed } from 'lit/directives/keyed.js';
 import Record from '../../src/record.js';
 import {
     cancellationFields,
-    cancellationDefinition,
     checkCancellation,
     checkCancellationTransition,
     type CancellationRules,
@@ -83,11 +85,7 @@ export class FdlTransferChallenge extends LitElement {
                 ><section aria-label="Choose cancellation rules"
                     >${['visibility', 'requiredness'].map(field => html`<fdl-field .record=${this.configuration} field=${field}></fdl-field>`)}</section
                 ><section aria-label="Try the cancellation form"
-                    ><fdl-field
-                        .record=${this.record}
-                        field="status"
-                    ></fdl-field
-                    >${keyed(this.record.field('reason'), html`<fdl-field .record=${this.record} field="reason" .showValidationErrors=${true}></fdl-field>`)}<p
+                    >${cancellationView(this.record, ['status'])}${keyed(this.record.field('reason'), html`${cancellationView(this.record, ['reason'])}`)}<p
                         >Stored reason:
                         <code
                             >${JSON.stringify(this.record.getField('reason'))}</code
@@ -142,15 +140,13 @@ export class FdlTransferChallenge extends LitElement {
                     value.</p
                 ></details
             ><details
-                ><summary>Inspect a solution</summary
-                ><fdl-code-snippet>
-                    <pre><code>${highlightJavaScript(cancellationDefinition({ visibility: 'cancelled', requiredness: 'cancelled' }))}</code></pre>
-                </fdl-code-snippet>
+                ><summary>Inspect a solution</summary>
+                <p>Choose Only when Cancelled for both visibility and requiredness.</p>
             </details>
-            <h3>Your current definition</h3
+            <h3>cancellation-rules.ts</h3
             ><fdl-code-snippet>
-                <pre><code>${highlightJavaScript(cancellationDefinition(this.rules))}</code></pre>
-            </fdl-code-snippet>`;
+                <pre><code>${highlightJavaScript(modelSource)}</code></pre>
+            </fdl-code-snippet><h3>cancellation-view.ts</h3><fdl-code-snippet><pre><code>${highlightJavaScript(viewSource)}</code></pre></fdl-code-snippet>`;
     }
     static styles = css`
         :host {

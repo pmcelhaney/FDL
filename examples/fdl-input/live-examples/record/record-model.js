@@ -1,11 +1,7 @@
-// Field rules and state for the .record() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'record';
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             address: field
                 .label('Shipping address')

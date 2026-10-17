@@ -1,6 +1,5 @@
 import {
     compositionRecord,
-    compositionDefinition,
     addressCases,
     addressCase,
     type CompositionRules,
@@ -46,23 +45,6 @@ it('keeps whitespace in the unnumbered class and rejects it when format checking
     expect(addressCase('   ')).toBe('unnumbered');
     expect(record.isValid()).toBe(false);
 });
-it('renders definitions that reflect the independently enabled rules', () => {
-    const simple = compositionDefinition({
-        visibility: 'all',
-        requiredness: 'never',
-        validation: 'off',
-    });
-    expect(simple).not.toMatch(/visible|required|validator/);
-    const full = compositionDefinition({
-        visibility: 'shipping',
-        requiredness: 'always',
-        validation: 'on',
-    });
-    expect(full).toContain('.visible(');
-    expect(full).toContain('.required()');
-    expect(full).toContain('.validator(');
-    expect(full).toContain('/^\\d+\\s+\\S/');
-});
 const openDemo = async () => {
     const demo = document.createElement('fdl-composition-experiment') as FdlCompositionExperiment;
     document.body.append(demo);
@@ -104,7 +86,7 @@ it('loads the exact selected case and exposes hidden validation failures', async
     await edit(demo, 'validation', 'off');
     expect(root.querySelector('.state')!.textContent).toContain('The record is valid.');
     expect(root.querySelector('.state')!.textContent).toContain('Orchard Street');
-    expect(root.querySelector('.definition pre')!.textContent).not.toContain('.validator(');
+    expect(root.querySelector('.definition')).toBeNull();
     expect(
         root.querySelector('.case[aria-pressed="true"]')!.getAttribute('data-address-case')
     ).toBe('unnumbered');
@@ -127,7 +109,7 @@ it('lets readers inspect hidden requiredness, reveal the field, and edit back in
     root.querySelector<HTMLButtonElement>('.reset')!.click();
     await demo.updateComplete;
     expect(root.querySelector('.state')!.textContent).toContain('42 Orchard Street');
-    expect(root.querySelector('.definition')!.textContent).toContain('.required(');
+    expect((demo as any).record.field('address').required).toBe(true);
     expect(root.querySelector('.case[aria-pressed="true"]')!.getAttribute('data-method')).toBe(
         'ship'
     );

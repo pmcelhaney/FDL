@@ -1,3 +1,4 @@
+import { deliveryView } from './delivery-view';
 // Connects the delivery model to field controls and a record inspector.
 import { LitElement, css, html } from 'lit';
 import { createDelivery } from './delivery-model';
@@ -23,37 +24,13 @@ export class DeliveryForm extends LitElement {
         const pickup = this.delivery.getField('fulfillment') === 'pickup';
         return html` <div class="experiment">
             <div class="editor">
-                <fdl-field
-                    .record=${this.delivery}
-                    field="fulfillment"
-                ></fdl-field>
-                <fdl-field
-                    .record=${this.delivery}
-                    field="address"
-                    .showValidationErrors=${true}
-                ></fdl-field>
-                <fdl-field
-                    .record=${this.delivery}
-                    field="city"
-                    .showValidationErrors=${true}
-                ></fdl-field>
-                <fdl-field
-                    .record=${this.delivery}
-                    field="state"
-                    .showValidationErrors=${true}
-                ></fdl-field>
-                <fdl-field
-                    .record=${this.delivery}
-                    field="zip"
-                    .showValidationErrors=${true}
-                ></fdl-field>
+                ${deliveryView(this.delivery, ['fulfillment'])}
+                ${deliveryView(this.delivery, ['address'])}
+                ${deliveryView(this.delivery, ['city'])}
+                ${deliveryView(this.delivery, ['state'])}
+                ${deliveryView(this.delivery, ['zip'])}
                 ${pickup ? html`<p class="sample-note">Sample store lookup (2-second delay): try ZIP code <strong>28202</strong> or <strong>10001</strong>.</p>` : ''}
-                <fdl-field
-                    .record=${this.delivery}
-                    field="store"
-                    select-prompt="Select a store"
-                    .showValidationErrors=${true}
-                ></fdl-field>
+                ${deliveryView(this.delivery, ['store'])}
             </div>
             <fdl-record-inspector
                 .record=${this.delivery}

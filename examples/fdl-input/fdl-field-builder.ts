@@ -1,3 +1,5 @@
+import { keyed } from 'lit/directives/keyed.js';
+import { recordSummary } from './model-summary';
 import modelSource from './field-builder-model.ts?raw';
 import viewSource from './field-builder-view.ts?raw';
 import { fieldBuilderView } from './field-builder-view';
@@ -104,7 +106,7 @@ export class FdlFieldBuilder extends LitElement {
                     >${['name', 'initialValue', 'visibility', 'requiredness', 'validation'].map(field => html`<fdl-field .record=${this.configuration} field=${field} .showValidationErrors=${true}></fdl-field>`)}</section
                 ><section class="preview"
                     ><h3>Try your field</h3
-                    >${fieldBuilderView(this.record, this.spec.name)}</section
+                    >${keyed(this.record, fieldBuilderView(this.record, this.spec.name))}${recordSummary(this.record, [this.spec.name])}</section
                 ></div
             >
             <div class="actions"

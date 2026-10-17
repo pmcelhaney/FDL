@@ -1,11 +1,7 @@
-// Field rules and state for the .emptyWhen() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'emptyWhen';
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             emptyCode: field
                 .label('Reference')

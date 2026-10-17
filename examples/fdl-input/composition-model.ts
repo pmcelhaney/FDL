@@ -1,16 +1,6 @@
-import { field } from '../../src/index';
-import Record from '../../src/record.js';
+import { hasStreetNumber, type CompositionRules } from './composition-rules';
+export { compositionFields, compositionRecord, defaultCompositionRules, hasStreetNumber, type CompositionRules } from './composition-rules';
 
-export type CompositionRules = {
-    visibility: 'all' | 'shipping';
-    requiredness: 'never' | 'shipping' | 'always';
-    validation: 'off' | 'on';
-};
-export const defaultCompositionRules: CompositionRules = {
-    visibility: 'shipping',
-    requiredness: 'shipping',
-    validation: 'on',
-};
 export const addressCases = [
     { id: 'empty', title: 'Empty', value: '' },
     {
@@ -24,65 +14,8 @@ export const addressCases = [
         value: 'Orchard Street',
     },
 ] as const;
-export const hasStreetNumber = (value: string) =>
-    /^\d+\s+\S/.test(value.trim());
 export const addressCase = (value: string) =>
     value === '' ? 'empty' : hasStreetNumber(value) ? 'numbered' : 'unnumbered';
-
-export function compositionFields(rules: CompositionRules) {
-    let address = field.label('Shipping address');
-    if (rules.visibility === 'shipping')
-        address = address.visible(
-            record => record.getField('fulfillment') === 'ship'
-        );
-    if (rules.requiredness === 'always') address = address.required();
-    if (rules.requiredness === 'shipping')
-        address = address.required(
-            record => record.getField('fulfillment') === 'ship'
-        );
-    if (rules.validation === 'on')
-        address = address.validator({
-            name: 'must start with a street number and a street name',
-            validate: value => value === '' || hasStreetNumber(value),
-        });
-    return {
-        fulfillment: field.label('Delivery method').options([
-            { text: 'Ship to address', value: 'ship' },
-            { text: 'Pick up in person', value: 'pickup' },
-        ]),
-        address,
-    };
-}
-export function compositionRecord(
-    rules: CompositionRules,
-    fulfillment: string,
-    address: string
-) {
-    return new Record(compositionFields(rules), { fulfillment, address });
-}
-export function compositionDefinition(rules: CompositionRules) {
-    return `const address = field\n  .label('Shipping address')${
-        rules.visibility === 'shipping'
-            ? `
-  .visible(record => record.getField('fulfillment') === 'ship')`
-            : ''
-    }${
-        rules.requiredness === 'always'
-            ? '\n  .required()'
-            : rules.requiredness === 'shipping'
-              ? `
-  .required(record => record.getField('fulfillment') === 'ship')`
-              : ''
-    }${
-        rules.validation === 'on'
-            ? `
-  .validator({
-    name: 'must start with a street number and a street name',
-    validate: value => value === '' || /^\\d+\\s+\\S/.test(value.trim()),
-  })`
-            : ''
-    };`;
-}
 
 export function compositionExplanation(
     rules: CompositionRules,

@@ -1,11 +1,7 @@
-// Field rules and state for the .placeholder() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'placeholder';
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             projectName: field
                 .label('Project name')

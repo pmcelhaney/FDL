@@ -1,46 +1,15 @@
-import { ExampleModel } from './filter-model.js';
 import { html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
-import '../../fdl-field';
 import '../../fdl-table';
-import '../../fdl-recordset-inspector';
-export class ExampleView extends ExampleModel {
-    createRenderRoot() {
-        return this;
-    }
-    renderField(field, record, showValidationErrors = false) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                field=${field}
-                .record=${record}
-                .showValidationErrors=${showValidationErrors}
-            ></fdl-field>`
-        );
-    }
-    renderDemo() {
-        return html`<p class="try"
-                >Choose a matching rule and enter search text to filter the
-                table.</p
-            >${this.renderField('matchRule', this.probes)}${this.renderField('filterProbe', this.probes)}<fdl-table
-                .recordset=${this.filterRecordset}
-                .filters=${{ name: this.probes.getField('filterProbe') }}
-                @filters-changed=${event => {
-                    const text = event.detail.name ?? '';
-                    if (text !== this.probes.getField('filterProbe'))
-                        this.probes.setField('filterProbe', text);
-                }}
-                ><fdl-column field="name"></fdl-column
-                ><fdl-column field="team"></fdl-column
-            ></fdl-table>`;
-    }
-    render() {
-        return html`<div class="focused full-width" data-modifier="filter"
-            ><div class="focused-demo">${this.renderDemo()}</div
-            ><fdl-recordset-inspector
-                .recordset=${this.filterRecordset}
-            ></fdl-recordset-inspector
-        ></div>`;
-    }
+export function filterView(
+    recordset,
+    filters = {},
+    onFiltersChanged = () => {}
+) {
+    return html`<fdl-table
+        .recordset=${recordset}
+        .filters=${filters}
+        @filters-changed=${onFiltersChanged}
+        ><fdl-column field="name"></fdl-column
+        ><fdl-column field="team"></fdl-column
+    ></fdl-table>`;
 }
-customElements.define('fdl-live-filter', ExampleView);

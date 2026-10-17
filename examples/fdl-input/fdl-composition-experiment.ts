@@ -1,3 +1,4 @@
+import { compositionView } from './composition-view';
 import './fdl-code-snippet';
 import { field } from '../../src/index';
 import './fdl-prediction';
@@ -14,7 +15,6 @@ import {
     compositionRecord,
     compositionRuleChanges,
     compositionExplanation,
-    compositionDefinition,
     defaultCompositionRules,
     type CompositionRules,
 } from './composition-model';
@@ -353,11 +353,8 @@ export class FdlCompositionExperiment extends LitElement {
                     >3. Inspect the selected case</h3
                 ><div class="case-workspace"
                     ><div class="editor">
-                        <fdl-field
-                            .record=${this.record}
-                            field="fulfillment"
-                        ></fdl-field>
-                        ${keyed(this.record.field('address'), html`<fdl-field .record=${this.record} field="address" .showValidationErrors=${true}></fdl-field>`)}
+                        ${compositionView(this.record, ['fulfillment'])}
+                        ${keyed(this.record.field('address'), html`${compositionView(this.record, ['address'])}`)}
                         <p
                             >Try your own address. The number check is an
                             illustrative format rule, not proof that an address
@@ -374,15 +371,6 @@ export class FdlCompositionExperiment extends LitElement {
                 ></section
             >
             ${this.collectedCases()}
-            <section class="definition"
-                ><h3>The resulting definition</h3
-                ><fdl-code-snippet>
-                    <pre><code>${highlightJavaScript(compositionDefinition(this.rules))}</code></pre></fdl-code-snippet
-                ><p
-                    >This is the address definition used by every case and by
-                    the live form.</p
-                ></section
-            >
             <details class="questions"
                 ><summary>Questions to investigate</summary
                 ><ul

@@ -1,11 +1,7 @@
-// Field rules and state for the .disabled() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'disabled';
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             lockedId: field.label('System ID').disabled(),
             approvalStatus: field.label('Approval status').options([

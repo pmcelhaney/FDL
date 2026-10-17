@@ -244,7 +244,7 @@ it('reveals the actual source files alongside the slotted delivery form', async 
     expect([...root.querySelectorAll('[role="tab"]')].map(tab => tab.textContent!.trim())).toEqual([
         'Interactive example',
         'delivery-model.ts',
-        'delivery-form.ts',
+        'delivery-view.ts',
         'delivery-data.ts',
     ]);
     for (let index = 0; index < frame.filenames.length; index++) {
@@ -259,7 +259,7 @@ it('reveals the actual source files alongside the slotted delivery form', async 
         );
         expect(root.querySelectorAll('[role="tabpanel"]:not([hidden])')).toHaveLength(1);
     }
-    expect(frame.sources['delivery-form.ts']).toContain('<fdl-record-inspector');
+    expect(frame.sources['delivery-view.ts']).toContain('<fdl-field');
     expect(frame.sources['delivery-model.ts']).toContain(
         '.required(whenDeliveryMethodRequiresAddress)'
     );
@@ -395,7 +395,7 @@ it('changes length rules while preserving the value and matching the selected mi
     const frame = demo.shadowRoot.querySelector('fdl-example') as any;
     await frame.updateComplete;
     expect(frame.sources['text-length-model.js']).toContain(
-        '.minLength(this.settings.values.minimum)'
+        '.minLength(minimum)'
     );
 });
 
@@ -687,7 +687,7 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
             .shadowRoot!.getElementById('cellClass')!
             .querySelector('fdl-example')!
             .shadowRoot!.querySelector('.code')!.textContent
-    ).toContain("this.probes.getField('classThreshold')");
+    ).toContain('getThreshold()');
 });
 
 it('sorts the live T-shirt size column in size order and highlights all comparator calls', async () => {

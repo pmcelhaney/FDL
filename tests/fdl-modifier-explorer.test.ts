@@ -1013,15 +1013,15 @@ it.each([
     expect(catalog.shadowRoot!.querySelector('.focused-state')).toBeNull();
 });
 
-it('initializes the catalog minimum selector to the enforced rule', async () => {
-    const demo = document.createElement('fdl-modifier-catalog') as FdlModifierCatalog;
-    demo.modifier = 'minLength';
+it('initializes the shared text-length selector to the enforced rule', async () => {
+    const demo = document.createElement('fdl-text-length') as any;
     document.body.append(demo);
     await demo.updateComplete;
-    const select = demo.shadowRoot!.querySelector<HTMLSelectElement>('.minimum-rule')!;
-    expect(select.value).toBe('4');
-    const control = demo.shadowRoot!.querySelector('fdl-field') as FdlField;
-    expect(control.record!.field('longCode').minLength).toBe(4);
+    const setting = demo.shadowRoot.querySelector('fdl-field[field="minimum"]') as FdlField;
+    await setting.updateComplete;
+    expect(setting.shadowRoot!.querySelector('select')!.value).toBe('4');
+    const control = demo.shadowRoot.querySelector('fdl-field[field="code"]') as FdlField;
+    expect(control.record!.field('code').minLength).toBe(4);
 });
 
 it('uses the inputMask inspector collapse control while keeping live values current', async () => {

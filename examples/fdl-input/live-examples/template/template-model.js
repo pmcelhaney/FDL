@@ -1,16 +1,12 @@
-// Field rules and state for the .template() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
-import { LitElement, html } from 'lit';
-
+import { html } from 'lit';
 import Recordset from '../../../../src/recordset.js';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
 });
-export class ExampleModel extends ExampleController {
-    modifier = 'template';
-    templateRecordset = new Recordset(
+export function createModel() {
+    return new Recordset(
         {
             invoice: field.label('Invoice'),
             balance: field

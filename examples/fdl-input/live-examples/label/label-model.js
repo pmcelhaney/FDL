@@ -1,11 +1,7 @@
-// Field rules and state for the .label() example.
-import { ExampleController } from '../../example-controller';
 import { field } from '../../../../src/index';
 import Record from '../../../../src/record.js';
-
-export class ExampleModel extends ExampleController {
-    modifier = 'label';
-    record = new Record(
+export function createModel() {
+    return new Record(
         {
             expenseType: field.label('Expense type').options([
                 { text: 'Travel', value: 'travel' },
