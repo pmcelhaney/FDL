@@ -52,6 +52,7 @@
         "format:check": "node scripts/format-example-snippets.mjs --check && prettier . --check"
     },
     "dependencies": {
+        "@loancrate/prisma-schema-parser": "3.0.0",
         "jsdoc": "^3.6.7",
         "lit": "^2.2.3",
         "ts-jest": "^27.1.3",

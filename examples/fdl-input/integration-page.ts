@@ -97,14 +97,19 @@ export function renderIntegration() {
         </div>
         <p class="integration-types"
             >Working in TypeScript? The
-            <a
-                href="#reference/docs/field-type?section=field-operations"
+            <a href="#reference/docs/field-type?section=field-operations"
                 >setting type reference</a
             >
             explains callback inputs and exported types. Browse the
             <a href="#reference">documentation library</a> for all API
             references, project guides, and architecture decisions.
         </p>
+        <p
+            >Starting from a Prisma schema?
+            <a href="#reference/docs/prisma"
+                >Translate Prisma fields into FDL definitions</a
+            >, then add application behavior with ordinary modifiers.</p
+        >
         <section
             class="integration-note"
             aria-labelledby="legacy-configuration"
@@ -269,10 +274,10 @@ export function renderIntegration() {
             Lit adapter requires synchronous validators: its Field facade reads
             validity immediately, so a promise-returning validator throws even
             when error display is off. Use async Record APIs with a dedicated
-            adapter for asynchronous validation. Its shadow-root
-            controls do not define application submission. Custom composite
-            controls, error summaries, live announcements, and focus routing
-            need deliberate integration.</p
+            adapter for asynchronous validation. Its shadow-root controls do not
+            define application submission. Custom composite controls, error
+            summaries, live announcements, and focus routing need deliberate
+            integration.</p
         >
         <p
             >Choose an announcement policy: show errors after an appropriate

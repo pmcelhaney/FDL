@@ -33,6 +33,7 @@ it('packs the declared runtime and type entry points, including documented adapt
         expect(files.has(manifest.exports['.'].default.replace(/^\.\//, ''))).toBe(true);
         expect(files.has(manifest.exports['.'].types.replace(/^\.\//, ''))).toBe(true);
         for (const module of [
+            'prisma',
             'form-element',
             'example-recordset',
             'lit/index',
@@ -54,7 +55,7 @@ it('packs the declared runtime and type entry points, including documented adapt
             '-C',
             packageRoot,
         ]);
-        for (const dependency of ['lit', 'lit-html', 'lit-element', '@lit']) {
+        for (const dependency of ['lit', 'lit-html', 'lit-element', '@lit', '@loancrate']) {
             symlinkSync(
                 resolve('node_modules', dependency),
                 join(destination, 'node_modules', dependency)
@@ -65,18 +66,23 @@ it('packs the declared runtime and type entry points, including documented adapt
             consumer,
             `
 import { field, Record, Recordset } from '@pmcelhaney/fdl';
+import { fieldsFromPrisma } from '@pmcelhaney/fdl/prisma';
 import { FdlField, FdlAddress, FdlTable, FdlColumn, FormElement } from '@pmcelhaney/fdl/lit';
 import '@pmcelhaney/fdl/lit/fdl-field';
 import '@pmcelhaney/fdl/lit/fdl-address';
 import '@pmcelhaney/fdl/lit/fdl-table';
 import BaseField from '@pmcelhaney/fdl/lit/form-element';
+const prismaFields = fieldsFromPrisma('model Product {\\n stock Int\\n}', {
+    model: 'Product', fields: ['stock'],
+});
+const prismaRecord = new Record(prismaFields, { stock: 12 });
 const fields = { name: field.label('Name') };
 const control = new FdlField();
 control.record = new Record(fields, { name: '' });
 control.field = 'name';
 const table = new FdlTable();
 table.recordset = new Recordset(fields, [{ name: 'Ada' }]);
-export { control, table, FdlAddress, FdlColumn, FormElement, BaseField };
+export { control, table, prismaRecord, FdlAddress, FdlColumn, FormElement, BaseField };
 `
         );
         execFileSync(
@@ -94,6 +100,21 @@ export { control, table, FdlAddress, FdlColumn, FormElement, BaseField };
             ],
             { stdio: 'inherit' }
         );
+        const coreBundle = esbuild.buildSync({
+            stdin: {
+                contents: "import { Record } from '@pmcelhaney/fdl'; console.log(Record);",
+                resolveDir: destination,
+            },
+            bundle: true,
+            write: false,
+            platform: 'browser',
+            metafile: true,
+        });
+        expect(
+            Object.keys(coreBundle.metafile.inputs).some(file =>
+                file.includes('prisma-schema-parser')
+            )
+        ).toBe(false);
         const bundle = esbuild.buildSync({
             entryPoints: [consumer],
             bundle: true,
@@ -115,7 +136,9 @@ export { control, table, FdlAddress, FdlColumn, FormElement, BaseField };
             for (const tag of ['fdl-field', 'fdl-address', 'fdl-table', 'fdl-column']) {
                 expect(dom.window.customElements.get(tag)).toBeDefined();
             }
-            const { control, table } = dom.window.FdlConsumer;
+            const { control, table, prismaRecord } = dom.window.FdlConsumer;
+            expect(prismaRecord.isValid()).toBe(true);
+            expect(prismaRecord.isValid('stock', 1.5)).toBe(false);
             dom.window.document.body.append(control, table);
             await Promise.all([control.updateComplete, table.updateComplete]);
             expect(control.shadowRoot.querySelector('input')).not.toBeNull();
