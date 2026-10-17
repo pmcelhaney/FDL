@@ -52,18 +52,6 @@ results. A recordset shares its runtime field types with its rows. Use
 `record.fieldTypeForField(name)` or `recordset.getFieldType(name)` when you need
 to inspect or invoke that behavior directly.
 
-### Migrating direct chains
-
-Remove sentence-style aliases (`with`, `and`, `thatIs`, `thatHas`, `andIs`,
-`as`, `thatWill`, `thatUses`, and `that`). Start custom definitions with `field`
-and chain modifiers directly. Pass the result to a record or recordset.
-For example, `field.required()` defines a required field; use the record to
-validate its value or inspect its required state. Keep reusable definitions
-when you need to specialize them later.
-
-This is a breaking API change; the sentence-style aliases and public builder
-constructor export have been removed.
-
 ## Fixed and calculated settings
 
 Settings accept a fixed result or a pure, synchronous callback. A callback's
