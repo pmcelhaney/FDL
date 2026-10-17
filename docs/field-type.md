@@ -32,7 +32,8 @@ is not exposed by `Field`.
 | ----------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `Record`    | Values, aggregate validation, options reconciliation, and model events for one object | `field(name)`, `isValid()`, `reset()`, `clear()`                                |
 | `Field`     | One field's component-facing value, state, validation, options, and input helpers     | `value`, `rawValue`, `label`, `required`, `disabled`, `readOnly`, `valid`       |
-| `FieldType` | A field's finalized behavior for advanced integrations and table rendering            | `field.fieldType`                                                               |
+| `Column`    | One recordset field's table-facing sorting, filtering, and presentation behavior      | `recordset.column(name)`                                                        |
+| `FieldType` | A field's finalized reusable behavior for advanced integrations                       | `field.fieldType`                                                               |
 | `Recordset` | Rows, fetch/update state, filtering, sorting, paging, and collection validation       | `currentPage`, `isLoading`, `updating`, `pageSize`, `pageNumber`, `sortColumns` |
 
 The sections below describe these APIs first. The integration guidance after
@@ -223,24 +224,30 @@ not model validation.
 
 ### Options and table behavior
 
-| Method                                                          | Component use                                                    |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `hasOptions()` / `options(record)`                              | Detect and load choices. Prefer `field.options()` for a control. |
-| `hasFilter()` / `match(searchText, value)`                      | Detect and apply a table/filter predicate.                       |
-| `hasMultipleValues()`                                           | Choose a multiple-selection interaction.                         |
-| `minValueCount()` / `maxValueCount()`                           | Read selection-count metadata.                                   |
-| `cellClasses(value, record)`                                    | Resolve classes for one table cell.                              |
-| `rowClasses(record)`                                            | Resolve classes for one table row.                               |
-| `columnClasses()`                                               | Resolve classes that apply to a whole column.                    |
-| `textAlign(value, record, context)`                             | Resolve alignment intent.                                        |
-| `sortable()`                                                    | Determine whether the column is sortable.                        |
-| `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance.                                  |
-| `aggregate(values)`                                             | Calculate a column or group aggregate.                           |
-| `compare(a, b)`                                                 | Compare two values for sorting.                                  |
+| Method                                | Component use                              |
+| ------------------------------------- | ------------------------------------------ |
+| `hasOptions()`                        | Detect whether the field declares choices. |
+| `hasMultipleValues()`                 | Choose a multiple-selection interaction.   |
+| `minValueCount()` / `maxValueCount()` | Read selection-count metadata.             |
 
-The option-pipeline helpers used by `options(record)` are implementation
-details. They are intentionally private and are not part of the `FieldType`
-API. Call `options(record)` or, for a bound field, `field.options()` instead.
+Load choices through `record.field(name).options()`. The option provider is
+record-dependent, so the public loading API belongs to the bound `Field`; it
+applies the disabled-state gate and supplies the owning record to the provider.
+
+Table behavior is exposed through `recordset.column(name)`. `Column` resolves
+the table-oriented methods that are implemented by the reusable `FieldType`:
+
+| Method                                                          | Component use                                 |
+| --------------------------------------------------------------- | --------------------------------------------- |
+| `hasFilter()` / `match(searchText, value)`                      | Detect and apply a table/filter predicate.    |
+| `cellClasses(value, record)`                                    | Resolve classes for one table cell.           |
+| `rowClasses(record)`                                            | Resolve classes for one table row.            |
+| `columnClasses()`                                               | Resolve classes that apply to a whole column. |
+| `textAlign(value, record, context)`                             | Resolve alignment intent.                     |
+| `sortable()`                                                    | Determine whether the column is sortable.     |
+| `minColumnWidth()` / `targetColumnWidth()` / `maxColumnWidth()` | Resolve column sizing guidance.               |
+| `aggregate(values)`                                             | Calculate a column or group aggregate.        |
+| `compare(a, b)`                                                 | Compare two values for sorting.               |
 
 ### Additional runtime methods
 
@@ -312,7 +319,8 @@ rows from the recordset and use the `Record`/`Field` APIs for each cell.
 | `clone()` / `cloneRecord(record, rowIndex, fields)` | Create related collection or row data.                                                                 |
 | `copyFrom(recordset, fields)`                       | Copy collection data.                                                                                  |
 | `getRecordAtIndex(index)`                           | Read a loaded row by index.                                                                            |
-| `getFieldType(name)`                                | Read the finalized field behavior for a column.                                                        |
+| `column(name)`                                      | Read the table-facing facade for a column.                                                             |
+| `getFieldType(name)`                                | Read the finalized reusable field behavior for low-level integrations.                                 |
 | `getData()` / `setData(data)`                       | Serialize or replace collection data.                                                                  |
 | `isValid()` / `errors()`                            | Validate the collection and read collection errors.                                                    |
 
@@ -437,7 +445,7 @@ events. The table owns loading, sorting, filtering, pagination, and empty-state
 presentation; FDL owns the values and field behavior.
 
 ```js
-const fieldType = recordset.getFieldType(columnName);
+const column = recordset.column(columnName);
 const rows = recordset.currentPage;
 
 for (const record of rows) {
@@ -462,15 +470,15 @@ people.sortColumns = [{ field: 'name', sort: 'ascending' }];
 await people.requestImmediateUpdate();
 ```
 
-Resolve table presentation at its natural scope:
+Resolve table presentation through the column facade at its natural scope:
 
-| Scope               | API                                                           | Attach to                       |
-| ------------------- | ------------------------------------------------------------- | ------------------------------- |
-| Column-wide classes | `fieldType.columnClasses()`                                   | `<col>`, header, and data cells |
-| One row             | `fieldType.rowClasses(record)`                                | The row                         |
-| One value           | `fieldType.cellClasses(value, record)`                        | The data cell                   |
-| Alignment           | `fieldType.textAlign(value, record, 'table')`                 | Header and cells as appropriate |
-| Sizing              | `minColumnWidth()`, `targetColumnWidth()`, `maxColumnWidth()` | Column layout                   |
+| Scope               | API                                                                                | Attach to                       |
+| ------------------- | ---------------------------------------------------------------------------------- | ------------------------------- |
+| Column-wide classes | `column.columnClasses()`                                                           | `<col>`, header, and data cells |
+| One row             | `column.rowClasses(record)`                                                        | The row                         |
+| One value           | `column.cellClasses(value, record)`                                                | The data cell                   |
+| Alignment           | `column.textAlign(value, record, 'table')`                                         | Header and cells as appropriate |
+| Sizing              | `column.minColumnWidth()`, `column.targetColumnWidth()`, `column.maxColumnWidth()` | Column layout                   |
 
 Column callbacks have no record or value because a column can exist when there
 are no rows. Resolve them once per column on each render. Combine column-wide

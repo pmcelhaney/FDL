@@ -215,11 +215,11 @@ export class FdlTable extends LitElement {
     }
 
     private isSortable(column: FdlColumn) {
-        return this.recordset?.getFieldType(column.field).sortable() ?? false;
+        return this.recordset?.column(column.field).sortable() ?? false;
     }
 
     private isFilterable(column: FdlColumn) {
-        return this.recordset?.getFieldType(column.field).hasFilter() ?? false;
+        return this.recordset?.column(column.field).hasFilter() ?? false;
     }
 
     private filterFor(field: string) {
@@ -325,9 +325,7 @@ export class FdlTable extends LitElement {
         const predicate: RecordFilter = record =>
             baseFilter(record) &&
             filters.every(([field, searchText]) =>
-                record
-                    .fieldTypeForField(field)
-                    .match(searchText, record.getField(field))
+                record.field(field).match(searchText, record.getField(field))
             );
         this.appliedRecordsetFilter = predicate;
         this.recordset.filter = predicate;
@@ -348,10 +346,10 @@ export class FdlTable extends LitElement {
     }
 
     private columnLimits(column: FdlColumn): ColumnWidthLimits {
-        const fieldType = this.recordset?.getFieldType(column.field);
+        const columnFacade = this.recordset?.column(column.field);
         return {
-            min: fieldType?.minColumnWidth() ?? 30,
-            max: fieldType?.maxColumnWidth(),
+            min: columnFacade?.minColumnWidth() ?? 30,
+            max: columnFacade?.maxColumnWidth(),
         };
     }
 
@@ -401,7 +399,7 @@ export class FdlTable extends LitElement {
         const width = this.columnWidths[index];
         const limits = this.columnLimits(column);
         const preferred = this.recordset
-            ?.getFieldType(column.field)
+            ?.column(column.field)
             .targetColumnWidth();
         const explanation: string[] = [];
         if (preferred !== undefined) {
@@ -443,7 +441,7 @@ export class FdlTable extends LitElement {
             this.columns.map(column => {
                 const limits = this.columnLimits(column);
                 const target = this.recordset
-                    ?.getFieldType(column.field)
+                    ?.column(column.field)
                     .targetColumnWidth();
                 return Math.max(
                     limits.min,
@@ -617,31 +615,22 @@ export class FdlTable extends LitElement {
     }
 
     private columnAlignment(column: FdlColumn) {
-        const fieldType = this.recordset?.getFieldType(column.field);
+        const columnFacade = this.recordset?.column(column.field);
         const record = this.recordset?.currentPage[0];
-        if (!record && typeof fieldType?.properties.textAlign === 'function')
-            return 'left';
-        return (
-            fieldType?.textAlign(
-                record?.getField(column.field),
-                record,
-                'table-header'
-            ) ?? 'left'
-        );
+        return record
+            ? (columnFacade?.textAlign(
+                  record.getField(column.field),
+                  record,
+                  'table-header'
+              ) ?? 'left')
+            : 'left';
     }
 
     private heading(column: FdlColumn) {
         const record = this.recordset?.currentPage[0];
-        const fieldType = this.recordset?.getFieldType(column.field);
-        const configuredLabel = record
-            ? fieldType?.label(
-                  record.getField(column.field),
-                  record,
-                  'table-header'
-              )
-            : fieldType?.properties.labelFunctions
-                  .filter((setting: unknown) => typeof setting === 'string')
-                  .slice(-1)[0];
+        const configuredLabel = this.recordset
+            ?.column(column.field)
+            .label(record);
         return (
             column.label ||
             configuredLabel ||
@@ -653,11 +642,11 @@ export class FdlTable extends LitElement {
 
     private rowClasses(record: Record<any>) {
         return this.columns
-            .flatMap(column => {
-                return record
-                    .fieldTypeForField(column.field)
-                    .rowClasses(record);
-            })
+            .flatMap(
+                column =>
+                    this.recordset?.column(column.field).rowClasses(record) ??
+                    []
+            )
             .join(' ');
     }
 
@@ -823,7 +812,7 @@ export class FdlTable extends LitElement {
         const columnClasses = columns.map(
             column =>
                 this.recordset
-                    ?.getFieldType(column.field)
+                    ?.column(column.field)
                     .columnClasses()
                     .join(' ') ?? ''
         );
@@ -930,15 +919,14 @@ export class FdlTable extends LitElement {
                           }
                           <ul
                               >${columns.map((column, index) => {
-                                  const fieldType =
-                                      this.recordset?.getFieldType(
-                                          column.field
-                                      );
+                                  const columnFacade = this.recordset?.column(
+                                      column.field
+                                  );
                                   return html`<li
                                       ><strong>${this.heading(column)}</strong>:
                                       ${this.columnWidths ? `${Math.round(this.columnWidths[index])}px` : 'Measuring…'}
                                       · min
-                                      ${this.columnLimits(column).min}px${fieldType?.targetColumnWidth() ? ` · preferred ${fieldType.targetColumnWidth()}px` : ''}${fieldType?.maxColumnWidth() ? ` · max ${fieldType.maxColumnWidth()}px` : ''}
+                                      ${this.columnLimits(column).min}px${columnFacade?.targetColumnWidth() ? ` · preferred ${columnFacade.targetColumnWidth()}px` : ''}${columnFacade?.maxColumnWidth() ? ` · max ${columnFacade.maxColumnWidth()}px` : ''}
                                       <p class="width-explanation"
                                           >${this.explainColumnWidth(column, index)}</p
                                       ></li

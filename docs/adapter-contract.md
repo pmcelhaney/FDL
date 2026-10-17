@@ -37,7 +37,7 @@ After its first update, the adapter:
 6. refreshes the control when the Record announces a change.
 
 Native `input`, `select`, and `textarea` elements receive their corresponding
-properties. Native `select` options are created from `FieldType.options()`.
+properties. Native `select` options are created from `record.field(name).options()`.
 Read-only fields use a labeled `output` unless `usesCustomPrint()` requests the
 configured child control for compatibility.
 
@@ -98,12 +98,13 @@ an unrelated internal input.
 
 ## Table class scopes
 
-`columnClass` expresses shared column presentation. Resolve `columnClasses()`
+`columnClass` expresses shared column presentation. Resolve
+`recordset.column(name).columnClasses()`
 without a record or rendering context and attach the resulting classes to the
 column's `<col>`, `<th>`, and each data `<td>`. Resolve once per column on each
 render, including when no records are visible. A spanning empty-state cell has
 no individual column and keeps its own classes.
 
 For each data cell, combine its column classes with
-`cellClasses(value, record)`. Cell callbacks receive only the current value and
+`recordset.column(name).cellClasses(value, record)`. Cell callbacks receive only the current value and
 owning record. Resolve `rowClasses(record)` for the containing row separately.

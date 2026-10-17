@@ -19,9 +19,10 @@ export function renderEditableRecordset() {
             ><fdl-editable-recordset></fdl-editable-recordset
         ></fdl-example>
         <h2>Load once, edit the loaded Records</h2>
-        <fdl-code-snippet><pre
-            class="code"
-        ><code>${highlightJavaScript(`import { field, Recordset } from '@pmcelhaney/fdl';
+        <fdl-code-snippet>
+            <pre
+                class="code"
+            ><code>${highlightJavaScript(`import { field, Recordset } from '@pmcelhaney/fdl';
 const shipmentFields = {
     id: field.label('Shipment').readOnly(),
     quantity: field
@@ -66,15 +67,16 @@ selected.parseAndSetField('quantity', '3');
 shipments.filter = row => row.getField('status') === 'ready';
 await shipments.sort({ field: 'quantity', sort: 'ascending' });
 await shipments.requestImmediateUpdate();
-// selected still references the same edited Record.`)}</code></pre></fdl-code-snippet>
+// selected still references the same edited Record.`)}</code></pre>
+        </fdl-code-snippet>
         <h2>Choose the update policy and aggregate scope</h2>
         <p
             >This example stages sort/filter controls until Apply view. Record
             edits notify consumers but do not automatically reapply the view.
-            Calling <code>requestImmediateUpdate()</code> recomputes the view from the
-            loaded Records. A hard update refetches and creates Records again,
-            so do not use it to re-sort unsaved edits. A client-side parameter
-            change alone does not invalidate cached rows.</p
+            Calling <code>requestImmediateUpdate()</code> recomputes the view
+            from the loaded Records. A hard update refetches and creates Records
+            again, so do not use it to re-sort unsaved edits. A client-side
+            parameter change alone does not invalidate cached rows.</p
         >
         <p
             >The charge is derived from current quantity × unit price; it is not
@@ -84,7 +86,8 @@ await shipments.requestImmediateUpdate();
             has three rows on one page, so “visible” means the current page, not
             all matching pages.</p
         >
-        <fdl-code-snippet><pre class="code"><code>${highlightJavaScript(`const total = rows =>
+        <fdl-code-snippet>
+            <pre class="code"><code>${highlightJavaScript(`const total = rows =>
     rows.reduce(
         (sum, row) =>
             sum + row.getField('quantity') * row.getField('unitPrice'),
@@ -93,13 +96,14 @@ await shipments.requestImmediateUpdate();
 const allTotal = total(shipments.allRecords);
 const visibleTotal = total(shipments.currentPage);
 // A reducer modifier also accepts explicit values:
-const sumType = new Recordset(
+const sumColumn = new Recordset(
     { amount: field.reducer('sum') },
     []
-).getFieldType('amount');
-const visibleUnits = sumType.aggregate(
+).column('amount');
+const visibleUnits = sumColumn.aggregate(
     shipments.currentPage.map(row => row.getField('quantity'))
-);`)}</code></pre></fdl-code-snippet>
+);`)}</code></pre>
+        </fdl-code-snippet>
         <p
             >FDL supplies row state and view operations. The example component
             owns native table markup, cell editors, focus, and Tab interaction.

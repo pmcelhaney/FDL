@@ -6,7 +6,10 @@ validation errors.
 
 Supply a map of field definitions built from `field` or the primitives. The
 recordset prepares their runtime behavior once and shares it across every row.
-`getFieldType(name)` returns the runtime type for inspecting that behavior.
+`column(name)` returns the table-facing facade for a field. Use it for sorting,
+aggregation, filtering, column classes, alignment, and width guidance.
+`getFieldType(name)` remains available for low-level integrations that need the
+reusable runtime definition.
 
 Use the same definition map for every row:
 
@@ -19,6 +22,26 @@ const fields = {
     isFavorite: boolean,
 };
 ```
+
+## Columns
+
+Use `column(name)` when a table needs behavior for one of the recordset's
+columns:
+
+```js
+const amount = reports.column('amount');
+
+amount.sortable();
+amount.compare(10, 20);
+amount.minColumnWidth();
+amount.columnClasses();
+amount.cellClasses(125, reports.currentPage[0]);
+```
+
+`Column` is distinct from `record.field(name)`: a `Field` is bound to one
+record and handles record-specific behavior, while a `Column` represents the
+same field across the table. Use `record.field(name)` for values, validation,
+formatting, visibility, and disabled state.
 
 ## Fetching data
 

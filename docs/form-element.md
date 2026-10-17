@@ -17,7 +17,7 @@ The base class owns the FDL integration:
   configured, and an input otherwise;
 - it copies the field value and modifiers (`label`, `required`, `disabled`,
   `placeholder`, and so on) to that child;
-- it loads `FieldType.options()` when the field has options; and
+- it loads `record.field(name).options()` when the field has options; and
 - it listens for child events and synchronizes the value back to the record;
 - it gives each instance a stable, unique control ID and associates the rendered
   label with that control; and

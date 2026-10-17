@@ -5,6 +5,7 @@ import clone from './helpers/clone.js';
 import { Observable } from './types/observable.types';
 
 import FdlRecord from './record.js';
+import Column from './column.js';
 import FieldType from './field-type.js';
 import FieldTypeBuilder from './field-type-builder';
 import comparatorFromColumns from './utilities/comparator-from-columns.js';
@@ -44,6 +45,7 @@ export default class Recordset extends EventTarget {
         super();
         this.debounceInterval = debounceInterval;
         this.isClone = false;
+        this.cachedColumns = {};
 
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const rs = this;
@@ -740,6 +742,17 @@ export default class Recordset extends EventTarget {
      */
     getFieldType(field) {
         return this._.fieldTypes[field] ?? new FieldType();
+    }
+
+    /**
+     * Return the table-facing facade for a field.
+     *
+     * @param {string} field
+     * @returns {Column}
+     */
+    column(field) {
+        if (!this.cachedColumns[field]) this.cachedColumns[field] = new Column(this, field);
+        return this.cachedColumns[field];
     }
 
     getData() {

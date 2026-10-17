@@ -13,7 +13,7 @@ export function sortCases(table: Recordset<any>) {
     const sizes = [
         ...new Set(table.allRecords.map(record => record.values.shirtSize)),
     ] as string[];
-    const sizeType = table.getFieldType('shirtSize');
+    const sizeColumn = table.column('shirtSize');
     return html`<section class="case-comparison"
         ><h3>Alphabetic order versus size order</h3
         ><p
@@ -26,7 +26,7 @@ export function sortCases(table: Recordset<any>) {
             ><div
                 ><h4>T-shirt size order</h4
                 ><p
-                    >${[...sizes].sort((left, right) => sizeType.compare(left, right)).join(' → ')}</p
+                    >${[...sizes].sort((left, right) => sizeColumn.compare(left, right)).join(' → ')}</p
                 ></div
             ></div
         ></section
