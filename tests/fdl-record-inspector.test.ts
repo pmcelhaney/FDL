@@ -175,20 +175,26 @@ it('inspects nested records and nested recordsets', async () => {
     const inspector = await inspect(record);
     const root = inspector.shadowRoot!;
 
-    expect(root.querySelector('[data-field="address"] .nested-value summary')!.textContent).toBe(
-        'Inspect nested record'
-    );
-    expect(root.querySelector('[data-field="contacts"] .nested-value summary')!.textContent).toContain(
-        'Inspect nested recordset (2 rows)'
-    );
-
-    const details = [...root.querySelectorAll<HTMLDetailsElement>('.nested-value')];
-    details.forEach(detail => {
-        detail.open = true;
-    });
+    const addressButton = root.querySelector<HTMLButtonElement>(
+        '[data-field="address"] .nested-inspect'
+    )!;
+    expect(addressButton.textContent).toContain('Inspect nested record');
+    addressButton.click();
     await inspector.updateComplete;
+
+    expect(root.querySelector('h3')!.textContent).toBe('Nested record');
+    expect(root.querySelector('.back-button')).toBeTruthy();
     expect(root.textContent).toContain('1 Main Street');
-    expect(root.textContent).toContain('Inspect row 1');
-    expect(root.textContent).toContain('Ada');
+
+    root.querySelector<HTMLButtonElement>('.back-button')!.click();
+    await inspector.updateComplete;
+    root.querySelector<HTMLButtonElement>('[data-field="contacts"] .nested-inspect')!.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('h3')!.textContent).toBe('Nested recordset');
+    expect(root.querySelectorAll('[data-nested-row]')).toHaveLength(2);
     expect(root.textContent).toContain('Grace');
+    root.querySelector<HTMLButtonElement>('[data-nested-row="1"] .nested-inspect')!.click();
+    await inspector.updateComplete;
+    expect(root.querySelector('h3')!.textContent).toBe('Nested row 1');
+    expect(root.textContent).toContain('Ada');
 });

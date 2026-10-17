@@ -1,4 +1,4 @@
-import { LitElement, css, html, type PropertyValues } from 'lit';
+import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
 import Record from '../../src/record.js';
 import { exampleTheme } from './example-theme';
 
@@ -68,6 +68,15 @@ function nestedRecord(
           );
 }
 
+type InspectorView =
+    | { kind: 'record'; label: string; record: Record<any> }
+    | {
+          kind: 'recordset';
+          label: string;
+          definitions: Record<any>['fieldTypes'];
+          values: unknown[];
+      };
+
 /** Read-only inspection of an FDL record, independent of its form or page. */
 export class FdlRecordInspector extends LitElement {
     static properties = {
@@ -79,6 +88,7 @@ export class FdlRecordInspector extends LitElement {
     record?: Record<any>;
     fields?: readonly string[];
     collapsed = false;
+    private navigation: InspectorView[] = [];
     private observedRecord?: Record<any>;
     private readonly handleChange = this.refresh.bind(this);
 
@@ -94,7 +104,8 @@ export class FdlRecordInspector extends LitElement {
         super.disconnectedCallback();
     }
 
-    protected willUpdate(_changed: PropertyValues<this>) {
+    protected willUpdate(changed: PropertyValues<this>) {
+        if (changed.has('record')) this.navigation = [];
         this.observeRecord();
     }
 
@@ -113,12 +124,32 @@ export class FdlRecordInspector extends LitElement {
         this.collapsed = !this.collapsed;
     }
 
-    private renderNestedRecord(record: Record<any>, label: string): unknown {
+    private openNestedRecord(record: Record<any>, label: string) {
+        this.navigation = [...this.navigation, { kind: 'record', label, record }];
+        this.requestUpdate();
+    }
+
+    private openNestedRecordset(
+        definitions: Record<any>['fieldTypes'],
+        values: unknown[],
+        label: string
+    ) {
+        this.navigation = [
+            ...this.navigation,
+            { kind: 'recordset', definitions, label, values },
+        ];
+        this.requestUpdate();
+    }
+
+    private goBack() {
+        this.navigation = this.navigation.slice(0, -1);
+        this.requestUpdate();
+    }
+
+    private renderRecordTable(record: Record<any>, nested = false): unknown {
         const fields = Object.keys(record.fieldTypes);
-        return html`<details class="nested-value">
-            <summary>${label}</summary>
-            <div class="nested-table-scroll" role="region" aria-label=${label} tabindex="0">
-                <table aria-label=${label}>
+        return html`<div class="${nested ? 'nested-table-scroll' : 'table-scroll'}" role="region" aria-label="Record fields" tabindex="0">
+                <table aria-label="Field state">
                     <thead>
                         <tr>
                             <th scope="col" class="status-column"></th>
@@ -130,7 +161,10 @@ export class FdlRecordInspector extends LitElement {
                     <tbody>
                         ${fields.map(name => {
                             const field = record.field(name);
-                            return html`<tr data-nested-field=${name}>
+                            return html`<tr
+                                data-field=${nested ? nothing : name}
+                                data-nested-field=${nested ? name : nothing}
+                            >
                                 <td class="status-column">${fieldStatus(record, name)}</td>
                                 <th scope="row" class="field-name">${name}</th>
                                 <td class="field-label">${field.label}</td>
@@ -142,11 +176,7 @@ export class FdlRecordInspector extends LitElement {
                         })}
                     </tbody>
                 </table>
-            </div>
-            <p class="nested-validation" role="status">
-                ${record.isValid() ? 'Valid' : 'Invalid'} nested record
-            </p>
-        </details>`;
+            </div>`;
     }
 
     private renderNestedValue(
@@ -154,36 +184,71 @@ export class FdlRecordInspector extends LitElement {
         value: unknown
     ): unknown {
         if (field.recordDefinition) {
-            return this.renderNestedRecord(
-                nestedRecord(field.recordDefinition, value),
-                'Inspect nested record'
-            );
+            const child = nestedRecord(field.recordDefinition, value);
+            return html`<button
+                type="button"
+                class="nested-inspect"
+                @click=${() => this.openNestedRecord(child, 'Nested record')}
+            >Inspect nested record</button>`;
         }
         if (field.recordsetDefinition) {
             const values = Array.isArray(value) ? value : [];
-            return html`<details class="nested-value">
-                <summary>Inspect nested recordset (${values.length} rows)</summary>
-                ${values.length
-                    ? values.map((row, index) =>
-                          this.renderNestedRecord(
-                              nestedRecord(field.recordsetDefinition!, row),
-                              `Inspect row ${index + 1}`
-                          )
-                      )
-                    : html`<p class="nested-empty">No nested rows.</p>`}
-                <p class="nested-validation" role="status">
-                    ${values.every(row => nestedRecord(field.recordsetDefinition!, row).isValid())
-                        ? 'Valid'
-                        : 'Invalid'} nested recordset
-                </p>
-            </details>`;
+            return html`<button
+                type="button"
+                class="nested-inspect"
+                @click=${() =>
+                    this.openNestedRecordset(
+                        field.recordsetDefinition!,
+                        values,
+                        'Nested recordset'
+                    )}
+            >Inspect nested recordset (${values.length} rows)</button>`;
         }
         return '';
+    }
+
+    private renderNestedRecordView(view: Extract<InspectorView, { kind: 'record' }>) {
+        return html`<div class="nested-view">
+            ${this.renderRecordTable(view.record, true)}
+            <p class="nested-validation" role="status">
+                ${view.record.isValid() ? 'Valid' : 'Invalid'} nested record
+            </p>
+        </div>`;
+    }
+
+    private renderNestedRecordsetView(
+        view: Extract<InspectorView, { kind: 'recordset' }>
+    ) {
+        return html`<div class="nested-view">
+            <div class="nested-table-scroll" role="region" aria-label="Nested recordset" tabindex="0">
+                <table aria-label="Nested recordset">
+                    <thead><tr><th scope="col">Row</th><th scope="col">Stored value</th><th scope="col">Action</th></tr></thead>
+                    <tbody>${view.values.map((value, index) => html`<tr data-nested-row=${index + 1}>
+                        <th scope="row">${index + 1}</th>
+                        <td class="stored-value">${storedValue(value)}</td>
+                        <td><button type="button" class="nested-inspect" @click=${() => this.openNestedRecord(nestedRecord(view.definitions, value), `Nested row ${index + 1}`)}>Inspect row</button></td>
+                    </tr>`)}</tbody>
+                </table>
+            </div>
+            ${view.values.length ? '' : html`<p class="nested-empty">No nested rows.</p>`}
+            <p class="nested-validation" role="status">
+                ${view.values.every(value => nestedRecord(view.definitions, value).isValid()) ? 'Valid' : 'Invalid'} nested recordset
+            </p>
+        </div>`;
+    }
+
+    private renderCurrentNestedView() {
+        const view = this.navigation[this.navigation.length - 1];
+        if (!view) return '';
+        return view.kind === 'record'
+            ? this.renderNestedRecordView(view)
+            : this.renderNestedRecordsetView(view);
     }
 
     render() {
         const record = this.record;
         const fields = this.fields ?? Object.keys(record?.fieldTypes ?? {});
+        const currentView = this.navigation[this.navigation.length - 1];
         const action = this.collapsed
             ? 'Inspect record'
             : 'Collapse record inspector';
@@ -200,9 +265,20 @@ export class FdlRecordInspector extends LitElement {
                     </svg>
                 </span>
                 <div class="inspector-heading" ?hidden=${this.collapsed}>
-                    <h3>Record Inspector</h3>
+                    <h3>${currentView?.label ?? 'Record Inspector'}</h3>
                     <p>Stored values · Field state</p>
                 </div>
+                ${currentView
+                    ? html`<button
+                          type="button"
+                          class="back-button"
+                          aria-label="Back to parent record"
+                          title="Back to parent record"
+                          @click=${this.goBack}
+                      >
+                          ← Back
+                      </button>`
+                    : ''}
                 <button
                     type="button"
                     aria-label=${action}
@@ -226,7 +302,9 @@ export class FdlRecordInspector extends LitElement {
             </header>
             <div id="record-details" ?hidden=${this.collapsed}>
                 ${
-                    record
+                    currentView
+                        ? this.renderCurrentNestedView()
+                        : record
                         ? html`<div
                                   class="table-scroll"
                                   role="region"
@@ -400,21 +478,27 @@ export class FdlRecordInspector extends LitElement {
             overflow-x: auto;
             margin-top: 12px;
         }
-        .nested-value {
-            margin-top: 8px;
-            padding: 8px;
+        .nested-inspect,
+        .back-button {
+            padding: 6px 10px;
             border: 1px solid var(--example-border);
             border-radius: 6px;
             background: #fafafa;
             font-family: inherit;
-        }
-        .nested-value summary {
             cursor: pointer;
-            font-family: inherit;
+        }
+        .nested-inspect {
             font-size: 0.8125rem;
             font-weight: 600;
         }
-        .nested-value table {
+        .back-button {
+            margin-left: auto;
+            white-space: nowrap;
+        }
+        .nested-view {
+            min-width: 0;
+        }
+        .nested-view table {
             min-width: 420px;
             margin-top: 8px;
         }
