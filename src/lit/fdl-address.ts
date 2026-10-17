@@ -91,6 +91,7 @@ export class FdlAddress extends LitElement {
 
     private syncChildRecord() {
         if (this.syncingParent || !this.record || !this.field) return;
+        this.requestUpdate();
         const parentField = this.record.field(this.field);
         const definitions = parentField.recordDefinition;
         if (!definitions) {

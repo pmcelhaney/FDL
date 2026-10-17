@@ -19,7 +19,7 @@ function isValidZip(zip: unknown) {
 }
 
 function whenZipIsInvalid(record: Record<any>) {
-    return !isValidZip(record.getField('zip'));
+    return !isValidZip(record.getField('pickupZip'));
 }
 
 async function loadStoresForZip(zip: string) {
@@ -28,12 +28,27 @@ async function loadStoresForZip(zip: string) {
 }
 
 const pickupStoreOptions = {
-    fields: ['zip'],
-    fetch: (record: Record<any>) => loadStoresForZip(record.getField('zip')),
+    fields: ['pickupZip'],
+    fetch: (record: Record<any>) => loadStoresForZip(record.getField('pickupZip')),
 };
 const postalZipValidator = {
     name: 'must contain five digits',
     validate: (zip: unknown) => isValidZip(zip),
+};
+
+// Reusable address rules; the delivery record decides when an address is needed.
+const addressFields = {
+    street: field.label('Street address').required(),
+    city: field.label('City').required(),
+    state: field.label('State').required().options(shippingStateOptions),
+    zip: field.label('ZIP code').required().validator(postalZipValidator),
+};
+
+const shippingAddressValidator = {
+    name: 'must contain a complete shipping address',
+    validate: (value: any, _viewValue: unknown, record: Record<any>) =>
+        !whenDeliveryMethodRequiresAddress(record) ||
+        new Record(addressFields, value ?? {}).isValid(),
 };
 
 export function createDelivery() {
@@ -45,21 +60,20 @@ export function createDelivery() {
                 .options(deliveryMethodOptions),
             address: field
                 .label('Shipping address')
-                .visible(whenDeliveryMethodRequiresAddress)
-                .required(whenDeliveryMethodRequiresAddress),
-            city: field
-                .label('City')
-                .visible(whenDeliveryMethodRequiresAddress)
-                .required(whenDeliveryMethodRequiresAddress),
-            state: field
-                .label('State')
+                .semanticType('address')
+                .record(addressFields)
                 .visible(whenDeliveryMethodRequiresAddress)
                 .required(whenDeliveryMethodRequiresAddress)
-                .options(shippingStateOptions),
-            zip: field
-                .label('ZIP code')
-                .required()
-                .validator(postalZipValidator),
+                .validator(shippingAddressValidator),
+            pickupZip: field
+                .label('Pickup ZIP code')
+                .visible(whenPickingUp)
+                .required(whenPickingUp)
+                .validator({
+                    ...postalZipValidator,
+                    validate: (zip: unknown, _viewValue: unknown, record: Record<any>) =>
+                        !whenPickingUp(record) || isValidZip(zip),
+                }),
             store: field
                 .label('Pickup store')
                 .visible(whenPickingUp)
@@ -69,10 +83,13 @@ export function createDelivery() {
         },
         {
             fulfillment: 'ship',
-            address: '42 Orchard Street',
-            city: 'Charlotte',
-            state: 'NC',
-            zip: '28202',
+            address: {
+                street: '42 Orchard Street',
+                city: 'Charlotte',
+                state: 'NC',
+                zip: '28202',
+            },
+            pickupZip: '28202',
             store: '',
         }
     );

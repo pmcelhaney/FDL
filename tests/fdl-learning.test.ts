@@ -12,64 +12,40 @@ async function inspectorRoot(demo: DeliveryForm) {
     return inspector.shadowRoot!;
 }
 
-it('explores delivery visibility and requiredness without discarding the address', async () => {
+async function addressRoot(demo: DeliveryForm) {
+    const field = demo.shadowRoot!.querySelector('fdl-field[field="address"]') as any;
+    await field.updateComplete;
+    const address = field.shadowRoot.querySelector('fdl-address');
+    await address.updateComplete;
+    return address.shadowRoot as ShadowRoot;
+}
+
+it('groups the address and propagates child edits and validation to the parent', async () => {
     const demo = document.createElement('delivery-form') as DeliveryForm;
     document.body.append(demo);
     await demo.updateComplete;
     const inspection = await inspectorRoot(demo);
-    const rows = inspection.querySelectorAll('tbody tr');
-    expect(rows).toHaveLength(6);
-    expect(Array.from(rows).map(row => row.querySelector('.field-label')!.textContent)).toEqual([
-        'Delivery method',
-        'Shipping address',
-        'City',
-        'State',
-        'ZIP code',
-        'Pickup store',
-    ]);
-    expect(
-        Array.from(inspection.querySelectorAll('.legend li')).map(item => item.textContent!.trim())
-    ).toEqual(['Hidden', 'Disabled', 'Read-only', 'Required', 'Invalid']);
-    expect(rows[0].querySelectorAll('[role="img"]')).toHaveLength(0);
-    const field = demo.shadowRoot!.querySelector('fdl-field[field="fulfillment"]') as any;
-    await field.updateComplete;
-    await new Promise(resolve => setTimeout(resolve, 0));
-    const select = field.shadowRoot.querySelector('select') as HTMLSelectElement;
-    select.value = 'pickup';
-    select.dispatchEvent(new Event('input'));
-    select.dispatchEvent(new Event('change'));
+    expect(Array.from(inspection.querySelectorAll('tbody tr')).map(row =>
+        row.querySelector('.field-label')!.textContent
+    )).toEqual(['Delivery method', 'Shipping address', 'Pickup ZIP code', 'Pickup store']);
+    const address = await addressRoot(demo);
+    expect(address.querySelector('legend')!.textContent).toBe('Shipping address');
+    const record = (demo.shadowRoot!.querySelector('fdl-field') as any).record;
+    inspection.querySelector<HTMLButtonElement>('.nested-inspect')!.click();
+    await (demo.shadowRoot!.querySelector('fdl-record-inspector') as any).updateComplete;
+    await editField(address, 'street', '');
     await demo.updateComplete;
-    const addressRow = (await inspectorRoot(demo)).querySelector('tr[data-field="address"]')!;
-    expect(
-        Array.from(addressRow.querySelectorAll('[role="img"]')).map(icon =>
-            icon.getAttribute('aria-label')
-        )
-    ).toEqual(['Hidden']);
-    expect((await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()).toContain(
-        '42 Orchard Street'
-    );
-    select.value = 'ship';
-    select.dispatchEvent(new Event('input'));
-    select.dispatchEvent(new Event('change'));
-    await demo.updateComplete;
-    const address = demo.shadowRoot!.querySelector('fdl-field[field="address"]') as any;
-    await address.updateComplete;
-    const input = address.shadowRoot.querySelector('input') as HTMLInputElement;
-    expect(input.value).toBe('42 Orchard Street');
-    input.value = '';
-    input.dispatchEvent(new Event('input'));
-    await demo.updateComplete;
-    expect(addressRow.querySelector('[aria-label="Invalid"]')).not.toBeNull();
-    input.value = '42 Orchard Street';
-    input.dispatchEvent(new Event('input'));
-    await demo.updateComplete;
-    expect(addressRow.querySelector('[aria-label="Invalid"]')).toBeNull();
-    input.value = '';
-    input.dispatchEvent(new Event('input'));
-    await demo.updateComplete;
-    expect((await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()).toContain(
-        'Invalid'
-    );
+    expect(record.getField('address').street).toBe('');
+    expect(record.isValid('address')).toBe(false);
+    expect(record.isValid()).toBe(false);
+    expect((await inspectorRoot(demo)).querySelector('[data-nested-field="street"] [aria-label="Invalid"]')).not.toBeNull();
+    await editField(demo.shadowRoot!, 'fulfillment', 'pickup');
+    await editField(demo.shadowRoot!, 'store', 'uptown');
+    expect(record.isValid()).toBe(true);
+    await editField(demo.shadowRoot!, 'fulfillment', 'ship');
+    expect(record.isValid()).toBe(false);
+    await editField(await addressRoot(demo), 'street', '42 Orchard Street');
+    expect(record.isValid()).toBe(true);
 });
 
 // Three sequential store lookups each simulate two seconds of latency.
@@ -94,22 +70,22 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
         expect(status.querySelector('[aria-label="Disabled"]') !== null).toBe(disabled);
     }
     expect(storeVisible()).toBe(false);
-    await editField(root, 'zip', '');
     await editField(root, 'fulfillment', 'pickup');
+    await editField(root, 'pickupZip', '');
     await demo.updateComplete;
     expect(record.isValid()).toBe(false);
     expect(storeVisible()).toBe(true);
     await expectStoreDisabled(true);
-    await editField(root, 'zip', '2820');
+    await editField(root, 'pickupZip', '2820');
     await demo.updateComplete;
     expect(storeVisible()).toBe(true);
     await expectStoreDisabled(true);
     expect(record.isValid()).toBe(false);
-    await editField(root, 'zip', 'abcde');
+    await editField(root, 'pickupZip', 'abcde');
     await demo.updateComplete;
     expect(storeVisible()).toBe(true);
     await expectStoreDisabled(true);
-    await editField(root, 'zip', '28202');
+    await editField(root, 'pickupZip', '28202');
     await demo.updateComplete;
     await editField(root, 'store', 'uptown');
     await demo.updateComplete;
@@ -119,7 +95,7 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
     expect((await inspectorRoot(demo)).textContent!.replace(/\s+/g, ' ').trim()).toContain(
         'uptown'
     );
-    await editField(root, 'zip', '10001');
+    await editField(root, 'pickupZip', '10001');
     await demo.updateComplete;
     expect(record.getField('store')).toBe('uptown');
     await record.whenOptionsReady();
@@ -129,76 +105,51 @@ it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable s
     await editField(root, 'store', 'chelsea');
     await demo.updateComplete;
     expect(record.isValid()).toBe(true);
-    await editField(root, 'zip', '01234');
+    await editField(root, 'pickupZip', '01234');
     await record.whenOptionsReady();
     await demo.updateComplete;
-    expect(record.getField('zip')).toBe('01234');
+    expect(record.getField('pickupZip')).toBe('01234');
     expect(record.isValid()).toBe(false);
-    await editField(root, 'zip', '');
+    await editField(root, 'pickupZip', '');
     await demo.updateComplete;
     expect(storeVisible()).toBe(true);
     await expectStoreDisabled(true);
     expect(record.isValid()).toBe(false);
     await editField(root, 'fulfillment', 'ship');
     await demo.updateComplete;
-    expect(record.isValid()).toBe(false);
-    await editField(root, 'state', 'NC');
-    await editField(root, 'zip', '28202');
-    await demo.updateComplete;
     expect(record.isValid()).toBe(true);
-    expect(record.getField('address')).toBe('42 Orchard Street');
+    expect(record.getField('address').street).toBe('42 Orchard Street');
     expect(record.getField('store')).toBeUndefined();
 }, 20000);
 
-it('starts with a complete shipping address and retains it when switching to pickup', async () => {
+it('retains the shipping address independently of the pickup search ZIP', async () => {
     const demo = document.createElement('delivery-form') as DeliveryForm;
     document.body.append(demo);
     await demo.updateComplete;
     const root = demo.shadowRoot!;
-    const state = root.querySelector('fdl-field[field="state"]') as any;
-    const zip = root.querySelector('fdl-field[field="zip"]') as any;
-    const record = state.record;
-    await state.updateComplete;
-    await zip.updateComplete;
-    expect(state.shadowRoot.querySelector('select')).not.toBeNull();
-    expect(zip.shadowRoot.querySelector('input')).not.toBeNull();
-    expect(record.field('state').visible).toBe(true);
-    expect(record.field('zip').visible).toBe(true);
-    expect(record.values).toMatchObject({
-        address: '42 Orchard Street',
-        city: 'Charlotte',
-        state: 'NC',
-        zip: '28202',
-    });
+    const record = (root.querySelector('fdl-field') as any).record;
+    const original = { street: '42 Orchard Street', city: 'Charlotte', state: 'NC', zip: '28202' };
+    expect(record.getField('address')).toEqual(original);
     expect(record.isValid()).toBe(true);
-    const city = root.querySelector('fdl-field[field="city"]') as any;
-    await city.updateComplete;
-    expect(city.shadowRoot.querySelector('input').value).toBe('Charlotte');
-    await editField(root, 'city', '');
+    await editField(await addressRoot(demo), 'city', '');
     expect(record.isValid()).toBe(false);
-    await editField(root, 'city', 'Charlotte');
-    await demo.updateComplete;
-    expect(record.isValid()).toBe(true);
-    await editField(root, 'zip', 'bad');
-    await demo.updateComplete;
+    await editField(await addressRoot(demo), 'city', 'Charlotte');
+    await editField(await addressRoot(demo), 'zip', 'bad');
     expect(record.isValid()).toBe(false);
-    await editField(root, 'zip', '28202');
+    await editField(await addressRoot(demo), 'zip', '28202');
     await editField(root, 'fulfillment', 'pickup');
     await demo.updateComplete;
-    expect(record.field('city').visible).toBe(false);
-    expect(record.field('state').visible).toBe(false);
-    expect(record.field('zip').visible).toBe(true);
-    expect(record.getField('city')).toBe('Charlotte');
-    expect(record.getField('state')).toBe('NC');
-    await editField(root, 'store', 'uptown');
-    await demo.updateComplete;
+    expect(record.field('address').visible).toBe(false);
+    expect((await addressRoot(demo)).querySelector('fieldset')).toBeNull();
+    await editField(root, 'pickupZip', '10001');
+    await editField(root, 'store', 'chelsea');
     expect(record.isValid()).toBe(true);
+    expect(record.getField('address')).toEqual(original);
     await editField(root, 'fulfillment', 'ship');
     await demo.updateComplete;
-    expect(record.getField('city')).toBe('Charlotte');
-    expect(record.getField('state')).toBe('NC');
-    expect(record.getField('zip')).toBe('28202');
     expect(record.isValid()).toBe(true);
+    expect(record.getField('pickupZip')).toBe('10001');
+    expect((await addressRoot(demo)).querySelector('fieldset')).not.toBeNull();
 });
 
 it('simulates two seconds of store lookup latency with a spinner', async () => {
@@ -206,12 +157,12 @@ it('simulates two seconds of store lookup latency with a spinner', async () => {
     document.body.append(demo);
     await demo.updateComplete;
     const root = demo.shadowRoot!;
-    await editField(root, 'zip', '');
     await editField(root, 'fulfillment', 'pickup');
+    await editField(root, 'pickupZip', '');
     const store = root.querySelector('fdl-field[field="store"]') as any;
     jest.useFakeTimers();
     try {
-        store.record.setField('zip', '10001');
+        store.record.setField('pickupZip', '10001');
         await store.updateComplete;
         const request = store.record.field('store').options();
         expect(store.shadowRoot.querySelector('.options-spinner')).not.toBeNull();
@@ -302,9 +253,9 @@ it('gives each delivery form its own record', async () => {
     const second = document.createElement('delivery-form') as DeliveryForm;
     document.body.append(first, second);
     await Promise.all([first.updateComplete, second.updateComplete]);
-    await editField(first.shadowRoot!, 'address', 'A different address');
+    await editField(await addressRoot(first), 'street', 'A different address');
     const secondField = second.shadowRoot!.querySelector('fdl-field[field="address"]') as any;
-    expect(secondField.record.getField('address')).toBe('42 Orchard Street');
+    expect(secondField.record.getField('address').street).toBe('42 Orchard Street');
 });
 
 import '../examples/fdl-input/fdl-modifier-explorer';

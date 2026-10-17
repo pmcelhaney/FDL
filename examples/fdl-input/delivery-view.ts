@@ -6,9 +6,7 @@ export function deliveryView(record: Record<any>) {
     return html`
         <fdl-field .record=${record} field="fulfillment"></fdl-field>
         <fdl-field .record=${record} field="address"></fdl-field>
-        <fdl-field .record=${record} field="city"></fdl-field>
-        <fdl-field .record=${record} field="state"></fdl-field>
-        <fdl-field .record=${record} field="zip"></fdl-field>
+        <fdl-field .record=${record} field="pickupZip"></fdl-field>
         <fdl-field
             .record=${record}
             field="store"
