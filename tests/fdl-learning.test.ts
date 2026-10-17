@@ -48,6 +48,39 @@ it('groups the address and propagates child edits and validation to the parent',
     expect(record.isValid()).toBe(true);
 });
 
+it('updates the summary from address edits and reconciled pickup selections', async () => {
+    const demo = document.createElement('delivery-form') as DeliveryForm;
+    document.body.append(demo);
+    await demo.updateComplete;
+    const root = demo.shadowRoot!;
+    function summary() {
+        return root.querySelector('.delivery-summary [role="status"]')!.textContent!.trim();
+    }
+    expect(summary()).toBe('Ship to 42 Orchard Street, Charlotte, NC 28202.');
+    await editField(await addressRoot(demo), 'street', '12 Main Street');
+    await demo.updateComplete;
+    expect(summary()).toBe('Ship to 12 Main Street, Charlotte, NC 28202.');
+    await editField(await addressRoot(demo), 'city', '');
+    await demo.updateComplete;
+    expect(summary()).toBe('Complete the shipping address.');
+    await editField(await addressRoot(demo), 'city', 'Charlotte');
+    await editField(root, 'fulfillment', 'pickup');
+    await demo.updateComplete;
+    expect(summary()).toBe('Choose a pickup store.');
+    await editField(root, 'store', 'uptown');
+    await demo.updateComplete;
+    expect(summary()).toBe('Pick up at Uptown store.');
+    await editField(root, 'pickupZip', '10001');
+    await demo.updateComplete;
+    expect(summary()).toBe('Choose a pickup store.');
+    await editField(root, 'store', 'chelsea');
+    await demo.updateComplete;
+    expect(summary()).toBe('Pick up at Chelsea store.');
+    await editField(root, 'fulfillment', 'ship');
+    await demo.updateComplete;
+    expect(summary()).toBe('Ship to 12 Main Street, Charlotte, NC 28202.');
+}, 15000);
+
 // Three sequential store lookups each simulate two seconds of latency.
 it('keeps pickup stores visible, disables invalid ZIPs, and clears unavailable selections', async () => {
     const demo = document.createElement('delivery-form') as DeliveryForm;

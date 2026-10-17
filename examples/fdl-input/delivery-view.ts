@@ -1,7 +1,21 @@
 import { css, html } from 'lit';
 import type { Record } from '@pmcelhaney/fdl';
 import { exampleTheme } from './example-theme';
+import { storesByZip } from './delivery-data';
 import '@pmcelhaney/fdl/lit/fdl-field';
+
+function deliverySummary(record: Record<any>) {
+    if (record.getField('fulfillment') === 'pickup') {
+        const stores = storesByZip[record.getField('pickupZip')] ?? [];
+        const store = stores.find(
+            option => option.value === record.getField('store')
+        );
+        return store ? `Pick up at ${store.text}.` : 'Choose a pickup store.';
+    }
+    if (!record.isValid('address')) return 'Complete the shipping address.';
+    const address = record.getField('address');
+    return `Ship to ${address.street}, ${address.city}, ${address.state} ${address.zip}.`;
+}
 
 export function deliveryView(record: Record<any>) {
     const pickup = record.getField('fulfillment') === 'pickup';
@@ -23,6 +37,10 @@ export function deliveryView(record: Record<any>) {
                       </p>`
                     : ''
             }
+            <section class="delivery-summary" aria-label="Delivery summary">
+                <h3>Delivery summary</h3>
+                <p role="status">${deliverySummary(record)}</p>
+            </section>
         </div>
     `;
 }
@@ -43,6 +61,20 @@ export const deliveryStyles = css`
     .sample-note {
         font-size: 0.875rem;
         color: #475569;
+    }
+    .delivery-summary {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--example-border);
+    }
+    .delivery-summary h3 {
+        margin: 0 0 6px;
+        font-size: 0.875rem;
+    }
+    .delivery-summary p {
+        margin: 0;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
     .editor fdl-field:last-child {
         margin-bottom: 0;
