@@ -8,6 +8,10 @@ describe('documentation-site validation examples', () => {
         };
         document.body.append(page);
         await page.updateComplete;
+        const catalog = page.shadowRoot!.querySelector('fdl-modifier-catalog') as any;
+        await catalog.updateComplete;
+        const example = catalog.querySelector('fdl-live-required') as any;
+        await example.updateComplete;
 
         const field = page.shadowRoot?.querySelector('fdl-field') as HTMLElement & {
             updateComplete: Promise<boolean>;
@@ -18,7 +22,7 @@ describe('documentation-site validation examples', () => {
         expect(field.shadowRoot?.querySelector('input')?.hasAttribute('aria-invalid')).toBe(false);
 
         button?.click();
-        await page.updateComplete;
+        await example.updateComplete;
         await field.updateComplete;
 
         const input = field.shadowRoot?.querySelector<HTMLInputElement>('input');

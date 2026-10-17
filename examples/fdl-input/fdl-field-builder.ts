@@ -1,15 +1,15 @@
+import modelSource from './field-builder-model.ts?raw';
+import viewSource from './field-builder-view.ts?raw';
+import { fieldBuilderView } from './field-builder-view';
 import './fdl-code-snippet';
 import { field } from '../../src/index';
 import { LitElement, css, html } from 'lit';
-import { keyed } from 'lit/directives/keyed.js';
 import Record from '../../src/record.js';
 import {
     buildFieldRecord,
-    builderSource,
     defaultFieldSpec,
     type FieldSpec,
 } from './field-builder-model';
-import { recordSummary } from './model-summary';
 import { highlightJavaScript } from './highlight-javascript';
 import { exampleTheme } from './example-theme';
 import './fdl-field';
@@ -86,15 +86,7 @@ export class FdlFieldBuilder extends LitElement {
         this.record.removeEventListener('change', this.refresh);
         super.disconnectedCallback();
     }
-    private currentSpec(): FieldSpec {
-        return {
-            ...this.spec,
-            condition: this.record.getField('condition'),
-            initialValue: this.record.getField(this.spec.name),
-        };
-    }
     render() {
-        const source = builderSource(this.currentSpec());
         return html`<h3>Build a field of your own</h3
             ><p
                 >Name a field, give it a starting value, and choose one
@@ -104,15 +96,15 @@ export class FdlFieldBuilder extends LitElement {
             ><p
                 >Changing a rule or field name preserves your current preview
                 value and condition. Editing Starting value replaces the preview
-                value; Reset restores the initial example. The code below
-                reflects the preview’s current value and condition.</p
+                value; Reset restores the initial example. The source below
+                defines the preview model and its view.</p
             >
             <div class="workspace"
                 ><section aria-label="Field definition controls"
                     >${['name', 'initialValue', 'visibility', 'requiredness', 'validation'].map(field => html`<fdl-field .record=${this.configuration} field=${field} .showValidationErrors=${true}></fdl-field>`)}</section
                 ><section class="preview"
                     ><h3>Try your field</h3
-                    >${keyed(this.record, html`<fdl-field .record=${this.record} field="condition"></fdl-field><fdl-field .record=${this.record} field=${this.spec.name} .showValidationErrors=${true}></fdl-field>`)}${recordSummary(this.record, [this.spec.name])}</section
+                    >${fieldBuilderView(this.record, this.spec.name)}</section
                 ></div
             >
             <div class="actions"
@@ -129,10 +121,10 @@ export class FdlFieldBuilder extends LitElement {
                     >Reset builder</button
                 ></div
             >
-            <h3>${source.modelFile}</h3
-            ><fdl-code-snippet><pre><code>${highlightJavaScript(source.definition)}</code></pre
-            ></fdl-code-snippet><h3>${source.uiFile}</h3
-            ><fdl-code-snippet><pre><code>${highlightJavaScript(source.ui)}</code></pre></fdl-code-snippet>`;
+            <h3>field-builder-model.ts</h3
+            ><fdl-code-snippet><pre><code>${highlightJavaScript(modelSource)}</code></pre
+            ></fdl-code-snippet><h3>field-builder-view.ts</h3
+            ><fdl-code-snippet><pre><code>${highlightJavaScript(viewSource)}</code></pre></fdl-code-snippet>`;
     }
     static styles = css`
         :host {

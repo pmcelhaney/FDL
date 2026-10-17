@@ -61,20 +61,23 @@ relative documentation links to local routes.
   Each inspector owns its collapse control; do not wrap it in another disclosure.
   Dependency traces read FDL's public state methods.
 - Requiredness, text lengths, column widths, and filter matching have adjustable
-  rules. Their model tabs reflect the current rules. Length changes preserve the
+  rules. Their model and view files read the settings used by the live demo. Length changes preserve the
   entered code; width changes restore the initial table layout.
 - Validator, filter, and comparator examples compare several cases at once.
   Parser and formatter pages trace original input through stored and display values.
-- Supported modifier examples have connected model and view source tabs: the
-  complete record or recordset definition, followed by the Lit UI using that
-  same model. Save the labeled files in the same folder: the model file exports
-  its record and any shared helpers; the Lit file imports them explicitly.
-  Component imports refer to this site’s adapters.
-  Teaching panels and rule selectors are omitted from the snippets. Unsupported
-  adapter interactions appear directly as contracts with configuration code.
+- Supported modifier examples import their model and view directly from
+  `live-examples/<modifier>/`. Source tabs read those same files with Vite's
+  `?raw` imports. Keep each pair focused on that example; the documentation shell
+  handles navigation and source tabs, and `example-controller.js` handles shared
+  model subscriptions. Change the executable files instead of maintaining
+  illustrative source strings. Rule controls and validation buttons belong in
+  those files when they are part of the example.
+- Text-length and column-width pages use the same arrangement, with their
+  executable model and view in `live-examples/text-length/` and
+  `live-examples/column-widths/`.
 - Class-based styling examples (`cellClass` and
   `rowClass`) also provide a CSS tab. These rules are shared
-  with the live table and belong in its shadow-root stylesheet, not the page
+  with the live adapters through literal CSS imports and belong in its shadow-root stylesheet, not the page
   stylesheet.
 
 Keep explanations connected to actual FDL behavior. Configuration controls may

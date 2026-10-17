@@ -53,9 +53,9 @@ describe('modifier explorer', () => {
     it('shows the populated address in the semantic-type example source', () => {
         const source = exampleSource('semanticType').definition;
 
-        expect(source).toContain("address: field");
+        expect(source).toContain('address: field');
         expect(source).toContain(".semanticType('address')");
-        expect(source).toContain('"street": "1 Main Street"');
+        expect(source).toContain("street: '1 Main Street'");
         expect(source).not.toContain('value: null');
     });
 
@@ -63,36 +63,44 @@ describe('modifier explorer', () => {
         [390, false],
         [800, false],
         [1024, true],
-    ])('keeps navigation links usable without tooltips at width %s with touch=%s', async (width, touch) => {
-        const originalWidth = window.innerWidth;
-        const originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
-        Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
-        Object.defineProperty(window, 'matchMedia', {
-            configurable: true,
-            value: jest.fn(() => ({ matches: touch })),
-        });
-        try {
-            const page = await openPage('#required');
-            const link = page.shadowRoot!.querySelector<HTMLAnchorElement>('.modifier-list a[href="#formatter"]')!;
-            link.dispatchEvent(new MouseEvent('mouseenter'));
-            link.dispatchEvent(new FocusEvent('focus'));
-            await settle(page);
-            expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
-            expect(link.getAttribute('aria-describedby')).toBe('');
-            link.click();
-            await settle(page);
-            expect(window.location.hash).toBe('#formatter');
-            expect(link.getAttribute('aria-current')).toBe('page');
-            expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
-        } finally {
-            Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth });
-            if (originalMatchMedia) {
-                Object.defineProperty(window, 'matchMedia', originalMatchMedia);
-            } else {
-                delete (window as any).matchMedia;
+    ])(
+        'keeps navigation links usable without tooltips at width %s with touch=%s',
+        async (width, touch) => {
+            const originalWidth = window.innerWidth;
+            const originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+            Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+            Object.defineProperty(window, 'matchMedia', {
+                configurable: true,
+                value: jest.fn(() => ({ matches: touch })),
+            });
+            try {
+                const page = await openPage('#required');
+                const link = page.shadowRoot!.querySelector<HTMLAnchorElement>(
+                    '.modifier-list a[href="#formatter"]'
+                )!;
+                link.dispatchEvent(new MouseEvent('mouseenter'));
+                link.dispatchEvent(new FocusEvent('focus'));
+                await settle(page);
+                expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
+                expect(link.getAttribute('aria-describedby')).toBe('');
+                link.click();
+                await settle(page);
+                expect(window.location.hash).toBe('#formatter');
+                expect(link.getAttribute('aria-current')).toBe('page');
+                expect(page.shadowRoot!.querySelector('#modifier-tooltip')).toBeNull();
+            } finally {
+                Object.defineProperty(window, 'innerWidth', {
+                    configurable: true,
+                    value: originalWidth,
+                });
+                if (originalMatchMedia) {
+                    Object.defineProperty(window, 'matchMedia', originalMatchMedia);
+                } else {
+                    delete (window as any).matchMedia;
+                }
             }
         }
-    });
+    );
 
     it('shows one modifier, supports next/back and direct links, and disables boundary controls', async () => {
         const page = await openPage('#cellClass');
@@ -529,7 +537,9 @@ describe('FDL site pages', () => {
     it('opens Home by default and separates site pages from the modifier reference', async () => {
         const page = await openPage('');
         const root = page.shadowRoot!;
-        expect(root.querySelector('h1')!.textContent).toBe('Finally, a framework for business rules.');
+        expect(root.querySelector('h1')!.textContent).toBe(
+            'Finally, a framework for business rules.'
+        );
         expect(root.querySelector('.site-page')!.textContent).toContain('Recordset');
         expect(root.querySelector('.site-nav a[href="#quickstart"]')?.textContent).toContain(
             'Your first form'
@@ -556,7 +566,9 @@ describe('FDL site pages', () => {
         window.location.hash = 'home';
         window.dispatchEvent(new Event('hashchange'));
         await settle(page);
-        expect(root.querySelector('h1')!.textContent).toBe('Finally, a framework for business rules.');
+        expect(root.querySelector('h1')!.textContent).toBe(
+            'Finally, a framework for business rules.'
+        );
         expect(document.title).toBe('Home — FDL');
     });
 });
@@ -727,9 +739,7 @@ it('changes textarea rows while retaining the comment and updating the example s
         comments = await findField('comments');
         expect(comments.shadowRoot.querySelector('textarea').rows).toBe(rows);
         expect(comments.shadowRoot.querySelector('textarea').value).toBe(textarea.value);
-        expect(root.querySelector('fdl-example')!.shadowRoot!.textContent).toContain(
-            `.rowCount(${rows})`
-        );
+        expect(exampleSource('rowCount').definition).toContain('.rowCount(rows)');
     }
     root.querySelector<HTMLButtonElement>('.reset')!.click();
     await settle(page);
@@ -772,9 +782,7 @@ it('previews every declared input type and keeps the source and record panel in 
         const input = preview.shadowRoot.querySelector('input') as HTMLInputElement;
         expect(input.type).toBe(inputType);
         expect(preview.record.field('inputValue').type).toBe(inputType);
-        expect(root.querySelector('fdl-example')!.shadowRoot!.textContent).toContain(
-            `.type('${inputType}')`
-        );
+        expect(exampleSource('type').definition).toContain('inputTypeField(inputType)');
         expect(await stateText(catalog)).toContain('Example: ' + inputType);
         if (inputType === 'checkbox' || inputType === 'radio') {
             input.click();
@@ -844,9 +852,6 @@ it('marks rowCount as deprecated and points textarea sizing to fdl-field', async
     expect(note.textContent).toContain('presentation concern');
     expect(note.textContent).toContain('fdl-field');
     expect(note.textContent).toContain('remains available for compatibility');
-    expect(exampleSource('rowCount').definition).toContain(
-        '// Deprecated: textarea sizing belongs in fdl-field'
-    );
 });
 
 it('opens the consolidated cellClass page from its retired conditional URL', async () => {
@@ -934,7 +939,7 @@ it.each([
         'fdl-modifier-catalog, fdl-text-length'
     );
     if (catalog) await catalog.updateComplete;
-    const root = (catalog ?? page).shadowRoot!;
+    const root = catalog?.shadowRoot ?? page.shadowRoot!;
     const inspector = root.querySelector('fdl-record-inspector')!;
     expect(inspector).toBeTruthy();
     expect(inspector.closest('details')).toBeNull();
@@ -945,9 +950,8 @@ it.each([
     const names = inspector.fields ?? Object.keys(inspector.record!.fieldTypes);
     expect(
         [
-            ...inspector.shadowRoot!.querySelector(
-                'table[aria-label="Field state"] tbody'
-            )!.children,
+            ...inspector.shadowRoot!.querySelector('table[aria-label="Field state"] tbody')!
+                .children,
         ].map(row => row.getAttribute('data-field'))
     ).toEqual(names);
     expect(names).toEqual(
@@ -960,9 +964,7 @@ it.each([
 
 it('adds a record inspector to the structured record page', async () => {
     const page = await openPage('#record');
-    const catalog = page.shadowRoot!.querySelector<FdlModifierCatalog>(
-        'fdl-modifier-catalog'
-    )!;
+    const catalog = page.shadowRoot!.querySelector<FdlModifierCatalog>('fdl-modifier-catalog')!;
     await catalog.updateComplete;
     const inspector = catalog.shadowRoot!.querySelector('fdl-record-inspector')!;
     await inspector.updateComplete;
@@ -1041,6 +1043,8 @@ it('uses the inputMask inspector collapse control while keeping live values curr
     toggle.click();
     await inspector.updateComplete;
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(inspector.shadowRoot!.querySelector('[data-field="input"]')!.textContent).toContain('12.34');
+    expect(inspector.shadowRoot!.querySelector('[data-field="input"]')!.textContent).toContain(
+        '12.34'
+    );
     expect(inspector.fields).toEqual(['input']);
 });

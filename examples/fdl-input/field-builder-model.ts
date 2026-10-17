@@ -1,6 +1,5 @@
 import { field } from '../../src/index';
 import Record from '../../src/record.js';
-import type { exampleSource } from './modifier-example-source';
 export type FieldSpec = {
     name: string;
     initialValue: string;
@@ -44,23 +43,4 @@ export function buildFieldRecord(spec: FieldSpec) {
         },
         { condition: spec.condition, [spec.name]: spec.initialValue }
     );
-}
-export function builderSource(
-    spec: FieldSpec
-): ReturnType<typeof exampleSource> {
-    const field = JSON.stringify(spec.name);
-    const definition = `import { field, Record } from '@pmcelhaney/fdl';\n\nconst customRecord = new Record({\n  condition: field\n    .label('Condition')\n    .options([{text:'Enabled',value:'enabled'},{text:'Disabled',value:'disabled'}]),\n  ${field}: field\n    .label(${field})${spec.visibility === 'enabled' ? "\n    .visible(record => record.getField('condition') === 'enabled')" : ''}${spec.requiredness === 'always' ? '\n    .required()' : spec.requiredness === 'enabled' ? "\n    .required(record => record.getField('condition') === 'enabled')" : ''}${spec.validation === 'minimum' ? '\n    .minLength(3)' : spec.validation === 'digits' ? "\n    .validator({name:'must contain digits only', validate:value => value === '' || /^\\d+$/.test(value)})" : ''},\n}, ${JSON.stringify({ condition: spec.condition, [spec.name]: spec.initialValue }, null, 2)});\n\nexport { customRecord };`;
-    const ui = `import { html, render } from 'lit';\nimport { customRecord } from './custom-field-model.js';\nimport './fdl-field';\n\nconst container = document.createElement('div');\ndocument.body.append(container);\nconst update = () => render(html\`\n  <fdl-field .record=\${customRecord} field="condition"></fdl-field>\n  <fdl-field .record=\${customRecord} field=${field} .showValidationErrors=\${true}></fdl-field>\n  <p>Stored value: \${JSON.stringify(customRecord.getField(${field}))}</p>\n  <p>Record: \${customRecord.isValid() ? 'valid' : 'invalid'}</p>\n\`, container);\ncustomRecord.addEventListener('change', update);\nupdate();`;
-    return {
-        definition,
-        ui,
-        modelFile: 'custom-field-model.js',
-        uiFile: 'custom-field-view.js',
-        modelName: 'customRecord',
-        fields: ['condition', spec.name],
-        kind: 'Record',
-        contract: false,
-        styles: '',
-        stylesComponent: 'fdl-field',
-    };
 }

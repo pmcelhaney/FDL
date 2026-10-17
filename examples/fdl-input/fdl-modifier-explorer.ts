@@ -3,7 +3,6 @@ import './fdl-example';
 import './fdl-column-widths';
 import './fdl-text-length';
 import { renderValidatorContract } from './change-rule-page';
-import { field } from '../../src/index';
 import { modifierPage } from './modifier-page-groups';
 import { relatedModifierNames } from './related-modifiers';
 import {
@@ -15,14 +14,11 @@ import {
 import { categoryIcon, categoryDescriptions } from './category-icon';
 import { LitElement, css, html } from 'lit';
 import { renderSitePage, sitePages, type SitePage } from './fdl-site-pages';
-import { exampleSource, type ExampleSettings } from './modifier-example-source';
-import { inputText, valuePipeline } from './value-pipeline';
+import { exampleSource } from './modifier-example-source';
 import { exampleTheme } from './example-theme';
 import { highlightJavaScript } from './highlight-javascript';
 import './fdl-record-inspector';
-import { explainDependency } from './dependency-explanation';
 import { keyed } from 'lit/directives/keyed.js';
-import Record from '../../src/record.js';
 import './fdl-field';
 import './fdl-modifier-catalog';
 import {
@@ -107,17 +103,6 @@ export class FdlModifierExplorer extends LitElement {
         return recipes[this.selected].name;
     }
     private page: SitePage | 'modifier' = 'home';
-    private checked = false;
-    private requiredRule = true;
-    private exampleSettings: { [name: string]: ExampleSettings } = {};
-    private amountInput?: string;
-    private captureAmountInput = {
-        capture: true,
-        handleEvent: (event: Event) => {
-            this.amountInput = inputText(event);
-            this.requestUpdate();
-        },
-    };
     private query = '';
     private categoryTooltip = false;
     private tooltip?: { recipe: ExplorerRecipe; left: number; top: number };
@@ -156,50 +141,6 @@ export class FdlModifierExplorer extends LitElement {
 
     private resetVersions: { [name: string]: number } = {};
     private selectedCategories = new Set<string>();
-    private person = new Record(
-        {
-            name: field.label('Legal name').required(),
-            followUp: field.label('Follow-up needed?').options([
-                { text: 'No', value: 'no' },
-                { text: 'Yes', value: 'yes' },
-            ]),
-            followUpNotes: field
-                .label('Follow-up notes')
-                .rowCount(2)
-                .required(record => record.getField('followUp') === 'yes'),
-        },
-        { name: '', followUp: 'no', followUpNotes: '' }
-    );
-    private money = new Record(
-        {
-            amount: field
-                .label('Amount')
-                .type('number')
-                .parser(value => Number(value))
-                .formatter((value, _record?: unknown, context?: string) =>
-                    context === 'input-focus'
-                        ? String(value)
-                        : new Intl.NumberFormat('en-US', {
-                              style: 'currency',
-                              currency: 'USD',
-                          }).format(Number(value))
-                ),
-        },
-        { amount: 1250 }
-    );
-    private delivery = new Record(
-        {
-            fulfillment: field.label('Delivery method').options([
-                { text: 'Ship to address', value: 'ship' },
-                { text: 'Pick up in person', value: 'pickup' },
-            ]),
-            address: field
-                .label('Shipping address')
-                .visible(record => record.getField('fulfillment') === 'ship'),
-        },
-        { fulfillment: 'ship', address: '42 Orchard Street' }
-    );
-    private refresh = () => this.requestUpdate();
     private closeCategoryMenu = (event: Event) => {
         const menu =
             this.shadowRoot?.querySelector<HTMLDetailsElement>(
@@ -259,17 +200,11 @@ export class FdlModifierExplorer extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        [this.person, this.money, this.delivery].forEach(record =>
-            record.addEventListener('change', this.refresh)
-        );
         window.addEventListener('hashchange', this.readLocation);
         window.addEventListener('click', this.closeCategoryMenu);
         this.readLocation();
     }
     disconnectedCallback() {
-        [this.person, this.money, this.delivery].forEach(record =>
-            record.removeEventListener('change', this.refresh)
-        );
         window.removeEventListener('hashchange', this.readLocation);
         window.removeEventListener('click', this.closeCategoryMenu);
         clearTimeout(this.tooltipTimer);
@@ -288,7 +223,6 @@ export class FdlModifierExplorer extends LitElement {
         this.navigationOpen = false;
         this.selected = index;
         if (changed) {
-            this.exampleSettings = {};
             this.categoryTooltip = false;
         }
         this.requestUpdate();
@@ -318,119 +252,15 @@ export class FdlModifierExplorer extends LitElement {
             heading?.scrollIntoView?.({ block: 'start' });
         });
     }
-    private field(record: Record<any>, field: string) {
-        return keyed(
-            record.field(field),
-            html`<fdl-field
-                .record=${record}
-                field=${field}
-                .showValidationErrors=${this.checked}
-            ></fdl-field>`
-        );
-    }
     private reset(name = this.modifierName) {
         this.resetVersions[name] = (this.resetVersions[name] ?? 0) + 1;
-        if (name === 'required') {
-            this.checked = false;
-            this.requiredRule = true;
-            this.person.addField(
-                'name',
-                field.label('Legal name').required(),
-                ''
-            );
-            this.person.setField('followUp', 'no');
-            this.person.setField('followUpNotes', '');
-        }
-        delete this.exampleSettings[name];
-        if (name === 'formatter') {
-            this.amountInput = undefined;
-            this.money.setField('amount', 1250);
-        }
-        if (name === 'visible') {
-            this.delivery.setField('fulfillment', 'ship');
-            this.delivery.setField('address', '42 Orchard Street');
-        }
         this.requestUpdate();
     }
     private demo(name: string) {
-        if (name === 'required')
-            return html` <label class="rule-control"
-                    ><input
-                        type="checkbox"
-                        .checked=${this.requiredRule}
-                        @change=${(event: Event) => {
-                            this.requiredRule = (
-                                event.target as HTMLInputElement
-                            ).checked;
-                            const base = field.label('Legal name');
-                            this.person.addField(
-                                'name',
-                                this.requiredRule ? base.required() : base,
-                                this.person.getField('name')
-                            );
-                            this.requestUpdate();
-                        }}
-                    />
-                    Require a value</label
-                >
-                ${this.field(this.person, 'name')}
-                ${this.field(this.person, 'followUp')}
-                ${this.field(this.person, 'followUpNotes')}
-                ${explainDependency(this.person, 'followUpNotes', 'followUp', `followUp === 'yes'`, 'required')}
-                <button
-                    class="primary"
-                    @click=${() => {
-                        this.checked = true;
-                        this.requestUpdate();
-                    }}
-                    >Check record</button
-                >
-                <p class="result" role="status"
-                    >${this.checked ? (this.person.isValid() ? '✓ The record is valid.' : !this.person.isValid('name') ? 'Legal name is required. Add a value to continue.' : 'Follow-up notes are required. Add notes or choose No.') : `${this.person.isValid() ? 'The model is valid.' : 'The model is invalid.'} Check record shows its validation message.`}</p
-                >`;
-        if (name === 'formatter')
-            return html` <div @input=${this.captureAmountInput}
-                    >${this.field(this.money, 'amount')}</div
-                >
-                <div class="formatted"
-                    ><span>Formatted output</span
-                    ><strong
-                        >${this.money.getFormattedField('amount', 'print')}</strong
-                    ></div
-                >
-                <p class="result"
-                    >The formatter leaves the stored number unchanged.</p
-                >${valuePipeline(this.money, 'amount', this.amountInput)}`;
-        if (!['required', 'formatter', 'visible'].includes(name))
-            return html`<fdl-modifier-catalog
-                modifier=${name}
-                @example-settings-change=${(
-                    event: CustomEvent<ExampleSettings>
-                ) => {
-                    this.exampleSettings[name] = event.detail;
-                    this.requestUpdate();
-                }}
-            ></fdl-modifier-catalog>`;
-        return html`${this.field(this.delivery, 'fulfillment')}${this.field(this.delivery, 'address')}${explainDependency(this.delivery, 'address', 'fulfillment', `fulfillment === 'ship'`, 'visible')}<p
-                class="result"
-                role="status"
-                >${this.delivery.getField('fulfillment') === 'ship' ? 'Shipping address is visible.' : 'Pickup selected. Shipping address is hidden.'}</p
-            >`;
+        return html`<fdl-modifier-catalog modifier=${name}></fdl-modifier-catalog>`;
     }
     private renderModifierSection(recipe: ExplorerRecipe) {
-        const source = exampleSource(recipe.name, {
-            ...this.exampleSettings[recipe.name],
-            required: this.requiredRule,
-        });
-        const standaloneDemo = ['required', 'formatter', 'visible'].includes(
-            recipe.name
-        );
-        const model =
-            recipe.name === 'required'
-                ? this.person
-                : recipe.name === 'formatter'
-                  ? this.money
-                  : this.delivery;
+        const source = exampleSource(recipe.name);
         return html`<section
             class="modifier-section"
             id=${recipe.name}
@@ -489,19 +319,13 @@ export class FdlModifierExplorer extends LitElement {
                                   >
                                   <p class="instruction">${recipe.prompt}</p>
                                   <div
-                                      class=${!standaloneDemo ? 'demo-grid catalog-demo' : 'demo-grid'}
+                                      class="demo-grid catalog-demo"
                                       ><div
                                           class="controls"
                                           role="group"
                                           aria-label="Current modifier effect"
                                           >${keyed(`${recipe.name}-${this.resetVersions[recipe.name] ?? 0}`, this.demo(recipe.name))}</div
-                                      >${
-                                          standaloneDemo
-                                              ? html`<fdl-record-inspector
-                                                    .record=${model}
-                                                ></fdl-record-inspector>`
-                                              : ''
-                                      }</div
+                                      ></div
                                   >
                               </section>
                           </fdl-example>

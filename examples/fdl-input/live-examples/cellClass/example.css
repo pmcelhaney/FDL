@@ -1,0 +1,14 @@
+.amount-cell {
+    border-left: 0.3rem solid #5b52d6;
+    background: #e9edff;
+    color: #34308f;
+    font-family: Georgia, serif;
+    font-size: 1.08rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.high-value {
+    background: #fff4d6;
+    color: #8a4b00;
+    font-weight: 800;
+}

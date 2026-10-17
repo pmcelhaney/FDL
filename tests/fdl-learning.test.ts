@@ -370,9 +370,9 @@ it('removes requiredness from both model validation and the displayed definition
     root.querySelector<HTMLInputElement>('.rule-control input')!.click();
     await page.updateComplete;
     expect(root.querySelector('.result')!.textContent).toContain('record is valid');
-    expect(
-        root.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!.textContent
-    ).toContain('required rule is removed');
+    expect((root.querySelector('fdl-example') as FdlExample).sources['required-view.js']).toContain(
+        'this.requiredRule ? base.required() : base'
+    );
 });
 it('changes length rules while preserving the value and matching the selected minimum', async () => {
     const page = await openExplorer('#minLength');
@@ -394,7 +394,9 @@ it('changes length rules while preserving the value and matching the selected mi
     expect(code.record.getField('code')).toBe('ABC');
     const frame = demo.shadowRoot.querySelector('fdl-example') as any;
     await frame.updateComplete;
-    expect(frame.sources['text-length-model.js']).toContain('.minLength(2)');
+    expect(frame.sources['text-length-model.js']).toContain(
+        '.minLength(this.settings.values.minimum)'
+    );
 });
 
 it('shows semantic state with the shared inspector icons', async () => {
@@ -485,7 +487,7 @@ it('compares prefix and substring matching and updates the executable rule', asy
     expect(
         page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!
             .textContent
-    ).toContain('.includes(');
+    ).toContain('substringFilter');
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
     expect(table.recordset.column('name').match('ar', 'Margaret')).toBe(true);
 });
@@ -685,7 +687,7 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
             .shadowRoot!.getElementById('cellClass')!
             .querySelector('fdl-example')!
             .shadowRoot!.querySelector('.code')!.textContent
-    ).toContain('value > 125.25');
+    ).toContain("this.probes.getField('classThreshold')");
 });
 
 it('sorts the live T-shirt size column in size order and highlights all comparator calls', async () => {
@@ -745,5 +747,5 @@ it('keeps a shared selection in both function and async-function options after t
     expect(
         page.shadowRoot!.querySelector('fdl-example')!.shadowRoot!.querySelector('.code')!
             .textContent
-    ).toContain('.options(record =>');
+    ).toContain("assigneeDirectory[record.getField('department')]");
 });

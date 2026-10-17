@@ -46,7 +46,7 @@ it('runs the displayed tax-ID tests against the displayed model exports', async 
         const modelSource = frame.shadowRoot!.querySelector('pre code')!.textContent!;
         const model: { [name: string]: any } = {};
         new Function('require', 'exports', compile(modelSource))((name: string) => {
-            if (name === '@pmcelhaney/fdl') return { field, Record };
+            if (name === '../../src/index') return { field, Record };
             throw new Error(`Unexpected model dependency: ${name}`);
         }, model);
         const cases: (() => void)[] = [];
