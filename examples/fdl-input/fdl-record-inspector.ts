@@ -48,15 +48,6 @@ export function fieldStatus(record: Record<any>, name: string) {
     </span>`;
 }
 
-export function statusLegend() {
-    return html`<details class="legend" aria-label="Status icon legend" open>
-        <summary>Icon legend</summary>
-        <ul
-            >${Object.keys(statusPaths).map(status => html`<li>${statusIcon(status as keyof typeof statusPaths)}<span>${status}</span></li>`)}</ul
-        >
-    </details>`;
-}
-
 export function inspectIcon() {
     return html`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle cx="10" cy="10" r="6"></circle>
@@ -398,7 +389,6 @@ export class FdlRecordInspector extends RecordElement {
                             > `
                           : html`<p>No record selected.</p>`
                 }
-                ${record ? statusLegend() : nothing}
             </div>
         </section>`;
     }
@@ -618,40 +608,6 @@ export class FdlRecordInspector extends RecordElement {
             stroke-width: 1.75;
             stroke-linecap: round;
             stroke-linejoin: round;
-        }
-        .legend {
-            padding: 16px;
-            border: 1px solid var(--example-border);
-            border-radius: 8px;
-            background: #fafafa;
-            margin-top: 20px;
-            font-size: 0.8125rem;
-            color: #525252;
-        }
-        .legend summary {
-            cursor: pointer;
-            padding: 4px 0;
-            font-weight: 600;
-        }
-        .legend summary:focus-visible {
-            outline: 3px solid #525252;
-            outline-offset: 3px;
-        }
-        .legend[open] summary {
-            margin-bottom: 8px;
-        }
-        .legend ul {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px 16px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .legend li {
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         @media (max-width: 480px) {
             header {

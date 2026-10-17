@@ -193,9 +193,7 @@ it('inspects nested records and nested recordsets', async () => {
     );
     expect(root.querySelectorAll('header button')).toHaveLength(1);
     expect(root.querySelector('.validation')).toBeNull();
-    const legend = root.querySelector<HTMLDetailsElement>('.legend')!;
-    expect(legend.open).toBe(true);
-    legend.open = false;
+    expect(root.querySelector('.legend')).toBeNull();
     addressButton.click();
     await inspector.updateComplete;
 
@@ -204,10 +202,7 @@ it('inspects nested records and nested recordsets', async () => {
         true
     );
     expect(root.querySelectorAll('header button')).toHaveLength(1);
-    expect(root.querySelector('.legend')).toBe(legend);
-    expect(legend.open).toBe(false);
-    legend.open = true;
-    expect(root.querySelectorAll('.legend li')).toHaveLength(5);
+    expect(root.querySelector('.legend')).toBeNull();
     expect(root.querySelector('.record-validity')).toBeNull();
     expect(root.querySelector('.nested-validation')).toBeNull();
     expect(root.textContent).toContain('1 Main Street');

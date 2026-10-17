@@ -48,6 +48,10 @@ it('drills into a live record from a cell and returns with display settings and 
     expect(root.querySelector('section')).toBeNull();
     expect(detail.shadowRoot!.querySelector('h3')!.textContent).toBe('Record 1');
     expect(detail.shadowRoot!.querySelector('[data-field="name"]')).toBeTruthy();
+    expect(detail.shadowRoot!.querySelector('.legend')).toBeNull();
+    expect(detail.shadowRoot!.querySelector('[aria-label="Status icon legend"]')).toBeNull();
+    for (const icon of detail.shadowRoot!.querySelectorAll('.status-icon'))
+        expect(icon.getAttribute('title')).toBe(icon.getAttribute('aria-label'));
     const back = detail.shadowRoot!.querySelector<HTMLButtonElement>('.back-button')!;
     expect(back.getAttribute('aria-label')).toBe('Back to recordset');
     expect(detail.shadowRoot!.activeElement).toBe(back);
