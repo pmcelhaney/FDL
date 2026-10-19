@@ -329,7 +329,7 @@ export class FdlExample extends LitElement {
             padding-top: 20px;
         }
         .code {
-            max-height: 400px;
+            max-height: 600px;
             margin: 0;
             padding: 20px;
             border-radius: var(--example-radius);
