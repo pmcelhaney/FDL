@@ -112,7 +112,7 @@ export function renderSitePage(
         return html` <article class="site-page">
             <h1 tabindex="-1">Genetic code for business rules.</h1>
             <p class="description"
-                >Define how your data behaves—then reuse those rules across
+                >Define how your data behaves—then reuse the same rules across
                 forms, tables, and
                 <a href="#reference/docs/backend-validation"
                     >server-side validation</a

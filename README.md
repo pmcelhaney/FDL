@@ -6,7 +6,7 @@
 [![Type check](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml)
 [![Documentation build](https://github.com/pmcelhaney/FDL/actions/workflows/docs-build.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/docs-build.yml)
 
-Define how your data behaves—then reuse those rules across forms, tables,
+Define how your data behaves—then reuse the same rules across forms, tables,
 and server-side validation. Bizallele is a JavaScript and TypeScript library
 for validation, formatting, dependencies, and conditional field state.
 
