@@ -14,6 +14,7 @@ export class FdlExample extends LitElement {
         modifier: { type: String },
         fullscreen: { state: true },
         fullscreenError: { state: true },
+        fullscreenTab: { state: true },
     };
     heading = 'Example';
     expanded = true;
@@ -23,6 +24,7 @@ export class FdlExample extends LitElement {
     private activeTab = '';
     private fullscreen = false;
     private fullscreenError = '';
+    private fullscreenTab = '';
 
     constructor() {
         super();
@@ -52,11 +54,35 @@ export class FdlExample extends LitElement {
     }
 
     private selectTab(filename: string) {
-        this.activeTab = filename;
+        if (this.fullscreen) this.fullscreenTab = filename;
+        else this.activeTab = filename;
+    }
+
+    private selectedFile() {
+        if (this.filenames.includes(this.fullscreenTab)) return this.fullscreenTab;
+        return this.filenames.includes(this.activeTab) ? this.activeTab : this.filenames[0];
+    }
+
+    private renderTabs() {
+        const tabs = this.fullscreen ? this.filenames : ['', ...this.filenames];
+        const selected = this.fullscreen ? this.selectedFile() : this.activeTab;
+        return html`<div class="tabs" role="tablist" aria-label=${`${this.heading} ${this.fullscreen ? 'source files' : 'views'}`}>
+            ${tabs.map((filename, index) => {
+                const panelIndex = filename === '' ? 0 : this.filenames.indexOf(filename) + 1;
+                return html`<button
+                    id=${`example-tab-${panelIndex}`}
+                    role="tab"
+                    aria-selected=${selected === filename}
+                    aria-controls=${`example-panel-${panelIndex}`}
+                    tabindex=${selected === filename ? 0 : -1}
+                    @click=${() => this.selectTab(filename)}
+                    @keydown=${(event: KeyboardEvent) => this.navigateTabs(event, index)}
+                >${filename || 'Interactive example'}</button>`;
+            })}
+        </div>`;
     }
 
     render() {
-        const tabs = ['', ...this.filenames];
         return html`<details ?open=${this.expanded}>
             <summary>
                 <h2>${this.heading}</h2>
@@ -69,26 +95,7 @@ export class FdlExample extends LitElement {
             <div class="example-content">
                 <slot name="description"></slot>
                 <div class="view-controls">
-                    <div
-                        class="tabs"
-                        role="tablist"
-                        aria-label=${`${this.heading} views`}
-                        ?hidden=${this.fullscreen}
-                    >
-                        ${tabs.map(
-                            (filename, index) =>
-                                html`<button
-                                    id=${`example-tab-${index}`}
-                                    role="tab"
-                                    aria-selected=${this.activeTab === filename}
-                                    aria-controls=${`example-panel-${index}`}
-                                    tabindex=${this.activeTab === filename ? 0 : -1}
-                                    @click=${() => this.selectTab(filename)}
-                                    @keydown=${(event: KeyboardEvent) => this.navigateTabs(event, index)}
-                                    >${filename || 'Interactive example'}</button
-                                >`
-                        )}
-                    </div>
+                    ${this.fullscreen ? '' : this.renderTabs()}
                     <button
                         type="button"
                         class="fullscreen-button"
@@ -116,16 +123,16 @@ export class FdlExample extends LitElement {
                     ${this.fullscreen ? html`<h3 id="interactive-heading">Interactive example</h3>` : ''}
                     <slot></slot>
                 </div>
+                ${this.fullscreen && this.filenames.length ? this.renderTabs() : ''}
                 ${this.filenames.map(
                     (filename, index) =>
                         html`<div
                             id=${`example-panel-${index + 1}`}
                             class="tab-panel"
-                            role=${this.fullscreen ? 'region' : 'tabpanel'}
-                            aria-labelledby=${this.fullscreen ? `file-heading-${index}` : `example-tab-${index + 1}`}
-                            ?hidden=${!this.fullscreen && this.activeTab !== filename}
+                            role="tabpanel"
+                            aria-labelledby=${`example-tab-${index + 1}`}
+                            ?hidden=${(this.fullscreen ? this.selectedFile() : this.activeTab) !== filename}
                         >
-                            ${this.fullscreen ? html`<h3 id=${`file-heading-${index}`}>${filename}</h3>` : ''}
                             <fdl-code-snippet><pre
                                 class="code"
                             ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
@@ -136,7 +143,7 @@ export class FdlExample extends LitElement {
     }
 
     private navigateTabs(event: KeyboardEvent, index: number) {
-        const tabs = ['', ...this.filenames];
+        const tabs = this.fullscreen ? this.filenames : ['', ...this.filenames];
         let next: number;
         switch (event.key) {
             case 'ArrowRight':
@@ -157,7 +164,7 @@ export class FdlExample extends LitElement {
         event.preventDefault();
         this.selectTab(tabs[next]);
         this.shadowRoot!.querySelector<HTMLButtonElement>(
-            `#example-tab-${next}`
+            `#example-tab-${tabs[next] === '' ? 0 : this.filenames.indexOf(tabs[next]) + 1}`
         )!.focus();
     }
     static styles = css`
@@ -284,8 +291,8 @@ export class FdlExample extends LitElement {
             gap: 4px;
             border-bottom: 1px solid var(--example-border);
         }
-        .tabs[hidden] {
-            display: none;
+        .example-content > .tabs {
+            margin-top: 24px;
         }
         h3 {
             margin: 0 0 12px;

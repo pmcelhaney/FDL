@@ -5,7 +5,7 @@ afterEach(() => {
     jest.restoreAllMocks();
 });
 
-it('shows the live example and all files inline in fullscreen, then restores the selected tab', async () => {
+it('keeps the live example visible while switching file tabs in fullscreen, then restores the selected tab', async () => {
     // A nested shadow root matches how documentation pages host examples.
     const host = document.createElement('div');
     const container = host.attachShadow({ mode: 'open' });
@@ -36,11 +36,19 @@ it('shows the live example and all files inline in fullscreen, then restores the
     await frame.updateComplete;
     expect(frame.requestFullscreen).toHaveBeenCalledTimes(1);
     expect(button.textContent).toContain('Exit full screen');
-    expect(root.querySelector('.tabs')!.hasAttribute('hidden')).toBe(true);
-    expect(root.querySelectorAll('.tab-panel[hidden]')).toHaveLength(0);
-    expect(Array.from(root.querySelectorAll('h3')).map(heading => heading.textContent)).toEqual([
-        'Interactive example', 'model.ts', 'view.ts',
-    ]);
+    expect(root.querySelectorAll('[role="tab"]')).toHaveLength(2);
+    expect(root.querySelector('#example-tab-0')).toBeNull();
+    expect(root.querySelector('#example-panel-0')!.hasAttribute('hidden')).toBe(false);
+    expect(root.querySelector('#example-panel-2')!.hasAttribute('hidden')).toBe(false);
+    root.querySelector<HTMLButtonElement>('#example-tab-2')!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })
+    );
+    await frame.updateComplete;
+    expect(root.querySelector('#example-tab-1')!.getAttribute('aria-selected')).toBe('true');
+    expect(root.activeElement).toBe(root.querySelector('#example-tab-1'));
+    expect(root.querySelector('#example-panel-1')!.hasAttribute('hidden')).toBe(false);
+    expect(root.querySelector('#example-panel-2')!.hasAttribute('hidden')).toBe(true);
+    expect(root.querySelector('#example-panel-0')!.hasAttribute('hidden')).toBe(false);
     button.click();
     await frame.updateComplete;
     expect(document.exitFullscreen).toHaveBeenCalledTimes(1);
