@@ -1,4 +1,4 @@
-# Bizallele — A design system for business rules
+# Bizallele — Genetic code for business rules
 
 ![Bizallele logo](examples/fdl-input/public/bizallele-logo.jpg)
 
@@ -6,12 +6,13 @@
 [![Type check](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/typecheck.yml)
 [![Documentation build](https://github.com/pmcelhaney/FDL/actions/workflows/docs-build.yml/badge.svg?branch=main)](https://github.com/pmcelhaney/FDL/actions/workflows/docs-build.yml)
 
-Bizallele is a JavaScript/TypeScript library for modeling complex
-forms and tables. Define field types, validation, dependencies, records, and
-recordsets declaratively so UI components can concentrate on rendering.
+Define how your fields behave—then reuse those rules across forms, tables,
+and server-side validation. Bizallele is a JavaScript and TypeScript library
+for validation, formatting, dependencies, and conditional field state.
 
-Bizallele keeps reusable business rules independent of the UI, including parsing,
-formatting, validation, filtering, and aggregation.
+Compose small field definitions into records and tables. Specialize them for
+different contexts without changing the originals. The definitions carry the
+rules; your components choose how to express them.
 
 ## Project status
 

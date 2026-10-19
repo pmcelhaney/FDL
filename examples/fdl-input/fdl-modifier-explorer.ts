@@ -473,7 +473,7 @@ export class FdlModifierExplorer extends LitElement {
                     }}
                     ><img src="./bizallele-logo.jpg" alt="Bizallele" width="132" height="88" /></a
                 ><span class="mast-label"
-                    >A DESIGN SYSTEM FOR BUSINESS RULES</span
+                    >GENETIC CODE FOR BUSINESS RULES</span
                 ></header
             >
             <div

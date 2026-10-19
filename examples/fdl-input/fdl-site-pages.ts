@@ -110,16 +110,21 @@ export function renderSitePage(
         ></article>`;
     if (page === 'home')
         return html` <article class="site-page">
-            <h1 tabindex="-1">Finally, a design system for business rules</h1>
+            <h1 tabindex="-1">Genetic code for business rules.</h1>
             <p class="description"
-                >Define how your data behaves—what’s valid, what’s required, how
-                values are formatted, and what depends on what. Bizallele brings those
-                rules into a shared model for JavaScript and TypeScript. Use
-                the same rules across forms, tables, and other interfaces—even
-                as your UI changes—and reuse them for
+                >Define how your fields behave—then reuse those rules across
+                forms, tables, and
                 <a href="#reference/docs/backend-validation"
                     >server-side validation</a
-                >.</p
+                >. Bizallele is a JavaScript and TypeScript library for validation,
+                formatting, dependencies, and conditional field state. Keep those
+                rules in a shared model so every interface uses the same behavior.</p
+            >
+            <p
+                >Compose small field definitions into records and tables. Specialize
+                them for different contexts without changing the originals. The
+                definitions carry the rules; your components choose how to express
+                them.</p
             >
             <p
                 >Already have a data schema? Bizallele can read existing
