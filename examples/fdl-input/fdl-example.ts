@@ -128,7 +128,7 @@ export class FdlExample extends LitElement {
                     (filename, index) =>
                         html`<div
                             id=${`example-panel-${index + 1}`}
-                            class="tab-panel source-panel"
+                            class="tab-panel"
                             role="tabpanel"
                             aria-labelledby=${`example-tab-${index + 1}`}
                             ?hidden=${(this.fullscreen ? this.selectedFile() : this.activeTab) !== filename}
@@ -177,48 +177,11 @@ export class FdlExample extends LitElement {
         :host(:fullscreen) {
             margin: 0;
             padding: 16px;
-            overflow: hidden;
+            overflow: auto;
             background: #fff;
         }
         :host(:fullscreen) details {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        :host(:fullscreen) summary {
-            flex-shrink: 0;
-        }
-        :host(:fullscreen) details::details-content {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-        }
-        :host(:fullscreen) .example-content {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 0;
-            min-height: 0;
-        }
-        :host(:fullscreen) .example-content > * {
-            flex-shrink: 0;
-        }
-        :host(:fullscreen) #example-panel-0 {
-            flex: 0 1 auto;
-            min-height: 80px;
-            max-height: 55dvh;
-            overflow: auto;
-        }
-        :host(:fullscreen) .source-panel {
-            flex: 1 1 0;
-            min-height: 0;
-            max-height: 45dvh;
-            overflow: hidden;
-        }
-        :host(:fullscreen) fdl-code-snippet,
-        :host(:fullscreen) .code {
-            height: 100%;
-            max-height: 100%;
+            min-height: 100%;
         }
         .code:focus-visible {
             outline: 3px solid #2563eb;
@@ -366,6 +329,7 @@ export class FdlExample extends LitElement {
             padding-top: 20px;
         }
         .code {
+            max-height: 400px;
             margin: 0;
             padding: 20px;
             border-radius: var(--example-radius);
