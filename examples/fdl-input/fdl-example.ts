@@ -12,6 +12,8 @@ export class FdlExample extends LitElement {
         sources: { attribute: false },
         activeTab: { state: true },
         modifier: { type: String },
+        fullscreen: { state: true },
+        fullscreenError: { state: true },
     };
     heading = 'Example';
     expanded = true;
@@ -19,6 +21,31 @@ export class FdlExample extends LitElement {
     filenames: readonly string[] = [];
     sources: Readonly<Record<string, string>> = {};
     private activeTab = '';
+    private fullscreen = false;
+    private fullscreenError = '';
+
+    constructor() {
+        super();
+        this.addEventListener('fullscreenchange', this.syncFullscreen);
+    }
+
+    private syncFullscreen() {
+        const root = this.getRootNode() as Document | ShadowRoot;
+        this.fullscreen = root.fullscreenElement === this;
+    }
+
+    private async toggleFullscreen() {
+        this.fullscreenError = '';
+        try {
+            if (this.fullscreen) {
+                await this.ownerDocument.exitFullscreen();
+            } else {
+                await this.requestFullscreen();
+            }
+        } catch {
+            this.fullscreenError = 'Full screen is unavailable. Please try again.';
+        }
+    }
 
     protected willUpdate(_changed: PropertyValues<this>) {
         if (!this.filenames.includes(this.activeTab)) this.activeTab = '';
@@ -41,32 +68,52 @@ export class FdlExample extends LitElement {
             </summary>
             <div class="example-content">
                 <slot name="description"></slot>
-                <div
-                    class="tabs"
-                    role="tablist"
-                    aria-label=${`${this.heading} views`}
-                >
-                    ${tabs.map(
-                        (filename, index) =>
-                            html`<button
-                                id=${`example-tab-${index}`}
-                                role="tab"
-                                aria-selected=${this.activeTab === filename}
-                                aria-controls=${`example-panel-${index}`}
-                                tabindex=${this.activeTab === filename ? 0 : -1}
-                                @click=${() => this.selectTab(filename)}
-                                @keydown=${(event: KeyboardEvent) => this.navigateTabs(event, index)}
-                                >${filename || 'Interactive example'}</button
-                            >`
-                    )}
+                <div class="view-controls">
+                    <div
+                        class="tabs"
+                        role="tablist"
+                        aria-label=${`${this.heading} views`}
+                        ?hidden=${this.fullscreen}
+                    >
+                        ${tabs.map(
+                            (filename, index) =>
+                                html`<button
+                                    id=${`example-tab-${index}`}
+                                    role="tab"
+                                    aria-selected=${this.activeTab === filename}
+                                    aria-controls=${`example-panel-${index}`}
+                                    tabindex=${this.activeTab === filename ? 0 : -1}
+                                    @click=${() => this.selectTab(filename)}
+                                    @keydown=${(event: KeyboardEvent) => this.navigateTabs(event, index)}
+                                    >${filename || 'Interactive example'}</button
+                                >`
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        class="fullscreen-button"
+                        ?hidden=${typeof this.requestFullscreen !== 'function'}
+                        aria-label=${`${this.fullscreen ? 'Exit full screen' : 'Expand to full screen'}: ${this.heading}`}
+                        aria-pressed=${this.fullscreen}
+                        @click=${this.toggleFullscreen}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d=${this.fullscreen
+                                ? 'M9 3v6H3m12-6v6h6M9 21v-6H3m12 6v-6h6'
+                                : 'M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6'} />
+                        </svg>
+                        ${this.fullscreen ? 'Exit full screen' : 'Full screen'}
+                    </button>
                 </div>
+                <p class="fullscreen-error" role="status" ?hidden=${!this.fullscreenError}>${this.fullscreenError}</p>
                 <div
                     id="example-panel-0"
                     class="tab-panel"
-                    role="tabpanel"
-                    aria-labelledby="example-tab-0"
-                    ?hidden=${this.activeTab !== ''}
+                    role=${this.fullscreen ? 'region' : 'tabpanel'}
+                    aria-labelledby=${this.fullscreen ? 'interactive-heading' : 'example-tab-0'}
+                    ?hidden=${!this.fullscreen && this.activeTab !== ''}
                 >
+                    ${this.fullscreen ? html`<h3 id="interactive-heading">Interactive example</h3>` : ''}
                     <slot></slot>
                 </div>
                 ${this.filenames.map(
@@ -74,10 +121,11 @@ export class FdlExample extends LitElement {
                         html`<div
                             id=${`example-panel-${index + 1}`}
                             class="tab-panel"
-                            role="tabpanel"
-                            aria-labelledby=${`example-tab-${index + 1}`}
-                            ?hidden=${this.activeTab !== filename}
+                            role=${this.fullscreen ? 'region' : 'tabpanel'}
+                            aria-labelledby=${this.fullscreen ? `file-heading-${index}` : `example-tab-${index + 1}`}
+                            ?hidden=${!this.fullscreen && this.activeTab !== filename}
                         >
+                            ${this.fullscreen ? html`<h3 id=${`file-heading-${index}`}>${filename}</h3>` : ''}
                             <fdl-code-snippet><pre
                                 class="code"
                             ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
@@ -116,6 +164,15 @@ export class FdlExample extends LitElement {
         :host {
             display: block;
             margin: 24px 0 32px;
+        }
+        :host(:fullscreen) {
+            margin: 0;
+            padding: 16px;
+            overflow: auto;
+            background: #fff;
+        }
+        :host(:fullscreen) details {
+            min-height: 100%;
         }
         * {
             box-sizing: border-box;
@@ -189,12 +246,51 @@ export class FdlExample extends LitElement {
         p {
             line-height: 1.6;
         }
+        .view-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .fullscreen-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            margin-left: auto;
+            padding: 8px 12px;
+            border: 1px solid #bfcee8;
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #172554;
+            font: inherit;
+            cursor: pointer;
+        }
+        .fullscreen-button[hidden] {
+            display: none;
+        }
+        .fullscreen-button:hover {
+            background: #eff6ff;
+        }
+        .fullscreen-button:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: 2px;
+        }
         .tabs {
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            margin: 20px 0 0;
             border-bottom: 1px solid var(--example-border);
+        }
+        .tabs[hidden] {
+            display: none;
+        }
+        h3 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            overflow-wrap: anywhere;
         }
         .tabs button {
             border: 0;
