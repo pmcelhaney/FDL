@@ -608,7 +608,7 @@ it('resets the active learning question without losing its rules', async () => {
     );
 });
 
-it('highlights fixed weekday expenses above the adjustable threshold and formats dollars', async () => {
+it('highlights paginated weekday expenses above the adjustable threshold and formats dollars', async () => {
     const page = await openExplorer('#cellClass');
     const catalog = page.shadowRoot!.querySelector(
         'fdl-modifier-catalog[modifier="cellClass"]'
@@ -616,22 +616,34 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
     await catalog.updateComplete;
     expect(catalog.shadowRoot!.querySelector('fdl-field[field="classAmount"]')).toBeNull();
     const table = catalog.shadowRoot!.querySelector('fdl-table') as any;
-    const rows = async () => {
+    async function rows() {
         await table.recordset.requestImmediateUpdate();
         await table.updateComplete;
         return Array.from(
             table.shadowRoot.querySelectorAll('tbody tr') as NodeListOf<HTMLTableRowElement>
         );
-    };
+    }
     let rendered = await rows();
+    expect(table.recordset.allRecords).toHaveLength(25);
+    expect(rendered).toHaveLength(10);
     expect(rendered.map(row => row.querySelector('td')!.textContent!.trim())).toEqual([
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
+        'Week 1, Monday',
+        'Week 1, Tuesday',
+        'Week 1, Wednesday',
+        'Week 1, Thursday',
+        'Week 1, Friday',
+        'Week 2, Monday',
+        'Week 2, Tuesday',
+        'Week 2, Wednesday',
+        'Week 2, Thursday',
+        'Week 2, Friday',
     ]);
     expect(rendered.map(row => row.querySelectorAll('td')[1].textContent!.trim())).toEqual([
+        '$85.50',
+        '$142.75',
+        '$60.00',
+        '$100.00',
+        '$125.25',
         '$85.50',
         '$142.75',
         '$60.00',
@@ -642,14 +654,19 @@ it('highlights fixed weekday expenses above the adjustable threshold and formats
         [...table.shadowRoot.querySelectorAll('td.high-value')].map((cell: any) =>
             cell.textContent.trim()
         );
-    expect(highlighted()).toEqual(['$142.75', '$125.25']);
-    expect(table.shadowRoot.querySelectorAll('td.amount-cell')).toHaveLength(5);
+    expect(highlighted()).toEqual(['$142.75', '$125.25', '$142.75', '$125.25']);
+    expect(table.shadowRoot.querySelectorAll('td.amount-cell')).toHaveLength(10);
     await editField(catalog.shadowRoot!, 'classThreshold', '125.25');
     await catalog.updateComplete;
     await page.updateComplete;
     rendered = await rows();
-    expect(highlighted()).toEqual(['$142.75']);
+    expect(highlighted()).toEqual(['$142.75', '$142.75']);
     expect(rendered.map(row => row.querySelectorAll('td')[1].textContent!.trim())).toEqual([
+        '$85.50',
+        '$142.75',
+        '$60.00',
+        '$100.00',
+        '$125.25',
         '$85.50',
         '$142.75',
         '$60.00',
