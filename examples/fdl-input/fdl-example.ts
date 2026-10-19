@@ -179,6 +179,7 @@ export class FdlExample extends LitElement {
             margin: 24px 0 32px;
         }
         :host(:fullscreen) {
+            --example-inspector-columns: minmax(0, 1fr);
             margin: 0;
             padding: 16px;
             overflow: auto;

@@ -340,7 +340,7 @@ static styles = css`
         }
         @container (min-width:760px) {
             .focused:not(.full-width) {
-                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+                grid-template-columns: var(--example-inspector-columns, minmax(0, 1.1fr) minmax(0, 1fr));
             }
         }
         .focused-demo > .try:first-child {

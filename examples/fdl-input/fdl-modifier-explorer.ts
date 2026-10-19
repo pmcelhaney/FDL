@@ -1771,7 +1771,7 @@ export class FdlModifierExplorer extends LitElement {
         }
         .demo-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-columns: var(--example-inspector-columns, minmax(0, 1fr) minmax(0, 1fr));
             gap: 24px;
             padding: 0 20px 24px;
         }
