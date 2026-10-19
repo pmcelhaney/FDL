@@ -1,5 +1,5 @@
 {
-    "name": "@pmcelhaney/bizallele",
+    "name": "bizallele",
     "version": "0.0.2",
     "description": "Genetic code for business rules: declarative fields, records, and recordsets",
     "main": "dist/index.js",
