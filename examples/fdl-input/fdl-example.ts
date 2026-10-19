@@ -113,33 +113,37 @@ export class FdlExample extends LitElement {
                     </button>
                 </div>
                 <p class="fullscreen-error" role="status" ?hidden=${!this.fullscreenError}>${this.fullscreenError}</p>
-                <div
-                    id="example-panel-0"
-                    class="tab-panel"
-                    role=${this.fullscreen ? 'region' : 'tabpanel'}
-                    aria-labelledby=${this.fullscreen ? 'interactive-heading' : 'example-tab-0'}
-                    ?hidden=${!this.fullscreen && this.activeTab !== ''}
-                >
-                    ${this.fullscreen ? html`<h3 id="interactive-heading">Interactive example</h3>` : ''}
-                    <slot></slot>
+                <div class="example-layout">
+                    <div
+                        id="example-panel-0"
+                        class="tab-panel"
+                        role=${this.fullscreen ? 'region' : 'tabpanel'}
+                        aria-labelledby=${this.fullscreen ? 'interactive-heading' : 'example-tab-0'}
+                        ?hidden=${!this.fullscreen && this.activeTab !== ''}
+                    >
+                        ${this.fullscreen ? html`<h3 id="interactive-heading">Interactive example</h3>` : ''}
+                        <slot></slot>
+                    </div>
+                    <div class="source-files">
+                        ${this.fullscreen && this.filenames.length ? this.renderTabs() : ''}
+                        ${this.filenames.map(
+                            (filename, index) =>
+                                html`<div
+                                    id=${`example-panel-${index + 1}`}
+                                    class="tab-panel"
+                                    role="tabpanel"
+                                    aria-labelledby=${`example-tab-${index + 1}`}
+                                    ?hidden=${(this.fullscreen ? this.selectedFile() : this.activeTab) !== filename}
+                                >
+                                    <fdl-code-snippet><pre
+                                        class="code"
+                                        tabindex="0"
+                                        aria-label=${`${filename} source code`}
+                                    ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
+                                </div>`
+                        )}
+                    </div>
                 </div>
-                ${this.fullscreen && this.filenames.length ? this.renderTabs() : ''}
-                ${this.filenames.map(
-                    (filename, index) =>
-                        html`<div
-                            id=${`example-panel-${index + 1}`}
-                            class="tab-panel"
-                            role="tabpanel"
-                            aria-labelledby=${`example-tab-${index + 1}`}
-                            ?hidden=${(this.fullscreen ? this.selectedFile() : this.activeTab) !== filename}
-                        >
-                            <fdl-code-snippet><pre
-                                class="code"
-                                tabindex="0"
-                                aria-label=${`${filename} source code`}
-                            ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
-                        </div>`
-                )}
             </div>
         </details>`;
     }
@@ -182,6 +186,27 @@ export class FdlExample extends LitElement {
         }
         :host(:fullscreen) details {
             min-height: 100%;
+        }
+        .example-layout,
+        .source-files {
+            display: contents;
+        }
+        :host(:fullscreen) .example-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            align-items: start;
+            gap: 24px;
+            margin-top: 20px;
+        }
+        :host(:fullscreen) .example-layout > .tab-panel {
+            padding-top: 0;
+        }
+        :host(:fullscreen) .source-files {
+            display: block;
+            min-width: 0;
+        }
+        .example-layout > .tab-panel {
+            min-width: 0;
         }
         .code:focus-visible {
             outline: 3px solid #2563eb;
