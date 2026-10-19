@@ -23,10 +23,13 @@ it('keeps the live example visible while switching file tabs in fullscreen, then
         fullscreenElement = frame;
         frame.dispatchEvent(new Event('fullscreenchange'));
     });
-    Object.defineProperty(document, 'exitFullscreen', { configurable: true, value: jest.fn(async () => {
-        fullscreenElement = null;
-        frame.dispatchEvent(new Event('fullscreenchange'));
-    }) });
+    Object.defineProperty(document, 'exitFullscreen', {
+        configurable: true,
+        value: jest.fn(async () => {
+            fullscreenElement = null;
+            frame.dispatchEvent(new Event('fullscreenchange'));
+        }),
+    });
     await frame.updateComplete;
     const root = frame.shadowRoot!;
     root.querySelector<HTMLButtonElement>('#example-tab-2')!.click();
@@ -74,6 +77,105 @@ it('reports a rejected fullscreen request without changing views', async () => {
     frame.shadowRoot!.querySelector<HTMLButtonElement>('.fullscreen-button')!.click();
     await new Promise(resolve => setTimeout(resolve, 0));
     await frame.updateComplete;
-    expect(frame.shadowRoot!.querySelector('[role="status"]')!.textContent).toContain('Full screen is unavailable');
+    expect(frame.shadowRoot!.querySelector('[role="status"]')!.textContent).toContain(
+        'Full screen is unavailable'
+    );
     expect(frame.shadowRoot!.querySelector('.tabs')!.hasAttribute('hidden')).toBe(false);
+});
+
+async function editableExample() {
+    const frame = new FdlExample();
+    frame.filenames = ['model.ts', 'view.ts'];
+    frame.sources = { 'model.ts': 'export const count = 1;', 'view.ts': 'render(count);' };
+    const component = document.createElement('test-example');
+    // Simulate a component that has already rendered into its light DOM.
+    if (!customElements.get('test-example'))
+        customElements.define('test-example', class extends HTMLElement {});
+    component.innerHTML = '<p>Rendered output</p>';
+    frame.append(component);
+    document.body.append(frame);
+    await frame.updateComplete;
+    frame.shadowRoot!.querySelector<HTMLButtonElement>('#example-tab-1')!.click();
+    await frame.updateComplete;
+    frame.shadowRoot!.querySelector<HTMLButtonElement>('.edit-toolbar button')!.click();
+    await frame.updateComplete;
+    return frame;
+}
+
+function previewMessage(iframe: HTMLIFrameElement, type: string, extra: object = {}) {
+    window.dispatchEvent(
+        new MessageEvent('message', {
+            source: iframe.contentWindow,
+            origin: location.origin,
+            data: { type, ...extra },
+        })
+    );
+}
+
+it('cancels a draft without changing the displayed source or live example', async () => {
+    const frame = await editableExample();
+    const textarea = frame.shadowRoot!.querySelector('textarea')!;
+    textarea.value = 'export const count = 99;';
+    textarea.dispatchEvent(new Event('input'));
+    frame.shadowRoot!.querySelectorAll<HTMLButtonElement>('.edit-toolbar button')[1].click();
+    await frame.updateComplete;
+    expect(frame.shadowRoot!.querySelector('textarea')).toBeNull();
+    expect(frame.shadowRoot!.querySelector('code')!.textContent).toContain('count = 1');
+    expect(frame.shadowRoot!.querySelector('iframe')).toBeNull();
+});
+
+it('commits saved source only after the preview succeeds and restores the original on request', async () => {
+    const frame = await editableExample();
+    const root = frame.shadowRoot!;
+    const editor = root.querySelector('textarea')!;
+    editor.value = 'export const count = 2;';
+    editor.dispatchEvent(new Event('input'));
+    editor.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true }));
+    await frame.updateComplete;
+    const iframe = root.querySelector('iframe')!;
+    // jsdom does not create a browsing context for iframes inside shadow roots.
+    Object.defineProperty(iframe, 'contentWindow', { value: window });
+    const send = jest.spyOn(window, 'postMessage');
+    previewMessage(iframe, 'example-ready');
+    expect(send).toHaveBeenCalledWith(
+        expect.objectContaining({
+            files: { 'model.ts': editor.value, 'view.ts': 'render(count);' },
+            markup: '<test-example></test-example>',
+        }),
+        location.origin
+    );
+    expect(root.querySelector('slot:not([name])')!.hasAttribute('hidden')).toBe(false);
+    previewMessage(iframe, 'example-saved');
+    await frame.updateComplete;
+    expect(root.querySelector('slot:not([name])')!.hasAttribute('hidden')).toBe(true);
+    expect(iframe.hidden).toBe(false);
+    expect(frame.sources['model.ts']).toContain('count = 1');
+    root.querySelector<HTMLButtonElement>('#example-tab-1')!.click();
+    await frame.updateComplete;
+    expect(root.querySelector('code')!.textContent).toContain('count = 2');
+    root.querySelector<HTMLButtonElement>('.restore-button')!.click();
+    await frame.updateComplete;
+    expect(root.querySelector('iframe')).toBeNull();
+    expect(root.querySelector('code')!.textContent).toContain('count = 1');
+    expect(root.querySelector('slot:not([name])')!.hasAttribute('hidden')).toBe(false);
+});
+
+it('keeps the draft and original example when the preview fails and ignores unrelated messages', async () => {
+    const frame = await editableExample();
+    const root = frame.shadowRoot!;
+    root.querySelector<HTMLButtonElement>('.edit-toolbar button')!.click();
+    await frame.updateComplete;
+    window.dispatchEvent(
+        new MessageEvent('message', { origin: location.origin, data: { type: 'example-saved' } })
+    );
+    expect(root.querySelector('slot:not([name])')!.hasAttribute('hidden')).toBe(false);
+    Object.defineProperty(root.querySelector('iframe')!, 'contentWindow', { value: window });
+    previewMessage(root.querySelector('iframe')!, 'example-error', {
+        message: 'model.ts: Unexpected token',
+    });
+    await frame.updateComplete;
+    expect(root.querySelector('[role="alert"]')!.textContent).toContain('Unexpected token');
+    expect(root.querySelector('textarea')).not.toBeNull();
+    expect(root.querySelector('iframe')).toBeNull();
+    expect(root.querySelector<HTMLButtonElement>('.edit-toolbar button')!.disabled).toBe(false);
 });

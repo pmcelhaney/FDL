@@ -20,14 +20,31 @@ npm run typecheck
 npm run docs:build
 ```
 
-The production output is `examples/fdl-input/dist/`, with a single `index.html`
-entry point. Building and previewing do not deploy the site.
+The production output is `examples/fdl-input/dist/`, with `index.html` as the website
+entry point and `example-preview.html` for edited previews. Building and previewing do not deploy the site.
 
 Primary interactive examples open by default in `<fdl-example>`, with source-file
 tabs alongside the working demo. Set `.expanded=${false}` for secondary examples
 such as the deprecated row-count demonstration. Slot the working demo inside it and pass `filenames` and
 `sources` for the model, view, and optional CSS. Modifier examples also set
 `modifier` to highlight the relevant calls in the model tab.
+
+Select a source-file tab and choose **Edit** to change its JavaScript, TypeScript,
+or CSS. **Save and run** (or Ctrl/Cmd+S in the editor) restarts the example with
+all saved files applied together. Saving resets the preview's form state. A
+failed compilation or startup leaves the previous working example available and
+keeps the draft for correction. **Cancel** discards the current draft, and
+**Restore original** returns all files and the live view to the original example.
+Edits stay in this example until its page is left or reloaded; they do not write
+to repository files. Full screen keeps the editor and live preview side by side.
+
+Edited examples run in a fresh iframe with their own component registrations and
+module cache. The preview uses the local TypeScript compiler and bundled source
+files, so editing also works in the production build without a remote service.
+Imports can use the bundled example files, Bizallele, and the Lit modules used
+by the examples. Installing new packages or adding files is outside the editor's
+scope. Example code is executable JavaScript; the iframe separates component
+state and is not a security sandbox for untrusted code.
 
 Every editable field example uses `<fdl-field>` bound to a Bizallele record. The
 field metadata selects a native input, select, or textarea. Table separators

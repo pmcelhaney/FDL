@@ -13,3 +13,8 @@ declare module 'virtual:fdl-documentation' {
     }[];
     export default pages;
 }
+
+declare module 'virtual:example-sources' {
+    const sources: Record<string, string>;
+    export default sources;
+}
