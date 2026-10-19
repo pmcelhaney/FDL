@@ -78,7 +78,7 @@ it('opens every bundled reference directly inside the site with its page title',
         expect(page.shadowRoot!.querySelector('.reference-content h1')!.textContent).toBe(
             reference.title
         );
-        expect(document.title).toBe(`${reference.title} — FDL`);
+        expect(document.title).toBe(`${reference.title} — Bizallele`);
         expect(page.shadowRoot!.activeElement).toBe(page.shadowRoot!.querySelector('h1'));
     }
 });

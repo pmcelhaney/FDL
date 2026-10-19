@@ -1,7 +1,7 @@
 import './fdl-code-snippet';
 import { LitElement, css, html, nothing, type PropertyValues } from 'lit';
-import type { Recordset } from '@pmcelhaney/fdl';
-import type { Record } from '@pmcelhaney/fdl';
+import type { Recordset } from '@pmcelhaney/bizallele';
+import type { Record } from '@pmcelhaney/bizallele';
 import {
     FdlRecordInspector,
     storedValue,

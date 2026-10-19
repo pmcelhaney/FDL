@@ -1,4 +1,4 @@
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 export const record = new Record(
     {
         fulfillment: field.label('Delivery method').options([

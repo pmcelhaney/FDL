@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { Record, string } from '@pmcelhaney/fdl';
-import { fieldsFromPrisma, PrismaFieldSelection } from '@pmcelhaney/fdl/prisma';
+import { Record, string } from '@pmcelhaney/bizallele';
+import { fieldsFromPrisma, PrismaFieldSelection } from '@pmcelhaney/bizallele/prisma';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -154,7 +154,7 @@ describe('fieldsFromPrisma', () => {
         ).toBe(true);
     });
 
-    it('does not run database defaults or inherit FDL primitive defaults', () => {
+    it('does not run database defaults or inherit Bizallele primitive defaults', () => {
         const fields = fieldsFromPrisma(schema, {
             model: 'Product',
             fields: ['id', 'stock', 'active', 'createdAt', 'note'],

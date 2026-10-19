@@ -7,7 +7,7 @@ import viewSource from './conditional-validation-view.ts?raw';
 import { LitElement, html } from 'lit';
 import { createAccount } from './conditional-validation-model';
 import { highlightJavaScript } from './highlight-javascript';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 export class FdlConditionalValidation extends LitElement {
     private account = createAccount();
@@ -83,7 +83,7 @@ export function renderValidatorContract(includeExample = true) {
                           >Model file:
                           <code
                               >examples/fdl-input/conditional-validation-model.ts</code
-                          >. This consumer-facing version imports FDL by its
+                          >. This consumer-facing version imports Bizallele by its
                           package name.</p
                       >
                       <fdl-example

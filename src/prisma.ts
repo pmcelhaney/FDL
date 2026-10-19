@@ -142,7 +142,7 @@ function translateField(
 }
 
 /**
- * Parse classic Prisma schema text and return ordinary, immutable FDL definitions.
+ * Parse classic Prisma schema text and return ordinary, immutable Bizallele definitions.
  * Validates complete selected values, not Prisma create/update operation inputs.
  * Does not connect to a database or execute defaults, relations, or uniqueness checks.
  * Throws for invalid syntax, unknown selections, or unsupported selected declarations.

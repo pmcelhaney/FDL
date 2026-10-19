@@ -1,4 +1,4 @@
-import { field, Recordset } from '@pmcelhaney/fdl';
+import { field, Recordset } from '@pmcelhaney/bizallele';
 import { html } from 'lit';
 const currency = new Intl.NumberFormat('en-US', {
     style: 'currency',

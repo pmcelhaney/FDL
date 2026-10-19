@@ -43,4 +43,4 @@ Move shared presentation to `columnClass(...)` and value-specific exceptions
 to `cellClass((value, record) => ...)`. Do not select an arbitrary record for
 column callbacks. Callbacks can close over application state; consumers must
 render again to reflect a change. CSS owns the visual effect and which
-properties apply to each element; FDL only supplies the semantic class intent.
+properties apply to each element; Bizallele only supplies the semantic class intent.

@@ -32,7 +32,7 @@ describe('clone', () => {
     });
 
     it('supports circular references', () => {
-        const source = { name: 'FDL' };
+        const source = { name: 'Bizallele' };
         source.self = source;
 
         const copy = clone(source);

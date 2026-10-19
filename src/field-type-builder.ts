@@ -538,7 +538,7 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /** Define a structured value whose child fields are ordinary FDL fields. */
+    /** Define a structured value whose child fields are ordinary Bizallele fields. */
     record(fields: FieldDefinitions) {
         const copy = this.copy();
         copy.properties.record = { ...fields };
@@ -546,7 +546,7 @@ export default class FieldTypeBuilder<T = unknown> {
         return copy;
     }
 
-    /** Define a repeated structured value whose rows use ordinary FDL fields. */
+    /** Define a repeated structured value whose rows use ordinary Bizallele fields. */
     recordset(fields: FieldDefinitions) {
         const copy = this.copy();
         copy.properties.recordset = { ...fields };

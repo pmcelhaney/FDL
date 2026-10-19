@@ -1,7 +1,7 @@
 {
-    "name": "@pmcelhaney/fdl",
+    "name": "@pmcelhaney/bizallele",
     "version": "0.0.2",
-    "description": "Field Definition Library used to build field types",
+    "description": "A design system for business rules: declarative fields, records, and recordsets",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "exports": {

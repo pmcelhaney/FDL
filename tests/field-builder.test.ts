@@ -1,5 +1,5 @@
 import { buildFieldRecord, defaultFieldSpec } from '../examples/fdl-input/field-builder-model';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 it('uses independent rules and exports the same current model and Lit bindings', () => {
     const spec = {
         ...defaultFieldSpec,

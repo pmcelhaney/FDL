@@ -7,7 +7,7 @@ import './fdl-record';
 
 /**
  * A focused composite adapter for nested address records.
- * The parent FDL field owns the value; this element owns the accessible group
+ * The parent Bizallele field owns the value; this element owns the accessible group
  * and delegates each child to the ordinary fdl-field adapter.
  */
 export class FdlAddress extends RecordElement {

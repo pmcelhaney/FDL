@@ -1,6 +1,6 @@
 import { css, html, nothing, type PropertyValues } from 'lit';
-import { Record } from '@pmcelhaney/fdl';
-import { RecordElement } from '@pmcelhaney/fdl/lit/record-context';
+import { Record } from '@pmcelhaney/bizallele';
+import { RecordElement } from '@pmcelhaney/bizallele/lit/record-context';
 import { exampleTheme } from './example-theme';
 
 const statusPaths = {
@@ -73,7 +73,7 @@ type InspectorView =
           values: unknown[];
       };
 
-/** Read-only inspection of an FDL record, independent of its form or page. */
+/** Read-only inspection of a Bizallele record, independent of its form or page. */
 export class FdlRecordInspector extends RecordElement {
     static properties = {
         fields: { attribute: false },

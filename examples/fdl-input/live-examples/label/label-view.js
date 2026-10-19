@@ -1,6 +1,6 @@
 import { record } from './label-model.js';
 import { html } from 'lit';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 export function labelView() {
     return html`

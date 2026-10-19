@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { Record } from '@pmcelhaney/fdl';
-import { fieldsFromOpenAPI, OpenAPIFieldSelection } from '@pmcelhaney/fdl/openapi';
+import { Record } from '@pmcelhaney/bizallele';
+import { fieldsFromOpenAPI, OpenAPIFieldSelection } from '@pmcelhaney/bizallele/openapi';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -183,7 +183,7 @@ components:
         expect(new Record(fields, { value: 'TEA' }).field('value').label).not.toBe('Drink');
     });
 
-    it('does not confuse required presence with nonempty FDL values', () => {
+    it('does not confuse required presence with nonempty Bizallele values', () => {
         const fields = fieldsFromOpenAPI(documentFor({ type: 'string' }), {
             schema: 'Product',
             fields: ['value'],

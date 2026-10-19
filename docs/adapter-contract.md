@@ -1,6 +1,6 @@
 # Form adapter contract
 
-FDL describes reusable field behavior without choosing a DOM structure or an
+Bizallele describes reusable field behavior without choosing a DOM structure or an
 application interaction policy. A form adapter combines that model with an
 accessible control. The application chooses workflow and presentation.
 
@@ -8,17 +8,17 @@ accessible control. The application chooses workflow and presentation.
 
 | Layer                                              | Owns                                                                                                                                                                                                       | Does not own                                                                             |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| FDL (`Record`, `Field`, `Column`, and `Recordset`) | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                         | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling |
+| Bizallele (`Record`, `Field`, `Column`, and `Recordset`) | Values, parsing, formatting, options, dependencies, requiredness, visibility, disabled and read-only state, and validation results                                                                         | DOM elements, generated IDs, focus, error-display timing, form layout, or visual styling |
 | Form adapter (`FormElement` or another renderer)   | Selecting and configuring the control, accessible labels and descriptions, semantic read-only output, translating shown model state to native and ARIA state, and sending edited values back to the Record | New business rules, submission or persistence decisions, colors, spacing, or typography  |
-| Application and CSS                                | Workflow, submission and persistence, explicit validation reveal/reset, layout, theme, and visual error treatment                                                                                          | Recomputing FDL validity in CSS or treating browser appearance as the business rule      |
+| Application and CSS                                | Workflow, submission and persistence, explicit validation reveal/reset, layout, theme, and visual error treatment                                                                                          | Recomputing Bizallele validity in CSS or treating browser appearance as the business rule      |
 
 Information moves in one direction:
 
 ```text
-FDL business state -> adapter semantics -> application presentation
+Bizallele business state -> adapter semantics -> application presentation
 ```
 
-FDL supplies validity independently of interaction. The Lit adapter owns default
+Bizallele supplies validity independently of interaction. The Lit adapter owns default
 blur and submit error-display timing and creates the accessible relationship.
 Applications can explicitly reveal errors with `showValidationErrors = true`
 and reset interaction state with `resetValidation()`. This UI policy stays out
@@ -105,7 +105,7 @@ an unrelated internal input.
   `ElementInternals`. Native controls inside its shadow root do not by
   themselves define application submission or persistence; submit Record data
   explicitly.
-- FDL validation is authoritative. Native constraint-validation UI may provide
+- Bizallele validation is authoritative. Native constraint-validation UI may provide
   useful control behavior, but browser validity is not a substitute for
   `Record.isValid()`.
 - The base adapter creates one configured child control. A multiple-value

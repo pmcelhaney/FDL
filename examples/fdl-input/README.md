@@ -1,4 +1,4 @@
-# FDL documentation site
+# Bizallele documentation site
 
 This is the repository's only documentation website. It includes Home, How it
 Works, Learn by exploring, Modifier categories, Contributing, and modifier reference pages that group closely related rules, with live examples, model-level
@@ -29,7 +29,7 @@ such as the deprecated row-count demonstration. Slot the working demo inside it 
 `sources` for the model, view, and optional CSS. Modifier examples also set
 `modifier` to highlight the relevant calls in the model tab.
 
-Every editable field example uses `<fdl-field>` bound to an FDL record. The
+Every editable field example uses `<fdl-field>` bound to a Bizallele record. The
 field metadata selects a native input, select, or textarea. Table separators
 support keyboard resizing: Left/Right for one pixel, Shift for ten pixels,
 and Home/End for the available minimum/maximum.
@@ -59,7 +59,7 @@ relative documentation links to local routes.
   demonstrates model-only validation before binding a component.
 - Record and recordset inspectors appear directly beside or below their examples.
   Each inspector owns its collapse control; do not wrap it in another disclosure.
-  Dependency traces read FDL's public state methods.
+  Dependency traces read Bizallele's public state methods.
 - Requiredness, text lengths, column widths, and filter matching have adjustable
   rules. Their model and view files read the settings used by the live demo. Length changes preserve the
   entered code; width changes restore the initial table layout.
@@ -86,7 +86,7 @@ relative documentation links to local routes.
   with the live adapters through literal CSS imports and belong in its shadow-root stylesheet, not the page
   stylesheet.
 
-Keep explanations connected to actual FDL behavior. Configuration controls may
+Keep explanations connected to actual Bizallele behavior. Configuration controls may
 change the example's rule, but every editable domain value remains bound through
 `fdl-field`. Preserve explicit adapter limitations instead of inventing support.
 
@@ -139,7 +139,7 @@ tooltips and accessible labels; no icon legend is displayed, including in nested
 views and recordset drill-down.
 
 Import `./fdl-record-inspector` to register `<fdl-record-inspector>`, then bind
-an FDL record as a JavaScript property:
+a Bizallele record as a JavaScript property:
 
 ```ts
 html`<fdl-record-inspector .record=${record}></fdl-record-inspector>`;

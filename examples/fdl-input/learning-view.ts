@@ -1,9 +1,9 @@
 import { html } from 'lit';
-import type { Record } from '@pmcelhaney/fdl';
-import type { Recordset } from '@pmcelhaney/fdl';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-record';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import type { Record } from '@pmcelhaney/bizallele';
+import type { Recordset } from '@pmcelhaney/bizallele';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-record';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 export function learningView(record: Record<any>, step = 3) {
     return html`<fdl-record .record=${record}>
         ${step >= 3 ? html`<fdl-field field="method"></fdl-field>` : ''}

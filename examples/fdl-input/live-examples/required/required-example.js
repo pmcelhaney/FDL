@@ -1,13 +1,13 @@
 import { html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
-import { field } from '@pmcelhaney/fdl';
+import { field } from '@pmcelhaney/bizallele';
 import { ExampleController } from '../../example-controller';
 import { person } from './required-model.js';
 import { requiredView } from './required-view.js';
 import '../../fdl-record-inspector';
 
 // Documentation controls surround the small model/view example without
-// becoming part of the source that teaches rendering an FDL record.
+// becoming part of the source that teaches rendering a Bizallele record.
 export class RequiredExample extends ExampleController {
     person = person;
     checked = false;

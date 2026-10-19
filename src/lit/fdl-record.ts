@@ -3,7 +3,7 @@ import { property } from 'lit/decorators.js';
 import type Record from '../record.js';
 import { RecordRequest } from './record-context';
 
-/** Supplies one record to descendant FDL consumers, including across shadow roots. */
+/** Supplies one record to descendant Bizallele consumers, including across shadow roots. */
 export class FdlRecord extends LitElement {
     static styles = css`
         :host {

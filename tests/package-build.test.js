@@ -47,7 +47,7 @@ it('packs the declared runtime and type entry points, including documented adapt
             expect(files.has(`dist/${module}.d.ts`)).toBe(true);
         }
         // Consume the packed files without source aliases or repository-relative imports.
-        const packageRoot = join(destination, 'node_modules/@pmcelhaney/fdl');
+        const packageRoot = join(destination, 'node_modules/@pmcelhaney/bizallele');
         mkdirSync(packageRoot, { recursive: true });
         execFileSync('tar', [
             '-xzf',
@@ -75,14 +75,14 @@ it('packs the declared runtime and type entry points, including documented adapt
         writeFileSync(
             consumer,
             `
-import { field, Record, Recordset } from '@pmcelhaney/fdl';
-import { fieldsFromPrisma } from '@pmcelhaney/fdl/prisma';
-import { fieldsFromOpenAPI } from '@pmcelhaney/fdl/openapi';
-import { FdlField, FdlAddress, FdlTable, FdlColumn, FormElement } from '@pmcelhaney/fdl/lit';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-address';
-import '@pmcelhaney/fdl/lit/fdl-table';
-import BaseField from '@pmcelhaney/fdl/lit/form-element';
+import { field, Record, Recordset } from '@pmcelhaney/bizallele';
+import { fieldsFromPrisma } from '@pmcelhaney/bizallele/prisma';
+import { fieldsFromOpenAPI } from '@pmcelhaney/bizallele/openapi';
+import { FdlField, FdlAddress, FdlTable, FdlColumn, FormElement } from '@pmcelhaney/bizallele/lit';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-address';
+import '@pmcelhaney/bizallele/lit/fdl-table';
+import BaseField from '@pmcelhaney/bizallele/lit/form-element';
 const prismaFields = fieldsFromPrisma('model Product {\\n stock Int\\n}', {
     model: 'Product', fields: ['stock'],
 });
@@ -123,7 +123,7 @@ export { control, table, prismaRecord, openapiRecord, basket, FdlAddress, FdlCol
         );
         const coreBundle = esbuild.buildSync({
             stdin: {
-                contents: "import { Record } from '@pmcelhaney/fdl'; console.log(Record);",
+                contents: "import { Record } from '@pmcelhaney/bizallele'; console.log(Record);",
                 resolveDir: destination,
             },
             bundle: true,

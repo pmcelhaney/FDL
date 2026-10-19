@@ -1,8 +1,8 @@
 import { recordset, settings } from './column-widths-model.js';
 import { LitElement } from 'lit';
 import '../../fdl-example';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 export class ExampleModel extends LitElement {
     settings = settings;
     table = recordset;

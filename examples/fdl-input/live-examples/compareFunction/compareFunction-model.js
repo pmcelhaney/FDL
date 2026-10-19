@@ -1,4 +1,4 @@
-import { field, Recordset } from '@pmcelhaney/fdl';
+import { field, Recordset } from '@pmcelhaney/bizallele';
 import { compareShirtSizes, shirtOrders } from '../../shirt-size-example';
 export const recordset = new Recordset(
     {

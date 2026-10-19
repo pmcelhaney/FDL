@@ -1,4 +1,4 @@
-import { field, Recordset } from '@pmcelhaney/fdl';
+import { field, Recordset } from '@pmcelhaney/bizallele';
 export const recordset = new Recordset(
     {
         left: field.label('Left').textAlign('left'),

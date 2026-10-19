@@ -3,7 +3,7 @@ import FormElement from './form-element';
 import './fdl-address';
 
 /**
- * A styled Lit control for an FDL field.
+ * A styled Lit control for a Bizallele field.
  *
  * FormElement resolves the field metadata, creates the configured native
  * control, and synchronizes it with the Record. This subclass supplies only

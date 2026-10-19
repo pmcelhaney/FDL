@@ -1,4 +1,4 @@
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 export function createReducerType() {
     return field.reducer('sum');
 }

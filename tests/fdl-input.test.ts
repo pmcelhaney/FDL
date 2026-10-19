@@ -1,6 +1,6 @@
 import FieldTypeBuilder from '../src/field-type-builder';
 import Record from '../src/record.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 type TestElement = HTMLElement & { updateComplete: Promise<boolean> };
 

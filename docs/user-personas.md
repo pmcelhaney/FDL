@@ -1,13 +1,13 @@
-# Prospective FDL user personas
+# Prospective Bizallele user personas
 
-These are prospective users assessing whether FDL is worth trying. They are
+These are prospective users assessing whether Bizallele is worth trying. They are
 not descriptions of current customers or claims about market fit. Each persona
-has a distinct job, level of context, and standard for deciding whether FDL is
+has a distinct job, level of context, and standard for deciding whether Bizallele is
 a good fit for their next project.
 
 Use them to test the effectiveness of the home page and documentation. A
 successful evaluation lets the person recognize their problem on the home page,
-understand FDL's value and limits, and complete a first meaningful task from
+understand Bizallele's value and limits, and complete a first meaningful task from
 the documentation without relying on unstated repository knowledge.
 
 ## Maya Chen — Design-system engineer
@@ -23,7 +23,7 @@ Today, every product team passes a different mixture of props, callbacks, and
 schema fragments into the shared components. The result is subtle drift: a
 field that is required in a review table is optional in the editor; a date
 formatter is copied into a CSV export; a dependency is evaluated in one
-component but not another. Maya is investigating FDL because she wants a
+component but not another. Maya is investigating Bizallele because she wants a
 renderer-independent definition of field behavior. She does _not_ want a
 library that chooses DOM structure, replaces her design system, or turns a
 component's private props into the application model.
@@ -32,22 +32,22 @@ Maya is fluent in TypeScript, React, accessibility basics, and package
 integration. She will skim first and then look closely at the public types,
 the `Field`, `Column`, `Record`, and `Recordset` APIs, and any component
 example. She expects a clear boundary
-between FDL, a form adapter, and CSS. She is wary of APIs that expose raw HTML
+between Bizallele, a form adapter, and CSS. She is wary of APIs that expose raw HTML
 attributes as supposedly reusable model features, or examples that imply a
 particular UI control is the only way to render a field.
 
 ### Evaluation tasks
 
-- On the home page, can Maya quickly tell that FDL models reusable field
+- On the home page, can Maya quickly tell that Bizallele models reusable field
   behavior without replacing her design system or prescribing a visual theme?
-- Can Maya explain what FDL owns versus what her React components and CSS own?
+- Can Maya explain what Bizallele owns versus what her React components and CSS own?
 - Can she define validation, dependencies, parsing, formatting, and stable
   presentation intent once, then see how different consumers could interpret
   them?
 - Are public APIs, TypeScript declarations, immutability rules, and modifier
   composition documented precisely enough for a platform-team adoption?
-- Does the component documentation show how FDL state becomes accessible
-  semantics without claiming that FDL itself supplies the semantics or theme?
+- Does the component documentation show how Bizallele state becomes accessible
+  semantics without claiming that Bizallele itself supplies the semantics or theme?
 
 ## Jordan Reyes — Operations platform developer
 
@@ -63,9 +63,9 @@ edit it.
 Jordan's current React table contains ad hoc calculations, duplicate
 validation, and fragile synchronization between visible cells and the data
 sent to the server. Speed matters: users expect keyboard editing and useful
-feedback, not a modal form for every row. Jordan is interested in FDL's
+feedback, not a modal form for every row. Jordan is interested in Bizallele's
 `Record` and `Recordset` abstractions because they may provide a consistent
-model beneath both a grid and a detail view. Jordan does not expect FDL to
+model beneath both a grid and a detail view. Jordan does not expect Bizallele to
 provide a production grid, persistence layer, permission system, or conflict
 resolution strategy.
 
@@ -78,7 +78,7 @@ sorting, filtering, pagination, validation, aggregation, and UI rendering.
 ### Evaluation tasks
 
 - On the home page, can Jordan recognize editable, rule-heavy tables as a
-  plausible use case without mistaking FDL for a production data-grid library?
+  plausible use case without mistaking Bizallele for a production data-grid library?
 - Can Jordan build a small editable recordset with field definitions,
   initial values, validation, filtering, sorting, and aggregation?
 - Is it clear which operations are performed by `Field`, `Column`, `Record`,
@@ -101,13 +101,13 @@ group.
 Her forms currently combine local component state, a schema validator, API
 error mapping, and scattered conditional JSX. A change that looks small often
 requires edits in several places, and regressions appear when a condition is
-updated on one screen but not another. Priya wants FDL to make a workflow's
+updated on one screen but not another. Priya wants Bizallele to make a workflow's
 rules visible close to the fields they govern and reusable in the editor,
 review screen, and API-bound record. She needs a quick path to a first working
-form, but she also needs to know where FDL stops so she can make sensible
+form, but she also needs to know where Bizallele stops so she can make sensible
 integration decisions.
 
-Priya knows TypeScript and React well, but she is new to FDL's vocabulary. She
+Priya knows TypeScript and React well, but she is new to Bizallele's vocabulary. She
 will start at the README and copy an example before reading reference material.
 She values concise explanations of the common path, explicit imports, runnable
 snippets, and troubleshooting guidance. She will abandon the evaluation if
@@ -116,7 +116,7 @@ hidden setup.
 
 ### Evaluation tasks
 
-- On the home page, can Priya understand in plain language what problem FDL
+- On the home page, can Priya understand in plain language what problem Bizallele
   solves and decide whether it fits a changing customer workflow?
 - Does the README make the problem, core terms, installation, and smallest
   useful example immediately clear?
@@ -133,7 +133,7 @@ Eli leads developer productivity at a company that uses coding agents to
 implement well-scoped application changes. Their agents can read repositories,
 write code, run tests, and prepare pull requests, but they are unreliable when
 the relevant behavior is implicit in JSX branches, duplicated validators, and
-component-specific event handlers. Eli is evaluating FDL as a domain model
+component-specific event handlers. Eli is evaluating Bizallele as a domain model
 that gives agents a stable place to inspect and change form rules.
 
 Eli's ideal task is specific: “Add a tax ID field for international accounts;
@@ -178,7 +178,7 @@ border is the only error message, a visually hidden section remains focusable,
 or a required indicator is added by CSS while the submitted data accepts an
 empty value.
 
-Samira is not looking for FDL to make an inaccessible interface accessible by
+Samira is not looking for Bizallele to make an inaccessible interface accessible by
 itself. She wants a reliable behavioral model that accessible components can
 interpret: required, disabled, read-only, visible, options, validation
 results, labels, and errors should be grounded in a single source of truth.
@@ -195,15 +195,15 @@ boundaries let her scope adapter work and accessibility testing honestly.
 
 ### Evaluation tasks
 
-- On the home page, can Samira see that FDL supports accessible implementations
+- On the home page, can Samira see that Bizallele supports accessible implementations
   by modeling behavior, while leaving semantic markup and interaction to
   components?
 - Does the documentation clearly assign validation and conditional state to
-  FDL, accessible structure and interaction to components, and appearance to
+  Bizallele, accessible structure and interaction to components, and appearance to
   CSS?
 - Can Samira determine how an adapter should expose requiredness, errors,
   disabled state, visibility, labels, focus behavior, and keyboard interaction
-  without FDL dictating a specific markup structure?
+  without Bizallele dictating a specific markup structure?
 - Do examples avoid implying that browser attributes, visual styling, or
   hidden DOM alone enforce model rules?
 - Are limitations and integration responsibilities candid enough for Samira to

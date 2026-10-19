@@ -1,10 +1,21 @@
 # Changelog
 
-All notable changes to FDL will be documented in this file. The format follows
+All notable changes to Bizallele will be documented in this file. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+
+- Rename FDL to Bizallele, with the package name `@pmcelhaney/bizallele`.
+  Update imports from `@pmcelhaney/fdl` to `@pmcelhaney/bizallele`, including
+  subpaths. Existing `fdl-*` custom elements and exported `Fdl*` classes retain
+  their names. The repository and documentation URLs retain their existing paths.
+- Use the supplied Bizallele logo in the documentation site and README.
+
+This rename is local preparation for a future release; it does not publish
+`@pmcelhaney/bizallele` to npm.
 
 ## [0.0.2] - 2026-10-16
 

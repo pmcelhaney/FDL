@@ -1,11 +1,11 @@
-import '@pmcelhaney/fdl/lit/fdl-record';
+import '@pmcelhaney/bizallele/lit/fdl-record';
 import { keyed } from 'lit/directives/keyed.js';
 import { recordSummary } from './model-summary';
 import modelSource from './field-builder-model.ts?raw';
 import viewSource from './field-builder-view.ts?raw';
 import { fieldBuilderView } from './field-builder-view';
 import './fdl-code-snippet';
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 import { LitElement, css, html } from 'lit';
 import {
     buildFieldRecord,
@@ -14,7 +14,7 @@ import {
 } from './field-builder-model';
 import { highlightJavaScript } from './highlight-javascript';
 import { exampleTheme } from './example-theme';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 const choiceText: { [value: string]: string } = {
     always: 'Always',
     enabled: 'When Condition is Enabled',

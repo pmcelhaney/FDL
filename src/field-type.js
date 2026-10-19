@@ -15,7 +15,7 @@ function functionHasNoArguments(f) {
 
 /**
  * @template [T = unknown]
- * Provides a fluent-API for building field validators used within FDL forms.
+ * Provides a fluent-API for building field validators used within Bizallele forms.
  */
 // eslint-disable-next-line @treasury/filename-match-export
 export default class FieldType {

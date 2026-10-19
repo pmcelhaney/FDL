@@ -3,12 +3,12 @@
 A `Record` combines a map of field names and field definitions with one
 object of values. Start definitions with `field` or a primitive and chain
 modifiers, then pass them directly to the constructor. The record connects their
-rules to values and is the model passed to FDL form controls.
+rules to values and is the model passed to Bizallele form controls.
 Use `field(name)` to access the complete field-scoped facade, including its
 value, parsing, formatting, options, and validation.
 
 ```js
-import { Record, string } from '@pmcelhaney/fdl';
+import { Record, string } from '@pmcelhaney/bizallele';
 
 const account = new Record(
     {
@@ -115,7 +115,7 @@ passes caused by dependent selections clearing. It does not reject on failed
 lookups; the value is retained so a lookup failure does not erase a selection.
 
 For a complete server-side request flow, see
-[Backend validation with FDL](./backend-validation.md).
+[Backend validation with Bizallele](./backend-validation.md).
 
 ## Validation and display
 
@@ -152,4 +152,4 @@ Synchronous validation throws when it encounters a promise-returning validator.
 Use `await record.field(fieldName).isValidAsync()` for one field or
 `await record.isValidAsync()` for the whole record. The `Field` facade and the
 built-in form adapter currently require synchronous validators; see the
-validation guidance in [Binding components to FDL](./field-type.md#validation-and-error-display).
+validation guidance in [Binding components to Bizallele](./field-type.md#validation-and-error-display).

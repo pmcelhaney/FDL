@@ -81,6 +81,16 @@ function loadDocumentation() {
                 }
                 return renderLink(tokens, index, options, env, renderer);
             };
+            const renderImage = md.renderer.rules.image;
+            md.renderer.rules.image = function (tokens, index, options, env, renderer) {
+                const token = tokens[index];
+                const source = path.posix.normalize(
+                    path.posix.join(path.posix.dirname(file), token.attrGet('src'))
+                );
+                if (source === 'examples/fdl-input/public/bizallele-logo.jpg')
+                    token.attrSet('src', './bizallele-logo.jpg');
+                return renderImage(tokens, index, options, env, renderer);
+            };
             const source = fs.readFileSync(path.join(root, file), 'utf8');
             const html = md.render(source);
             return {

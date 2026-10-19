@@ -19,7 +19,7 @@ import { exampleTheme } from './example-theme';
 import { highlightJavaScript } from './highlight-javascript';
 import './fdl-record-inspector';
 import { keyed } from 'lit/directives/keyed.js';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 import './fdl-modifier-catalog';
 import {
     additionalRecipes,
@@ -33,7 +33,7 @@ export const explorerRecipes: ExplorerRecipe[] = [
         category: 'Validation',
         title: 'Require a non-empty value.',
         description:
-            'Declare that a field needs a value. FDL carries that rule from the record to the control, so validation and the interface agree.',
+            'Declare that a field needs a value. Bizallele carries that rule from the record to the control, so validation and the interface agree.',
         prompt: 'Legal name is always required while its rule is enabled. Follow-up notes are required only when Follow-up needed is Yes.',
         steps: [
             'Use required() for an unconditional rule or required(record => ...) for a conditional rule.',
@@ -69,7 +69,7 @@ export const explorerRecipes: ExplorerRecipe[] = [
         prompt: 'Switch between shipping and pickup. The address disappears for pickup; its stored value is preserved.',
         steps: [
             'Read the related value from the record.',
-            'FDL evaluates the predicate as record values change.',
+            'Bizallele evaluates the predicate as record values change.',
             'The component includes the address only when the predicate passes.',
         ],
         note: 'Visibility does not erase a value or make it optional. If a field should be required only while visible, declare the matching required rule separately.',
@@ -184,7 +184,7 @@ export class FdlModifierExplorer extends LitElement {
         this.page = page;
         this.navigationOpen = false;
         this.requestUpdate();
-        document.title = `${sitePages.find(entry => entry.id === page)!.title} — FDL`;
+        document.title = `${sitePages.find(entry => entry.id === page)!.title} — Bizallele`;
         if (updateUrl) {
             window.location.hash = page;
         }
@@ -237,7 +237,7 @@ export class FdlModifierExplorer extends LitElement {
             window.location.hash = recipes[index].name;
         }
         if (updateUrl || targetChanged) this.focusModifier(recipes[index].name);
-        document.title = `${modifierPage(recipes[index].name).title || recipes[index].name} — FDL Modifier explorer`;
+        document.title = `${modifierPage(recipes[index].name).title || recipes[index].name} — Bizallele Modifier explorer`;
     }
     private focusModifier(name: string) {
         this.updateComplete.then(() => {
@@ -270,7 +270,7 @@ export class FdlModifierExplorer extends LitElement {
             <h2 class="modifier-signature" tabindex="-1"
                 ><code>${modifierSignatures[recipe.name]}</code></h2
             >
-            ${fieldSettingResults[recipe.name] ? html`<p class="setting-contract">Supply a fixed value or a function of <code>${recipe.name === 'columnClass' ? '()' : recordSettingNames.has(recipe.name) ? '(record)' : ['emptyWhen', 'cellClass'].includes(recipe.name) ? '(value, record)' : '(value, record, context)'}</code>. ${recipe.name === 'columnClass' ? html` Column classes have no owning row or cell context.` : recordSettingNames.has(recipe.name) ? html` Record is the owning FDL Record. Read dependent values from the record.` : recipe.name === 'emptyWhen' ? html` Value is the candidate being checked, which may differ from the stored value; record is its owning FDL Record.` : recipe.name === 'cellClass' ? html` Value is the current stored field value; record is its owning FDL Record. No context argument is passed.` : html` Value is the current stored field value; context identifies the display consumer.`}</p>` : columnSettingResults[recipe.name] ? html`<p class="setting-contract">Supply a fixed value or a callback with no arguments: <code>()</code>. Column settings have no record, value, or context parameters.</p>` : recipe.name === 'defaultValue' ? html`<p class="setting-contract">Supply a fixed default or a factory of <code>(record)</code>. The factory receives the owning FDL Record when clear() applies the default. Constructor values are kept as supplied.</p>` : ''}
+            ${fieldSettingResults[recipe.name] ? html`<p class="setting-contract">Supply a fixed value or a function of <code>${recipe.name === 'columnClass' ? '()' : recordSettingNames.has(recipe.name) ? '(record)' : ['emptyWhen', 'cellClass'].includes(recipe.name) ? '(value, record)' : '(value, record, context)'}</code>. ${recipe.name === 'columnClass' ? html` Column classes have no owning row or cell context.` : recordSettingNames.has(recipe.name) ? html` Record is the owning Bizallele Record. Read dependent values from the record.` : recipe.name === 'emptyWhen' ? html` Value is the candidate being checked, which may differ from the stored value; record is its owning Bizallele Record.` : recipe.name === 'cellClass' ? html` Value is the current stored field value; record is its owning Bizallele Record. No context argument is passed.` : html` Value is the current stored field value; context identifies the display consumer.`}</p>` : columnSettingResults[recipe.name] ? html`<p class="setting-contract">Supply a fixed value or a callback with no arguments: <code>()</code>. Column settings have no record, value, or context parameters.</p>` : recipe.name === 'defaultValue' ? html`<p class="setting-contract">Supply a fixed default or a factory of <code>(record)</code>. The factory receives the owning Bizallele Record when clear() applies the default. Constructor values are kept as supplied.</p>` : ''}
             ${['compareFunction', 'filter', 'reducer'].includes(recipe.name) ? html`<p><a href="#editable-recordset">Use this behavior in an editable recordset with scoped totals.</a></p>` : ''}<p
                 class="api-reference"
                 ><a href="#integration"
@@ -466,14 +466,14 @@ export class FdlModifierExplorer extends LitElement {
                 ><a
                     class="brand"
                     href="#home"
-                    aria-label="FDL home"
+                    aria-label="Bizallele home"
                     @click=${(event: Event) => {
                         event.preventDefault();
                         this.showPage('home');
                     }}
-                    >f<span>d</span>l<span class="brand-dot">.</span></a
+                    ><img src="./bizallele-logo.jpg" alt="Bizallele" width="132" height="88" /></a
                 ><span class="mast-label"
-                    >FIELD DEFINITION LIBRARY</span
+                    >A DESIGN SYSTEM FOR BUSINESS RULES</span
                 ></header
             >
             <div
@@ -794,11 +794,11 @@ export class FdlModifierExplorer extends LitElement {
                         <a href="https://github.com/pmcelhaney/FDL">GitHub</a>
                         <a href="https://patrickmcelhaney.org">Patrick McElhaney</a>
                     </nav>
-                    <p>FDL is a work in progress. Version 1.0 is expected in November 2026.</p>
+                    <p>Bizallele is a work in progress. Version 1.0 is expected in November 2026.</p>
                 </div>
                 <div class="footer-install">
-                    <p>Install with npm</p>
-                    <code>npm install @pmcelhaney/fdl</code>
+                    <p>Install with npm (publication pending)</p>
+                    <code>npm install @pmcelhaney/bizallele</code>
                 </div>
             </footer>
             ${
@@ -969,18 +969,14 @@ export class FdlModifierExplorer extends LitElement {
             border-bottom: 1px solid #e2e8f0;
         }
         .brand {
-            font-size: 46px;
-            font-weight: 800;
-            letter-spacing: -6px;
-            text-decoration: none;
-            line-height: 1.2;
+            display: inline-flex;
+            flex-shrink: 0;
         }
-        .brand span:first-child {
-            color: var(--accent);
-        }
-        .brand-dot {
-            color: #2563eb;
-            letter-spacing: 0;
+        .brand img {
+            display: block;
+            width: 132px;
+            height: 88px;
+            object-fit: contain;
         }
         .mast-label {
             font-size: 0.875rem;
@@ -1465,6 +1461,13 @@ export class FdlModifierExplorer extends LitElement {
         }
         .reference-content {
             overflow-wrap: anywhere;
+        }
+        .reference-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        .reference-content img[alt="Bizallele logo"] {
+            width: 240px;
         }
         .reference-content pre {
             overflow-x: auto;

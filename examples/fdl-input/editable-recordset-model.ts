@@ -1,4 +1,4 @@
-import { field, Recordset, Record } from '@pmcelhaney/fdl';
+import { field, Recordset, Record } from '@pmcelhaney/bizallele';
 
 export const shipmentFields = {
     id: field.label('Shipment').readOnly().sortable(false),

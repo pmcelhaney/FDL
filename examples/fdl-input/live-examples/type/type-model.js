@@ -1,4 +1,4 @@
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 import { inputTypeInitialValue } from '../../input-type-example';
 export function inputTypeField(type) {
     const definition = field.label(`Example: ${type}`).type(type);

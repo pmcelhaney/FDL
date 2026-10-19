@@ -37,7 +37,7 @@ export const sitePages = [
 ] as const;
 export type SitePage = (typeof sitePages)[number]['id'];
 
-const definition = `import { field, Record } from '@pmcelhaney/fdl';
+const definition = `import { field, Record } from '@pmcelhaney/bizallele';
 
 const fields = {
     name: field.label('Name').required(),
@@ -113,7 +113,7 @@ export function renderSitePage(
             <h1 tabindex="-1">Finally, a design system for business rules</h1>
             <p class="description"
                 >Define how your data behaves—what’s valid, what’s required, how
-                values are formatted, and what depends on what. FDL brings those
+                values are formatted, and what depends on what. Bizallele brings those
                 rules into a shared model for JavaScript and TypeScript. Use
                 the same rules across forms, tables, and other interfaces—even
                 as your UI changes—and reuse them for
@@ -122,14 +122,14 @@ export function renderSitePage(
                 >.</p
             >
             <p
-                >Already have a data schema? FDL can read existing
+                >Already have a data schema? Bizallele can read existing
                 <a href="#reference/docs/prisma">Prisma schemas</a> and
                 <a href="#reference/docs/openapi">OpenAPI specifications</a>
                 to create field definitions, which you can extend with your
                 application’s rules.</p
             >
             <p
-                >FDL works with any framework. Plug it into your existing design
+                >Bizallele works with any framework. Plug it into your existing design
                 system or start with the built-in example components.
                 Accessibility is baked into those components, with labelled
                 controls, keyboard interaction, and validation messages connected
@@ -147,7 +147,7 @@ export function renderSitePage(
             <p
                 >Without a shared model, that same rule can end up in a form’s
                 input handlers, a separate validation function, and a table’s
-                editing logic. FDL keeps the rule in the field definition. A
+                editing logic. Bizallele keeps the rule in the field definition. A
                 form, a table, and a validation check can all use it, so
                 changing the rule does not mean finding and updating several
                 copies. You can also test it without rendering a screen.</p
@@ -160,7 +160,7 @@ export function renderSitePage(
                 validation feedback visible to the person using the form.</p
             >
             <p
-                >Your UI components read FDL’s field behavior and record state
+                >Your UI components read Bizallele’s field behavior and record state
                 to render controls and display validation messages. The
                 application chooses the layout and workflow, and CSS controls
                 the appearance. You can reuse the same model across different
@@ -298,7 +298,7 @@ export function renderSitePage(
                 class="code markup"
             ><code>${highlightMarkup('<fdl-field .record=${person} field="name"></fdl-field>')}</code></pre></fdl-code-snippet>
             <p
-                >The component is the integration layer. FDL does not choose
+                >The component is the integration layer. Bizallele does not choose
                 your page layout or visual theme. Other adapters can interpret
                 the model for different interfaces.
                 <a href="#integration">Integrate an existing component system</a
@@ -330,7 +330,7 @@ export function renderSitePage(
             >
             <h2>Who owns what?</h2>
             <dl class="concepts"
-                ><dt>FDL</dt
+                ><dt>Bizallele</dt
                 ><dd
                     >Reusable parsing, formatting, validation, dependencies, and
                     field state.</dd
@@ -351,7 +351,7 @@ export function renderSitePage(
         <h2>Get the repository</h2>
         <p
             >Start with the
-            <a href="https://github.com/pmcelhaney/FDL">FDL repository</a> and
+            <a href="https://github.com/pmcelhaney/FDL">Bizallele repository</a> and
             its
             <a href="#reference/AGENTS"
                 >contributor guide</a

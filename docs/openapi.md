@@ -1,15 +1,15 @@
-# OpenAPI schemas to FDL fields
+# OpenAPI schemas to Bizallele fields
 
 `fieldsFromOpenAPI()` translates selected properties of an OpenAPI component
-schema into ordinary, immutable FDL field definitions. It accepts YAML, JSON
+schema into ordinary, immutable Bizallele field definitions. It accepts YAML, JSON
 text, or an already parsed document. No API calls, file reads, or code generation
 are needed.
 
 ## Quickstart
 
 ```javascript
-import { Record } from '@pmcelhaney/fdl';
-import { fieldsFromOpenAPI } from '@pmcelhaney/fdl/openapi';
+import { Record } from '@pmcelhaney/bizallele';
+import { fieldsFromOpenAPI } from '@pmcelhaney/bizallele/openapi';
 
 const document = `
 openapi: 3.1.0
@@ -74,7 +74,7 @@ fieldsFromOpenAPI(source: string | object, selection: OpenAPIFieldSelection)
 
 The function remains synchronous. It compiles the schema once when creating the
 field map and uses it for subsequent validation. It never fetches URLs or reads
-files. The main FDL entry point does not load the adapter or its schema engine.
+files. The main Bizallele entry point does not load the adapter or its schema engine.
 
 The adapter supports OpenAPI 3.0, 3.1, and 3.2 schema documents. OpenAPI 3.1/3.2
 use JSON Schema draft 2020-12 semantics. The standard OpenAPI dialect and explicit
@@ -82,13 +82,13 @@ use JSON Schema draft 2020-12 semantics. The standard OpenAPI dialect and explic
 
 ## Structured values
 
-An object or array is one FDL field value. Its nested structure is preserved,
+An object or array is one Bizallele field value. Its nested structure is preserved,
 and its complete contents are validated. The adapter does not flatten nested
 properties into dotted field names or automatically build nested controls.
 
 ```javascript
-import { Record } from '@pmcelhaney/fdl';
-import { fieldsFromOpenAPI } from '@pmcelhaney/fdl/openapi';
+import { Record } from '@pmcelhaney/bizallele';
+import { fieldsFromOpenAPI } from '@pmcelhaney/bizallele/openapi';
 
 const document = {
     openapi: '3.1.0',
@@ -129,9 +129,9 @@ order.isValid(); // true
 order.isValid('items', [{ sku: 'COFFEE', quantity: 0 }]); // false
 ```
 
-Use an application component to edit a structured field. Returning an FDL
+Use an application component to edit a structured field. Returning a Bizallele
 definition does not prescribe a control for an object, array, or union. Scalar
-string, number, and boolean definitions still use the corresponding FDL
+string, number, and boolean definitions still use the corresponding Bizallele
 primitives when their type is unambiguous. A direct scalar enum supplies options;
 object-valued enums and ambiguous composition do not invent selectable choices.
 
@@ -183,12 +183,12 @@ are returned; it does not delete constraints from the source schema.
 
 Supply an own property for every selected field in the `Record` values object,
 using `undefined` for absent optional values. The adapter omits these top-level
-undefined values from the schema-validation candidate. FDL's whole-record
+undefined values from the schema-validation candidate. Bizallele's whole-record
 validation iterates supplied value keys; an entirely empty values object does
 not trigger field validators. This adapter does not change `Record` construction
 or provide a separate request-object validator.
 
-`required` means presence, not nonempty input. The adapter does not add FDL's
+`required` means presence, not nonempty input. The adapter does not add Bizallele's
 `.required()` modifier automatically. Use `minLength: 1` or specialize the
 definition with `.required()` when the application requires nonempty input.
 
@@ -225,7 +225,7 @@ API strings; enabling format validation does not convert them to `Date` objects.
 
 `title` supplies a label. Descriptions, examples, defaults, deprecation markers,
 `readOnly`, `writeOnly`, XML metadata, and extensions do not impose application
-workflow or mutate values. Defaults are not applied; `clear()` retains FDL's
+workflow or mutate values. Defaults are not applied; `clear()` retains Bizallele's
 empty-string fallback and `reset()` restores initial values.
 
 The adapter validates nested values; applications still own accessible editing

@@ -1,7 +1,7 @@
-import '@pmcelhaney/fdl/lit/fdl-record';
+import '@pmcelhaney/bizallele/lit/fdl-record';
 import { compositionView } from './composition-view';
 import './fdl-code-snippet';
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 import './fdl-prediction';
 import { learningContinuation } from './learning-continuation';
 import { LitElement, css, html } from 'lit';
@@ -18,7 +18,7 @@ import {
     defaultCompositionRules,
     type CompositionRules,
 } from './composition-model';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 export class FdlCompositionExperiment extends LitElement {
     private continuation = learningContinuation(window.location.hash);
@@ -345,7 +345,7 @@ export class FdlCompositionExperiment extends LitElement {
             <section aria-label="Compare all outcomes"
                 ><h3>2. Compare the possibilities</h3
                 ><p
-                    >Each cell runs a real FDL record with the rules above.
+                    >Each cell runs a real Bizallele record with the rules above.
                     Select a cell to inspect its exact example. When you edit
                     the form, the grid highlights the matching kind of case.</p
                 >${this.outcomes()}</section

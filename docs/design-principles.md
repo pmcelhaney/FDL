@@ -1,6 +1,6 @@
-# FDL design principles
+# Bizallele design principles
 
-FDL is a library for describing fields, records, and recordsets independently
+Bizallele is a library for describing fields, records, and recordsets independently
 of the components that render them. A field definition should capture reusable
 meaning and behavior so forms, tables, printed output, filters, tests, and other
 consumers can interpret the same definition consistently.
@@ -17,7 +17,7 @@ through an explicit contract.
 
 | Layer                  | Owns                                                                            | Does not own                                                          |
 | ---------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Business model and FDL | Validation, dependencies, parsing, formatting, comparison, and field state      | DOM structure, component selection, layout, color, and typography     |
+| Business model and Bizallele | Validation, dependencies, parsing, formatting, comparison, and field state      | DOM structure, component selection, layout, color, and typography     |
 | Component semantics    | Elements, roles, labels, accessible state, focus, keyboard behavior, and events | Business policy, themes, spacing, color, and typography               |
 | Visual presentation    | Layout, color, typography, density, decoration, and animation                   | Meaning, validation rules, accessible state, and interaction behavior |
 
@@ -35,13 +35,13 @@ For field editing, the component boundary is one field component rather than
 one custom element per native control. A consumer renders `<fdl-field>` for a
 field, and that component creates the appropriate native control from the
 field's metadata. Input, select, and textarea are semantic implementation
-choices inside the field component; they are not separate FDL component APIs.
+choices inside the field component; they are not separate Bizallele component APIs.
 This decision is recorded in
 [ADR-0002](./adr/0002-use-one-field-custom-element.md).
 
 Orthogonal does not mean isolated. The layers cooperate through contracts:
 
-- FDL exposes reusable field behavior and state;
+- Bizallele exposes reusable field behavior and state;
 - components translate that state into accessible structure and interaction;
 - components expose semantic parts, states, attributes, and design tokens for
   styling;
@@ -72,19 +72,19 @@ sources of meaning or behavior.
 
 ### Example: a required field
 
-- FDL determines whether the field is required for the current record.
+- Bizallele determines whether the field is required for the current record.
 - The component expresses requiredness with the appropriate native attribute,
   label, and accessible state.
 - CSS decides whether the indication is red, bold, inline, icon-based, or
   otherwise styled.
 
 The component must not decide requiredness because it displays an asterisk.
-CSS must not be the only place requiredness is communicated. FDL must not
+CSS must not be the only place requiredness is communicated. Bizallele must not
 prescribe a red asterisk.
 
 ### Example: choosing among values
 
-FDL provides the options, value identity, and selection rules. A component
+Bizallele provides the options, value identity, and selection rules. A component
 chooses an appropriate semantic interaction such as a select, radio group,
 autocomplete, or command palette. The visual system controls its appearance.
 Changing between those interactions should not require moving option rules or
@@ -126,7 +126,7 @@ A form and a table may interpret a modifier differently, but its intent should
 survive that change of consumer.
 
 Presentation modifiers are acceptable when they express a stable concept in
-FDL's vocabulary. `textAlign('right')` expresses intent that HTML, a PDF
+Bizallele's vocabulary. `textAlign('right')` expresses intent that HTML, a PDF
 renderer, and a spreadsheet exporter could all honor. Choosing a custom-element
 tag or setting one component's private property does not.
 
@@ -144,8 +144,8 @@ replacement rule should be clear and tested.
 ### Enforced by the model when it is model behavior
 
 If a modifier claims that a value is invalid, constrained, or transformed, the
-FDL model must enforce that claim. Merely copying a browser attribute does not
-make it an FDL validation rule. `Record#isValid()` and a rendered control should
+Bizallele model must enforce that claim. Merely copying a browser attribute does not
+make it a Bizallele validation rule. `Record#isValid()` and a rendered control should
 not disagree about the same declared rule.
 
 ### Open to application behavior
@@ -153,7 +153,7 @@ not disagree about the same declared rule.
 Prefer callbacks and small, typed configuration objects that let applications
 extend behavior without adding a modifier for every special case. This keeps
 the vocabulary compact and follows the open-closed principle: new rules can be
-defined without changing FDL itself.
+defined without changing Bizallele itself.
 
 ### Observable and testable without a production UI
 
@@ -172,7 +172,7 @@ A modifier should not be:
 - a component lifecycle hook or event-handler shortcut;
 - a compatibility flag for one design-system control;
 - a workaround for inconsistent property names in downstream components;
-- a browser constraint that is not also represented in FDL validation;
+- a browser constraint that is not also represented in Bizallele validation;
 - imperative orchestration that mutates other fields after a UI event.
 
 Those concerns may be necessary, but they belong at a different boundary.
@@ -205,7 +205,7 @@ Before adding a public modifier, answer these questions:
 
 If the proposal fails the renderer-independence test, add it to the renderer or
 integration layer. If it is a one-off application rule, supply a callback to an
-existing modifier. Add a new modifier only when it expands FDL's reusable field
+existing modifier. Add a new modifier only when it expands Bizallele's reusable field
 language.
 
 ## Implementation requirements
@@ -225,6 +225,6 @@ When a new modifier is justified:
 - update public documentation, declarations, and examples together.
 
 The goal is not to maximize the number of modifiers. It is to maintain a small,
-coherent language in which FDL defines reusable domain behavior, components
+coherent language in which Bizallele defines reusable domain behavior, components
 translate that behavior into accessible interaction, and CSS supplies an
 interchangeable visual expression.

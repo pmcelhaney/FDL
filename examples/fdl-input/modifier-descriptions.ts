@@ -32,8 +32,8 @@ export const modifierDescriptions: Readonly<Record<string, string>> = {
     parser: 'Converts input into the value stored in the record.',
     placeholder:
         'Supplies a fixed or record-dependent hint for an empty control.',
-    record: 'Defines a structured value whose child fields are ordinary FDL fields.',
-    recordset: 'Defines a repeated structured value whose rows use ordinary FDL fields.',
+    record: 'Defines a structured value whose child fields are ordinary Bizallele fields.',
+    recordset: 'Defines a repeated structured value whose rows use ordinary Bizallele fields.',
     readOnly:
         'Determines whether a field is read-only, optionally based on the record.',
     reducer: 'Combines field values across records into an aggregate result.',

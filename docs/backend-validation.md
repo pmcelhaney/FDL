@@ -1,8 +1,8 @@
-# Backend validation with FDL
+# Backend validation with Bizallele
 
-FDL field definitions can validate API requests, imports, and background jobs
+Bizallele field definitions can validate API requests, imports, and background jobs
 without rendering a form. Share domain rules between the browser and server,
-then validate again on the server before saving. Import from `@pmcelhaney/fdl`;
+then validate again on the server before saving. Import from `@pmcelhaney/bizallele`;
 no Lit elements or browser controls are needed for this flow.
 
 ## Define reusable rules
@@ -12,7 +12,7 @@ the US. The custom validators also check runtime types: the `string` and
 `number` primitives do not by themselves enforce JSON types or coerce input.
 
 ```js
-import { Record, string } from '@pmcelhaney/fdl';
+import { Record, string } from '@pmcelhaney/bizallele';
 
 export const accountFields = {
     country: string.required().validator({
@@ -106,7 +106,7 @@ object, so omitted declared fields are skipped and unknown keys have no matching
 definition. A fresh allowlisted object also keeps request-owned objects separate
 from the mutable record values.
 
-FDL error objects include the owning record and raw values. Project only the
+Bizallele error objects include the owning record and raw values. Project only the
 fields your API intends to expose, as above; do not serialize the full errors.
 Choose stable application error codes if clients need machine-readable contracts;
 validator names are messages, not a built-in code system.
@@ -115,7 +115,7 @@ validator names are messages, not a built-in code system.
 
 By the time values reach backend domain validation, they should already be in
 their model types. The backend validates those values directly; it does not run
-FDL parsers or repeat the UI's text-to-model conversion. A value with the wrong
+Bizallele parsers or repeat the UI's text-to-model conversion. A value with the wrong
 runtime type is a validation failure rather than an invitation to coerce it.
 
 The `Record` constructor stores supplied values directly, which suits this
@@ -133,7 +133,7 @@ invalid. A thrown error or rejected promise propagates to the caller; handle
 service failures separately from a negative validation result.
 
 ```js
-import { Record, string } from '@pmcelhaney/fdl';
+import { Record, string } from '@pmcelhaney/bizallele';
 
 export async function validateUsername(username, isAvailable) {
     const fields = {
@@ -160,7 +160,7 @@ adapter expects synchronous validators. For details, see
 
 A username availability check can race with another request. Enforce uniqueness
 in the database as well, and translate a constraint failure into your API's
-response. FDL does not provide transactions or reserve a value after validation.
+response. Bizallele does not provide transactions or reserve a value after validation.
 
 ## Options and server authority
 
@@ -178,7 +178,7 @@ Disabled, read-only, and visibility settings do not authorize requests or preven
 programmatic assignments. Derive protected values from authenticated server
 context and allowlist editable inputs. Your application also owns authentication,
 request size limits, nested payload shape checks, database constraints, and
-persistence. Use FDL for reusable domain validation within those boundaries.
+persistence. Use Bizallele for reusable domain validation within those boundaries.
 
 ## Share and test the same definitions
 

@@ -1,8 +1,8 @@
 import { filterView as renderExample } from './filter-view.js';
 import { ExampleModel } from './filter-example-state.js';
 import { html } from 'lit';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 import '../../fdl-recordset-inspector';
 export class ExampleView extends ExampleModel {
     createRenderRoot() {

@@ -1,5 +1,5 @@
-import '@pmcelhaney/fdl/lit/fdl-record';
-import { field, Record } from '@pmcelhaney/fdl';
+import '@pmcelhaney/bizallele/lit/fdl-record';
+import { field, Record } from '@pmcelhaney/bizallele';
 import { LitElement, css, html } from 'lit';
 import {
     addressCases,
@@ -9,7 +9,7 @@ import {
     type CompositionRules,
 } from './composition-model';
 import { exampleTheme } from './example-theme';
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 const choice = (label: string, options: { text: string; value: string }[]) =>
     field.label(label).options(options);
@@ -105,7 +105,7 @@ export class FdlPrediction extends LitElement {
         );
         return html`<p
                 >Use the current rules above. Choose a case and predict each
-                result, then ask the FDL model to check it. This is optional
+                result, then ask the Bizallele model to check it. This is optional
                 practice; the comparison remains available.</p
             >
             <div class="choices"

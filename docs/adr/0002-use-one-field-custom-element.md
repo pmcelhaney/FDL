@@ -10,7 +10,7 @@ Accepted
 
 ## Decision
 
-**Expose one `<fdl-field>` custom element for editing any FDL field. The
+**Expose one `<fdl-field>` custom element for editing any Bizallele field. The
 component chooses and creates the appropriate native control from the field's
 metadata; consumers do not choose a field-specific custom element.**
 
@@ -49,7 +49,7 @@ from supporting richer interactions when their semantics require them.
 ## Applicable principles
 
 - **Keep business rules, UI semantics, and visual presentation orthogonal.**
-  FDL provides field behavior and state; the component selects accessible
+  Bizallele provides field behavior and state; the component selects accessible
   structure; CSS supplies appearance.
 - **Keep dependency flow moving forward.** A consumer should provide a field
   and record, not inspect model metadata and reproduce renderer branching.
@@ -137,5 +137,5 @@ Cons:
 
 ## References
 
-- [FDL design principles](../design-principles.md)
+- [Bizallele design principles](../design-principles.md)
 - [FormElement documentation](../form-element.md)

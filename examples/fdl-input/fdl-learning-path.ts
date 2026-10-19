@@ -5,7 +5,7 @@ import {
 } from './learning-model';
 import { learningView, learningTableView } from './learning-view';
 import './fdl-code-snippet';
-import { field, Record, Recordset } from '@pmcelhaney/fdl';
+import { field, Record, Recordset } from '@pmcelhaney/bizallele';
 import './fdl-transfer-challenge';
 import { compositionLink } from './learning-continuation';
 import { exampleTheme } from './example-theme';
@@ -13,8 +13,8 @@ import { LitElement, css, html } from 'lit';
 import { keyed } from 'lit/directives/keyed.js';
 import { recordSummary } from './model-summary';
 import { highlightJavaScript } from './highlight-javascript';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 import './fdl-recordset-inspector';
 
 const lessons = [

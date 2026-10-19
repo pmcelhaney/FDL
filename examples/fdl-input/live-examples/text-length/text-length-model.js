@@ -1,4 +1,4 @@
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 export function codeType(minimum = 4, maximum = 12) {
     return field.label('Access code').minLength(minimum).maxLength(maximum);
 }

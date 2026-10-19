@@ -1,6 +1,6 @@
-# Binding components to FDL
+# Binding components to Bizallele
 
-This page assumes that you have used FDL to define fields and work with
+This page assumes that you have used Bizallele to define fields and work with
 `Record` or `Recordset`, but have not yet built a component that binds to that
 model. It is a guide to the public surfaces your component consumes and the
 direction of data flow across the model/UI boundary.
@@ -12,7 +12,7 @@ Record or Recordset -> component state -> accessible UI
 Record or Recordset <- parsed user input
 ```
 
-FDL owns field meaning and model state. Your component owns semantic HTML,
+Bizallele owns field meaning and model state. Your component owns semantic HTML,
 accessible relationships, interaction policy, focus, events, layout, and visual
 styling. Start by learning the public objects involved in that boundary:
 
@@ -393,7 +393,7 @@ that model error.
 
 ## Validation and error display
 
-FDL determines validity. The application or adapter decides when validation
+Bizallele determines validity. The application or adapter decides when validation
 becomes visible—for example, after blur, after a field is touched, or after a
 submit attempt.
 
@@ -418,7 +418,7 @@ server-error display in the application-specific adapter.
 
 Read rows from `recordset.currentPage` and subscribe to the recordset's update
 events. The table owns loading, sorting, filtering, pagination, and empty-state
-presentation; FDL owns the values and field behavior.
+presentation; Bizallele owns the values and field behavior.
 
 ```js
 const column = recordset.column(columnName);
@@ -434,7 +434,7 @@ For example, a table component can construct a recordset, load its first page,
 and render each row through the field facade:
 
 ```js
-import { field, Recordset } from '@pmcelhaney/fdl';
+import { field, Recordset } from '@pmcelhaney/bizallele';
 
 const people = new Recordset({ name: field.label('Name'), city: field.label('City') }, [
     { name: 'Zulu', city: 'Oslo' },
@@ -463,7 +463,7 @@ to individual cells automatically.
 
 ## Keep the boundary intact
 
-FDL owns:
+Bizallele owns:
 
 - stored values, parsing, formatting, and templates;
 - validation, emptiness, requiredness, visibility, disabled, and read-only state;
@@ -480,4 +480,4 @@ The component or adapter owns:
 If a proposed component feature adds a business rule, put the rule in the field
 definition or record. If it chooses markup, interaction, or appearance, keep it
 in the component or adapter. This separation lets multiple consumers interpret
-the same FDL model without coupling the model to one UI framework.
+the same Bizallele model without coupling the model to one UI framework.

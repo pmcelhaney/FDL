@@ -9,11 +9,11 @@ name, date, new-customer status, and comments, with these rules:
 - Comments are required for new customers.
 
 Putting these rules directly in a template or scattering them through event
-handlers makes them difficult to reuse and maintain. With FDL, define the
+handlers makes them difficult to reuse and maintain. With Bizallele, define the
 rules alongside each field type; the view only decides where to render fields.
 
 ```js
-import { string, boolean, date, Record } from '@pmcelhaney/fdl';
+import { string, boolean, date, Record } from '@pmcelhaney/bizallele';
 
 const existingCustomers = ['Ada', 'Grace'];
 const holidays = [new Date(2026, 11, 25).toDateString()];

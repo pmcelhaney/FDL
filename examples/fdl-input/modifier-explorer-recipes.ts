@@ -174,11 +174,11 @@ const details: { [name: string]: Detail } = {
         'Validation',
         '(length)',
         'Validate the maximum value length.',
-        'The input caps typing at 12 characters. Assign an overlong model value to see FDL reject it too.',
+        'The input caps typing at 12 characters. Assign an overlong model value to see Bizallele reject it too.',
         [
             'The field declares a maximum length of 12.',
             'The component exposes the native input constraint.',
-            'FDL also validates length for values assigned through the model.',
+            'Bizallele also validates length for values assigned through the model.',
         ],
         'The model-assignment button deliberately bypasses the native input cap. The record still reports an error, so imported and programmatic values follow the same rule as typed values.',
         'Short codes and externally constrained identifiers.',
@@ -414,7 +414,7 @@ const details: { [name: string]: Detail } = {
             'The table reads the left, center, or right value.',
             'The table applies that alignment to both column headings and cells.',
         ],
-        'FDL does not automatically right-align numbers. Examples with amounts, counts, totals, or percentages should declare right alignment explicitly.',
+        'Bizallele does not automatically right-align numbers. Examples with amounts, counts, totals, or percentages should declare right alignment explicitly.',
         'Consistent alignment across table consumers and exports.',
     ],
     type: [
@@ -427,7 +427,7 @@ const details: { [name: string]: Detail } = {
             'The component creates the corresponding native input control.',
             'Value controls update the record; checkbox and radio inputs store Booleans.',
         ],
-        'Browser appearance and support vary. Native input types do not add FDL validation rules; declare business validation separately. Hidden inputs have no visible control, and buttons perform actions rather than edit values. File selection is local to your browser and is not uploaded.',
+        'Browser appearance and support vary. Native input types do not add Bizallele validation rules; declare business validation separately. Hidden inputs have no visible control, and buttons perform actions rather than edit values. File selection is local to your browser and is not uploaded.',
         'Text, dates, numbers, choices, and other native input modes.',
     ],
     validator: [
@@ -438,7 +438,7 @@ const details: { [name: string]: Detail } = {
         [
             'The email rule checks a simple address shape.',
             'Quantity rules check an integer and a range; username rules check its first character and allowed characters.',
-            'Validators accumulate. Each field must pass all its rules, and FDL supplies the corresponding error messages.',
+            'Validators accumulate. Each field must pass all its rules, and Bizallele supplies the corresponding error messages.',
         ],
         'The email checker is deliberately simple: it checks for non-whitespace text around @ and a dot in the domain. It does not cover every valid email format or verify that an address exists. These synchronous rules run in the model, independently of browser validation.',
         'Email format checks, order limits, and application-specific rules.',

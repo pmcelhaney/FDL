@@ -1,11 +1,11 @@
-# FDL contributor guide
+# Bizallele contributor guide
 
 ## Repository purpose
 
-FDL (pronounced "fiddle") is a JavaScript/TypeScript library for modeling
+Bizallele is a JavaScript/TypeScript library for modeling
 complex forms and tables. It defines field types, validation, dependencies,
 records, and recordsets declaratively so UI components can concentrate on
-rendering. The npm package is `@pmcelhaney/fdl`.
+rendering. The npm package is `@pmcelhaney/bizallele`.
 
 ## Layout
 
@@ -46,7 +46,7 @@ rendering. The npm package is `@pmcelhaney/fdl`.
 - Read [the design principles](docs/design-principles.md) before changing
   modifiers, components, or presentation behavior.
 - Keep business rules, UI semantics, and visual presentation orthogonal:
-  FDL owns reusable field and record behavior, components own accessible
+  Bizallele owns reusable field and record behavior, components own accessible
   structure and interaction, and CSS owns visual expression.
 - Modifiers should describe renderer-independent field behavior or stable
   cross-consumer presentation intent. Do not add DOM-specific properties,

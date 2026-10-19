@@ -1,5 +1,5 @@
 import type { FdlExample } from '../examples/fdl-input/fdl-example';
-import type { FdlField } from '@pmcelhaney/fdl/lit/fdl-field';
+import type { FdlField } from '@pmcelhaney/bizallele/lit/fdl-field';
 import FieldTypeBuilder from '../src/field-type-builder';
 import { inputTypes } from '../src/types/input-types.types';
 import { modifierPage, modifierPageGroups } from '../examples/fdl-input/modifier-page-groups';
@@ -124,7 +124,7 @@ describe('modifier explorer', () => {
         expect(root.querySelector<HTMLButtonElement>('.next')!.disabled).toBe(true);
     });
 
-    it('validates the actual FDL record and resets the demonstration', async () => {
+    it('validates the actual Bizallele record and resets the demonstration', async () => {
         const page = await openPage();
         const root = page.shadowRoot!;
         root.querySelector<HTMLButtonElement>('.primary')!.click();
@@ -400,7 +400,7 @@ describe('complete explorer', () => {
 });
 
 describe('extended model exercises', () => {
-    it('recomputes an aggregate when its FDL-backed input changes', async () => {
+    it('recomputes an aggregate when its Bizallele-backed input changes', async () => {
         const page = await openPage('#reducer');
         const catalog = page.shadowRoot!.querySelector(
             'fdl-modifier-catalog'
@@ -533,7 +533,7 @@ describe('category navigation filters', () => {
     });
 });
 
-describe('FDL site pages', () => {
+describe('Bizallele site pages', () => {
     it('opens Home by default and separates site pages from the modifier reference', async () => {
         const page = await openPage('');
         const root = page.shadowRoot!;
@@ -569,7 +569,7 @@ describe('FDL site pages', () => {
         expect(root.querySelector('h1')!.textContent).toBe(
             'Finally, a design system for business rules'
         );
-        expect(document.title).toBe('Home — FDL');
+        expect(document.title).toBe('Home — Bizallele');
     });
 });
 
@@ -800,7 +800,7 @@ it('previews every declared input type and keeps the source and record panel in 
 it('lists every category and modifier once with purposes and linked relationships', async () => {
     const page = await openPage('#categories');
     const root = page.shadowRoot!;
-    expect(document.title).toBe('Modifier categories — FDL');
+    expect(document.title).toBe('Modifier categories — Bizallele');
     expect(
         root.querySelector('.site-nav a[href="#categories"]')!.getAttribute('aria-current')
     ).toBe('page');

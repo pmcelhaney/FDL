@@ -3,9 +3,9 @@ import { html } from 'lit';
 import { highlightJavaScript } from './highlight-javascript';
 
 export const firstFormSource = `import { html, render } from 'lit';
-import { field, Record } from '@pmcelhaney/fdl';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-record';
+import { field, Record } from '@pmcelhaney/bizallele';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-record';
 
 const account = new Record(
     {
@@ -70,20 +70,20 @@ export function renderQuickstart() {
         >
         <h2>Create a local application</h2>
         <p
-            >Create a new application and install the published npm package. Lit
+            >Publication as <code>@pmcelhaney/bizallele</code> is pending. Once it is published, create a new application and install the package. Lit
             supplies the components; Vite runs the application locally.</p
         >
         <fdl-code-snippet>
-            <pre class="code"><code>mkdir fdl-first-form
-cd fdl-first-form
+            <pre class="code"><code>mkdir bizallele-first-form
+cd bizallele-first-form
 npm init -y
-npm install @pmcelhaney/fdl lit
+npm install @pmcelhaney/bizallele lit
 npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
         </fdl-code-snippet>
         <p
             >No repository checkout or package build is needed. The npm package
             includes compiled JavaScript, TypeScript declarations, and the
-            <code>@pmcelhaney/fdl/lit/fdl-field</code> adapter used below.</p
+            <code>@pmcelhaney/bizallele/lit/fdl-field</code> adapter used below.</p
         >
         <p
             >Create an <code>index.html</code> with the following body and save
@@ -132,8 +132,8 @@ npm install --save-dev vite@5.4.21 typescript@4.6.4</code></pre>
         <p
             >The model and view files on modifier pages run inside this
             repository’s example environment. Their model imports use
-            <code>@pmcelhaney/fdl</code>, and their field and table imports use
-            <code>@pmcelhaney/fdl/lit/</code>. The source tabs display the exact
+            <code>@pmcelhaney/bizallele</code>, and their field and table imports use
+            <code>@pmcelhaney/bizallele/lit/</code>. The source tabs display the exact
             files that run the live examples. Copy the model, view, and any
             local sample-data or style files into your app; the Lit elements
             ship with the package. Run <code>npm install</code> and

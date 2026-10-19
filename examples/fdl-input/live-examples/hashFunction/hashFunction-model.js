@@ -1,4 +1,4 @@
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 export function createHashType() {
     return field.hashFunction(employee => employee.id);
 }

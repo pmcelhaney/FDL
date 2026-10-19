@@ -11,9 +11,9 @@
 Import a module to register its custom element:
 
 ```ts
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-record';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-record';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 ```
 
 `fdl-field` binds a `Record` and field name to a labelled native control.
@@ -22,9 +22,9 @@ registers both `fdl-table` and its declarative `fdl-column` children.
 
 ```ts
 import { html } from 'lit';
-import { field, Record } from '@pmcelhaney/fdl';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-record';
+import { field, Record } from '@pmcelhaney/bizallele';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-record';
 
 const account = new Record({ name: field.label('Name').required() }, { name: '' });
 const view = html`<fdl-record .record=${account}>
@@ -55,15 +55,15 @@ Custom record consumers can extend `RecordElement`, which exposes the same
 reactive `record` property and inheritance lifecycle. Custom field controls
 already inherit that behavior through `FormElement`.
 
-Import `@pmcelhaney/fdl/lit` to register all packaged elements and access the
+Import `@pmcelhaney/bizallele/lit` to register all packaged elements and access the
 `FdlRecord`, `RecordElement`, `FdlField`, `FdlAddress`, `FdlTable`, `FdlColumn`,
 and `FormElement` classes.
 These modules require a browser DOM. Core model imports remain independent
 of Lit element registration.
 
 The components include default CSS. For a custom element with different styles,
-extend `FormElement` from `@pmcelhaney/fdl/lit/form-element` and register your
-own tag. The existing `@pmcelhaney/fdl/form-element` path remains available.
+extend `FormElement` from `@pmcelhaney/bizallele/lit/form-element` and register your
+own tag. The existing `@pmcelhaney/bizallele/form-element` path remains available.
 
 ## Table pagination
 
@@ -74,8 +74,8 @@ Rows per page selector. The controls use `Recordset.pageNumber`, `pageSize`, and
 No separate pagination configuration is needed on the element.
 
 ```ts
-import { field, Recordset } from '@pmcelhaney/fdl';
-import '@pmcelhaney/fdl/lit/fdl-table';
+import { field, Recordset } from '@pmcelhaney/bizallele';
+import '@pmcelhaney/bizallele/lit/fdl-table';
 
 const orders = new Recordset({ name: field.label('Name') }, orderRows);
 orders.setInitialPageSize(25);
@@ -102,7 +102,7 @@ property to a function receiving the actual row `Record` to return Lit content,
 such as an editor, selection button, or calculated value:
 
 ```ts
-import '@pmcelhaney/fdl/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-field';
 
 const view = html`<fdl-table .recordset=${orders}>
     <fdl-column
@@ -125,10 +125,10 @@ and detail editors, calculated charges, and validation messages.
 
 ## Custom field elements
 
-`FormElement` is the Lit base class for FDL field controls. Extend it when you
+`FormElement` is the Lit base class for Bizallele field controls. Extend it when you
 need a custom element that presents one field from a `Record`.
 
-The base class owns the FDL integration:
+The base class owns the Bizallele integration:
 
 - it requires a `field` name and a record supplied explicitly or by `fdl-record`;
 - it resolves the bound `Field` after the first update;
@@ -152,7 +152,7 @@ The complete ownership boundary is documented in the
 | ---------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `field`                | Yes                   | Names the field in `record` that this instance renders.                                                                                                                                                                                         |
 | `record`               | Inherited or explicit | Supplies the field definition, value, and model behavior.                                                                                                                                                                                       |
-| `showValidationErrors` | No                    | When `true`, exposes current synchronous FDL errors in the UI and accessibility tree. Defaults to `false`, using automatic blur/submit timing. Set `true` to reveal errors explicitly. The corresponding attribute is `show-validation-errors`. |
+| `showValidationErrors` | No                    | When `true`, exposes current synchronous Bizallele errors in the UI and accessibility tree. Defaults to `false`, using automatic blur/submit timing. Set `true` to reveal errors explicitly. The corresponding attribute is `show-validation-errors`. |
 
 ## A unified field component
 
@@ -163,7 +163,7 @@ field:
 
 ```ts
 import { css } from 'lit';
-import FormElement from '@pmcelhaney/fdl/lit/form-element';
+import FormElement from '@pmcelhaney/bizallele/lit/form-element';
 
 export class FdlField extends FormElement {
     static get styles() {
@@ -186,7 +186,7 @@ Always use that component as the outer form control and pass the field name.
 Supply its record explicitly or through an enclosing `fdl-record`. Fields with options render as native selects:
 
 ```ts
-import { field, Record } from '@pmcelhaney/fdl';
+import { field, Record } from '@pmcelhaney/bizallele';
 
 const contactMethod = field.label('Preferred contact method').options([
     { text: 'Choose a method', value: '' },
@@ -219,7 +219,7 @@ its label connected without pretending the value is editable.
 
 ## Choosing when to show validation
 
-FDL determines whether the current record value is valid. The Lit adapter waits
+Bizallele determines whether the current record value is valid. The Lit adapter waits
 until the field loses focus before showing its errors, then keeps them current
 as the user edits. An error disappears as soon as the value is valid.
 
@@ -248,7 +248,7 @@ preserving other descriptions. CSS styles these states; it does not determine
 validity.
 
 This behavior uses `record.field(name).readableErrors()`, so it covers
-synchronous FDL validators only. The adapter also constructs a `Field` facade,
+synchronous Bizallele validators only. The adapter also constructs a `Field` facade,
 which reads synchronous validity immediately. An async validator therefore throws even
 when `showValidationErrors` is false. Applications that use asynchronous
 validators must await the async Record APIs directly and render their result
@@ -300,5 +300,5 @@ still synchronize the displayed value.
 
 `multipleValues(min, max)` does not enforce selection-count bounds. Add a
 model validator when the stored array must contain a particular number of
-items. Native input types and browser attributes also do not add FDL validation
+items. Native input types and browser attributes also do not add Bizallele validation
 or parsers; configure those model rules explicitly.

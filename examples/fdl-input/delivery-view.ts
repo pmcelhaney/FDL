@@ -1,9 +1,9 @@
 import { css, html } from 'lit';
-import type { Record } from '@pmcelhaney/fdl';
+import type { Record } from '@pmcelhaney/bizallele';
 import { exampleTheme } from './example-theme';
 import { storesByZip } from './delivery-data';
-import '@pmcelhaney/fdl/lit/fdl-field';
-import '@pmcelhaney/fdl/lit/fdl-record';
+import '@pmcelhaney/bizallele/lit/fdl-field';
+import '@pmcelhaney/bizallele/lit/fdl-record';
 
 function deliverySummary(record: Record<any>) {
     if (record.getField('fulfillment') === 'pickup') {

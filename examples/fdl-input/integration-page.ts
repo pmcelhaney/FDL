@@ -39,7 +39,7 @@ export function renderIntegration() {
         </ol>
         <p>
             The Lit elements used on this site are example implementations of
-            this contract. You can build components in any framework using FDL’s
+            this contract. You can build components in any framework using Bizallele’s
             model APIs. Your components do not need to extend
             <code>FormElement</code> or use the example custom-element names;
             they need to honor the same model behavior and accessible
@@ -107,13 +107,13 @@ export function renderIntegration() {
         <p
             >Starting from a Prisma schema?
             <a href="#reference/docs/prisma"
-                >Translate Prisma fields into FDL definitions</a
+                >Translate Prisma fields into Bizallele definitions</a
             >, then add application behavior with ordinary modifiers.</p
         >
         <p
             >Starting from an API schema?
             <a href="#reference/docs/openapi"
-                >Translate OpenAPI properties into FDL definitions</a
+                >Translate OpenAPI properties into Bizallele definitions</a
             >, including nested values, arrays, composition, and sibling
             validation rules.</p
         >

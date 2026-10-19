@@ -22,7 +22,7 @@ export function renderEditableRecordset() {
         <fdl-code-snippet>
             <pre
                 class="code"
-            ><code>${highlightJavaScript(`import { field, Recordset } from '@pmcelhaney/fdl';
+            ><code>${highlightJavaScript(`import { field, Recordset } from '@pmcelhaney/bizallele';
 const shipmentFields = {
     id: field.label('Shipment').readOnly(),
     quantity: field
@@ -105,7 +105,7 @@ const visibleUnits = sumColumn.aggregate(
 );`)}</code></pre>
         </fdl-code-snippet>
         <p
-            >FDL supplies row state and view operations. The shared
+            >Bizallele supplies row state and view operations. The shared
             <code>fdl-table</code> owns table markup, column sizing, and
             pagination; <code>fdl-column</code> cell renderers supply selection
             buttons, <code>fdl-field</code> editors, calculated charges, and

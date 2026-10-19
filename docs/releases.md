@@ -1,6 +1,6 @@
 # Releases and versioning
 
-FDL uses Semantic Versioning for the `@pmcelhaney/fdl` package. This document
+Bizallele uses Semantic Versioning for the `@pmcelhaney/bizallele` package. This document
 defines the release discipline being established during the repository’s
 portfolio rehabilitation; it does not claim that automated publication is
 configured today.
@@ -54,7 +54,7 @@ separately when they cannot all be verified.
 
 ## Compatibility considerations
 
-FDL’s immutable builder API allows definitions to be specialized safely, but
+Bizallele’s immutable builder API allows definitions to be specialized safely, but
 modifier semantics can affect forms, tables, printed output, and adapters at
 once. Release review must therefore consider:
 
