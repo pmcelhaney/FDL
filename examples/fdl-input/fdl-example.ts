@@ -128,13 +128,15 @@ export class FdlExample extends LitElement {
                     (filename, index) =>
                         html`<div
                             id=${`example-panel-${index + 1}`}
-                            class="tab-panel"
+                            class="tab-panel source-panel"
                             role="tabpanel"
                             aria-labelledby=${`example-tab-${index + 1}`}
                             ?hidden=${(this.fullscreen ? this.selectedFile() : this.activeTab) !== filename}
                         >
                             <fdl-code-snippet><pre
                                 class="code"
+                                tabindex="0"
+                                aria-label=${`${filename} source code`}
                             ><code>${this.modifier && index === 0 ? highlightModifier(this.sources[filename] ?? '', this.modifier) : highlightSourceCode(this.sources[filename] ?? 'Source unavailable.')}</code></pre></fdl-code-snippet>
                         </div>`
                 )}
@@ -175,11 +177,52 @@ export class FdlExample extends LitElement {
         :host(:fullscreen) {
             margin: 0;
             padding: 16px;
-            overflow: auto;
+            overflow: hidden;
             background: #fff;
         }
         :host(:fullscreen) details {
-            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        :host(:fullscreen) summary {
+            flex-shrink: 0;
+        }
+        :host(:fullscreen) details::details-content {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+        :host(:fullscreen) .example-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+        }
+        :host(:fullscreen) .example-content > * {
+            flex-shrink: 0;
+        }
+        :host(:fullscreen) #example-panel-0 {
+            flex: 0 1 auto;
+            min-height: 80px;
+            max-height: 55dvh;
+            overflow: auto;
+        }
+        :host(:fullscreen) .source-panel {
+            flex: 1 1 0;
+            min-height: 0;
+            max-height: 45dvh;
+            overflow: hidden;
+        }
+        :host(:fullscreen) fdl-code-snippet,
+        :host(:fullscreen) .code {
+            height: 100%;
+            max-height: 100%;
+        }
+        .code:focus-visible {
+            outline: 3px solid #2563eb;
+            outline-offset: -3px;
         }
         * {
             box-sizing: border-box;
